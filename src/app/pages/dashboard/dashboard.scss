@@ -1,238 +1,325 @@
-/* Контейнер */
-.matrix-container {
-  padding: 30px;
-  background: radial-gradient(circle at top left, #1a1f26, #0b0e11);
-  min-height: 100vh;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: #eaecef; /* Основной цвет текста */
+/* 1. Переменные (единый стандарт) */
+$gold: #f0b90b;
+$dark-bg: #0b0e11;
+$panel-bg: #1e2329;
+$border: #474d57;
+$text: #eaecef;
+$green: #0ecb81;
+$red: #f6465d;
+
+/* 2. Базовые настройки вьюпорта */
+:host {
+  display: block;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 }
 
-/* Верхняя панель */
-.top-bar {
+.dashboard-viewport {
   display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: $dark-bg;
+  color: $text;
+}
+
+/* 3. Шапка */
+.main-header {
+  height: 60px;
+  background: $panel-bg;
+  border-bottom: 1px solid #2b3139;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0 20px;
+  flex-shrink: 0;
+
+  .logo-title {
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0;
+  }
+
+  .live-indicator {
+    color: $green;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .pulse {
+      width: 7px;
+      height: 7px;
+      background: $green;
+      border-radius: 50%;
+      box-shadow: 0 0 8px $green;
+    }
+  }
+
+  .coin-selector-box {
+    position: relative;
+    background: #2b3139;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 6px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 240px;
+    transition: border-color 0.2s;
+
+    &:hover {
+      border-color: $gold;
+    }
+
+    label {
+      font-size: 11px;
+      color: #848e9c;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .premium-select {
+      background: transparent;
+      color: $text;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+      appearance: none;
+      padding-right: 25px;
+      z-index: 2;
+
+      option {
+        background-color: $dark-bg;
+        color: $text;
+      }
+    }
+
+    .dropdown-icon {
+      position: absolute;
+      right: 10px;
+      color: $gold;
+      pointer-events: none;
+      font-size: 18px;
+    }
+  }
+
+  .logout-button {
+    background: rgba($red, 0.15);
+    border: 1px solid $red;
+    color: $red;
+    padding: 7px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    transition: 0.2s;
+
+    &:hover {
+      background: $red;
+      color: white;
+    }
+  }
 }
 
-.app-title {
-  font-size: 28px;
-  font-weight: 800;
-  color: #ffffff;
-  margin: 0;
-  letter-spacing: -0.5px;
-}
-
-.top-bar {
+/* Лента топ-возможностей */
+.top-opportunities {
+  height: 80px;
+  background: #161a1e;
+  border-bottom: 1px solid #2b3139;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 40px;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 30px;
-  border-radius: 0 0 16px 16px;
+  overflow: hidden; // Прячем лишнее, чтобы работала прокрутка
+  flex-shrink: 0;
+
+  .ribbon-tag {
+    background: $gold;
+    color: #000;
+    font-weight: 900;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    width: 120px;
+    z-index: 10; // Поверх ленты
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+  }
+
+  .ribbon-container {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+
+  .ribbon-track {
+    display: inline-flex;
+    width: max-content;
+    gap: 15px;
+    padding: 10px;
+    white-space: nowrap;
+    will-change: transform;
+    animation: scroll-left 20s linear infinite;
+  }
 }
 
-.logo-section {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.highlight {
-  color: #f0b90b;
-}
-
-/* Пульсирующая точка (Live статус) */
-.pulse-dot {
-  width: 8px;
-  height: 8px;
-  background: #0ecb81;
-  border-radius: 50%;
-  box-shadow: 0 0 0 rgba(14, 203, 129, 0.4);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(14, 203, 129, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(14, 203, 129, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(14, 203, 129, 0); }
-}
-
-/* Кнопка Выхода */
-.logout-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  border: 1px solid rgba(246, 70, 93, 0.3);
-  background: transparent;
-  color: #f6465d;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.logout-btn:hover {
-  background: rgba(246, 70, 93, 0.1);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(246, 70, 93, 0.2);
-}
-
-/* Кнопка Logout */
-.logout-btn {
-  background: rgba(246, 70, 93, 0.15); /* Мягкий красный фон */
-  border: 1px solid rgba(246, 70, 93, 0.3);
-  color: #f6465d; /* Яркий красный текст */
-  padding: 10px 20px;
+.opportunity-card {
+  background: #2b3139;
   border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 18x;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px; /* Расстояние между иконкой и текстом */
+  padding: 10px 15px;
+  min-width: 180px;
+  flex-shrink: 0; // Не даем карточкам сжиматься
+
+  .card-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .coin-name {
+    font-weight: bold;
+    color: $gold;
+  }
+
+  .profit-val {
+    color: $green;
+    font-weight: bold;
+  }
+
+  .card-path {
+    font-size: 13px;
+    color: #00a2ff;
+
+    .arr {
+      color: #fff;
+      padding: 0 4px;
+    }
+  }
 }
 
-.logout-btn:hover {
-  background: #f6465d;
-  color: white;
-  box-shadow: 0 0 15px rgba(246, 70, 93, 0.4);
+/* АНИМАЦИЯ: Справа на лево */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(100vw); // старт за правым краем экрана
+  }
+  100% {
+    transform: translateX(-100%); // уходит полностью влево
+  }
 }
 
-.logout-btn .material-icons {
-  font-size: 20px;
+/* 5. Матрица (Таблица) */
+.matrix-main {
+  flex: 1;
+  overflow: hidden;
+  padding: 10px;
 }
 
-/* --- Стили таблицы и ячеек остаются прежними --- */
+.matrix-scroll-wrapper {
+  height: 100%;
+  overflow: auto;
+  border: 1px solid #2b3139;
+  border-radius: 4px;
+}
 
 .arbitrage-table {
   width: 100%;
-  border-spacing: 12px 6px; /* Больше пространства между колонками */
-  border-collapse: separate;
-}
-
-.exchange-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 150px;
-  padding: 10px 15px !important;
-  background: rgba(255, 255, 255, 0.02) !important;
-  border-left: 4px solid #f0b90b; /* Золотистая полоска как на Binance */
-  border-radius: 8px 0 0 8px; /* Скругление только слева */
-}
-
-.ex-name {
-  font-weight: 700;
-  color: #ffffff;
-  font-size: 14px;
-}
-
-.ex-price {
-  font-family: 'Roboto Mono', monospace;
+  border-collapse: collapse;
   font-size: 12px;
-  color: #f0b90b; /* Цена выделена желтым/золотым */
-  margin-top: 4px;
+  table-layout: fixed;
+
+  th,
+  td {
+    padding: 6px 8px;
+    border: 1px solid #2a2f36;
+  }
+
+  th {
+    background: #1b1f24;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    background: #111418;
+  }
+
+  .sticky-exchange {
+    background: #1b1f24 !important;
+    border-right: 2px solid #0b0e11;
+
+    .name {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .price {
+      font-size: 12px;
+      color: $gold;
+    }
+  }
+
+  .cell-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+
+    .val {
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .usd-row {
+      font-size: 10px;
+      opacity: 0.55;
+    }
+  }
+
+  .arrow {
+    font-size: 9px;
+    margin-left: 3px;
+    opacity: 0.7;
+    display: inline-block;
+    transform: translateY(-1px);
+  }
+
+  .pos-cell .arrow {
+    color: $green;
+  }
+
+  .neg-cell .arrow {
+    color: $red;
+  }
+
+  .pos-cell {
+    background: rgba(0, 255, 0, 0.08) !important;
+    color: #0ecb81;
+  }
+
+  .neg-cell {
+    background: rgba(255, 0, 0, 0.08) !important;
+    color: #f6465d;
+  }
+
+  .zero-cell {
+    opacity: 0.2;
+  }
+
+  .high-profit {
+    background: rgba($green, 0.25) !important;
+    color: #fff !important;
+    font-weight: bold;
+
+    .usd-row {
+      opacity: 1;
+      color: $green;
+    }
+  }
 }
 
-td:not(.exchange-info) {
-  text-align: center;
-  padding: 15px;
-  border-radius: 8px; /* Скругление для остальных ячеек */
-  font-weight: 600;
-  font-family: 'Roboto Mono', monospace;
-  font-size: 15px;
-  border: 1px solid transparent;
-  min-height: 60px; /* Чтобы ячейки были одинаковой высоты */
-  vertical-align: middle;
-}
-
-.cell-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.pct-value {
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.cash-value {
-  font-size: 11px;
-  font-weight: 500;
-  opacity: 0.85;
-  font-family: 'Roboto Mono', monospace;
-}
-
-.positive {
-  background: rgba(14, 203, 129, 0.12) !important;
-  color: #0ecb81 !important;
-  border-color: rgba(14, 203, 129, 0.3) !important;
-  box-shadow: 0 0 15px rgba(14, 203, 129, 0.1);
-}
-
-.positive .cash-value {
-  color: #0ecb81; 
-}
-
-.negative {
-  background: rgba(246, 70, 93, 0.12) !important;
-  color: #f6465d !important;
-  border-color: rgba(246, 70, 93, 0.3) !important;
-}
-
-.negative .cash-value {
-  color: #f6465d;
-}
-
-.neutral {
-  color: #474d57;
-  background: rgba(255, 255, 255, 0.02) !important;
-}
-
-.neutral .cash-value {
-  color: #848e9c;
-}
-
-.same {
-  background: transparent !important; /* Убираем фон для диагональных ячеек */
-  border-color: transparent !important;
-  color: #2b2f36;
-  opacity: 0.5;
-}
-
-/* Иконка тренда */
-.trend-icon {
-  font-size: 10px;
-  vertical-align: middle;
-  margin-right: 2px;
-}
-
-/* Анимация обновления ячейки */
-@keyframes flash-update {
-  0% { filter: brightness(1); }
-  50% { filter: brightness(1.5); transform: scale(1.02); }
-  100% { filter: brightness(1); transform: scale(1); }
-}
-
-/* Этот класс можно вешать через [class.updated]="isChanged" */
-.cell-updated {
-  animation: flash-update 0.5s ease-out;
-}
-
-/* Улучшаем читаемость cash-value */
-.cash-value {
-  display: block;
-  font-size: 10px;
-  letter-spacing: 0.5px;
-  margin-top: -2px;
-}
