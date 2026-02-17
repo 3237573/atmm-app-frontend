@@ -10,7 +10,7 @@
     <div class="center-controls">
       <div class="coin-selector-box">
         <label>
-          <select [(ngModel)]="selectedCoinSymbol" (change)="onCoinChange()" class="premium-select">
+          <select [(ngModel)]="selectedCoinSymbol" (change)="selectCoin()" class="premium-select">
             @for (coin of supportedCoins; track coin.symbol) {
               <option [value]="coin.symbol">{{ coin.symbol }} ({{ coin.fullName }})</option>
             }
@@ -33,7 +33,7 @@
       <div class="ribbon-track" [style.animationDuration]="ribbonDuration">
 
         @for (spread of topSpreads(); track $index) {
-          <div class="opportunity-card">
+          <div class="opportunity-card" (click)="selectCoin(spread.coinSymbol)" >
             <div class="card-row">
               <span class="coin-name">{{ spread.coinSymbol }}</span>
               <span class="profit-val">+{{ spread.spreadPct | number:'1.2-2' }}%</span>
@@ -48,25 +48,36 @@
   </section>
 
   <main class="matrix-main">
-    <div class="matrix-scroll-wrapper">
+    <div class="matrix-scroll-wrapper" style="position: relative">
+
+      @if (isLoading()) {
+        <div class="loader-overlay">
+          <div class="scanner-line"></div>
+          <div class="loader-content">
+            <div class="spinner"></div>
+            <p>Scanning Exchanges...</p>
+          </div>
+        </div>
+      }
+
       <table class="arbitrage-table">
         <thead>
         <tr>
           <th class="sticky-exchange">Exchange / Price</th>
-          @for (col of filteredPrices; track col.name) {
+          @for (col of filteredPrices(); track col.name) {
             <th>{{ col.name }}</th>
           }
         </tr>
         </thead>
         <tbody>
-          @for (row of filteredPrices; track row.name) {
+          @for (row of filteredPrices(); track row.name) {
             <tr>
               <td class="sticky-exchange exchange-info">
                 <div class="name">{{ row.name }}</div>
                 <div class="price">${{ row.ask | number:'1.2-6' }}</div>
               </td>
 
-              @for (col of filteredPrices; track col.name) {
+              @for (col of filteredPrices(); track col.name) {
                 @let diff = calculateDiff(row.ask, col.bid);
                 @let usdDiff = col.bid - row.ask;
 

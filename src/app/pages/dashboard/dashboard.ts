@@ -1,15 +1,14 @@
-import {Component, inject, OnInit, signal, OnDestroy} from '@angular/core';
+import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {AuthService} from '../../core/auth/auth.service';
 import {ExchangePrice, ExchangeSpread} from '../../core/models/crypto.model';
 import {CommonModule, DecimalPipe} from '@angular/common';
-import {FormsModule} from '@angular/forms'; // Добавляем для ngModel
+import {FormsModule} from '@angular/forms';
 import {CryptoDataService} from '../../core/services/crypto-data.service';
-import {Subject, switchMap, takeUntil, timer, tap} from 'rxjs';
+import {catchError, of, Subject, switchMap, takeUntil, tap, timer} from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  // Добавляем FormsModule в импорты
   imports: [CommonModule, DecimalPipe, FormsModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -17,111 +16,120 @@ import {Subject, switchMap, takeUntil, timer, tap} from 'rxjs';
 export class Dashboard implements OnInit, OnDestroy {
   public authService = inject(AuthService);
   private readonly cryptoService = inject(CryptoDataService);
-
   private readonly destroy$ = new Subject<void>();
-  // Оставляем только один поток для управления сменой символа
   private readonly selectedSymbol$ = new Subject<string>();
 
-  supportedCoins: { symbol: string, fullName: string }[] = [];
+  // Данные
+  isLoading = signal<boolean>(false);
+  supportedCoins: { symbol: string; fullName: string }[] = [];
   selectedCoinSymbol: string = 'BTC';
   topSpreads = signal<ExchangeSpread[]>([]);
-
   prices = signal<ExchangePrice[]>([]);
   lastUpdatedTime: Date = new Date();
 
-  ngOnInit() {
-    this.cryptoService.getCoins().subscribe(list => {
-      const sorted = [...list].sort((a, b) => a.symbol.localeCompare(b.symbol));
-      this.supportedCoins = sorted;
+  // ОПТИМИЗАЦИЯ: Вычисляем отсортированный список только при изменении цен
+  readonly filteredPrices = computed(() => {
+    const currentPrices = this.prices().filter(ex => ex.ask > 0 && ex.bid > 0);
+    if (currentPrices.length < 2) return currentPrices;
 
-      if (sorted.length > 0) {
-        this.initPriceStream();
-        this.onCoinChange();
+    const spreadWeights = new Map<string, number>();
+
+    for (const row of currentPrices) {
+      let maxSpread = -Infinity;
+      for (const col of currentPrices) {
+        if (row.name === col.name) continue;
+        const diff = ((col.bid - row.ask) / row.ask) * 100;
+        if (diff > maxSpread) maxSpread = diff;
       }
+      spreadWeights.set(row.name, maxSpread);
+    }
+
+    return [...currentPrices].sort((a, b) =>
+      (spreadWeights.get(b.name) ?? 0) - (spreadWeights.get(a.name) ?? 0)
+    );
+  });
+
+  ngOnInit() {
+    this.cryptoService.getCoins().pipe(takeUntil(this.destroy$)).subscribe(list => {
+      this.supportedCoins = [...list].sort((a, b) => a.symbol.localeCompare(b.symbol));
+
+      if (this.supportedCoins.length > 0) {
+        this.initPriceStream();
+        this.selectCoin(this.selectedCoinSymbol);
+      }
+
+      // Поток глобальных спредов (лента сверху)
       timer(0, 15000)
         .pipe(
-          switchMap(() => this.cryptoService.getGlobalSpreads()),
+          switchMap(() => this.cryptoService.getGlobalSpreads().pipe(
+            catchError(err => {
+              console.error('Ошибка ленты спредов:', err);
+              return of([]);
+            })
+          )),
           takeUntil(this.destroy$)
         )
         .subscribe(data => {
-          const highProfitSpreads = data
-            .filter(spread => spread.spreadPct >= 1 && spread.buy.price > 0)
+          const highProfit = data
+            .filter(s => s.spreadPct >= 1 && s.buy.price > 0)
             .sort((a, b) => b.spreadPct - a.spreadPct)
             .slice(0, 15);
-
-          this.topSpreads.set(highProfitSpreads);
+          this.topSpreads.set(highProfit);
         });
     });
   }
 
   private initPriceStream() {
     this.selectedSymbol$.pipe(
-      tap(() => this.prices.set([])),
+      tap(() => {
+        this.isLoading.set(true);
+        this.prices.set([])
+      }), // Сброс таблицы при смене монеты
       switchMap(symbol =>
         timer(0, 10000).pipe(
-          switchMap(() => this.cryptoService.getPrices(symbol))
+          switchMap(() => this.cryptoService.getPrices(symbol).pipe(
+            catchError(err => {
+              this.isLoading.set(false);
+              console.error(`Ошибка загрузки цен для ${symbol}:`, err);
+              return of(this.prices()); // Возвращаем старые цены при ошибке
+            })
+          ))
         )
       ),
       takeUntil(this.destroy$)
     ).subscribe(data => {
-      this.prices.set(data);
-      this.lastUpdatedTime = new Date();
+      if (data.length > 0) {
+        this.prices.set(data);
+        this.isLoading.set(false);
+        this.lastUpdatedTime = new Date();
+      }
     });
   }
 
-  onCoinChange() {
-    // Вызываем next у того же Subject, который описан в конвейере выше
+  selectCoin(symbol?: string) {
+    if (symbol) {
+      this.selectedCoinSymbol = symbol;
+    }
+    // Уведомляем RxJS поток о необходимости смены подписки на API
     this.selectedSymbol$.next(this.selectedCoinSymbol);
+  }
+
+
+  calculateDiff(buyPrice: number, sellPrice: number): number | null {
+    if (!buyPrice || !sellPrice || buyPrice === 0) return null;
+    return ((sellPrice - buyPrice) / buyPrice) * 100;
+  }
+
+  get ribbonDuration(): string {
+    return this.topSpreads().length > 0 ? '25s' : '0s';
+  }
+
+  onLogout() {
+    this.authService.logout().subscribe();
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  get filteredPrices(): ExchangePrice[] {
-    const list = this.prices()
-      .filter(ex => ex.ask > 0 && ex.bid > 0);
-
-    // Предварительно считаем maxSpread для каждой строки
-    const spreads = new Map<string, number>();
-
-    for (const row of list) {
-      let max = -Infinity;
-
-      for (const col of list) {
-        if (row.name === col.name) continue;
-
-        const diff = this.calculateDiff(row.ask, col.bid);
-        if (diff !== null && diff > max) {
-          max = diff;
-        }
-      }
-
-      spreads.set(row.name, max);
-    }
-
-    // Сортировка по убыванию максимального спреда
-    return list.sort((a, b) => (spreads.get(b.name)! - spreads.get(a.name)!));
-  }
-
-  calculateDiff(buyPrice: number, sellPrice: number): number | null {
-    if (!buyPrice || !sellPrice || buyPrice === 0) return null;
-
-    // Реальный спред: (ЦенаПродажи - ЦенаПокупки) / ЦенаПокупки * 100
-    const diff = ((sellPrice - buyPrice) / buyPrice) * 100;
-    return diff;
-  }
-
-  get ribbonDuration(): string {
-    const count = this.topSpreads().length;
-    return count > 0 ? '30s' : '0s';
-  }
-
-  onLogout() {
-    this.authService.logout().subscribe({
-      next: () => console.log('Сессия завершена!'),
-      error: (err) => console.error('Ошибка выхода:', err),
-    });
   }
 }

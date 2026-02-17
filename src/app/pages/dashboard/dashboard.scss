@@ -164,6 +164,10 @@ $red: #f6465d;
     white-space: nowrap;
     will-change: transform;
     animation: scroll-left 20s linear infinite;
+    &:hover {
+      animation-play-state: paused; // Останавливает анимацию при наведении
+      cursor: pointer;             // Показывает, что на карточки можно нажать
+    }
   }
 }
 
@@ -210,6 +214,15 @@ $red: #f6465d;
     transform: translateX(-100%); // уходит полностью влево
   }
 }
+
+// @keyframes scroll-left {
+//   from {
+//     transform: translateX(0);
+//   }
+//   to {
+//     transform: translateX(-50%); // Если контент дублируется для бесшовности
+//   }
+// }
 
 /* 5. Матрица (Таблица) */
 .matrix-main {
@@ -323,3 +336,75 @@ $red: #f6465d;
   }
 }
 
+/* Контейнер для наложения */
+.loader-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba($dark-bg, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+
+  .loader-content {
+    text-align: center;
+    color: $gold;
+
+    p {
+      margin-top: 15px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 12px;
+      animation: pulse-text 1.5s infinite;
+    }
+  }
+}
+
+/* Спиннер в стиле крипто-бирж */
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba($gold, 0.1);
+  border-radius: 50%;
+  border-top-color: $gold;
+  animation: spin 1s ease-in-out infinite;
+  margin: 0 auto;
+}
+
+/* Эффект бегущей линии сканера */
+.scanner-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, $gold, transparent);
+  box-shadow: 0 0 15px $gold;
+  animation: scan 10s linear infinite;
+}
+
+/* Блюр для таблицы на фоне */
+.loading-blur {
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes scan {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
