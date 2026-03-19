@@ -14,20 +14,21 @@ import {catchError, of, Subject, switchMap, takeUntil, tap, timer} from 'rxjs';
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit, OnDestroy {
-  public authService = inject(AuthService);
+  // For private using
+  private readonly authService = inject(AuthService);
   private readonly cryptoService = inject(CryptoDataService);
   private readonly destroy$ = new Subject<void>();
   private readonly selectedSymbol$ = new Subject<string>();
 
-  // Данные
-  isLoading = signal<boolean>(false);
+  // For template using
+  public isLoading = signal<boolean>(false);
+  public selectedCoinSymbol: string = 'BTC';
+  public topSpreads = signal<ExchangeSpread[]>([]);
+  public prices = signal<ExchangePrice[]>([]);
   supportedCoins: { symbol: string; fullName: string }[] = [];
-  selectedCoinSymbol: string = 'BTC';
-  topSpreads = signal<ExchangeSpread[]>([]);
-  prices = signal<ExchangePrice[]>([]);
   lastUpdatedTime: Date = new Date();
 
-  // ОПТИМИЗАЦИЯ: Вычисляем отсортированный список только при изменении цен
+  // OPTIMIZATION: Calculate the sorted list only when prices change
   readonly filteredPrices = computed(() => {
     const currentPrices = this.prices().filter(ex => ex.ask > 0 && ex.bid > 0);
     if (currentPrices.length < 2) return currentPrices;

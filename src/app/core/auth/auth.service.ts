@@ -1,15 +1,15 @@
 // auth.service.ts
-import { Injectable, signal, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { of } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
-import { AuthResponse, RegisterRequest } from '../models/auth.model';
-import { Router } from '@angular/router';
+import {inject, Injectable, signal} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {of} from 'rxjs';
+import {catchError, tap} from 'rxjs/operators';
+import {AuthResponse} from '../models/auth.model';
+import {Router} from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private http = inject(HttpClient);
-  private router = inject(Router);
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
   private readonly API_URL = '/api/auth';
 
   // Authorization state
@@ -25,7 +25,7 @@ export class AuthService {
       catchError(() => {
         this.isAuthenticated.set(false);
         this.currentUser.set(null);
-        return of(null); // Возвращаем пустой поток, чтобы приложение загрузилось дальше
+        return of(null); // Return an empty thread so that the app loads further
       }),
     );
   }
@@ -56,21 +56,20 @@ export class AuthService {
       );
   }
 
-  // auth.service.ts
   logout() {
     return this.http.post(`${this.API_URL}/logout`, {}, { withCredentials: true }).pipe(
       tap(() => {
-        // Сначала очищаем состояние
+        // First, clear the state
         this.currentUser.set(null);
         this.isAuthenticated.set(false);
 
-        // Затем переходим на логин
+        // Then go to the login
         this.router.navigate(['/login']).then(() => {
           console.log('Навигация завершена');
         });
       }),
       catchError((err) => {
-        // Даже если сервер упал, мы должны "выбросить" пользователя из приложения
+        // Even if the server crashes, we have to "kick" the user out of the application
         this.currentUser.set(null);
         this.isAuthenticated.set(false);
         this.router.navigate(['/login']);

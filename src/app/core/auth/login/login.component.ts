@@ -12,9 +12,9 @@ import { CommonModule } from '@angular/common';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
-  private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
-  private router = inject(Router);
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -23,16 +23,16 @@ export class LoginComponent {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      // Приводим к типу any или создаем интерфейс LoginRequest
+      // Cast to any or create a LoginRequest interface
       this.authService.login(this.loginForm.value as any).subscribe({
         next: (res) => {
-          console.log('Вход выполнен!', res);
-          // После успешного входа обычно сохраняем токен и идем на главную
-          this.router.navigate(['/dashboard']); 
+          console.log('Login!', res);
+          // After a successful login, we usually save the token and go to the main page
+          this.router.navigate(['/tracker']);
         },
         error: (err) => {
-          console.error('Ошибка входа:', err);
-          alert('Неверный логин или пароль');
+          console.error('Login error:', err);
+          alert('Invalid username or password');
         }
       });
     }

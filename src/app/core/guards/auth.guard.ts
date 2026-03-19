@@ -6,11 +6,11 @@ export const authGuard = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Проверяем сигнал isAuthenticated, который мы заполнили в checkAuth
+  // Check the isAuthenticated signal that we filled in checkAuth
   if (authService.isAuthenticated()) {
-    return true; // Доступ разрешен
+    return true; // Access allowed
   }
 
-  // Если не авторизован — отправляем на логин
+  // If it is not authorized, we send it to the login
   return router.parseUrl('/login');
 };
