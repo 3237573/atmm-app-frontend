@@ -1,2 +1,81 @@
-<p>tracker works!</p>
-<button (click)="onLogout()">Exit</button>
+<div class="tracker-container">
+  <h2 class="page-title">Мониторинг активности</h2>
+
+  <div class="timeline-wrapper">
+    <div class="timeline-grid">
+      @for (hour of hours; track hour) {
+        <div class="hour-cell"><span class="hour-label">{{ hour }}:00</span></div>
+      }
+    </div>
+
+    <div class="activity-layer">
+      @for (act of processedActivities(); track act.start + act.projectName) {
+        <div class="task-segment"
+             (click)="toggleProject(act.projectName)"
+             [ngStyle]="getStyle(act.start, act.end)"
+             [style.background-color]="act.color"
+             [class.dimmed]="selectedProject() && selectedProject() !== act.projectName"
+             [class.highlighted]="selectedProject() === act.projectName">
+          <div class="task-tooltip">
+            <strong>{{ act.projectName }}</strong><br>
+            <small>{{ formatTime(act.start) }} - {{ formatTime(act.end) }}</small>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="current-time-line" [style.left.%]="(currentTimeInMinutes() / 1440) * 100">
+      <div class="pulse-dot"></div>
+    </div>
+  </div>
+
+  <div class="stats-section">
+    <div class="chart-container">
+      <svg viewBox="0 0 36 36" class="donut-chart">
+        <circle class="donut-ring" cx="18" cy="18" r="15.9" fill="transparent" stroke="#0f172a" stroke-width="3.5"></circle>
+
+        @for (project of projectSummaries(); track project.name) {
+          <circle class="donut-segment"
+                  cx="18" cy="18" r="15.9"
+                  fill="transparent"
+                  [attr.stroke]="project.color"
+                  stroke-width="3.8"
+                  [attr.stroke-dasharray]="project.percentage + ' ' + (100 - project.percentage)"
+                  [attr.stroke-dashoffset]="100 - project.offset + 25"
+
+                  (click)="toggleProject(project.name); $event.stopPropagation()"
+                  [class.segment-active]="selectedProject() === project.name"
+                  [class.segment-dimmed]="selectedProject() && selectedProject() !== project.name">
+          </circle>
+        }
+      </svg>
+
+      <div class="chart-center" (click)="selectedProject.set(null)" title="Сбросить фильтр">
+        <span class="total-label">Всего</span>
+        <span class="total-value">{{ formatDuration(totalMinutes()) }}</span>
+      </div>
+    </div>
+
+    <div class="legend-grid">
+      @for (project of projectSummaries(); track project.name) {
+        <div class="legend-item"
+             (click)="toggleProject(project.name)"
+             [class.active]="selectedProject() === project.name"
+             [style.border-left-color]="project.color">
+
+          <span class="dot" [style.background-color]="project.color"></span>
+          <div class="legend-info">
+            <span class="name">{{ project.name }}</span>
+            <span class="time">
+              {{ formatDuration(project.minutes) }}
+              <span class="percentage">({{ project.percentage | number:'1.0-0' }}%)</span>
+            </span>
+          </div>
+          @if (selectedProject() === project.name) {
+            <span class="active-badge">●</span>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

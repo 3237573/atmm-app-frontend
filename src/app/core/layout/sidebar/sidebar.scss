@@ -1,0 +1,92 @@
+:host {
+  display: block;
+  height: 100%;
+  transition: width 0.3s ease;
+  width: 260px; /* Ширина по умолчанию */
+}
+
+/* Когда сайдбар свернут */
+nav.collapsed {
+  width: 70px;
+}
+
+:host:has(nav.collapsed) {
+  width: 70px;
+}
+
+nav {
+  background-color: #1e293b;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  height: 64px;
+}
+
+.toggle-btn {
+  background: #334155;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.toggle-btn svg {
+  transition: transform 0.3s ease;
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+ul {
+  list-style: none;
+  padding: 10px;
+}
+
+a {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  color: #94a3b8;
+  text-decoration: none;
+  border-radius: 8px;
+  white-space: nowrap;
+  transition: 0.2s;
+}
+
+a:hover, a.active {
+  background-color: #334155;
+  color: white;
+}
+
+.text {
+  margin-left: 10px;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: #94a3b8; /* Цвет иконки по умолчанию */
+  transition: color 0.2s ease;
+}
+
+a.active .icon, a:hover .icon {
+  color: #38bdf8; /* Голубой акцент при наведении/активности */
+}
+
+svg {
+  /* Это позволяет управлять цветом SVG через CSS свойство color */
+  stroke: currentColor;
+}

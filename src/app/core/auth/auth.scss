@@ -1,0 +1,118 @@
+// 1. Переменные для консистентности
+@use "sass:color";
+
+$auth-bg: #0f172a;
+$card-bg: #1e293b;
+$primary-blue: #2563eb;
+$primary-hover: #1d4ed8;
+$text-muted: #94a3b8;
+$border-color: #334155;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  background-color: $auth-bg;
+}
+
+.auth-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 1rem; // Защита от прилипания к краям на мобилках
+}
+
+.auth-card {
+  background: $card-bg;
+  padding: 2.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+
+  h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.8rem;
+    color: white;
+  }
+
+  .subtitle {
+    color: $text-muted;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+  }
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  input {
+    padding: 0.8rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid $border-color;
+    background: $auth-bg;
+    color: white;
+    outline: none;
+    transition: all 0.2s ease-in-out;
+
+    &::placeholder {
+      color: darken($text-muted, 20%);
+    }
+
+    &:focus {
+      border-color: lighten($primary-blue, 10%);
+      box-shadow: 0 0 0 2px rgba($primary-blue, 0.2);
+    }
+  }
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: $primary-blue;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s active, background 0.2s;
+
+  &:hover:not(:disabled) {
+    background: $primary-hover;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+  }
+}
+
+.switch-auth {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: $text-muted;
+
+  a {
+    color: lighten($primary-blue, 10%);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+
+    &:hover {
+      color: white;
+      text-decoration: underline;
+    }
+  }
+}

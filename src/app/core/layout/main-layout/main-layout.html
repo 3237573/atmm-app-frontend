@@ -1,0 +1,18 @@
+<div class="layout-wrapper" [class.auth-mode]="isAuthPage$ | async">
+
+  @if (!(isAuthPage$ | async)) {
+    <app-sidebar></app-sidebar>
+  }
+
+  <div class="main-container">
+    @if (!(isAuthPage$ | async)) {
+      <header class="header-area">
+        <app-header></app-header>
+      </header>
+    }
+
+    <main class="content-area">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

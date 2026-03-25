@@ -4,10 +4,11 @@ import {
   provideZoneChangeDetection,
   inject,
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
-import { routes } from './app.routes';
-import { AuthService } from './core/auth/auth.service';
+import {provideRouter} from '@angular/router';
+import {provideHttpClient, withInterceptors} from '@angular/common/http';
+import {routes} from './app.routes';
+import {AuthService} from './core/auth/auth.service';
+import {credentialsInterceptor} from './core/interceptors/credentials.interceptor';
 
 function initializeApp(authService: AuthService) {
   return () => authService.checkAuth();
@@ -15,9 +16,9 @@ function initializeApp(authService: AuthService) {
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideZoneChangeDetection({eventCoalescing: true}),
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([credentialsInterceptor])),
     provideAppInitializer((authService = inject(AuthService)) => authService.checkAuth()),
   ],
 };

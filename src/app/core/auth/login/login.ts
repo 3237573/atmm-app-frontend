@@ -8,10 +8,10 @@ import { CommonModule } from '@angular/common';
   selector: 'app-login',
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule, RouterLink],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  templateUrl: './login.html',
+  styleUrl: './login.scss'
 })
-export class LoginComponent {
+export class Login {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -28,7 +28,7 @@ export class LoginComponent {
         next: (res) => {
           console.log('Login!', res);
           // After a successful login, we usually save the token and go to the main page
-          this.router.navigate(['/tracker']);
+          this.router.navigate(['/members']);
         },
         error: (err) => {
           console.error('Login error:', err);

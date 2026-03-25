@@ -1,0 +1,56 @@
+<div class="members-page">
+  <div class="page-header">
+    <h2>Команда проекта</h2>
+    <p>Список сотрудников и их текущий статус в системе</p>
+  </div>
+
+  @if (!loading) {
+    <div class="table-container">
+      <table class="members-table">
+        <thead>
+        <tr>
+          <th>Сотрудник</th>
+          <th>Роль</th>
+          <th>Департамент</th>
+          <th>Статус</th>
+          <th>Действие</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (member of members; track member.userId) {
+            <tr>
+              <td>
+                <div class="user-info">
+                  <span class="user-name">{{ member.fullName || 'User' }}</span>
+                  <span class="user-email">{{ member.email }}</span>
+                </div>
+              </td>
+              <td><span class="badge-role">{{ member.roleName }}</span></td>
+              <td>{{ member.departmentName || '—' }}</td>
+              <td>
+                <span class="status-dot" [class]="member.status.toLowerCase()"></span>
+                {{ member.status }}
+              </td>
+              <td>
+                <button class="btn-view" (click)="viewActivity(member.userId)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; vertical-align: middle;">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  Активность
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 20px;">
+                Сотрудники не найдены
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="loader">Загрузка данных...</div>
+  }
+</div>
