@@ -1,12 +1,14 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, retry, shareReplay, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 export interface ActivityInterval {
-  startTime: string; // ISO формат с бэкенда
+  startTime: string;
   endTime: string;
   durationMinutes: number;
   projectName: string;
+  entityName?: string;
 }
 
 export interface UserActivityReport {
@@ -18,9 +20,17 @@ export interface UserActivityReport {
 @Injectable({ providedIn: 'root' })
 export class ActivityService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:9083/api/tracker';
+  private readonly baseUrl = '/tracker'; // Настрой под свой прокси или environment
 
-  getDailyReport(date: string): Observable<UserActivityReport> {
-    return this.http.get<UserActivityReport>(`${this.baseUrl}/report`, { params: { date } });
+  getReport(date: string, userId?: string): Observable<UserActivityReport> {
+    let params = new HttpParams().set('date', date);
+    if (userId) {
+      params = params.set('userId', userId);
+    }
+
+    return this.http.get<UserActivityReport>(`${this.baseUrl}/report`, { params }).pipe(
+      retry(1),
+      shareReplay(1)
+    );
   }
 }

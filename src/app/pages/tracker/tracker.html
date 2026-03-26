@@ -1,81 +1,111 @@
 <div class="tracker-container">
-  <h2 class="page-title">Мониторинг активности</h2>
-
-  <div class="timeline-wrapper">
-    <div class="timeline-grid">
-      @for (hour of hours; track hour) {
-        <div class="hour-cell"><span class="hour-label">{{ hour }}:00</span></div>
-      }
-    </div>
-
-    <div class="activity-layer">
-      @for (act of processedActivities(); track act.start + act.projectName) {
-        <div class="task-segment"
-             (click)="toggleProject(act.projectName)"
-             [ngStyle]="getStyle(act.start, act.end)"
-             [style.background-color]="act.color"
-             [class.dimmed]="selectedProject() && selectedProject() !== act.projectName"
-             [class.highlighted]="selectedProject() === act.projectName">
-          <div class="task-tooltip">
-            <strong>{{ act.projectName }}</strong><br>
-            <small>{{ formatTime(act.start) }} - {{ formatTime(act.end) }}</small>
-          </div>
-        </div>
-      }
-    </div>
-
-    <div class="current-time-line" [style.left.%]="(currentTimeInMinutes() / 1440) * 100">
-      <div class="pulse-dot"></div>
-    </div>
-  </div>
-
-  <div class="stats-section">
-    <div class="chart-container">
-      <svg viewBox="0 0 36 36" class="donut-chart">
-        <circle class="donut-ring" cx="18" cy="18" r="15.9" fill="transparent" stroke="#0f172a" stroke-width="3.5"></circle>
-
-        @for (project of projectSummaries(); track project.name) {
-          <circle class="donut-segment"
-                  cx="18" cy="18" r="15.9"
-                  fill="transparent"
-                  [attr.stroke]="project.color"
-                  stroke-width="3.8"
-                  [attr.stroke-dasharray]="project.percentage + ' ' + (100 - project.percentage)"
-                  [attr.stroke-dashoffset]="100 - project.offset + 25"
-
-                  (click)="toggleProject(project.name); $event.stopPropagation()"
-                  [class.segment-active]="selectedProject() === project.name"
-                  [class.segment-dimmed]="selectedProject() && selectedProject() !== project.name">
-          </circle>
+  <header class="tracker-header">
+    <div class="header-left">
+      <div class="title-wrap">
+        <h2 class="page-title">
+          {{ targetUserId() ? 'Отчет сотрудника' : 'Моя активность' }}
+        </h2>
+        @if (targetUserId()) {
+          <button class="btn-reset" (click)="resetToMe()" title="Вернуться к своей статистике">
+            <span>✕</span> Мой профиль
+          </button>
         }
-      </svg>
-
-      <div class="chart-center" (click)="selectedProject.set(null)" title="Сбросить фильтр">
-        <span class="total-label">Всего</span>
-        <span class="total-value">{{ formatDuration(totalMinutes()) }}</span>
+      </div>
+      <div class="status-badge" [class.live]="isToday()">
+        <span class="pulse-dot"></span>
+        {{ isToday() ? 'В эфире' : 'Архив данных' }}
       </div>
     </div>
 
-    <div class="legend-grid">
-      @for (project of projectSummaries(); track project.name) {
-        <div class="legend-item"
-             (click)="toggleProject(project.name)"
-             [class.active]="selectedProject() === project.name"
-             [style.border-left-color]="project.color">
+    <div class="date-navigator">
+      <button class="nav-btn" (click)="changeDay(-1)" title="Предыдущий день">←</button>
+      <div class="datepicker-box">
+        <input type="date" [value]="selectedDate()" (change)="onDateChange($event)" [max]="selectedDate()">
+        <span class="date-label">{{ isToday() ? 'Сегодня' : (selectedDate() | date:'dd MMMM') }}</span>
+      </div>
+      <button class="nav-btn" (click)="changeDay(1)" [disabled]="isToday()" title="Следующий день">→</button>
+    </div>
+  </header>
 
-          <span class="dot" [style.background-color]="project.color"></span>
-          <div class="legend-info">
-            <span class="name">{{ project.name }}</span>
-            <span class="time">
-              {{ formatDuration(project.minutes) }}
-              <span class="percentage">({{ project.percentage | number:'1.0-0' }}%)</span>
-            </span>
-          </div>
-          @if (selectedProject() === project.name) {
-            <span class="active-badge">●</span>
+  @if (loading()) {
+    <div class="loading-overlay">
+      <div class="spinner"></div>
+      <p>Обработка данных...</p>
+    </div>
+  }
+
+  <div class="main-content" [class.is-loading]="loading()">
+
+    <div class="timeline-section">
+      <div class="timeline-wrapper">
+        <div class="timeline-grid">
+          @for (h of hours; track h) {
+            <div class="hour-cell"><span class="hour-label">{{ h }}:00</span></div>
           }
         </div>
-      }
+
+        <div class="activity-layer">
+          @for (act of processedActivities(); track act.startTime) {
+            <div class="task-segment"
+                 [ngStyle]="act.style"
+                 [style.background-color]="act.color"
+                 [class.dimmed]="selectedProject() && selectedProject() !== act.projectName"
+                 [class.highlighted]="selectedProject() === act.projectName"
+                 (click)="toggleProject(act.projectName)">
+              <div class="task-tooltip">
+                <strong>{{ act.projectName }}</strong><br>
+                <span>{{ formatTime(act.start) }} — {{ formatTime(act.end) }}</span>
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (isToday()) {
+          <div class="now-marker" [style.left.%]="(currentTimeInMinutes() / 1440) * 100"></div>
+        }
+      </div>
+    </div>
+
+    <div class="analytics-grid">
+      <div class="chart-box">
+        <div class="donut-wrap">
+          <svg viewBox="0 0 36 36" class="donut">
+            <circle class="donut-bg" cx="18" cy="18" r="15.9"></circle>
+            @for (p of projectSummaries(); track p.name) {
+              <circle class="donut-segment"
+                      cx="18" cy="18" r="15.9"
+                      fill="transparent"
+                      [attr.stroke]="p.color"
+                      stroke-width="3.2"
+                      [attr.stroke-dasharray]="p.percentage + ' ' + (100 - p.percentage)"
+                      [attr.stroke-dashoffset]="100 - p.offset + 25"
+                      [class.active]="selectedProject() === p.name"
+                      [class.inactive]="selectedProject() && selectedProject() !== p.name"
+                      (click)="toggleProject(p.name)">
+              </circle>
+            }
+          </svg>
+          <div class="donut-info" (click)="selectedProject.set(null)">
+            <span class="info-label">Активность</span>
+            <span class="info-value">{{ formatDuration(totalMinutes()) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="legend-list">
+        @for (p of projectSummaries(); track p.name) {
+          <div class="legend-card"
+               [class.active]="selectedProject() === p.name"
+               (click)="toggleProject(p.name)">
+            <div class="project-color" [style.background-color]="p.color"></div>
+            <div class="project-details">
+              <span class="project-name">{{ p.name }}</span>
+              <span class="project-time">{{ formatDuration(p.minutes) }}</span>
+            </div>
+            <div class="project-percent">{{ p.percentage | number:'1.0-0' }}%</div>
+          </div>
+        }
+      </div>
     </div>
   </div>
 </div>

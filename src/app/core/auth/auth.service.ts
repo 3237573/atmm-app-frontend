@@ -10,14 +10,13 @@ import {Router} from '@angular/router';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly API_URL = '/api/auth';
 
   // Authorization state
   currentUser = signal<AuthResponse | null>(null);
   isAuthenticated = signal<boolean>(false);
 
   checkAuth() {
-    return this.http.get<any>(`${this.API_URL}/me`, { withCredentials: true }).pipe(
+    return this.http.get<any>('/auth/me', { withCredentials: true }).pipe(
       tap((res) => {
         this.currentUser.set(res.user);
         this.isAuthenticated.set(true);
@@ -32,7 +31,7 @@ export class AuthService {
 
   login(credentials: any) {
     return this.http
-      .post<any>(`${this.API_URL}/login`, credentials, {
+      .post<any>('auth/login', credentials, {
         withCredentials: true, // Allows the browser to save a cookie from the response.
       })
       .pipe(
@@ -45,7 +44,7 @@ export class AuthService {
 
   register(data: any) {
     return this.http
-      .post<any>(`${this.API_URL}/register`, data, {
+      .post<any>('auth/register', data, {
         withCredentials: true,
       })
       .pipe(
@@ -57,7 +56,7 @@ export class AuthService {
   }
 
   logout() {
-    return this.http.post(`${this.API_URL}/logout`, {}, { withCredentials: true }).pipe(
+    return this.http.post('auth/logout', {}, { withCredentials: true }).pipe(
       tap(() => {
         // First, clear the state
         this.currentUser.set(null);

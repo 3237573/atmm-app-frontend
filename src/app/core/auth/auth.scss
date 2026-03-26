@@ -1,6 +1,6 @@
-// 1. Переменные для консистентности
 @use "sass:color";
 
+// 1. Переменные для консистентности
 $auth-bg: #0f172a;
 $card-bg: #1e293b;
 $primary-blue: #2563eb;
@@ -22,7 +22,7 @@ $border-color: #334155;
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 1rem; // Защита от прилипания к краям на мобилках
+  padding: 1rem;
 }
 
 .auth-card {
@@ -63,12 +63,15 @@ $border-color: #334155;
     transition: all 0.2s ease-in-out;
 
     &::placeholder {
-      color: darken($text-muted, 20%);
+      // ИСПРАВЛЕНО: darken -> color.adjust
+      color: color.adjust($text-muted, $lightness: -20%);
     }
 
     &:focus {
-      border-color: lighten($primary-blue, 10%);
-      box-shadow: 0 0 0 2px rgba($primary-blue, 0.2);
+      // ИСПРАВЛЕНО: lighten -> color.adjust
+      border-color: color.adjust($primary-blue, $lightness: 10%);
+      // ИСПРАВЛЕНО: rgba($color, alpha) -> color.change
+      box-shadow: 0 0 0 2px color.change($primary-blue, $alpha: 0.2);
     }
   }
 }
@@ -82,7 +85,8 @@ button[type="submit"] {
   color: white;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.1s active, background 0.2s;
+  // Поправлено: transition для transform и background
+  transition: transform 0.1s ease-in-out, background 0.2s ease-in-out;
 
   &:hover:not(:disabled) {
     background: $primary-hover;
@@ -105,7 +109,8 @@ button[type="submit"] {
   color: $text-muted;
 
   a {
-    color: lighten($primary-blue, 10%);
+    // ИСПРАВЛЕНО: lighten -> color.adjust
+    color: color.adjust($primary-blue, $lightness: 10%);
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s;
