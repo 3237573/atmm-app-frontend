@@ -1,0 +1,52 @@
+<div class="modal-overlay" (click)="close.emit()">
+  <div class="modal-content" (click)="$event.stopPropagation()" [formGroup]="categoryForm">
+    <h3>{{ category() ? 'Редактировать категорию' : 'Новая категория' }}</h3>
+
+    <div class="form-field">
+      <label>Название (RU)</label>
+      <input type="text" formControlName="nameRu" placeholder="Разработка">
+    </div>
+
+    <div class="form-field">
+      <label>Название (EN)</label>
+      <input type="text" formControlName="nameEn" placeholder="Development">
+    </div>
+
+    <div class="form-field">
+      <label>Slug (Уникальный ключ)</label>
+      <input type="text" formControlName="slug" placeholder="development">
+    </div>
+
+    <div class="form-row-inline">
+      <div class="form-field flex-1">
+        <label>Цвет</label>
+        <div class="color-picker-wrapper">
+          <input type="color" formControlName="color" class="color-input">
+          <span class="color-hex">{{ categoryForm.get('color')?.value }}</span>
+        </div>
+      </div>
+
+      <div class="form-field flex-2">
+        <label>Иконка</label>
+        <div class="icon-input-group">
+          <i class="material-icons">{{ categoryForm.get('icon')?.value || 'help_outline' }}</i>
+          <input type="text" formControlName="icon" placeholder="code">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-field priority-inline-row">
+      <label>Приоритет (вес):</label>
+      <div class="priority-input-wrapper">
+        <input type="number" formControlName="priority">
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-amber" (click)="close.emit()">Отмена</button>
+      <button type="button" class="btn btn-blue" (click)="submit()" [disabled]="categoryForm.invalid">
+        Сохранить
+      </button>
+    </div>
+  </div>
+</div>

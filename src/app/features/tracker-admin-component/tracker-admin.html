@@ -1,0 +1,97 @@
+<div class="admin-container">
+  <header class="admin-header">
+    <div class="header-left-group">
+      <h1>Управление классификацией</h1>
+      <div class="header-actions">
+        <button class="btn btn-amber" (click)="recalculate()" [disabled]="isRecalculating()">
+          <i class="material-icons">history</i>
+          <span>Применить к истории</span>
+        </button>
+        <button class="btn btn-blue" (click)="openCategoryModal()">
+          <i class="material-icons">add</i>
+          <span>Категория</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-main-layout">
+    <aside class="panel-card category-sidebar">
+      <h2 class="panel-title">Список категорий</h2>
+      <div class="category-grid-list">
+        @for (cat of categories(); track cat.id) {
+          <div class="category-grid-row"
+               [class.readonly]="!cat.companyId"
+               (click)="openCategoryModal(cat)">
+            <div class="cell-dot">
+              <span class="status-dot" [style.background-color]="cat.color"></span>
+            </div>
+            <div class="cell-icon">
+              <i class="material-icons">{{ cat.icon || 'folder' }}</i>
+            </div>
+            <div class="cell-name">{{ cat.nameRu }}</div>
+            <div class="cell-slug">{{ cat.slug }}</div>
+            @if (cat.companyId) {
+              <div class="cell-actions">
+                <button class="delete-cat-icon" (click)="deleteCategory(cat.id, $event)">
+                  <i class="material-icons">delete_outline</i>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </aside>
+
+    <main class="panel-card rules-container">
+      <div class="rules-header">
+        <h2>Группы правил</h2>
+        <span class="rules-count">Всего: {{ rules().length }}</span>
+      </div>
+
+      <div class="rules-list-scroll">
+        @for (group of categoryGroups(); track group.category.id) {
+          <div class="rule-group-card">
+            <div class="group-header">
+              <div class="group-name" [style.color]="group.category.color">
+                <span class="mini-dot" [style.background-color]="group.category.color"></span>
+                {{ group.category.nameRu }}
+              </div>
+              <button class="add-rule-link" (click)="addRule(group.category)">
+                <i class="material-icons">add</i> Добавить правило
+              </button>
+            </div>
+
+            <div class="chips-box">
+              @for (rule of group.rules; track rule.id) {
+                <div class="rule-chip">
+                  <span>{{ rule.pattern }}</span>
+                  <button class="chip-close" (click)="deleteRule(rule.id)">
+                    <i class="material-icons">close</i>
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </main>
+  </div>
+
+  @if (showCategoryModal()) {
+    <app-category-modal
+      [category]="editingCategory()"
+      (close)="closeCategoryModal()"
+      (save)="handleSaveCategory($event)">
+    </app-category-modal>
+  }
+
+  @if (showCategoryRuleModal() && selectedCategory()) {
+    <app-category-rule-modal
+      [categoryId]="selectedCategory()!.id!"
+      [categoryName]="selectedCategory()!.nameRu"
+      (close)="closeCategoryRuleModal()"
+      (save)="handleSaveCategoryRule($event)">
+    </app-category-rule-modal>
+  }
+</div>
