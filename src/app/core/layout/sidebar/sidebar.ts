@@ -10,7 +10,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   styleUrl: './sidebar.scss'
 })
 export class Sidebar {
-  isCollapsed = false;
+  isCollapsed = true;
 
   toggleSidebar() {
     this.isCollapsed = !this.isCollapsed;

@@ -8,7 +8,7 @@ import {
   DexNetwork,
   DexSpread,
   ArbitrageResult
-} from '../models/dex.model';
+} from '../../models/dex.model';
 
 @Injectable({ providedIn: 'root' })
 export class DexSpreadService {

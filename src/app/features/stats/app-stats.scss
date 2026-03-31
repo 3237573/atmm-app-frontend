@@ -1,0 +1,109 @@
+// app-stats.scss
+
+.stats-container {
+  margin-top: 2rem;
+  background: #1e293b; // Тот же цвет, что и у верхней панели
+  border: 1px solid #334155;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.stats-header {
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid #334155;
+
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #f8fafc;
+    font-weight: 700;
+  }
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    padding: 1rem 1.5rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #94a3b8; // Приглушенный серый
+    background: rgba(0, 0, 0, 0.2);
+    text-align: left;
+    border-bottom: 1px solid #334155;
+  }
+
+  td {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #cbd5e1; // Светло-серый текст (хорошо виден)
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+  }
+
+  tr.active {
+    background: rgba(56, 189, 248, 0.08); // Подсветка при выборе проекта
+    td { color: #f8fafc; }
+  }
+}
+
+.app-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .app-name {
+    font-weight: 500;
+    color: #f1f5f9; // Почти белый для названий
+  }
+}
+
+.color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px currentColor; // Свечение в цвет категории
+}
+
+.category-badge, .slug-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+.duration, .font-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: #38bdf8; // Яркий голубой акцент для времени
+  font-size: 0.95rem;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.empty-state {
+  padding: 3rem !important;
+  text-align: center;
+  color: #64748b;
+  font-style: italic;
+}

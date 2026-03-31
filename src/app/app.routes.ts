@@ -9,6 +9,7 @@ import { DexDashboard } from './pages/dex-dashboard/dex-dashboard';
 import { Tracker } from './pages/tracker/tracker';
 import {Members} from './pages/members/members';
 import {MainLayout} from './core/layout/main-layout/main-layout';
+import {TrackerAdmin} from './features/tracker-admin-component/tracker-admin';
 
 export const routes: Routes = [
   // 1. Публичные маршруты (без сайдбара)
@@ -24,6 +25,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: Dashboard },
       { path: 'dex', component: DexDashboard },
       { path: 'tracker', component: Tracker },
+      { path: 'admin/tracker', component: TrackerAdmin },
       { path: 'members', component: Members },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]

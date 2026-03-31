@@ -63,9 +63,31 @@ a {
   transition: 0.2s;
 }
 
+icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: #94a3b8;
+  transition: color 0.2s ease;
+
+  /* Добавляем это для корректного отображения Material Icons */
+  i.material-icons {
+    font-size: 20px; /* Размер, который был у SVG */
+    user-select: none;
+    display: block;
+  }
+}
+
+/* 2. Уточняем правила для активного состояния */
 a:hover, a.active {
   background-color: #334155;
   color: white;
+
+  .icon {
+    color: #38bdf8; /* Голубой акцент применится и к шрифту иконки */
+  }
 }
 
 .text {
@@ -86,7 +108,77 @@ a.active .icon, a:hover .icon {
   color: #38bdf8; /* Голубой акцент при наведении/активности */
 }
 
-svg {
-  /* Это позволяет управлять цветом SVG через CSS свойство color */
-  stroke: currentColor;
+/* 3. Фикс для схлопнутого состояния (опционально) */
+/* Если при схлопывании иконки не по центру, добавь это: */
+nav.collapsed {
+  width: 70px;
+
+  ul {
+    padding: 10px 5px; /* Чуть меньше падинг, чтобы иконки не жались */
+  }
+
+  a {
+    justify-content: center;
+    padding: 12px 0;
+  }
+
+  .text {
+    display: none; /* На случай если @if в шаблоне не сработает или для плавности */
+  }
+
+  .icon {
+    margin: 0;
+  }
 }
+
+/* Возвращаем стрелку */
+.toggle-btn {
+  background: #334155;
+  border: none;
+  color: white; /* Это сделает SVG белым, так как там stroke="currentColor" */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #475569;
+  }
+
+  svg {
+    display: block; /* Убеждаемся, что стрелка видна */
+    transition: transform 0.3s ease;
+    stroke: white; /* Принудительно белый цвет для стрелки */
+  }
+}
+
+/* Оставляем поворот */
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* Стили для новых иконок в меню (Material Icons) */
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: #94a3b8;
+  transition: color 0.2s ease;
+
+  i.material-icons {
+    font-size: 22px;
+    display: block;
+  }
+}
+
+/* Подсветка активной иконки */
+a.active .icon, a:hover .icon {
+  color: #38bdf8;
+}
+
+

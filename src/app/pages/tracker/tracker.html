@@ -45,13 +45,13 @@
         </div>
 
         <div class="activity-layer">
-          @for (act of processedActivities(); track act.startTime) {
+          @for (act of processedActivities(); track $index) {
             <div class="task-segment"
                  [ngStyle]="act.style"
                  [style.background-color]="act.color"
-                 [class.dimmed]="selectedProject() && selectedProject() !== act.projectName"
-                 [class.highlighted]="selectedProject() === act.projectName"
-                 (click)="toggleProject(act.projectName)">
+                 [class.dimmed]="selectedProject() && selectedProject() !== act.categorySlug"
+                 [class.highlighted]="selectedProject() === act.categorySlug"
+                 (click)="toggleProject(act.categorySlug)">
               <div class="task-tooltip">
                 <strong>{{ act.projectName }}</strong><br>
                 <span>{{ formatTime(act.start) }} — {{ formatTime(act.end) }}</span>
@@ -107,5 +107,51 @@
         }
       </div>
     </div>
+
+    <div class="details-section">
+      <div class="details-card">
+        <div class="card-header">
+          <h3>Детализация приложений</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="app-table">
+            <thead>
+            <tr>
+              <th>Приложение</th>
+              <th class="text-right">Категория</th>
+              <th class="text-right">Время</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (app of report()?.projectDistributionList; track app.name) {
+                <tr
+                  class="app-row"
+                  [class.active]="selectedProject() === app.categorySlug"
+                  (click)="toggleProject(app.categorySlug)"
+                >
+                  <td>
+                    <div class="app-name-cell">
+                      <span class="app-dot" [style.background-color]="app.color"></span>
+                      <span class="app-name">{{ app.name }}</span>
+                    </div>
+                  </td>
+                  <td class="text-right">
+                    <span class="slug-badge">{{ app.categorySlug }}</span>
+                  </td>
+                  <td class="text-right font-mono">
+                    {{ formatDuration(app.minutes) }}
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="3" class="empty-state">Нет данных за этот период</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>

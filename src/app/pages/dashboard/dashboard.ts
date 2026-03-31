@@ -3,7 +3,7 @@ import {AuthService} from '../../core/auth/auth.service';
 import {ExchangePrice, ExchangeSpread} from '../../core/models/crypto.model';
 import {CommonModule, DecimalPipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {CryptoDataService} from '../../core/services/crypto-data.service';
+import {CryptoDataService} from '../../core/services/crypto/crypto-data.service';
 import {catchError, of, Subject, switchMap, takeUntil, tap, timer} from 'rxjs';
 
 @Component({

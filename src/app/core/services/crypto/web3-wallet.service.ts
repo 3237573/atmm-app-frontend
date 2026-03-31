@@ -2,7 +2,7 @@
 
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { WalletInfo } from '../models';
+import { WalletInfo } from '../../models';
 
 declare global {
   interface Window {

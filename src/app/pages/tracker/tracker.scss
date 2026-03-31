@@ -1,3 +1,4 @@
+// tracker.scss
 @use "sass:color";
 
 $bg-main: #0f172a;
@@ -259,3 +260,63 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
 
 @keyframes spin { to { transform: rotate(360deg); } }
 .main-content.is-loading { filter: blur(4px); pointer-events: none; }
+
+.details-section {
+  margin-top: 2rem;
+  padding: 0 1rem 2rem 1rem;
+
+  .details-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #eef2f6;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    h3 { margin: 0; font-size: 1.1rem; color: #1e293b; font-weight: 600; }
+  }
+
+  .app-table {
+    width: 50%;
+    border-collapse: collapse;
+    th {
+      padding: 0.75rem 1.5rem;
+      background: #f8fafc;
+      color: #64748b;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+    }
+    .app-row {
+      cursor: pointer;
+      transition: all 0.2s ease;
+      &:hover { background-color: #f1f5f9; }
+      &.active { background-color: #eff6ff; }
+
+      td { padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9; }
+    }
+  }
+
+  .app-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    .app-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .app-name { color: #334155; font-weight: 500; }
+  }
+
+  .slug-badge {
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+
+  .font-mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+  .text-right { text-align: right;  color: #0b3a6c
+  }
+}

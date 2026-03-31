@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MemberService } from '../../core/services/member.service';
+import { MemberService } from '../../core/services/member/member.service';
 import { MemberResponse } from '../../core/models/member.model';
 import { Router } from '@angular/router';
 
