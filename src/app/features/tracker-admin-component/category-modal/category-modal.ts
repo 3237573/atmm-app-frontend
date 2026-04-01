@@ -1,48 +1,56 @@
-import {Component, inject, input, OnInit, output} from '@angular/core';
+import { Component, input, output, OnInit, inject, DestroyRef, HostListener } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Category} from '../../../core/models/tracker/category.model';
+import { TranslocoModule } from '@ngneat/transloco';
+import { Category } from '../../../core/models/tracker/category.model';
+import { translit } from '../../../core/utils/translit.utils'; // Импорт твоей новой утилиты
 
 @Component({
   selector: 'app-category-modal',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslocoModule],
   templateUrl: './category-modal.html',
-  styleUrls: ['../tracker-admin.scss']
+  styleUrls: ['../tracker-admin.scss', 'category-modal.scss']
 })
 export class CategoryModal implements OnInit {
-  private readonly fb =   inject(FormBuilder)
+  private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
 
-  // Входные данные: категория для редактирования (если null — создаем новую)
   category = input<Category | null>(null);
-
-  // События
   close = output<void>();
   save = output<Category>();
 
-  // Форма теперь живет здесь
   categoryForm = this.fb.group({
-    id: new FormControl<string | null>(null),
-    nameRu: new FormControl('', [Validators.required]),
-    nameEn: new FormControl('', [Validators.required]),
-    slug: new FormControl('', [Validators.required]),
-    color: new FormControl('#3b82f6', [Validators.required]),
-    icon: new FormControl('folder', [Validators.required]),
-    priority: new FormControl(0)
+    id: [null as string | null],
+    name: ['', Validators.required], // Упростили
+    slug: ['', Validators.required],
+    color: ['#3b82f6', Validators.required],
+    icon: ['folder', Validators.required],
+    priority: new FormControl(0, [Validators.required, Validators.min(0)])
   });
 
+  @HostListener('document:keydown.escape')
+  onEsc() { this.close.emit(); }
+
   ngOnInit() {
-    // Если передана категория, заполняем форму
-    const initialData = this.category();
-    if (initialData) {
-      this.categoryForm.patchValue(initialData);
+    if (this.category()) {
+      this.categoryForm.patchValue(this.category()!);
     }
+
+    // Следим за name для авто-генерации слага
+    this.categoryForm.get('name')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(val => {
+        const slugCtrl = this.categoryForm.get('slug');
+        if (slugCtrl?.pristine || !slugCtrl?.value) {
+          slugCtrl?.setValue(translit(val || ''), { emitEvent: false });
+        }
+      });
   }
 
   submit() {
     if (this.categoryForm.valid) {
-      // Отправляем объект Category наверх родителю
-      this.save.emit(this.categoryForm.value as Category);
+      this.save.emit(this.categoryForm.getRawValue() as Category);
     }
   }
-
 }

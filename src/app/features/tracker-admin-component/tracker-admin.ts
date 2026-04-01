@@ -1,3 +1,6 @@
+// src/app/features/tracker-admin-component/tracker-admin.ts
+
+import {TranslocoModule, TranslocoService} from '@ngneat/transloco'; // Импортируем модуль целиком
 import {Component, computed, inject, OnInit, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {ReactiveFormsModule} from '@angular/forms';
@@ -7,20 +10,27 @@ import {TrackerAdminService} from '../../core/services/tracker/tracker.admin.ser
 import {CategoryRuleModal} from './category-rule-modal/category-rule-modal';
 import {CategoryModal} from './category-modal/category-modal';
 
+
 @Component({
   selector: 'app-tracker-admin',
   standalone: true,
   imports: [
     ReactiveFormsModule,
     CategoryRuleModal,
-    CategoryModal
+    CategoryModal,
+    TranslocoModule
   ],
   templateUrl: './tracker-admin.html',
   styleUrl: './tracker-admin.scss',
 })
 export class TrackerAdmin implements OnInit {
+  private readonly translocoService = inject(TranslocoService);
   private readonly trackerAdminService = inject(TrackerAdminService);
   private readonly http = inject(HttpClient);
+
+  get activeLang() {
+    return this.translocoService.getActiveLang();
+  }
 
   // Используем сигналы для реактивности и производительности
   categories = signal<Category[]>([]);

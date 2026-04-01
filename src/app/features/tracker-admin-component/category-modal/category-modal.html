@@ -1,51 +1,41 @@
-<div class="modal-overlay" (click)="close.emit()">
+<div class="modal-overlay" (click)="close.emit()" *transloco="let t">
   <div class="modal-content" (click)="$event.stopPropagation()" [formGroup]="categoryForm">
-    <h3>{{ category() ? 'Редактировать категорию' : 'Новая категория' }}</h3>
+    <h3>{{ category() ? t('tracker.category.edit') : t('tracker.category.new') }}</h3>
 
     <div class="form-field">
-      <label>Название (RU)</label>
-      <input type="text" formControlName="nameRu" placeholder="Разработка">
+      <label>{{ t('tracker.category.name') }}</label>
+      <input type="text" formControlName="name" [placeholder]="t('tracker.category.nameTooltip')">
     </div>
 
     <div class="form-field">
-      <label>Название (EN)</label>
-      <input type="text" formControlName="nameEn" placeholder="Development">
+      <label>{{ t('tracker.category.slug') }}</label>
+      <input type="text" formControlName="slug">
     </div>
 
-    <div class="form-field">
-      <label>Slug (Уникальный ключ)</label>
-      <input type="text" formControlName="slug" placeholder="development">
-    </div>
-
-    <div class="form-row-inline">
-      <div class="form-field flex-1">
-        <label>Цвет</label>
-        <div class="color-picker-wrapper">
-          <input type="color" formControlName="color" class="color-input">
-          <span class="color-hex">{{ categoryForm.get('color')?.value }}</span>
-        </div>
+    <div class="form-row inline-group">
+      <div class="form-field color-part">
+        <label>{{ t('tracker.category.color') }}</label>
+        <input type="color" formControlName="color" class="color-input">
       </div>
 
-      <div class="form-field flex-2">
-        <label>Иконка</label>
+      <div class="form-field icon-part">
+        <label>{{ t('tracker.category.icon') }}</label>
         <div class="icon-input-group">
-          <i class="material-icons">{{ categoryForm.get('icon')?.value || 'help_outline' }}</i>
-          <input type="text" formControlName="icon" placeholder="code">
+          <i class="material-icons">{{ categoryForm.value.icon || 'folder' }}</i>
+          <input type="text" formControlName="icon" placeholder="folder">
         </div>
       </div>
     </div>
 
-    <div class="form-field priority-inline-row">
-      <label>Приоритет (вес):</label>
-      <div class="priority-input-wrapper">
-        <input type="number" formControlName="priority">
-      </div>
+    <div class="form-field inline-group">
+      <label>{{ t('tracker.category.priority') }}</label>
+      <input type="number" formControlName="priority" class="dark-number-input">
     </div>
 
     <div class="modal-footer">
-      <button type="button" class="btn btn-amber" (click)="close.emit()">Отмена</button>
+      <button type="button" class="btn btn-amber" (click)="close.emit()">{{ t('btn.cancel') }}</button>
       <button type="button" class="btn btn-blue" (click)="submit()" [disabled]="categoryForm.invalid">
-        Сохранить
+        {{ t('btn.saveChanges') }}
       </button>
     </div>
   </div>

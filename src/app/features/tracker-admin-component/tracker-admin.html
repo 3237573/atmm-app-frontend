@@ -1,15 +1,15 @@
-<div class="admin-container">
+<div class="admin-container" *transloco="let t">
   <header class="admin-header">
     <div class="header-left-group">
-      <h1>Управление классификацией</h1>
+      <h1>{{ t('company.menu.admin') }}</h1>
       <div class="header-actions">
         <button class="btn btn-amber" (click)="recalculate()" [disabled]="isRecalculating()">
           <i class="material-icons">history</i>
-          <span>Применить к истории</span>
+          <span>{{ t('btn.apply') }}</span>
         </button>
         <button class="btn btn-blue" (click)="openCategoryModal()">
           <i class="material-icons">add</i>
-          <span>Категория</span>
+          <span>{{ t('tracker.category.new') }}</span>
         </button>
       </div>
     </div>
@@ -17,19 +17,13 @@
 
   <div class="admin-main-layout">
     <aside class="panel-card category-sidebar">
-      <h2 class="panel-title">Список категорий</h2>
+      <h2 class="panel-title">{{ t('nav.allCategories') }}</h2>
       <div class="category-grid-list">
         @for (cat of categories(); track cat.id) {
-          <div class="category-grid-row"
-               [class.readonly]="!cat.companyId"
-               (click)="openCategoryModal(cat)">
-            <div class="cell-dot">
-              <span class="status-dot" [style.background-color]="cat.color"></span>
-            </div>
-            <div class="cell-icon">
-              <i class="material-icons">{{ cat.icon || 'folder' }}</i>
-            </div>
-            <div class="cell-name">{{ cat.nameRu }}</div>
+          <div class="category-grid-row" [class.readonly]="!cat.companyId" (click)="openCategoryModal(cat)">
+            <div class="cell-dot"><span class="status-dot" [style.background-color]="cat.color"></span></div>
+            <div class="cell-icon"><i class="material-icons">{{ cat.icon || 'folder' }}</i></div>
+            <div class="cell-name">{{ cat.name }}</div>
             <div class="cell-slug">{{ cat.slug }}</div>
             @if (cat.companyId) {
               <div class="cell-actions">
@@ -45,8 +39,7 @@
 
     <main class="panel-card rules-container">
       <div class="rules-header">
-        <h2>Группы правил</h2>
-        <span class="rules-count">Всего: {{ rules().length }}</span>
+        <h2>{{ t('order.orderList') }}</h2>
       </div>
 
       <div class="rules-list-scroll">
@@ -54,14 +47,12 @@
           <div class="rule-group-card">
             <div class="group-header">
               <div class="group-name" [style.color]="group.category.color">
-                <span class="mini-dot" [style.background-color]="group.category.color"></span>
-                {{ group.category.nameRu }}
+                {{ group.category.name }}
               </div>
               <button class="add-rule-link" (click)="addRule(group.category)">
-                <i class="material-icons">add</i> Добавить правило
+                <i class="material-icons">add</i> {{ t('btn.show') }}
               </button>
             </div>
-
             <div class="chips-box">
               @for (rule of group.rules; track rule.id) {
                 <div class="rule-chip">
@@ -82,14 +73,12 @@
     <app-category-modal
       [category]="editingCategory()"
       (close)="closeCategoryModal()"
-      (save)="handleSaveCategory($event)">
-    </app-category-modal>
+      (save)="handleSaveCategory($event)"></app-category-modal>
   }
-
   @if (showCategoryRuleModal() && selectedCategory()) {
     <app-category-rule-modal
       [categoryId]="selectedCategory()!.id!"
-      [categoryName]="selectedCategory()!.nameRu"
+      [categoryName]="selectedCategory()!.name"
       (close)="closeCategoryRuleModal()"
       (save)="handleSaveCategoryRule($event)">
     </app-category-rule-modal>

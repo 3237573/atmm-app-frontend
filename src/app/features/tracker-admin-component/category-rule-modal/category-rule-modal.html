@@ -1,24 +1,33 @@
-<div class="modal-overlay" (click)="close.emit()">
+<div class="modal-overlay" (click)="close.emit()" *transloco="let t">
   <div class="modal-content rule-modal" (click)="$event.stopPropagation()">
     <div class="modal-header-with-icon">
       <i class="material-icons" style="color: #3b82f6">filter_alt</i>
-      <h3>Новое правило</h3>
+      <h3>{{ t('tracker.newRule') }}</h3>
     </div>
 
-    <p class="field-hint">Классификация для категории: <b>{{ categoryName() }}</b></p>
+    <p class="field-hint">
+      {{ t('tracker.ruleHint') }}: <b style="color: #3b82f6">{{ categoryName() }}</b>
+    </p>
 
     <form [formGroup]="ruleForm" (ngSubmit)="submit()">
       <div class="form-field">
-        <label>Паттерн (часть заголовка или процесса)</label>
+        <label>{{ t('tracker.rulePattern') }}</label>
         <div class="icon-input-group">
           <i class="material-icons">search</i>
-          <input type="text" formControlName="pattern" placeholder="Например: youtube.com" autofocus>
+          <input type="text"
+                 formControlName="pattern"
+                 [placeholder]="t('tracker.rulePlaceholder')"
+                 autofocus>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-amber" (click)="close.emit()">Отмена</button>
-        <button type="submit" class="btn btn-blue" [disabled]="ruleForm.invalid">Добавить</button>
+        <button type="button" class="btn btn-amber" (click)="close.emit()">
+          {{ t('btn.cancel') }}
+        </button>
+        <button type="submit" class="btn btn-blue" [disabled]="ruleForm.invalid">
+          {{ t('btn.add') }}
+        </button>
       </div>
     </form>
   </div>

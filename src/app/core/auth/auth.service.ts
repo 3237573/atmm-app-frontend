@@ -3,7 +3,7 @@ import {inject, Injectable, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {of} from 'rxjs';
 import {catchError, tap} from 'rxjs/operators';
-import {AuthResponse} from '../models/auth.model';
+import {AuthResponse, User} from '../models/auth.model';
 import {Router} from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
@@ -12,7 +12,7 @@ export class AuthService {
   private readonly router = inject(Router);
 
   // Authorization state
-  currentUser = signal<AuthResponse | null>(null);
+  currentUser = signal<User | null>(null);
   isAuthenticated = signal<boolean>(false);
 
   checkAuth() {
