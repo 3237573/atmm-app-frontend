@@ -1,47 +1,138 @@
-.members-page { color: #f8fafc; }
-.page-header { margin-bottom: 30px; }
-.page-header h2 { font-size: 24px; color: #38bdf8; }
+@use "../../app.scss" as *;
+
+.members-page {
+  padding: 1rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+
+  h2 { margin: 0; color: $accent; font-size: 1.5rem; }
+  p { margin: 5px 0 0; color: $text-muted; font-size: 0.9rem; }
+}
+
+// Стили основной кнопки
+.btn-primary {
+  background: $accent;
+  color: $bg-main;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  &:hover { opacity: 0.9; }
+}
+
+.table-container {
+  background: $bg-card;
+  border-radius: 1rem;
+  border: 1px solid $border;
+  overflow: hidden;
+}
 
 .members-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #1e293b;
-  border-radius: 8px;
-  overflow: hidden;
+
+  th {
+    background: rgba($border, 0.3);
+    text-align: left;
+    padding: 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: $text-muted;
+    letter-spacing: 0.05em;
+  }
+
+  td {
+    padding: 1rem;
+    border-bottom: 1px solid $border;
+    vertical-align: middle;
+  }
 }
 
-.members-table th {
-  text-align: left;
-  padding: 16px;
-  background-color: #334155;
-  color: #94a3b8;
-  text-transform: uppercase;
-  font-size: 12px;
+.user-info {
+  .user-name { display: block; font-weight: 600; color: white; }
+  .user-email { font-size: 0.8rem; color: $text-muted; }
 }
-
-.members-table td {
-  padding: 16px;
-  border-bottom: 1px solid #334155;
-}
-
-.user-info { display: flex; flex-direction: column; }
-.user-email { font-size: 12px; color: #64748b; }
 
 .badge-role {
-  background: #0ea5e9;
-  padding: 4px 8px;
+  font-size: 0.7rem;
+  padding: 3px 8px;
   border-radius: 4px;
-  font-size: 12px;
+  background: $border;
+  color: white;
+  font-weight: 700;
+  &.admin { background: $accent; color: $bg-main; }
+}
+
+.status-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
 }
 
 .status-dot {
-  display: inline-block;
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  margin-right: 8px;
+  background: $text-muted;
+  &.active { background: #10b981; box-shadow: 0 0 8px rgba(#10b981, 0.4); }
 }
-.status-dot.active { background-color: #10b981; }
+
+.actions-cell {
+  display: flex;
+  justify-content: flex-end; /* Прижимаем к правому краю колонки */
+  gap: 8px;                  /* Расстояние между кнопками */
+  padding-right: 1.5rem !important;
+
+  .btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: rgba($border, 0.2);
+    color: $text-muted;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    i { font-size: 20px; }
+
+    &:hover {
+      background: rgba($accent, 0.1);
+      color: $accent;
+      border-color: rgba($accent, 0.3);
+    }
+
+    &.delete:hover {
+      background: rgba($danger, 0.1);
+      color: $danger;
+      border-color: rgba($danger, 0.3);
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem !important;
+  color: $text-muted;
+}
+
+.text-right {
+  text-align: right;
+  padding-right: 1.5rem !important;
+}
 
 .btn-view {
   background-color: transparent;
@@ -56,4 +147,55 @@
 .btn-view:hover {
   background-color: #38bdf8;
   color: #0f172a;
+}
+
+.invite-panel {
+  background: rgba($bg-card, 0.5);
+  border: 1px dashed $accent;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+.invite-grid {
+  display: grid;
+  grid-template-columns: 1fr 200px auto;
+  gap: 1.5rem;
+  align-items: flex-end;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label { font-size: 0.8rem; color: $text-muted; font-weight: 600; }
+
+  input, select {
+    background: $bg-card;
+    border: 1px solid $border;
+    color: white;
+    padding: 0.6rem 1rem;
+    border-radius: 0.5rem;
+    outline: none;
+    &:focus { border-color: $accent; }
+  }
+}
+
+.btn-submit {
+  background: $accent;
+  color: $bg-main;
+  border: none;
+  height: 38px;
+  padding: 0 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  &:disabled { opacity: 0.5; }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

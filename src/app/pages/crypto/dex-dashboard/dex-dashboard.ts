@@ -4,8 +4,8 @@ import {FormsModule} from '@angular/forms';
 import {interval, Subject, switchMap, takeUntil, tap, finalize, Observable} from 'rxjs';
 
 // ✅ Правильные импорты
-import {DexSpreadService, Web3WalletService} from '../../core/services';
-import {DexNetwork, DexSpread, ArbitrageResult, WalletInfo} from '../../core/models';
+import {DexSpreadService, Web3WalletService} from '../../../core/services';
+import {DexNetwork, DexSpread, ArbitrageResult, WalletInfo} from '../../../core/models';
 
 @Component({
   selector: 'app-dex-dashboard',

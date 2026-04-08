@@ -1,19 +1,54 @@
 <div class="members-page">
   <div class="page-header">
-    <h2>Команда проекта</h2>
-    <p>Список сотрудников и их текущий статус в системе</p>
+    <div class="header-text">
+      <h2>Команда проекта</h2>
+      <p>Управление доступом и ролями сотрудников</p>
+    </div>
+    <button class="btn-primary" (click)="toggleInviteForm()">
+      <i class="material-icons">{{ showInviteForm ? 'close' : 'person_add' }}</i>
+      <span>{{ showInviteForm ? 'Отмена' : 'Пригласить' }}</span>
+    </button>
   </div>
 
-  @if (!loading) {
-    <div class="table-container">
+  @if (showInviteForm) {
+    <div class="invite-panel">
+      <div class="invite-grid">
+        <div class="input-group">
+          <label>Email</label>
+          <input type="email" [(ngModel)]="inviteData.email" placeholder="email@example.com">
+        </div>
+
+        <div class="input-group">
+          <label>Временный пароль</label>
+          <input type="password" [(ngModel)]="inviteData.password" placeholder="Мин. 6 символов">
+        </div>
+
+        <div class="input-group">
+          <label>Роль</label>
+          <select [(ngModel)]="inviteData.roleName">
+            <option value="MEMBER">Member</option>
+            <option value="ADMIN">Admin</option>
+          </select>
+        </div>
+
+        <button class="btn-submit"
+                [disabled]="isSubmitting || !inviteData.email || !inviteData.password"
+                (click)="onInvite()">
+          {{ isSubmitting ? 'Создание...' : 'Создать юзера' }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <div class="table-container">
+    @if (!loading) {
       <table class="members-table">
         <thead>
         <tr>
           <th>Сотрудник</th>
           <th>Роль</th>
-          <th>Департамент</th>
           <th>Статус</th>
-          <th>Действие</th>
+          <th class="text-right">Действия</th>
         </tr>
         </thead>
         <tbody>
@@ -21,36 +56,42 @@
             <tr>
               <td>
                 <div class="user-info">
-                  <span class="user-name">{{ member.fullName || 'User' }}</span>
+                  <span class="user-name">{{ member.fullName || 'Пользователь' }}</span>
                   <span class="user-email">{{ member.email }}</span>
                 </div>
               </td>
-              <td><span class="badge-role">{{ member.roleName }}</span></td>
-              <td>{{ member.departmentName || '—' }}</td>
               <td>
-                <span class="status-dot" [class]="member.status.toLowerCase()"></span>
-                {{ member.status }}
+                <span class="badge-role" [class.admin]="member.roleName === 'OWNER' || member.roleName === 'ADMIN'">
+                  {{ member.roleName }}
+                </span>
               </td>
               <td>
-                <button class="btn-view" (click)="viewActivity(member.userId)">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; vertical-align: middle;">
-                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
-                  </svg>
-                  Активность
+                <div class="status-wrapper">
+                  <span class="status-dot" [class.active]="member.status === 'ACTIVE'"></span>
+                  <span class="status-text">{{ member.status }}</span>
+                </div>
+              </td>
+              <td class="actions-cell">
+                <button class="btn-icon view" (click)="viewActivity(member.userId)" title="Активность">
+                  <i class="material-icons">visibility</i>
+                </button>
+                <button class="btn-icon delete" (click)="deleteMember(member.userId)" title="Удалить">
+                  <i class="material-icons">person_remove</i>
                 </button>
               </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="5" style="text-align: center; padding: 20px;">
-                Сотрудники не найдены
-              </td>
+              <td colspan="4" class="empty-state">Сотрудники не найдены</td>
             </tr>
           }
         </tbody>
       </table>
-    </div>
-  } @else {
-    <div class="loader">Загрузка данных...</div>
-  }
+    } @else {
+      <div class="loader-container">
+        <div class="loader"></div>
+        <span>Загрузка команды...</span>
+      </div>
+    }
+  </div>
 </div>
