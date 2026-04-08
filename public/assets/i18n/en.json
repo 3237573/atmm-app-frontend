@@ -21,6 +21,9 @@
     "orderList": "Rule Groups"
   },
   "tracker": {
+    "activity": {
+      "title": "Activity"
+    },
     "adminTitle": "Classification management",
     "categories": "List of categories",
     "category": {
@@ -36,10 +39,19 @@
     "details": {
       "title": "Detail"
     },
+    "period": {
+      "onTheAir" : "On the Air",
+      "dataArchive" : "Data archive"
+    },
     "rule": {
       "new": "New rule",
       "ruleHint": "Classification for a category",
       "rulePattern": "Pattern (part of a header or process)"
+    },
+    "title": {
+      "myActivity" : "My activity",
+      "employeeReport" : "Employee report",
+      "today" : "Today"
     }
   }
 }

@@ -13,13 +13,13 @@
                   [attr.stroke-dashoffset]="100 - p.offset"
                   [class.active]="selectedProject() === p.name"
                   [class.inactive]="selectedProject() && selectedProject() !== p.name"
-                  (click)="toggle.emit(p.name)">
+                  (click)="stateChange.emit(p.name)">
           </circle>
         }
       </svg>
-      <div class="donut-info" (click)="reset.emit()">
+      <div class="donut-info" (click)="formReset.emit()">
         <div class="info-content">
-          <span class="info-label">Активность</span>
+          <span class="info-label">{{ 'tracker.activity.title' | transloco }}</span>
           @if (selectedProjectInfo(); as info) {
             <span class="info-value main" [style.color]="info.color">{{ formatDuration(info.minutes) }}</span>
             <span class="info-value sub">из {{ formatDuration(totalMinutes()) }}</span>
@@ -35,7 +35,7 @@
     @for (p of projectSummaries(); track p.name) {
       <div class="legend-card"
            [class.active]="selectedProject() === p.name"
-           (click)="toggle.emit(p.name)">
+           (click)="stateChange.emit(p.name)">
         <div class="project-color" [style.background-color]="p.color"></div>
         <div class="project-details">
           <span class="project-name">{{ p.name }}</span>

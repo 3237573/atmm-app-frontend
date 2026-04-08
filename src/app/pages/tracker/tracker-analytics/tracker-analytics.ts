@@ -1,10 +1,11 @@
 import { Component, computed, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {TranslocoPipe} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-tracker-analytics',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslocoPipe],
   templateUrl: './tracker-analytics.html',
   styleUrls: ['./tracker-analytics.scss']
 })
@@ -15,8 +16,8 @@ export class TrackerAnalytics {
   selectedProject = input<string | null>(null);
 
   // События
-  toggle = output<string>();
-  reset = output<void>();
+  stateChange = output<string>();
+  formReset = output<void>();
 
   // Оптимизированные расчеты для графика
   readonly projectSummaries = computed(() => {

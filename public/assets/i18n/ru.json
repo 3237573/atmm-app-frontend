@@ -21,6 +21,9 @@
     "orderList": "Группы правил"
   },
   "tracker": {
+    "activity": {
+      "title": "Активность"
+    },
     "adminTitle": "Управление классификацией",
     "categories": "Список категорий",
     "category": {
@@ -36,10 +39,20 @@
     "details": {
       "title": "Детализация"
     },
+    "period": {
+      "onTheAir" : "В эфире",
+      "dataArchive" : "Архив данных"
+    },
     "rule": {
       "new": "Новое правило",
       "ruleHint": "Классификация для категории",
       "rulePattern": "Паттерн (часть заголовка или процесса)"
+    },
+    "title": {
+      "myActivity" : "Моя активность",
+      "employeeReport" : "Отчет сотрудника",
+      "today" : "Сегодня"
     }
+
   }
 }

@@ -3,7 +3,7 @@
     <div class="header-left">
       <div class="title-wrap">
         <h2 class="page-title">
-          {{ targetUserId() ? 'Отчет сотрудника' : 'Моя активность' }}
+          {{ (targetUserId() ? 'tracker.title.employeeReport' : 'tracker.title.myActivity') | transloco }}
         </h2>
         @if (targetUserId()) {
           <button class="btn-reset" (click)="resetToMe()">
@@ -13,7 +13,7 @@
       </div>
       <div class="status-badge" [class.live]="isToday()">
         <span class="pulse-dot"></span>
-        {{ isToday() ? 'В эфире' : 'Архив данных' }}
+        {{ (isToday() ? 'tracker.period.onTheAir' : 'tracker.period.dataArchive') | transloco }}
       </div>
     </div>
 
@@ -21,7 +21,9 @@
       <button class="nav-btn" (click)="changeDay(-1)">←</button>
       <div class="datepicker-box">
         <input type="date" [value]="selectedDate()" (change)="onDateChange($event)" [max]="selectedDate()">
-        <span class="date-label">{{ isToday() ? 'Сегодня' : (selectedDate() | date:'dd MMMM') }}</span>
+        <span class="date-label">
+          {{ isToday() ? ('tracker.title.today' | transloco) : (selectedDate() | date:'dd MMMM') }}
+        </span>
       </div>
       <button class="nav-btn" (click)="changeDay(1)" [disabled]="isToday()">→</button>
     </div>
@@ -69,8 +71,8 @@
       [categoryDistribution]="report()?.categoryDistribution || []"
       [totalMinutes]="totalMinutes()"
       [selectedProject]="selectedProject()"
-      (toggle)="toggleProject($event)"
-      (reset)="selectedProject.set(null)">
+      (stateChange)="toggleProject($event)"
+      (formReset)="selectedProject.set(null)">
     </app-tracker-analytics>
 
     <app-activity-detail
