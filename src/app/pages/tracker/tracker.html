@@ -6,8 +6,8 @@
           {{ targetUserId() ? 'Отчет сотрудника' : 'Моя активность' }}
         </h2>
         @if (targetUserId()) {
-          <button class="btn-reset" (click)="resetToMe()" title="Вернуться к своей статистике">
-            <span>✕</span> Мой профиль
+          <button class="btn-reset" (click)="resetToMe()">
+            <i class="material-icons">person_search</i> Мой профиль
           </button>
         }
       </div>
@@ -18,25 +18,24 @@
     </div>
 
     <div class="date-navigator">
-      <button class="nav-btn" (click)="changeDay(-1)" title="Предыдущий день">←</button>
+      <button class="nav-btn" (click)="changeDay(-1)">←</button>
       <div class="datepicker-box">
         <input type="date" [value]="selectedDate()" (change)="onDateChange($event)" [max]="selectedDate()">
         <span class="date-label">{{ isToday() ? 'Сегодня' : (selectedDate() | date:'dd MMMM') }}</span>
       </div>
-      <button class="nav-btn" (click)="changeDay(1)" [disabled]="isToday()" title="Следующий день">→</button>
+      <button class="nav-btn" (click)="changeDay(1)" [disabled]="isToday()">→</button>
     </div>
   </header>
 
   @if (loading()) {
     <div class="loading-overlay">
       <div class="spinner"></div>
-      <p>Обработка данных...</p>
     </div>
   }
 
   <div class="main-content" [class.is-loading]="loading()">
 
-    <div class="timeline-section">
+    <section class="timeline-section">
       <div class="timeline-wrapper">
         <div class="timeline-grid">
           @for (h of hours; track h) {
@@ -64,9 +63,9 @@
           <div class="now-marker" [style.left.%]="(currentTimeInMinutes() / 1440) * 100"></div>
         }
       </div>
-    </div>
+    </section>
 
-    <div class="analytics-grid">
+    <section class="analytics-grid">
       <div class="chart-box">
         <div class="donut-wrap">
           <svg viewBox="0 0 36 36" class="donut">
@@ -78,16 +77,29 @@
                       [attr.stroke]="p.color"
                       stroke-width="3.2"
                       [attr.stroke-dasharray]="p.percentage + ' ' + (100 - p.percentage)"
-                      [attr.stroke-dashoffset]="100 - p.offset + 25"
+                      [attr.stroke-dashoffset]="100 - p.offset"
                       [class.active]="selectedProject() === p.name"
-                      [class.inactive]="selectedProject() && selectedProject() !== p.name"
                       (click)="toggleProject(p.name)">
               </circle>
             }
           </svg>
           <div class="donut-info" (click)="selectedProject.set(null)">
-            <span class="info-label">Активность</span>
-            <span class="info-value">{{ formatDuration(totalMinutes()) }}</span>
+            <div class="info-content">
+              <span class="info-label">Активность</span>
+
+              @if (selectedProjectInfo(); as info) {
+                <span class="info-value main" [style.color]="info.color">
+                  {{ formatDuration(info.minutes) }}
+                </span>
+                <span class="info-value sub">
+                  из {{ formatDuration(totalMinutes()) }}
+                </span>
+              } @else {
+                <span class="info-value main">
+                  {{ formatDuration(totalMinutes()) }}
+                </span>
+              }
+            </div>
           </div>
         </div>
       </div>
@@ -106,52 +118,13 @@
           </div>
         }
       </div>
-    </div>
+    </section>
 
-    <div class="details-section">
-      <div class="details-card">
-        <div class="card-header">
-          <h3>Детализация приложений</h3>
-        </div>
-        <div class="table-responsive">
-          <table class="app-table">
-            <thead>
-            <tr>
-              <th>Приложение</th>
-              <th class="text-right">Категория</th>
-              <th class="text-right">Время</th>
-            </tr>
-            </thead>
-            <tbody>
-              @for (app of report()?.projectDistributionList; track app.name) {
-                <tr
-                  class="app-row"
-                  [class.active]="selectedProject() === app.categorySlug"
-                  (click)="toggleProject(app.categorySlug)"
-                >
-                  <td>
-                    <div class="app-name-cell">
-                      <span class="app-dot" [style.background-color]="app.color"></span>
-                      <span class="app-name">{{ app.name }}</span>
-                    </div>
-                  </td>
-                  <td class="text-right">
-                    <span class="slug-badge">{{ app.categorySlug }}</span>
-                  </td>
-                  <td class="text-right font-mono">
-                    {{ formatDuration(app.minutes) }}
-                  </td>
-                </tr>
-              } @empty {
-                <tr>
-                  <td colspan="3" class="empty-state">Нет данных за этот период</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    <app-activity-detail
+      [items]="report()?.projectDistributionList || []"
+      [selectedProject]="selectedProject()"
+      (toggle)="toggleProject($event)">
+    </app-activity-detail>
 
   </div>
 </div>

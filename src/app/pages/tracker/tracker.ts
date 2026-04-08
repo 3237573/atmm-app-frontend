@@ -4,14 +4,10 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {toObservable, toSignal} from '@angular/core/rxjs-interop';
 import {combineLatest, map, switchMap, tap} from 'rxjs';
 import {ActivityService} from '../../core/services/tracker/activity.service';
+import {AppStatDTO} from '../../core/models/activity.model';
+import {ActivityDetail} from './activity-detail/activity-detail';
 
-// --- Новые интерфейсы ---
-export interface AppStatDTO {
-  name: string;
-  minutes: number;
-  color: string;
-  categorySlug: string;
-}
+
 
 export interface UserActivityReportV2 {
   userId: string;
@@ -22,12 +18,10 @@ export interface UserActivityReportV2 {
   categoryDistribution: { slug: string; color: string; minutes: number }[];
 }
 
-
 @Component({
   selector: 'app-tracker',
   standalone: true,
-  // ВАЖНО: убедись, что CommonModule здесь есть для работы пайпов в HTML
-  imports: [CommonModule],
+  imports: [CommonModule, ActivityDetail],
   templateUrl: './tracker.html',
   styleUrl: './tracker.scss'
 })
@@ -67,21 +61,32 @@ export class Tracker implements OnInit, OnDestroy {
   readonly totalMinutes = computed(() => this.report()?.totalActiveMinutes || 0);
   readonly isToday = computed(() => this.selectedDate() === new Date().toISOString().split('T')[0]);
 
-  // Оптимизированная логика для бублика
+  // Внутри класса Tracker добавь:
+  readonly selectedProjectInfo = computed(() => {
+    const slug = this.selectedProject();
+    if (!slug) return null;
+    return this.projectSummaries().find(p => p.name === slug);
+  });
+
+  // Оптимизированная логика для бублика + СОРТИРОВКА
   readonly projectSummaries = computed(() => {
     const data = this.report();
     const total = this.totalMinutes();
     if (!data || total === 0) return [];
 
+    // 1. Сортируем категории по убыванию времени
+    const sortedCategories = [...(data.categoryDistribution || [])]
+      .sort((a, b) => b.minutes - a.minutes);
+
     let currentOffset = 0;
-    return (data.categoryDistribution || []).map(cat => {
+    return sortedCategories.map(cat => {
       const percentage = (cat.minutes / total) * 100;
       const res = {
         name: cat.slug,
         minutes: cat.minutes,
         color: cat.color || '#64748b',
         percentage: percentage,
-        offset: currentOffset
+        offset: currentOffset // Офсет считается уже по отсортированным данным
       };
       currentOffset += percentage;
       return res;

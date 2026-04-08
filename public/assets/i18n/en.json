@@ -1,0 +1,45 @@
+{
+  "btn": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "add": "Add",
+    "delete": "Delete",
+    "apply": "Apply to History",
+    "show": "Add Rule",
+    "saveChanges": "Save Changes",
+    "edit": "Edit"
+  },
+  "nav": {
+    "allCategories": "All Categories"
+  },
+  "company": {
+    "menu": {
+      "admin": "Classification Management"
+    }
+  },
+  "order": {
+    "orderList": "Rule Groups"
+  },
+  "tracker": {
+    "adminTitle": "Classification management",
+    "categories": "List of categories",
+    "category": {
+      "color": "Color",
+      "edit": "Edit Category",
+      "icon": "Material Icon ",
+      "name": "Category Name",
+      "nameTooltip": "Enter a name",
+      "new": "New category",
+      "priority": "Priority",
+      "slug": "Slug (key)"
+    },
+    "details": {
+      "title": "Detail"
+    },
+    "rule": {
+      "new": "New rule",
+      "ruleHint": "Classification for a category",
+      "rulePattern": "Pattern (part of a header or process)"
+    }
+  }
+}
