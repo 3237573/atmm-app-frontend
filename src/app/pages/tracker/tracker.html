@@ -65,60 +65,13 @@
       </div>
     </section>
 
-    <section class="analytics-grid">
-      <div class="chart-box">
-        <div class="donut-wrap">
-          <svg viewBox="0 0 36 36" class="donut">
-            <circle class="donut-bg" cx="18" cy="18" r="15.9"></circle>
-            @for (p of projectSummaries(); track p.name) {
-              <circle class="donut-segment"
-                      cx="18" cy="18" r="15.9"
-                      fill="transparent"
-                      [attr.stroke]="p.color"
-                      stroke-width="3.2"
-                      [attr.stroke-dasharray]="p.percentage + ' ' + (100 - p.percentage)"
-                      [attr.stroke-dashoffset]="100 - p.offset"
-                      [class.active]="selectedProject() === p.name"
-                      (click)="toggleProject(p.name)">
-              </circle>
-            }
-          </svg>
-          <div class="donut-info" (click)="selectedProject.set(null)">
-            <div class="info-content">
-              <span class="info-label">Активность</span>
-
-              @if (selectedProjectInfo(); as info) {
-                <span class="info-value main" [style.color]="info.color">
-                  {{ formatDuration(info.minutes) }}
-                </span>
-                <span class="info-value sub">
-                  из {{ formatDuration(totalMinutes()) }}
-                </span>
-              } @else {
-                <span class="info-value main">
-                  {{ formatDuration(totalMinutes()) }}
-                </span>
-              }
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="legend-list">
-        @for (p of projectSummaries(); track p.name) {
-          <div class="legend-card"
-               [class.active]="selectedProject() === p.name"
-               (click)="toggleProject(p.name)">
-            <div class="project-color" [style.background-color]="p.color"></div>
-            <div class="project-details">
-              <span class="project-name">{{ p.name }}</span>
-              <span class="project-time">{{ formatDuration(p.minutes) }}</span>
-            </div>
-            <div class="project-percent">{{ p.percentage | number:'1.0-0' }}%</div>
-          </div>
-        }
-      </div>
-    </section>
+    <app-tracker-analytics
+      [categoryDistribution]="report()?.categoryDistribution || []"
+      [totalMinutes]="totalMinutes()"
+      [selectedProject]="selectedProject()"
+      (toggle)="toggleProject($event)"
+      (reset)="selectedProject.set(null)">
+    </app-tracker-analytics>
 
     <app-activity-detail
       [items]="report()?.projectDistributionList || []"

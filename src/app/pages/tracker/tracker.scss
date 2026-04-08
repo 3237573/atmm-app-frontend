@@ -1,408 +1,249 @@
 @use "sass:color";
-
-// --- Переменные (Система Дизайна) ---
-$bg-main: #0f172a;
-$bg-card: #1e293b;
-$border: #334155;
-$text-main: #f1f5f9;
-$text-muted: #94a3b8;
-$accent: #38bdf8;
-$danger: #ef4444;
-$success: #4ade80;
-$ease: cubic-bezier(0.4, 0, 0.2, 1);
-
-// --- Миксины ---
-@mixin flex-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-@mixin custom-scrollbar {
-  &::-webkit-scrollbar { width: 6px; height: 6px; }
-  &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb { background: $border; border-radius: 10px; }
-}
+@use "../../app.scss" as *;
 
 // --- Основной контейнер ---
 .tracker-container {
   background: $bg-card;
   border-radius: 1.5rem;
   padding: 2.5rem;
-  color: $text-main;
   min-height: 600px;
   position: relative;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  font-family: 'Inter', system-ui, sans-serif;
+  border: 1px solid rgba($border, 0.5);
+  transition: all 0.3s $ease;
 }
 
-// --- Header & Navigation ---
+// --- Header ---
 .tracker-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 3.5rem;
 
-  .header-left {
-    .title-wrap {
-      display: flex;
-      align-items: center;
-      gap: 1.25rem;
-      margin-bottom: 0.75rem;
-    }
-    .page-title {
-      font-size: 2rem;
-      font-weight: 800;
-      margin: 0;
-      letter-spacing: -0.02em;
-    }
+  .page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: $text-main;
   }
 }
 
-.btn-reset {
-  background: rgba($accent, 0.1);
-  border: 1px solid rgba($accent, 0.2);
-  color: $accent;
-  padding: 0.5rem 1rem;
-  border-radius: 0.75rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s $ease;
-  &:hover { background: $accent; color: $bg-main; transform: translateY(-1px); }
-}
-
-.status-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: $text-muted;
-
-  &.live {
-    color: $success;
-    .pulse-dot { background: $success; animation: pulse 2s infinite; }
-  }
-  .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: $text-muted; }
-}
-
+// --- Навигация (Стрелки и дата) ---
 .date-navigator {
   display: flex;
-  background: $bg-main;
-  padding: 0.4rem;
-  border-radius: 1rem;
-  border: 1px solid $border;
   align-items: center;
+  background: rgba($bg-main, 0.6);
+  padding: 0.35rem;
+  border-radius: 0.85rem;
+  border: 1px solid $border;
+  gap: 0.5rem;
 
   .nav-btn {
     @include flex-center;
-    width: 36px; height: 36px;
-    border: none; background: transparent;
-    color: white; cursor: pointer; border-radius: 0.6rem;
-    transition: 0.2s;
-    &:hover:not(:disabled) { background: rgba(255,255,255,0.1); }
-    &:disabled { opacity: 0.2; cursor: not-allowed; }
+    width: 34px;
+    height: 34px;
+    border: none;
+    background: transparent;
+    color: $text-muted;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    transition: all 0.2s $ease;
+    font-size: 1.1rem;
+
+    &:hover:not(:disabled) {
+      background: $accent;
+      color: $bg-main;
+    }
+
+    &:disabled {
+      opacity: 0.15;
+      cursor: not-allowed;
+    }
   }
 
   .datepicker-box {
     position: relative;
-    padding: 0 1.25rem;
+    padding: 0 0.75rem;
     min-width: 140px;
-    text-align: center;
-    .date-label { font-size: 0.95rem; font-weight: 600; color: $text-main; }
-    input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    .date-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: $text-main;
+      &::after {
+        content: '▾';
+        margin-left: 6px;
+        font-size: 0.8rem;
+        opacity: 0.5;
+      }
+    }
+
+    input[type="date"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
   }
 }
 
-// --- Timeline Section ---
+// --- Timeline (График активности) ---
 .timeline-wrapper {
   position: relative;
-  background: $bg-main;
-  height: 110px;
-  border-radius: 1.25rem;
+  background: linear-gradient(to bottom, rgba($bg-main, 0.6), rgba($bg-main, 0.3));
+  height: 80px;
+  border-radius: 0.75rem;
   border: 1px solid $border;
-  margin-bottom: 4rem;
-  overflow: hidden;
+  margin-bottom: 4rem; // Место для подписей часов под шкалой
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .timeline-grid {
   display: flex;
   height: 100%;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
   .hour-cell {
     flex: 1;
-    border-right: 1px solid rgba($border, 0.4);
+    border-right: 1px solid rgba($border, 0.2);
     position: relative;
+    &:last-child { border-right: none; }
+
     .hour-label {
       position: absolute;
-      bottom: 8px;
-      left: 4px;
-      font-size: 0.75rem;
-      font-weight: 500;
+      bottom: -24px;
+      left: -50%;
+      width: 100%;
+      text-align: center;
+      font-size: 0.7rem;
       color: $text-muted;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
     }
   }
 }
 
+.activity-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+// --- Сегменты задач ---
 .task-segment {
   position: absolute;
-  top: 50%; transform: translateY(-50%);
-  height: 42px; border-radius: 8px;
-  cursor: pointer; transition: all 0.3s $ease;
-  border: 1px solid rgba(255,255,255,0.15);
+  top: 50%;
+  transform: translateY(-50%);
+  height: 36px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s $ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: auto;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 
   &:hover {
-    z-index: 10; filter: brightness(1.25);
-    .task-tooltip { opacity: 1; transform: translate(-50%, -12px); }
+    height: 48px;
+    z-index: 100;
+    filter: brightness(1.2) saturate(1.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+
+    .task-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, -12px) scale(1);
+    }
   }
 
-  &.dimmed { opacity: 0.1; filter: grayscale(1); transform: translateY(-50%) scaleY(0.85); }
-  &.highlighted { z-index: 5; transform: translateY(-50%) scaleY(1.15); box-shadow: 0 12px 24px rgba(0,0,0,0.5); }
+  &.highlighted {
+    height: 52px;
+    z-index: 50;
+    border: 1.5px solid white;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  }
+
+  &.dimmed {
+    opacity: 0.15;
+    filter: grayscale(0.5);
+  }
+
+  // Тултип
+  .task-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translate(-50%, 0) scale(0.9);
+    background: #1e293b;
+    color: white;
+    padding: 0.6rem 0.9rem;
+    border-radius: 0.6rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s $ease;
+    border: 1px solid $border;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+
+    strong {
+      display: block;
+      color: $accent;
+      margin-bottom: 2px;
+    }
+
+    span {
+      font-family: 'JetBrains Mono', monospace;
+      opacity: 0.8;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%; left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: $border;
+    }
+  }
 }
 
-.task-tooltip {
-  position: absolute;
-  bottom: 100%; left: 50%; transform: translate(-50%, 0);
-  background: #020617; color: white;
-  padding: 0.6rem 1rem; border-radius: 0.75rem;
-  font-size: 0.8rem; white-space: nowrap;
-  pointer-events: none; opacity: 0;
-  transition: 0.2s $ease;
-  border: 1px solid $border;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.6);
-}
-
+// --- Маркер текущего времени ---
 .now-marker {
   position: absolute;
-  top: 0; bottom: 0; width: 2px; background: $danger;
+  top: -5px; bottom: -5px;
+  width: 2px;
+  background: $danger;
+  z-index: 30;
+  pointer-events: none;
+
   &::after {
-    content: ''; position: absolute; top: -4px; left: -4px;
-    width: 10px; height: 10px; border-radius: 50%; background: $danger;
+    content: '';
+    position: absolute;
+    top: -2px; left: -4px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: $danger;
     box-shadow: 0 0 10px $danger;
   }
 }
 
-// --- Analytics Grid ---
-.donut-segment {
-  cursor: pointer;
-  transition: all 0.3s $ease;
-
-  // КЛИКИ: ловим только там, где есть цветная линия
-  pointer-events: stroke;
-  // Убеждаемся, что заливка не мешает
-  fill: none !important;
-
-  &:hover {
-    stroke-width: 4.5;
-  }
-
-  &.active {
-    stroke-width: 5.5;
-    opacity: 1;
-  }
-
-  &.inactive {
-    opacity: 0.3;
-    stroke-width: 2.5;
-  }
-}
-
-.donut-info {
+// --- Состояния ---
+.loading-overlay {
   position: absolute;
   inset: 0;
-  @include flex-center; // Используем твой миксин
-  pointer-events: none;
-  z-index: 10;
-
-  .info-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    pointer-events: auto;
-    cursor: pointer;
-    // Убираем возможные перекосы из-за высоты строк
-    line-height: 1.2;
-  }
-
-  .info-label {
-    font-size: 0.65rem;
-    font-weight: 700;
-    color: $text-muted;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 4px; // Четкий отступ над временем
-  }
-
-  .info-value {
-    transition: all 0.3s $ease;
-    font-family: 'Inter', sans-serif;
-
-    &.main {
-      font-size: 1.8rem; // Крупное время
-      font-weight: 800;
-      color: white;
-    }
-
-    &.sub {
-      font-size: 0.85rem; // Уменьшенное общее время
-      font-weight: 600;
-      color: $text-muted;
-      margin-top: 2px;
-      opacity: 0.8;
-    }
-  }
-}
-
-// Дополнительно: чтобы бублик не "дергался" при смене текста
-.donut-wrap {
-  // ... существующие стили ...
-  .donut {
-    overflow: visible; // Чтобы активные (жирные) сегменты не обрезались
-  }
-}
-
-.analytics-grid {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 4rem;
-  align-items: center;
-  margin-bottom: 3rem;
-}
-
-.donut-wrap {
-  position: relative;
-  width: 200px; height: 200px;
-  .donut { transform: rotate(-90deg); overflow: visible; }
-  .donut {
-    overflow: visible; // Чтобы активные (жирные) сегменты не обрезались
-  }
-  .donut-bg { fill: transparent; stroke: rgba($border, 0.3); stroke-width: 3.5; }
-  .donut-segment {
-    cursor: pointer; transition: 0.3s $ease;
-    &.active { stroke-width: 5; filter: drop-shadow(0 0 8px rgba(255,255,255,0.2)); }
-    &.inactive { opacity: 0.15; }
-  }
-  .donut-info {
-    position: absolute; inset: 0;
-    @include flex-center;
-    flex-direction: column;
-    .info-label { font-size: 0.75rem; font-weight: 600; color: $text-muted; text-transform: uppercase; letter-spacing: 0.05em; }
-    .info-value { font-size: 1.25rem; font-weight: 800; color: white; }
-  }
-}
-
-.legend-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1.25rem;
-}
-
-.legend-card {
-  display: flex; align-items: center; gap: 1.25rem;
-  padding: 1.15rem; background: rgba(255,255,255,0.03);
-  border-radius: 1rem; border: 1px solid transparent;
-  cursor: pointer; transition: 0.2s;
-
-  &:hover { background: rgba(255,255,255,0.06); transform: translateY(-2px); }
-  &.active { border-color: $accent; background: rgba($accent, 0.08); }
-
-  .project-color { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
-  .project-details {
-    flex: 1; display: flex; flex-direction: column; gap: 2px;
-    .project-name { font-size: 0.95rem; font-weight: 600; color: $text-main; }
-    .project-time { font-size: 0.85rem; color: $text-muted; }
-  }
-  .project-percent { font-size: 0.85rem; font-weight: 700; color: $accent; }
-}
-
-// --- Details Table (Modern Dark) ---
-.details-section {
-  margin-top: 3rem;
-
-  .details-card {
-    background: rgba($bg-main, 0.5);
-    border-radius: 1.25rem;
-    border: 1px solid $border;
-    overflow: hidden;
-  }
-
-  .card-header {
-    padding: 1.5rem 2rem;
-    border-bottom: 1px solid $border;
-    background: rgba($bg-main, 0.3);
-    h3 { margin: 0; font-size: 1.25rem; color: white; font-weight: 700; }
-  }
-
-  .app-table {
-    width: 100%;
-    border-collapse: collapse;
-
-    th {
-      padding: 1rem 2rem;
-      background: rgba($bg-main, 0.6);
-      color: $text-muted;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      text-align: left;
-    }
-
-    .app-row {
-      cursor: pointer; transition: 0.2s;
-      border-bottom: 1px solid rgba($border, 0.5);
-      &:last-child { border-bottom: none; }
-      &:hover { background: rgba(255,255,255,0.03); }
-      &.active { background: rgba($accent, 0.08); }
-
-      td { padding: 1.15rem 2rem; font-size: 0.95rem; }
-    }
-  }
-
-  .app-name-cell {
-    display: flex; align-items: center; gap: 14px;
-    .app-dot { width: 8px; height: 8px; border-radius: 50%; }
-    .app-name { color: $text-main; font-weight: 600; }
-  }
-
-  .slug-badge {
-    background: $bg-main;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    color: $text-muted;
-    border: 1px solid $border;
-  }
-
-  .font-mono {
-    font-family: 'JetBrains Mono', monospace;
-    color: $accent;
-    font-weight: 600;
-    font-size: 0.9rem;
-  }
-}
-
-// --- Loading State ---
-.loading-overlay {
-  position: absolute; inset: 0; z-index: 100;
+  z-index: 100;
   @include flex-center;
-  flex-direction: column;
   background: rgba($bg-card, 0.85);
   backdrop-filter: blur(8px);
   border-radius: 1.5rem;
-  .spinner {
-    width: 48px; height: 48px;
-    border: 4px solid rgba($accent, 0.1);
-    border-top-color: $accent;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-bottom: 1.5rem;
-  }
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
 }

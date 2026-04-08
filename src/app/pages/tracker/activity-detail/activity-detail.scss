@@ -1,6 +1,6 @@
 // activity-detail.scss
 @use "sass:color";
-@use "../tracker.scss" as *; // Или укажи путь к файлу, где лежат переменные
+@use "../../../app.scss" as *;
 
 .apps-grid {
   display: grid;

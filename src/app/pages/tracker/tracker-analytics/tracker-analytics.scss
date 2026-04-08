@@ -1,0 +1,105 @@
+@use "sass:color";
+@use "../../../app.scss" as *;
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 4rem;
+  align-items: center;
+  margin-bottom: 3rem;
+
+  @media (max-width: 768px) { grid-template-columns: 1fr; justify-items: center; }
+}
+
+.donut-wrap {
+  position: relative;
+  width: 200px;
+  height: 200px;
+
+  .donut {
+    transform: rotate(-90deg);
+    overflow: visible; // Важно для hover эффектов
+  }
+
+  .donut-bg {
+    fill: none;
+    stroke: rgba($border, 0.3);
+    stroke-width: 3.5;
+  }
+
+  .donut-segment {
+    cursor: pointer;
+    transition: all 0.3s $ease;
+    pointer-events: stroke;
+    fill: none !important;
+
+    &:hover { stroke-width: 4.5; }
+    &.active { stroke-width: 5.5; opacity: 1; filter: drop-shadow(0 0 8px rgba($accent, 0.2)); }
+    &.inactive { opacity: 0.2; stroke-width: 2.5; }
+  }
+}
+
+.donut-info {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 10;
+  width: 100%; // Важно!
+  height: 100%; // Важно!
+
+  .info-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    text-align: center; // Центрируем сам текст
+    width: 80%; // Чтобы длинный текст не вылезал за края бублика
+  }
+
+  .info-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+    display: block;
+    width: 100%;
+  }
+
+  .info-value.main {
+    display: block;
+    width: 100%;
+    transition: all 0.3s $ease;
+    &.main { font-size: 1.8rem; font-weight: 800; color: white; }
+    &.sub { font-size: 0.85rem; font-weight: 600; color: $text-muted; margin-top: 2px; }
+  }
+}
+
+.legend-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.legend-card {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1rem; background: rgba(255,255,255,0.03);
+  border-radius: 0.75rem; border: 1px solid transparent;
+  cursor: pointer; transition: 0.2s;
+
+  &:hover { background: rgba(255,255,255,0.06); transform: translateY(-2px); }
+  &.active { border-color: $accent; background: rgba($accent, 0.08); }
+
+  .project-color { width: 12px; height: 12px; border-radius: 3px; }
+  .project-details {
+    flex: 1;
+    .project-name { display: block; font-size: 0.9rem; font-weight: 600; color: $text-main; }
+    .project-time { font-size: 0.8rem; color: $text-muted; }
+  }
+  .project-percent { font-size: 0.85rem; font-weight: 700; color: $accent; }
+}

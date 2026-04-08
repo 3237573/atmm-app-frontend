@@ -6,8 +6,7 @@ import {combineLatest, map, switchMap, tap} from 'rxjs';
 import {ActivityService} from '../../core/services/tracker/activity.service';
 import {AppStatDTO} from '../../core/models/activity.model';
 import {ActivityDetail} from './activity-detail/activity-detail';
-
-
+import {TrackerAnalytics} from './tracker-analytics/tracker-analytics';
 
 export interface UserActivityReportV2 {
   userId: string;
@@ -21,7 +20,7 @@ export interface UserActivityReportV2 {
 @Component({
   selector: 'app-tracker',
   standalone: true,
-  imports: [CommonModule, ActivityDetail],
+  imports: [CommonModule, ActivityDetail, TrackerAnalytics],
   templateUrl: './tracker.html',
   styleUrl: './tracker.scss'
 })
@@ -57,7 +56,6 @@ export class Tracker implements OnInit, OnDestroy {
   );
 
   readonly report = toSignal(this.report$);
-
   readonly totalMinutes = computed(() => this.report()?.totalActiveMinutes || 0);
   readonly isToday = computed(() => this.selectedDate() === new Date().toISOString().split('T')[0]);
 
@@ -99,9 +97,7 @@ export class Tracker implements OnInit, OnDestroy {
       const start = this.isoToMinutes(int.startTime);
       const end = this.isoToMinutes(int.endTime);
       return {
-        ...int,
-        start,
-        end,
+        ...int, start, end,
         style: {
           'left.%': (start / 1440) * 100,
           'width.%': Math.max(((end - start) / 1440) * 100, 0.2)
