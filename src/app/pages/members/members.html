@@ -72,12 +72,16 @@
                 </div>
               </td>
               <td class="actions-cell">
-                <button class="btn-icon view" (click)="viewActivity(member.userId)" title="Активность">
-                  <i class="material-icons">visibility</i>
-                </button>
-                <button class="btn-icon delete" (click)="deleteMember(member.userId)" title="Удалить">
-                  <i class="material-icons">person_remove</i>
-                </button>
+                @if (canManage()) {
+                  <button class="btn-icon view" (click)="viewActivity(member.userId)" title="Активность">
+                    <i class="material-icons">visibility</i>
+                  </button>
+                }
+                @if (member.status !== 'DELETED') {
+                  <button class="btn-icon delete" (click)="deleteMember(member.userId)" title="Удалить">
+                    <i class="material-icons">person_remove</i>
+                  </button>
+                }
               </td>
             </tr>
           } @empty {

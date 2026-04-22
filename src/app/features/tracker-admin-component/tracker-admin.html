@@ -3,14 +3,18 @@
     <div class="header-left-group">
       <h1>{{ t('company.menu.admin') }}</h1>
       <div class="header-actions">
-        <button class="btn btn-amber" (click)="recalculate()" [disabled]="isRecalculating()">
-          <i class="material-icons">history</i>
-          <span>{{ t('btn.apply') }}</span>
-        </button>
-        <button class="btn btn-blue" (click)="openCategoryModal()">
-          <i class="material-icons">add</i>
-          <span>{{ t('tracker.category.new') }}</span>
-        </button>
+        @if (canRecalculate()) {
+          <button class="btn btn-amber" (click)="recalculate()" [disabled]="isRecalculating()">
+            <i class="material-icons">history</i>
+            <span>{{ t('btn.apply') }}</span>
+          </button>
+        }
+        @if (canManage()) {
+          <button class="btn btn-blue" (click)="openCategoryModal()">
+            <i class="material-icons">add</i>
+            <span>{{ t('tracker.category.new') }}</span>
+          </button>
+        }
       </div>
     </div>
   </header>
@@ -25,7 +29,7 @@
             <div class="cell-icon"><i class="material-icons">{{ cat.icon || 'folder' }}</i></div>
             <div class="cell-name">{{ cat.name }}</div>
             <div class="cell-slug">{{ cat.slug }}</div>
-            @if (cat.companyId) {
+            @if (cat.companyId && canDelete()) {
               <div class="cell-actions">
                 <button class="delete-cat-icon" (click)="deleteCategory(cat.id, $event)">
                   <i class="material-icons">delete_outline</i>

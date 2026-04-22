@@ -1,0 +1,29 @@
+<div class="admin-page">
+  <header class="page-header">
+    <div class="header-info">
+      <h2>Control Panel</h2>
+      <p>System-wide settings and security management</p>
+    </div>
+
+    <nav class="admin-tabs">
+      <button
+        [class.active]="activeTab === 'roles'"
+        (click)="activeTab = 'roles'">
+        <i class="material-icons">groups</i> Roles Management
+      </button>
+      <button
+        [class.active]="activeTab === 'permissions'"
+        (click)="activeTab = 'permissions'">
+        <i class="material-icons">security</i> System Permissions
+      </button>
+    </nav>
+  </header>
+
+  <section class="admin-content">
+    @if (activeTab === 'roles') {
+      <app-role-manager></app-role-manager>
+    } @else {
+      <app-permission-manager></app-permission-manager>
+    }
+  </section>
+</div>

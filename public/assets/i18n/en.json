@@ -1,13 +1,14 @@
 {
   "btn": {
-    "save": "Save",
-    "cancel": "Cancel",
     "add": "Add",
-    "delete": "Delete",
     "apply": "Apply to History",
-    "show": "Add Rule",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "exit": "Exit",
+    "save": "Save",
     "saveChanges": "Save Changes",
-    "edit": "Edit"
+    "show": "Add Rule"
   },
   "nav": {
     "allCategories": "All Categories"

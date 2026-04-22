@@ -17,14 +17,14 @@
         @if (!isCollapsed) { <span class="text">Members</span> }
       </a>
     </li>
-    <li>
-      <a routerLink="/dashboard" routerLinkActive="active">
-      <span class="icon">
-        <i class="material-icons">dashboard</i>
-      </span>
-        @if (!isCollapsed) { <span class="text">Dashboard</span> }
-      </a>
-    </li>
+<!--    <li>-->
+<!--      <a routerLink="/dashboard" routerLinkActive="active">-->
+<!--      <span class="icon">-->
+<!--        <i class="material-icons">dashboard</i>-->
+<!--      </span>-->
+<!--        @if (!isCollapsed) { <span class="text">Dashboard</span> }-->
+<!--      </a>-->
+<!--    </li>-->
     <li>
       <a routerLink="/tracker" routerLinkActive="active">
       <span class="icon">
@@ -39,6 +39,14 @@
         <i class="material-icons">admin_panel_settings</i>
       </span>
         @if (!isCollapsed) { <span class="text">Admin Tracker</span> }
+      </a>
+    </li>
+    <li>
+      <a routerLink="/admin/panel">
+        <i class="material-icons">settings</i>
+        @if (!isCollapsed) {
+          <span>Админ-панель</span>
+        }
       </a>
     </li>
   </ul>

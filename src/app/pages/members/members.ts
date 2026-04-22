@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, computed, inject, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MemberService } from '../../core/services/member/member.service';
 import { MemberResponse } from '../../core/models/member.model';
 import { Router } from '@angular/router';
 import {FormsModule} from '@angular/forms';
+import {AuthService} from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-members',
@@ -13,6 +14,7 @@ import {FormsModule} from '@angular/forms';
   styleUrl: './members.scss'
 })
 export class Members implements OnInit {
+  private readonly authService = inject(AuthService);
   members: MemberResponse[] = [];
   loading = true;
 
@@ -20,6 +22,7 @@ export class Members implements OnInit {
   inviteData = { email: '', password: '', roleName: 'MEMBER' };
   isSubmitting = false;
 
+  canManage = computed(() => this.authService.hasPermission('tracker.manage'));
 
   constructor(
     private readonly memberService: MemberService,

@@ -1,10 +1,14 @@
 // src/app/core/models/auth.model.ts
 
 export interface User {
-  id: number;
+  id: string;
   email: string;
-  fullName: string;
-  companyId?: number;
+}
+
+export interface AuthMeResponse {
+  user: User;
+  companyId: string;
+  permissions: string[];
 }
 
 export interface AuthResponse {

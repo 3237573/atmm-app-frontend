@@ -9,6 +9,7 @@ import {CategoryRule} from '../../core/models/tracker/category.rule.model';
 import {TrackerAdminService} from '../../core/services/tracker/tracker.admin.service';
 import {CategoryRuleModal} from './category-rule-modal/category-rule-modal';
 import {CategoryModal} from './category-modal/category-modal';
+import {AuthService} from '../../core/auth/auth.service';
 
 
 @Component({
@@ -24,6 +25,7 @@ import {CategoryModal} from './category-modal/category-modal';
   styleUrl: './tracker-admin.scss',
 })
 export class TrackerAdmin implements OnInit {
+  private readonly authService = inject(AuthService);
   private readonly translocoService = inject(TranslocoService);
   private readonly trackerAdminService = inject(TrackerAdminService);
   private readonly http = inject(HttpClient);
@@ -41,6 +43,10 @@ export class TrackerAdmin implements OnInit {
 
   showCategoryRuleModal = signal(false);
   selectedCategory = signal<Category | null>(null);
+
+  canManage = computed(() => this.authService.hasPermission('tracker.manage'));
+  canDelete = computed(() => this.authService.hasPermission('tracker.delete'));
+  canRecalculate = computed(() => this.authService.hasPermission('tracker.settings'));
 
   addRule(category: Category) {
     this.selectedCategory.set(category);
@@ -116,6 +122,11 @@ export class TrackerAdmin implements OnInit {
     event?.stopPropagation();
     if (!id) return;
 
+    if (!this.canDelete()) {
+      alert('У вас недостаточно прав для удаления категорий');
+      return;
+    }
+
     const category = this.categories().find(c => c.id === id);
     if (category && !category.companyId) {
       alert('Системные категории нельзя удалять');
@@ -133,6 +144,7 @@ export class TrackerAdmin implements OnInit {
   // --- Управление правилами ---
 
   deleteRule(id?: string) {
+    if (!this.canDelete()) return;
     if (!id || !confirm('Удалить правило?')) return;
     this.trackerAdminService.deleteRule(id).subscribe({
       next: () => this.rules.update(list => list.filter(r => r.id !== id))
@@ -140,6 +152,7 @@ export class TrackerAdmin implements OnInit {
   }
 
   recalculate() {
+    if (!this.canRecalculate() || this.isRecalculating()) return;
     if (this.isRecalculating() || !confirm('Применить классификацию к истории за 30 дней?')) return;
     this.isRecalculating.set(true);
     this.http.post('admin/tracker/recalculate', {}).subscribe({

@@ -10,6 +10,7 @@ import { Tracker } from './pages/tracker/tracker';
 import {Members} from './pages/members/members';
 import {MainLayout} from './core/layout/main-layout/main-layout';
 import {TrackerAdmin} from './features/tracker-admin-component/tracker-admin';
+import {AdminPage} from './pages/admin/admin';
 
 export const routes: Routes = [
   // 1. Публичные маршруты (без сайдбара)
@@ -22,12 +23,22 @@ export const routes: Routes = [
     component: MainLayout,
     canActivate: [authGuard],
     children: [
-      { path: 'dashboard', component: Dashboard },
-      { path: 'dex', component: DexDashboard },
+      // { path: 'dashboard', component: Dashboard },
+      // { path: 'dex', component: DexDashboard },
       { path: 'tracker', component: Tracker },
-      { path: 'admin/tracker', component: TrackerAdmin },
+      // { path: 'admin/tracker', component: TrackerAdmin },
       { path: 'members', component: Members },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+      // --- СЕКЦИЯ АДМИНИСТРИРОВАНИЯ ---
+      {
+        path: 'admin',
+        children: [
+          // Основная панель (Permissions Manager, который мы создали)
+          { path: 'panel', component: AdminPage },
+          // Управление трекером (перенесли сюда для порядка)
+          { path: 'tracker', component: TrackerAdmin },
+        ]
+      },
+      { path: '', redirectTo: 'tracker', pathMatch: 'full' }
     ]
   },
 

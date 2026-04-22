@@ -5,7 +5,7 @@ import {MemberResponse} from '../../models/member.model';
 
 @Injectable({providedIn: 'root'})
 export class MemberService {
-  private readonly baseUrl = '/admin/members';
+  private readonly baseUrl = '/v1/members';
   constructor(private readonly http: HttpClient) {}
 
   // getMembers(): Observable<MemberResponse[]> {
