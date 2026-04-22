@@ -1,0 +1,47 @@
+<div class="role-grid">
+  <div class="roles-sidebar">
+    <div class="sidebar-header">
+      <h4>Роли компании</h4>
+      <button class="btn-small"><i class="material-icons">add</i></button>
+    </div>
+    <div class="role-list">
+      @for (role of roles; track role.id) {
+        <div class="role-card"
+             [class.active]="selectedRole?.id === role.id"
+             (click)="selectRole(role)">
+          <span class="role-name">{{ role.name }}</span>
+          <span class="perm-count">{{ role.permissionIds.length }} прав</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="permissions-matrix">
+    @if (selectedRole) {
+      <div class="matrix-header">
+        <h3>Настройка прав: {{ selectedRole.name }}</h3>
+        <button class="btn-save" (click)="saveRole()">
+          <i class="material-icons">save</i> Сохранить
+        </button>
+      </div>
+
+      <div class="matrix-content">
+        @for (p of allPermissions; track p.id) {
+          <label class="perm-checkbox-card">
+            <input type="checkbox"
+                   [checked]="selectedPermissionIds.has(p.id)"
+                   (change)="togglePermission(p.id)">
+            <div class="perm-box">
+              <span class="p-name">{{ p.name }}</span>
+            </div>
+          </label>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <i class="material-icons">shield</i>
+        <p>Выберите роль слева для настройки разрешений</p>
+      </div>
+    }
+  </div>
+</div>

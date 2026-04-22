@@ -1,0 +1,79 @@
+@use "../../../app.scss" as *;
+
+.role-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.roles-sidebar {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 1rem;
+  padding: 1rem;
+
+  .role-card {
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.75rem;
+    background: rgba($bg-main, 0.3);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+
+    &:hover { border-color: $accent; }
+    &.active {
+      background: rgba($accent, 0.1);
+      border-color: $accent;
+      .role-name { color: $accent; }
+    }
+
+    .role-name { display: block; font-weight: 600; margin-bottom: 4px; }
+    .perm-count { font-size: 0.75rem; color: $text-muted; }
+  }
+}
+
+.permissions-matrix {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  min-height: 500px;
+
+  .matrix-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid $border;
+  }
+
+  .matrix-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .perm-checkbox-card {
+    cursor: pointer;
+    input { display: none; }
+
+    .perm-box {
+      background: $bg-main;
+      border: 1px solid $border;
+      padding: 0.75rem;
+      border-radius: 8px;
+      text-align: center;
+      transition: all 0.2s;
+      .p-name { font-size: 0.85rem; color: $text-muted; }
+    }
+
+    input:checked + .perm-box {
+      border-color: $accent;
+      background: rgba($accent, 0.1);
+      .p-name { color: white; font-weight: 600; }
+    }
+  }
+}

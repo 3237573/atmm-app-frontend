@@ -1,0 +1,31 @@
+<div class="manager-card">
+  <div class="manager-header">
+    <div class="title">
+      <i class="material-icons">security</i>
+      <h3>System Permissions</h3>
+    </div>
+    <div class="add-form">
+      <input type="text" [(ngModel)]="newName" placeholder="e.g., user.delete" (keyup.enter)="addPermission()">
+      <button (click)="addPermission()" [disabled]="!newName">
+        <i class="material-icons">add</i>
+      </button>
+    </div>
+  </div>
+
+  <div class="permissions-list">
+    @if (loading) {
+      <div class="loader">Loading...</div>
+    } @else {
+      @for (p of permissions; track p.id) {
+        <div class="permission-item">
+          <span class="p-name">{{ p.name }}</span>
+          <button class="btn-icon delete" (click)="removePermission(p.id)">
+            <i class="material-icons">delete_outline</i>
+          </button>
+        </div>
+      } @empty {
+        <div class="empty">No permissions found</div>
+      }
+    }
+  </div>
+</div>
