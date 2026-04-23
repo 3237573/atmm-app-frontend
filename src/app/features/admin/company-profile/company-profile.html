@@ -1,0 +1,101 @@
+<div class="company-profile">
+  <!-- Основная информационная карточка -->
+  <div class="settings-card">
+    <!-- Заголовок секции + кнопка редактирования -->
+    <div class="card-header">
+      <div class="card-title">Основная информация</div>
+      @if (canEdit()) {
+        <button class="btn-icon" (click)="editing = !editing" [class.active]="editing">
+          <i class="material-icons">{{ editing ? 'close' : 'edit' }}</i>
+          {{ editing ? 'Отмена' : 'Редактировать' }}
+        </button>
+      }
+    </div>
+
+    <!-- Сообщения об ошибках/успехе -->
+    @if (errorMessage) {
+      <div class="alert error">{{ errorMessage }}</div>
+    }
+    @if (successMessage) {
+      <div class="alert success">{{ successMessage }}</div>
+    }
+
+    <!-- Строка: Название + Код -->
+    <div class="settings-row">
+      <div class="settings-field half">
+        <label>Название компании</label>
+        <div class="field-value">
+          @if (editing) {
+            <input type="text" [(ngModel)]="company.name" placeholder="Название"/>
+          } @else {
+            <span class="readonly">{{ company.name || '—' }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="settings-field half">
+        <label>Код компании</label>
+        <div class="field-value code-value">
+          @if (editing) {
+            <input type="text" [(ngModel)]="company.code" placeholder="Код"/>
+          } @else {
+            <div class="code-with-copy">
+              <code>{{ company.code }}</code>
+              <button class="copy-btn" (click)="copyCode(company.code)" [class.copied]="copySuccess">
+                <i class="material-icons">content_copy</i>
+                <span class="copy-tooltip" [class.show]="copySuccess">Скопировано!</span>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Строка: Владелец + Статус -->
+    <div class="settings-row">
+      <div class="settings-field half">
+        <label>Владелец</label>
+        <div class="field-value">
+          <div class="owner-info">
+            <span class="owner-name">{{ company.owner.fullName || company.owner.email }}</span>
+            <span class="owner-email">{{ company.owner.email }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-field half">
+        <label>Статус</label>
+        <div class="field-value">
+          <div class="status-wrapper">
+            <span class="status-dot" [class.active]="company.status === 'ACTIVE'"></span>
+            <span>{{ company.status === 'ACTIVE' ? 'Активна' : 'Архивирована' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Кнопки действий при редактировании (СОХРАНИТЬ/ОТМЕНА) -->
+    @if (editing) {
+      <div class="form-actions">
+        <button class="btn-primary" (click)="saveChanges()" [disabled]="saving">
+          @if (saving) {
+            <span class="spinner-small"></span>
+          } @else {
+            <i class="material-icons">save</i>
+          }
+          {{ saving ? 'Сохранение...' : 'Сохранить' }}
+        </button>
+        <button class="btn-secondary" (click)="cancelEditing()" [disabled]="saving">
+          Отмена
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Общий спиннер загрузки -->
+  @if (loading) {
+    <div class="loading-overlay">
+      <div class="spinner"></div>
+    </div>
+  }
+</div>

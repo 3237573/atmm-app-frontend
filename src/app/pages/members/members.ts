@@ -1,8 +1,8 @@
 import {Component, computed, inject, OnInit} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MemberService } from '../../core/services/member/member.service';
-import { MemberResponse } from '../../core/models/member.model';
-import { Router } from '@angular/router';
+import {CommonModule} from '@angular/common';
+import {MemberService} from '../../core/services/member/member.service';
+import {IMemberResponse} from '../../core/models/member.model';
+import {Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import {AuthService} from '../../core/auth/auth.service';
 
@@ -15,7 +15,7 @@ import {AuthService} from '../../core/auth/auth.service';
 })
 export class Members implements OnInit {
   private readonly authService = inject(AuthService);
-  members: MemberResponse[] = [];
+  members: IMemberResponse[] = [];
   loading = true;
 
   showInviteForm = false;

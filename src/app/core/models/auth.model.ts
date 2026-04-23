@@ -1,19 +1,19 @@
 // src/app/core/models/auth.model.ts
 
-export interface User {
+export interface IUser {
   id: string;
   email: string;
 }
 
 export interface AuthMeResponse {
-  user: User;
+  user: IUser;
   companyId: string;
   permissions: string[];
 }
 
 export interface AuthResponse {
   token: string;
-  user: User;
+  user: IUser;
 }
 
 export interface RegisterRequest {

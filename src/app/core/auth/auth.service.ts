@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { of, Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { User, AuthMeResponse } from '../models/auth.model';
+import { IUser, AuthMeResponse } from '../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -11,7 +11,7 @@ export class AuthService {
   private readonly router = inject(Router);
 
   // --- 1. Состояние (Signals) ---
-  readonly currentUser = signal<User | null>(null);
+  readonly currentUser = signal<IUser | null>(null);
   readonly companyId = signal<string | null>(null);
   readonly permissions = signal<string[]>([]);
   readonly isAuthenticated = signal<boolean>(false);

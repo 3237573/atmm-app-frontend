@@ -24,6 +24,7 @@
   "packageManager": "npm@11.5.2",
   "dependencies": {
     "-": "^0.0.1",
+    "@angular/cdk": "^21.2.8",
     "@angular/common": "^21.0.0",
     "@angular/compiler": "^21.0.0",
     "@angular/core": "^21.0.0",
@@ -41,6 +42,7 @@
     "@angular/compiler-cli": "^21.0.0",
     "@ngneat/transloco": "^6.0.4",
     "jsdom": "^27.1.0",
+    "sass": "^1.99.0",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"
   }

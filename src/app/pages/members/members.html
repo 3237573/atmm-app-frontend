@@ -1,12 +1,12 @@
 <div class="members-page">
   <div class="page-header">
     <div class="header-text">
-      <h2>Команда проекта</h2>
-      <p>Управление доступом и ролями сотрудников</p>
+      <h2>Пользователи</h2>
+      <p>Управление доступом и ролями пользователей</p>
     </div>
     <button class="btn-primary" (click)="toggleInviteForm()">
       <i class="material-icons">{{ showInviteForm ? 'close' : 'person_add' }}</i>
-      <span>{{ showInviteForm ? 'Отмена' : 'Пригласить' }}</span>
+      <span>{{ showInviteForm ? 'Отмена' : 'Добавить' }}</span>
     </button>
   </div>
 
@@ -27,6 +27,7 @@
           <label>Роль</label>
           <select [(ngModel)]="inviteData.roleName">
             <option value="MEMBER">Member</option>
+            <option value="GUEST">Guest</option>
             <option value="ADMIN">Admin</option>
           </select>
         </div>
@@ -34,7 +35,7 @@
         <button class="btn-submit"
                 [disabled]="isSubmitting || !inviteData.email || !inviteData.password"
                 (click)="onInvite()">
-          {{ isSubmitting ? 'Создание...' : 'Создать юзера' }}
+          {{ isSubmitting ? 'Создание...' : 'Создать пользователя' }}
         </button>
       </div>
     </div>
@@ -45,7 +46,7 @@
       <table class="members-table">
         <thead>
         <tr>
-          <th>Сотрудник</th>
+          <th>Пользователи</th>
           <th>Роль</th>
           <th>Статус</th>
           <th class="text-right">Действия</th>

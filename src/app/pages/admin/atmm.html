@@ -1,26 +1,40 @@
 <div class="admin-page">
   <header class="page-header">
     <div class="header-info">
-      <h2>Control Panel</h2>
-      <p>System-wide settings and security management</p>
+      <h2>Company</h2>
     </div>
 
     <nav class="admin-tabs">
       <button
+        [class.active]="activeTab === 'profile'"
+        (click)="activeTab = 'profile'">
+        <i class="material-icons">business</i> Profile
+      </button>
+      <button
+        [class.active]="activeTab === 'members'"
+        (click)="activeTab = 'members'">
+        <i class="material-icons">people</i> Members
+      </button>
+      <button
         [class.active]="activeTab === 'roles'"
         (click)="activeTab = 'roles'">
-        <i class="material-icons">groups</i> Roles Management
+        <i class="material-icons">badge</i> Roles
       </button>
       <button
         [class.active]="activeTab === 'permissions'"
         (click)="activeTab = 'permissions'">
-        <i class="material-icons">security</i> System Permissions
+        <i class="material-icons">security</i> Permissions
       </button>
     </nav>
   </header>
 
   <section class="admin-content">
-    @if (activeTab === 'roles') {
+    @if (activeTab === 'profile') {
+      <app-company-profile></app-company-profile>
+    }
+    @else if (activeTab === 'members') {
+      <app-members></app-members>
+    } @else if (activeTab === 'roles') {
       <app-role-manager></app-role-manager>
     } @else {
       <app-permission-manager></app-permission-manager>
