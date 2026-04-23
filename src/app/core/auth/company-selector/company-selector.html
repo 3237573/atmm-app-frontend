@@ -1,0 +1,39 @@
+<div class="selector-container">
+  <div class="selector-card">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <h1>ATMM</h1>
+    </div>
+
+    <h2>Выберите компанию</h2>
+    <p class="email-display">{{ email }}</p>
+
+    <div class="companies-list">
+      @for (company of companies(); track company.companyId) {
+        <button
+          class="company-card"
+          (click)="selectCompany(company.companyId)"
+          [disabled]="loading()">
+
+          <div class="company-avatar">
+            <span>{{ company.name.charAt(0).toUpperCase() }}</span>
+          </div>
+
+          <div class="company-info">
+            <span class="company-name">{{ company.name }}</span>
+            <span class="company-code">{{ company.code }}</span>
+            <span class="company-role" [class]="company.role | lowercase">
+              {{ getRoleLabel(company.role) }}
+            </span>
+          </div>
+
+          <div class="arrow-icon">→</div>
+        </button>
+      }
+    </div>
+
+    <button class="back-btn" (click)="backToLogin()" [disabled]="loading()">
+      ← Другой аккаунт
+    </button>
+  </div>
+</div>
