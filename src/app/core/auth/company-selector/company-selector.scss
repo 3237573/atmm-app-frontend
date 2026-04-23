@@ -1,210 +1,193 @@
-@use "sass:color";
+@use '../auth' as *;
 
-$bg-main: #0f172a;
-$card-bg: #1e293b;
-$accent: #38bdf8;
-$border: #334155;
-$text-muted: #94a3b8;
-$success: #4ade80;
-$warning: #f59e0b;
-$danger: #ef4444;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 :host {
-  display: flex;
-  min-height: 100vh;
-  background: $bg-main;
-  align-items: center;
-  justify-content: center;
-}
-.selector-container {
-  width: 100%;
-  min-width: 480px;      // 👈 минимальная ширина
-  max-width: 680px;      // 👈 увеличили до 680px
-  padding: 1.5rem;
-  margin: 0 auto;
+  display: block;
+  //background: #0f0f13;
+  font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-.selector-card {
-  background: $card-bg;
-  border-radius: 1.5rem;
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 2rem;
-  border: 1px solid $border;
-  text-align: center;
-  animation: fadeIn 0.4s ease;
+}
+
+.card {
+  background: #18181c;
+  border-radius: 1.5rem;
+  border: 1px solid #2a2a30;
   width: 100%;
+  max-width: 720px;
+  padding: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #2a2a30;
 }
 
 .logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: white;
+}
+
+.user {
+  font-size: 0.85rem;
+  color: #a1a1aa;
+  background: #24242a;
+  padding: 0.3rem 1rem;
+  border-radius: 2rem;
+}
+
+.content {
   margin-bottom: 2rem;
-
-  .logo-icon {
-    font-size: 2rem;
-  }
-
-  h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #fff 0%, $accent 100%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    margin: 0;
-  }
 }
 
 h2 {
   font-size: 1.5rem;
   font-weight: 600;
   color: white;
-  margin: 0 0 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
-.email-display {
-  color: $text-muted;
-  font-size: 0.9rem;
+.hint {
+  font-size: 0.85rem;
+  color: #a1a1aa;
   margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid $border;
 }
 
-.companies-list {
+.company {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 0.5rem;
+  background: transparent;
+  border: 1px solid #2a2a30;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
 }
 
-.company-card {
+.company:hover {
+  background: #24242a;
+  border-color: #3a3a42;
+}
+
+.company-left {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem;
-  background: $bg-main;
-  border: 1px solid $border;
-  border-radius: 1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  width: 100%;
-  text-align: left;
-
-  &:hover:not(:disabled) {
-    border-color: $accent;
-    transform: translateX(4px);
-    background: color.adjust($bg-main, $lightness: 5%);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .company-avatar {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, $accent 0%, #6366f1 100%);
-    border-radius: 0.75rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    span {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: white;
-    }
-  }
-
-  .company-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-
-    .company-name {
-      font-weight: 600;
-      color: white;
-      font-size: 1rem;
-    }
-
-    .company-code {
-      font-size: 0.7rem;
-      color: $text-muted;
-      font-family: monospace;
-    }
-
-    .company-role {
-      font-size: 0.7rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      display: inline-block;
-      width: fit-content;
-      padding: 0.15rem 0.5rem;
-      border-radius: 0.25rem;
-
-      &.owner {
-        color: $warning;
-        background: rgba($warning, 0.15);
-      }
-
-      &.admin {
-        color: $accent;
-        background: rgba($accent, 0.15);
-      }
-
-      &.member {
-        color: $success;
-        background: rgba($success, 0.15);
-      }
-
-      &.guest {
-        color: $text-muted;
-        background: rgba($text-muted, 0.15);
-      }
-    }
-  }
-
-  .arrow-icon {
-    color: $text-muted;
-    font-size: 1.2rem;
-    transition: transform 0.2s;
-    flex-shrink: 0;
-  }
-
-  &:hover .arrow-icon {
-    transform: translateX(4px);
-    color: $accent;
-  }
 }
 
-.back-btn {
-  background: transparent;
-  border: 1px solid $border;
-  border-radius: 0.5rem;
-  padding: 0.6rem 1rem;
-  color: $text-muted;
-  cursor: pointer;
-  transition: all 0.2s;
-  width: 100%;
-  font-size: 0.9rem;
-
-  &:hover:not(:disabled) {
-    border-color: $accent;
-    color: $accent;
-  }
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.2rem;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.avatar.owner {
+  background: #2a1e12;
+  color: #f97316;
+}
+
+.avatar.admin {
+  background: #11223b;
+  color: #3b82f6;
+}
+
+.avatar.member {
+  background: #102a1c;
+  color: #22c55e;
+}
+
+.avatar.guest {
+  background: #2a2a30;
+  color: #a1a1aa;
+}
+
+.company-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.company-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: white;
+  margin-bottom: 0.2rem;
+}
+
+.company-code {
+  font-size: 0.7rem;
+  color: #a1a1aa;
+  font-family: monospace;
+}
+
+.badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.25rem 0.8rem;
+  border-radius: 2rem;
+  background: #24242a;
+  color: #a1a1aa;
+}
+
+.badge.owner {
+  background: #2a1e12;
+  color: #fb923c;
+}
+
+.badge.admin {
+  background: #11223b;
+  color: #60a5fa;
+}
+
+.badge.member {
+  background: #102a1c;
+  color: #4ade80;
+}
+
+.badge.guest {
+  background: #2a2a30;
+  color: #a1a1aa;
+}
+
+.footer {
+  border-top: 1px solid #2a2a30;
+  padding-top: 1.25rem;
+}
+
+.back {
+  background: none;
+  border: none;
+  color: #a1a1aa;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.back:hover {
+  color: white;
 }

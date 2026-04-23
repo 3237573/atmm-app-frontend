@@ -18,16 +18,14 @@ export class CompanySelector {
   companies = this.authService.availableCompanies;
   email = this.authService.currentUser()?.email || '';
 
-  // Маппинг ролей для красивого отображения
-  private readonly roleLabels: Record<string, string> = {
-    'OWNER': 'Владелец',
-    'ADMIN': 'Администратор',
-    'MEMBER': 'Участник',
-    'GUEST': 'Гость'
-  };
-
   getRoleLabel(role: string): string {
-    return this.roleLabels[role] || role;
+    switch (role) {
+      case 'OWNER': return 'Owner';
+      case 'ADMIN': return 'Admin';
+      case 'MEMBER': return 'Member';
+      case 'GUEST': return 'Guest';
+      default: return role;
+    }
   }
 
   async selectCompany(companyId: string) {

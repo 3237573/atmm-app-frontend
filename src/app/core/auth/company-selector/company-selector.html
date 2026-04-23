@@ -1,39 +1,34 @@
-<div class="selector-container">
-  <div class="selector-card">
-    <div class="logo">
-      <div class="logo-icon">⚡</div>
-      <h1>ATMM</h1>
+<div class="container">
+  <div class="card">
+    <div class="header">
+      <div class="logo">ATMM</div>
+      <div class="user">{{ email }}</div>
     </div>
 
-    <h2>Выберите компанию</h2>
-    <p class="email-display">{{ email }}</p>
+    <div class="content">
+      <h2>Select workspace</h2>
+      <p class="hint">Choose a company to continue</p>
 
-    <div class="companies-list">
       @for (company of companies(); track company.companyId) {
-        <button
-          class="company-card"
-          (click)="selectCompany(company.companyId)"
-          [disabled]="loading()">
-
-          <div class="company-avatar">
-            <span>{{ company.name.charAt(0).toUpperCase() }}</span>
+        <button class="company" (click)="selectCompany(company.companyId)">
+          <div class="company-left">
+            <div class="avatar" [class]="company.role | lowercase">
+              {{ company.name.charAt(0) }}
+            </div>
+            <div class="company-data">
+              <div class="company-name">{{ company.name }}</div>
+              <div class="company-code">{{ company.code }}</div>
+            </div>
           </div>
-
-          <div class="company-info">
-            <span class="company-name">{{ company.name }}</span>
-            <span class="company-code">{{ company.code }}</span>
-            <span class="company-role" [class]="company.role | lowercase">
-              {{ getRoleLabel(company.role) }}
-            </span>
+          <div class="badge" [class]="company.role | lowercase">
+            {{ getRoleLabel(company.role) }}
           </div>
-
-          <div class="arrow-icon">→</div>
         </button>
       }
     </div>
 
-    <button class="back-btn" (click)="backToLogin()" [disabled]="loading()">
-      ← Другой аккаунт
-    </button>
+    <div class="footer">
+      <button class="back" (click)="backToLogin()">← Switch account</button>
+    </div>
   </div>
 </div>
