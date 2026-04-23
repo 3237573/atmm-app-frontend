@@ -3,22 +3,26 @@
 export interface IUser {
   id: string;
   email: string;
+  fullName?: string;
+}
+
+export interface CompanyInfo {
+  companyId: string;
+  name: string;
+  code: string;
+  role: string;
+  displayName: string;
+}
+
+export interface UserCompaniesResponse {
+  userId: string;
+  email: string;
+  fullName?: string;
+  companies: CompanyInfo[];
 }
 
 export interface AuthMeResponse {
   user: IUser;
-  companyId: string;
+  company: CompanyInfo;
   permissions: string[];
-}
-
-export interface AuthResponse {
-  token: string;
-  user: IUser;
-}
-
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  fullName: string;
-  companyName: string;
 }

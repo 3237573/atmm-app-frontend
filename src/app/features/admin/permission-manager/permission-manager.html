@@ -5,7 +5,7 @@
       <h3>System Permissions</h3>
     </div>
     <div class="add-form">
-      <input type="text" [(ngModel)]="newName" placeholder="e.g., user.delete" (keyup.enter)="addPermission()">
+      <input type="text" [(ngModel)]="newName" placeholder="e.g., user:delete" (keyup.enter)="addPermission()">
       <button (click)="addPermission()" [disabled]="!newName">
         <i class="material-icons">add</i>
       </button>

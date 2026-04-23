@@ -6,7 +6,7 @@ export interface RoleResponse {
   id: string;
   name: string;
   companyId: string;
-  permissions: string[];   // Массив имен: ['user.view', 'task.edit']
+  permissions: string[];   // Массив имен: ['user:read', 'task.edit']
   permissionIds: string[]; // Массив UUID: ['uuid-1', 'uuid-2']
 }
 

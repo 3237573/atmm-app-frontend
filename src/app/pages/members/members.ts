@@ -4,7 +4,7 @@ import {MemberService} from '../../core/services/member/member.service';
 import {IMemberResponse} from '../../core/models/member.model';
 import {Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
-import {AuthService} from '../../core/auth/auth.service';
+import {AuthService} from '../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-members',
@@ -19,7 +19,12 @@ export class Members implements OnInit {
   loading = true;
 
   showInviteForm = false;
-  inviteData = { email: '', password: '', roleName: 'MEMBER' };
+  inviteData = {
+    email: '',
+    password: '',
+    displayName: '',
+    roleName: 'MEMBER'
+  };
   isSubmitting = false;
 
   canManage = computed(() => this.authService.hasPermission('tracker.manage'));
@@ -34,7 +39,6 @@ export class Members implements OnInit {
   }
 
   viewActivity(userId: string) {
-    // Переход на страницу трекера с ID пользователя
     this.router.navigate(['/tracker'], { queryParams: { userId: userId } });
   }
 
@@ -42,7 +46,7 @@ export class Members implements OnInit {
     this.loading = true;
     this.memberService.getMembers().subscribe({
       next: (data) => {
-        this.members = data;
+        this.members = this.sortMembersByRole(data);
         this.loading = false;
       },
       error: (err) => {
@@ -56,22 +60,29 @@ export class Members implements OnInit {
     this.showInviteForm = !this.showInviteForm;
   }
 
-  // members.ts
+  isFormValid(): boolean {
+    return !!this.inviteData.email &&
+      !!this.inviteData.password &&
+      this.inviteData.password.length >= 6 &&
+      !!this.inviteData.displayName &&  // 👈 displayName обязателен
+      this.inviteData.displayName.trim().length > 0;
+  }
 
   onInvite() {
-    if (!this.inviteData.email || !this.inviteData.password) return;
+    if (!this.isFormValid()) return;
 
     this.isSubmitting = true;
-    // Добавляем третий аргумент — пароль
+
     this.memberService.inviteMember(
       this.inviteData.email,
       this.inviteData.roleName,
-      this.inviteData.password
+      this.inviteData.password,
+      this.inviteData.displayName
     ).subscribe({
       next: () => {
         this.isSubmitting = false;
         this.showInviteForm = false;
-        this.inviteData = { email: '', password: '', roleName: 'MEMBER' }; // Очищаем всё
+        this.inviteData = { email: '', password: '', displayName: '', roleName: 'MEMBER' };
         this.loadMembers();
       },
       error: (err) => {
@@ -81,7 +92,6 @@ export class Members implements OnInit {
     });
   }
 
-// Метод для удаления (с подтверждением)
   deleteMember(userId: string) {
     if (confirm('Вы уверены, что хотите исключить сотрудника?')) {
       this.memberService.removeMember(userId).subscribe({
@@ -91,4 +101,27 @@ export class Members implements OnInit {
     }
   }
 
+  private sortMembersByRole(members: IMemberResponse[]): IMemberResponse[] {
+    const rolePriority: { [key: string]: number } = {
+      'OWNER': 1,
+      'ADMIN': 2,
+      'MEMBER': 3,
+      'GUEST': 4
+    };
+
+    return [...members].sort((a, b) => {
+      // Сначала по приоритету роли
+      const priorityA = rolePriority[a.roleName] ?? 99;
+      const priorityB = rolePriority[b.roleName] ?? 99;
+
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+
+      // Если роли одинаковые, сортируем по displayName или email (алфавит)
+      const nameA = (a.displayName || a.email).toLowerCase();
+      const nameB = (b.displayName || b.email).toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
+  }
 }

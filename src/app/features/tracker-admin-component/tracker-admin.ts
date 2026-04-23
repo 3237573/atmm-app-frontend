@@ -9,7 +9,7 @@ import {CategoryRule} from '../../core/models/tracker/category.rule.model';
 import {TrackerAdminService} from '../../core/services/tracker/tracker.admin.service';
 import {CategoryRuleModal} from './category-rule-modal/category-rule-modal';
 import {CategoryModal} from './category-modal/category-modal';
-import {AuthService} from '../../core/auth/auth.service';
+import {AuthService} from '../../core/services/auth/auth.service';
 
 
 @Component({

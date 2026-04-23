@@ -1,4 +1,5 @@
 @use "../../app.scss" as *;
+@use "sass:color";
 
 .members-page {
   padding: 1rem;
@@ -198,4 +199,37 @@
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+.form-hint {
+  margin-top: 1rem;
+  font-size: 0.7rem;
+  color: $text-muted;
+
+  .required {
+    color: $danger;
+    margin-right: 0.25rem;
+  }
+}
+
+.btn-submit {
+  background: $accent;
+  color: $bg-main;
+  border: none;
+  height: 38px;
+  padding: 0 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  min-width: 160px;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) {
+    background: color.adjust($accent, $lightness: 8%);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }

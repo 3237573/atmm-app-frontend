@@ -14,13 +14,18 @@
     <div class="invite-panel">
       <div class="invite-grid">
         <div class="input-group">
-          <label>Email</label>
+          <label>Email *</label>
           <input type="email" [(ngModel)]="inviteData.email" placeholder="email@example.com">
         </div>
 
         <div class="input-group">
-          <label>Временный пароль</label>
+          <label>Пароль *</label>
           <input type="password" [(ngModel)]="inviteData.password" placeholder="Мин. 6 символов">
+        </div>
+
+        <div class="input-group">
+          <label>Имя в компании *</label>
+          <input type="text" [(ngModel)]="inviteData.displayName" placeholder="Как будем называть?">
         </div>
 
         <div class="input-group">
@@ -33,10 +38,15 @@
         </div>
 
         <button class="btn-submit"
-                [disabled]="isSubmitting || !inviteData.email || !inviteData.password"
+                [disabled]="isSubmitting || !isFormValid()"
                 (click)="onInvite()">
           {{ isSubmitting ? 'Создание...' : 'Создать пользователя' }}
         </button>
+      </div>
+
+      <!-- Подсказка о полях -->
+      <div class="form-hint">
+        <span class="required">*</span> — обязательные поля
       </div>
     </div>
   }
@@ -57,7 +67,7 @@
             <tr>
               <td>
                 <div class="user-info">
-                  <span class="user-name">{{ member.fullName || 'Пользователь' }}</span>
+                  <span class="user-name">{{ member.displayName || 'Пользователь' }}</span>
                   <span class="user-email">{{ member.email }}</span>
                 </div>
               </td>

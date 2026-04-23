@@ -16,9 +16,9 @@ export class MemberService {
     return this.http.get<IMemberResponse[]>(this.baseUrl);
   }
 
-  inviteMember(email: string, roleName: string, password: string): Observable<IMemberResponse[]> {
+  inviteMember(email: string, roleName: string, password: string, displayName: string): Observable<IMemberResponse[]> {
     // Путь должен совпадать с тем, что мы прописали в Ktor
-    return this.http.post<any>(`${this.baseUrl}/invite`, { email, roleName, password });
+    return this.http.post<any>(`${this.baseUrl}/invite`, { email, roleName, password, displayName });
   }
 
   removeMember(userId: string) {

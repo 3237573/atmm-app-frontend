@@ -4,7 +4,7 @@ import {FormsModule} from '@angular/forms';
 import {ICompany} from '../../../core/models/company.model';
 import {CompanyService} from '../../../core/services/company/company.service';
 import {finalize, Subject, takeUntil} from 'rxjs';
-import {AuthService} from '../../../core/auth/auth.service';
+import {AuthService} from '../../../core/services/auth/auth.service';
 import {Clipboard, ClipboardModule} from '@angular/cdk/clipboard';
 
 @Component({
@@ -21,9 +21,9 @@ export class CompanyProfile implements OnInit, OnDestroy {
   private readonly clipboard = inject(Clipboard);
   copySuccess = false;
 
-  canEdit = computed(() => this.authService.hasPermission('company.edit'));
+  canEdit = computed(() => this.authService.hasPermission('company:update'));
 
-  company: ICompany = {name: '', code: '', owner: {email: '', fullName: ''}, status: 'ACTIVE'};
+  company: ICompany = {name: '', code: '', owner: {email: '', displayName: ''}, status: 'ACTIVE'};
   loading = true;
   saving = false;
   editing = false;

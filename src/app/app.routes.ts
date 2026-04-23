@@ -1,12 +1,10 @@
-import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth.guard';
+import {Routes} from '@angular/router';
+import {authGuard} from './core/guards/auth.guard';
 
 // Компоненты
-import { Login } from './core/auth/login/login';
-import { Register } from './core/auth/register/register';
-import { Dashboard } from './pages/crypto/dashboard/dashboard';
-import { DexDashboard } from './pages/crypto/dex-dashboard/dex-dashboard';
-import { Tracker } from './pages/tracker/tracker';
+import {Login} from './core/auth/login/login';
+import {Register} from './core/auth/register/register';
+import {Tracker} from './pages/tracker/tracker';
 import {Members} from './pages/members/members';
 import {MainLayout} from './core/layout/main-layout/main-layout';
 import {TrackerAdmin} from './features/tracker-admin-component/tracker-admin';
