@@ -1,4 +1,6 @@
+// company-selector.scss
 @use '../auth' as *;
+@use "../../../app.scss" as *;
 
 * {
   margin: 0;
@@ -8,7 +10,6 @@
 
 :host {
   display: block;
-  //background: #0f0f13;
   font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 

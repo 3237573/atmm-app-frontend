@@ -16,20 +16,20 @@
 }
 
 // Стили основной кнопки
-.btn-primary {
-  background: $accent;
-  color: $bg-main;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.2s;
-  &:hover { opacity: 0.9; }
-}
+//.btn-primary {
+//  background: $accent;
+//  color: $bg-main;
+//  border: none;
+//  padding: 0.6rem 1.2rem;
+//  border-radius: 0.5rem;
+//  display: flex;
+//  align-items: center;
+//  gap: 8px;
+//  font-weight: 700;
+//  cursor: pointer;
+//  transition: opacity 0.2s;
+//  &:hover { opacity: 0.9; }
+//}
 
 .table-container {
   background: $bg-card;

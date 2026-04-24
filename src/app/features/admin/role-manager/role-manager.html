@@ -2,7 +2,9 @@
   <div class="roles-sidebar">
     <div class="sidebar-header">
       <h4>Роли компании</h4>
-      <button class="btn-small"><i class="material-icons">add</i></button>
+      <button class="btn-primary">
+        <i class="material-icons">add</i>Добавить роль
+      </button>
     </div>
     <div class="role-list">
       @for (role of roles; track role.id) {
@@ -20,7 +22,7 @@
     @if (selectedRole) {
       <div class="matrix-header">
         <h3>Настройка прав: {{ selectedRole.name }}</h3>
-        <button class="btn-save" (click)="saveRole()">
+        <button class="btn-primary" (click)="saveRole()">
           <i class="material-icons">save</i> Сохранить
         </button>
       </div>

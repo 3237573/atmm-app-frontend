@@ -12,7 +12,8 @@
       @for (company of companies(); track company.companyId) {
         <button class="company" (click)="selectCompany(company.companyId)">
           <div class="company-left">
-            <div class="avatar" [class]="company.role | lowercase">
+            <!-- ✨ Используем глобальный класс avatar-role -->
+            <div class="avatar-role" [class]="company.role | lowercase">
               {{ company.name.charAt(0) }}
             </div>
             <div class="company-data">
@@ -20,9 +21,10 @@
               <div class="company-code">{{ company.code }}</div>
             </div>
           </div>
-          <div class="badge" [class]="company.role | lowercase">
+          <!-- ✨ Используем глобальный класс badge-role -->
+          <span class="badge-role" [class]="company.role | lowercase">
             {{ getRoleLabel(company.role) }}
-          </div>
+          </span>
         </button>
       }
     </div>
