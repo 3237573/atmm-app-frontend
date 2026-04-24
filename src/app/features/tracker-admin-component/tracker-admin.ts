@@ -10,6 +10,7 @@ import {TrackerAdminService} from '../../core/services/tracker/tracker.admin.ser
 import {CategoryRuleModal} from './category-rule-modal/category-rule-modal';
 import {CategoryModal} from './category-modal/category-modal';
 import {AuthService} from '../../core/services/auth/auth.service';
+import {MemberTokenPanel} from './member-token-panel/member-token-panel';
 
 
 @Component({
@@ -19,7 +20,8 @@ import {AuthService} from '../../core/services/auth/auth.service';
     ReactiveFormsModule,
     CategoryRuleModal,
     CategoryModal,
-    TranslocoModule
+    TranslocoModule,
+    MemberTokenPanel
   ],
   templateUrl: './tracker-admin.html',
   styleUrl: './tracker-admin.scss',
@@ -44,9 +46,9 @@ export class TrackerAdmin implements OnInit {
   showCategoryRuleModal = signal(false);
   selectedCategory = signal<Category | null>(null);
 
-  canManage = computed(() => this.authService.hasPermission('tracker.manage'));
-  canDelete = computed(() => this.authService.hasPermission('tracker.delete'));
-  canRecalculate = computed(() => this.authService.hasPermission('tracker.settings'));
+  canManage = computed(() => this.authService.hasPermission('tracker:update'));
+  canDelete = computed(() => this.authService.hasPermission('tracker:delete'));
+  canRecalculate = computed(() => this.authService.hasPermission('tracker:update'));
 
   addRule(category: Category) {
     this.selectedCategory.set(category);

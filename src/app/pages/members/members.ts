@@ -27,7 +27,7 @@ export class Members implements OnInit {
   };
   isSubmitting = false;
 
-  canManage = computed(() => this.authService.hasPermission('tracker.manage'));
+  canManage = computed(() => this.authService.hasPermission('tracker:update'));
 
   constructor(
     private readonly memberService: MemberService,

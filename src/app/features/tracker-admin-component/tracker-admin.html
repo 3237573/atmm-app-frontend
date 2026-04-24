@@ -1,3 +1,5 @@
+
+
 <div class="admin-container" *transloco="let t">
   <header class="admin-header">
     <div class="header-left-group">
@@ -18,7 +20,6 @@
       </div>
     </div>
   </header>
-
   <div class="admin-main-layout">
     <aside class="panel-card category-sidebar">
       <h2 class="panel-title">{{ t('nav.allCategories') }}</h2>
@@ -39,6 +40,7 @@
           </div>
         }
       </div>
+      <app-member-token-panel />
     </aside>
 
     <main class="panel-card rules-container">
@@ -87,4 +89,6 @@
       (save)="handleSaveCategoryRule($event)">
     </app-category-rule-modal>
   }
+
+
 </div>

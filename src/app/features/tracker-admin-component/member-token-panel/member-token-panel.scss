@@ -1,0 +1,165 @@
+@use "../../../app.scss" as *;
+
+.token-panel {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.token-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: $text-muted;
+
+  i {
+    font-size: 1.2rem;
+    color: $accent;
+  }
+}
+
+.token-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.token-field {
+  width: 100%;
+}
+
+.token-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: $bg-main;
+  border: 1px solid $border;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: border-color 0.2s;
+
+  &:focus-within {
+    border-color: $accent;
+  }
+
+  .token-input {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    background: transparent;
+    border: none;
+    color: $accent;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    outline: none;
+    letter-spacing: 0.3px;
+  }
+
+  .eye-btn {
+    background: transparent;
+    border: none;
+    padding: 0 0.75rem;
+    cursor: pointer;
+    color: $text-muted;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+
+    i {
+      font-size: 1.1rem;
+    }
+
+    &:hover {
+      color: $accent;
+    }
+  }
+}
+
+.token-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.copy-btn, .regenerate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 2rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+
+  i {
+    font-size: 0.9rem;
+  }
+}
+
+.copy-btn {
+  background: rgba($accent, 0.15);
+  color: $accent;
+
+  &:hover {
+    background: rgba($accent, 0.25);
+    transform: translateY(-1px);
+  }
+
+  &.copied {
+    background: rgba($success, 0.15);
+    color: $success;
+  }
+}
+
+.regenerate-btn {
+  background: rgba($warning, 0.15);
+  color: $warning;
+
+  &:hover:not(:disabled) {
+    background: rgba($warning, 0.25);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.token-hint {
+  font-size: 0.7rem;
+  color: $text-muted;
+  margin: 0;
+  text-align: center;
+
+  code {
+    background: $bg-main;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.7rem;
+    color: $accent;
+  }
+}
+
+// Skeleton loading
+.token-skeleton {
+  .skeleton-line {
+    height: 42px;
+    background: linear-gradient(90deg, $border 25%, $bg-card 50%, $border 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 0.5rem;
+  }
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
