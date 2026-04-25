@@ -7,7 +7,7 @@ import {Register} from './core/auth/register/register';
 import {Tracker} from './pages/tracker/tracker';
 import {Members} from './pages/members/members';
 import {MainLayout} from './core/layout/main-layout/main-layout';
-import {AdminPage} from './pages/admin/admin';
+import {AdminPage} from './pages/admin-page/admin-page';
 
 export const routes: Routes = [
   // 1. Публичные маршруты

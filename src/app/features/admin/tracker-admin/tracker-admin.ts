@@ -1,15 +1,14 @@
-// src/app/features/tracker-admin-component/tracker-admin.ts
+// src/app/features/tracker-admin-page-component/tracker-admin-page-page.ts
 
 import {TranslocoModule, TranslocoService} from '@ngneat/transloco'; // Импортируем модуль целиком
 import {Component, computed, inject, OnInit, signal} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
 import {ReactiveFormsModule} from '@angular/forms';
-import {Category} from '../../core/models/tracker/category.model';
-import {CategoryRule} from '../../core/models/tracker/category.rule.model';
-import {TrackerAdminService} from '../../core/services/tracker/tracker.admin.service';
+import {Category} from '../../../core/models/tracker/category.model';
+import {CategoryRule} from '../../../core/models/tracker/category.rule.model';
+import {TrackerAdminService} from '../../../core/services/tracker/tracker.admin.service';
 import {CategoryRuleModal} from './category-rule-modal/category-rule-modal';
 import {CategoryModal} from './category-modal/category-modal';
-import {AuthService} from '../../core/services/auth/auth.service';
+import {AuthService} from '../../../core/services/auth/auth.service';
 import {MemberTokenPanel} from './member-token-panel/member-token-panel';
 
 
@@ -30,7 +29,6 @@ export class TrackerAdmin implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly translocoService = inject(TranslocoService);
   private readonly trackerAdminService = inject(TrackerAdminService);
-  private readonly http = inject(HttpClient);
 
   get activeLang() {
     return this.translocoService.getActiveLang();

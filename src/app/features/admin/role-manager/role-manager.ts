@@ -1,4 +1,4 @@
-// src/app/features/admin/role-manager/role-manager.ts
+// src/app/features/admin-page/role-manager/role-manager.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';

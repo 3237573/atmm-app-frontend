@@ -4,7 +4,8 @@ import {PermissionManager} from '../../features/admin/permission-manager/permiss
 import {RoleManager} from '../../features/admin/role-manager/role-manager';
 import {Members} from '../members/members';
 import {CompanyProfile} from '../../features/admin/company-profile/company-profile';
-import {TrackerAdmin} from '../../features/tracker-admin-component/tracker-admin';
+import {TrackerAdmin} from '../../features/admin/tracker-admin/tracker-admin';
+
 
 type TabId = 'profile' | 'members' | 'roles' | 'permissions' | 'tracker';
 
@@ -18,8 +19,8 @@ interface ITab {
   selector: 'app-admin-page',
   standalone: true,
   imports: [CommonModule, PermissionManager, RoleManager, Members, CompanyProfile, TrackerAdmin],
-  templateUrl: './admin.html',
-  styleUrls: ['./admin.scss']
+  templateUrl: './admin-page.html',
+  styleUrls: ['./admin-page.scss']
 })
 export class AdminPage implements OnInit {
   activeTab: TabId = 'profile';

@@ -3,8 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import { TranslocoModule } from '@ngneat/transloco';
 import { CommonModule } from '@angular/common';
-import { Category } from '../../../core/models/tracker/category.model';
-import { translit } from '../../../core/utils/translit.utils';
+import { Category } from '../../../../core/models/tracker/category.model';
+import { translit } from '../../../../core/utils/translit.utils';
 
 // Популярные иконки для категорий
 const POPULAR_ICONS = [

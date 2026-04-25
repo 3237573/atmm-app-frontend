@@ -1,7 +1,7 @@
 import {Component, inject, signal, OnInit, computed} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { AuthService } from '../../../core/services/auth/auth.service';
+import { AuthService } from '../../../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-member-token-panel',

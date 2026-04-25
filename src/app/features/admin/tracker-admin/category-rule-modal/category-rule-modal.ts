@@ -1,6 +1,6 @@
-import { Component, input, output, inject, HostListener } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslocoModule } from '@ngneat/transloco';
+import {Component, HostListener, input, output} from '@angular/core';
+import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {TranslocoModule} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-category-rule-modal',
