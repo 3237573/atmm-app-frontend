@@ -20,7 +20,7 @@ export class MemberTokenPanel implements OnInit {
   isLoading = signal(true);
   showToken = signal(false);  // 👈 добавляем состояние для показа/скрытия токена
 
-  canManage = computed(() => this.authService.hasPermission('tracker:update'));
+  canManage = computed(() => this.authService.hasPermission('tracker:read'));
 
   ngOnInit(): void {
     this.loadToken();

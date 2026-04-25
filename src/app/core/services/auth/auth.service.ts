@@ -5,7 +5,6 @@ import {Observable, of} from 'rxjs';
 import {catchError, tap} from 'rxjs/operators';
 import {AuthMeResponse, CompanyInfo, IUser, UserCompaniesResponse} from '../../models/auth.model';
 
-
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -47,12 +46,13 @@ export class AuthService {
     }
   }
 
-  private clearAuth(): void {
+  clearAuth(): void {
     this.currentUser.set(null);
     this.currentCompany.set(null);
     this.permissions.set([]);
     this.isAuthenticated.set(false);
     this.availableCompanies.set([]);
+    this.authStep.set('login');
   }
 
   checkAuth(): Observable<AuthMeResponse | null> {
@@ -67,6 +67,9 @@ export class AuthService {
 
   /** Шаг 1: Проверка пароля и получение списка компаний */
   authenticate(credentials: { email: string; password: string }): Observable<UserCompaniesResponse> {
+    // Очищаем состояние перед новой аутентификацией
+    this.clearAuth();
+
     return this.http.post<UserCompaniesResponse>('/auth/authenticate', credentials).pipe(
       tap((res) => {
         this.currentUser.set({ id: res.userId, email: res.email, fullName: res.fullName });
@@ -99,7 +102,6 @@ export class AuthService {
     return this.http.post('/auth/logout', {}, { withCredentials: true }).pipe(
       tap(() => {
         this.clearAuth();
-        this.authStep.set('login');
         this.router.navigate(['/login']);
       }),
       catchError(() => {

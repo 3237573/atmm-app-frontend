@@ -23,7 +23,7 @@ export class Sidebar implements OnInit {
   menuItems = [
     { path: '/members', icon: 'groups', label: 'Members' },
     { path: '/tracker', icon: 'schedule', label: 'Tracker' },
-    { path: '/admin', icon: 'admin_panel_settings', label: 'Admin' }
+    { path: '/admin', icon: 'settings', label: 'Admin' }
   ];
 
   ngOnInit() {
@@ -32,7 +32,6 @@ export class Sidebar implements OnInit {
       this.isCollapsed = saved === 'true';
     }
 
-    // Загружаем название компании
     this.loadCompanyName();
   }
 

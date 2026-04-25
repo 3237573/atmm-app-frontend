@@ -2,9 +2,8 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import {CompanySelector} from '../company-selector/company-selector';
-import {AuthService} from '../../services/auth/auth.service';
-
+import { CompanySelector } from '../company-selector/company-selector';
+import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +20,6 @@ export class Login {
   loading = signal(false);
   error = signal<string | null>(null);
 
-  // Реактивные сигналы из сервиса
   authStep = this.authService.authStep;
   availableCompanies = this.authService.availableCompanies;
 
@@ -36,17 +34,12 @@ export class Login {
     this.loading.set(true);
     this.error.set(null);
 
+    // Просто делаем вход - clearAuth уже вызывается в authenticate
     this.authService.login(this.loginForm.value as any).subscribe({
       next: (res) => {
         this.loading.set(false);
-        // Если компания одна, можно сразу выбрать её
-        if (res.companies.length === 1) {
-          this.authService.selectCompany(res.companies[0].companyId).subscribe({
-            next: () => this.router.navigate(['/members']),
-            error: (err) => this.error.set(err.error?.message || 'Ошибка входа')
-          });
-        }
-        // Иначе остаёмся на выборе компании
+        console.log('✅ Login successful, companies:', res.companies.length);
+        // authStep автоматически станет 'select-company' в AuthService
       },
       error: (err) => {
         this.loading.set(false);
