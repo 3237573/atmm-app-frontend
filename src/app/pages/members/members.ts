@@ -17,6 +17,11 @@ export class Members implements OnInit {
   private readonly authService = inject(AuthService);
   members: IMemberResponse[] = [];
   loading = true;
+  editingMember: IMemberResponse | null = null;
+  showEditModal = false;
+  searchQuery = '';
+  selectedRole = '';
+  selectedStatus = '';
 
   showInviteForm = false;
   inviteData = {
@@ -27,7 +32,7 @@ export class Members implements OnInit {
   };
   isSubmitting = false;
 
-  canManage = computed(() => this.authService.hasPermission('tracker:update'));
+  canManage = computed(() => this.authService.hasPermission('user:update'));
 
   constructor(
     private readonly memberService: MemberService,
@@ -124,4 +129,51 @@ export class Members implements OnInit {
       return nameA.localeCompare(nameB);
     });
   }
+
+  editMember(member: IMemberResponse) {
+    this.editingMember = { ...member };
+    this.showEditModal = true;
+  }
+
+  updateMember() {
+    if (!this.editingMember) return;
+
+    this.memberService.updateMember(
+      this.editingMember.userId,
+      this.editingMember.roleName,
+      this.editingMember.displayName
+    ).subscribe({
+      next: () => {
+        this.showEditModal = false;
+        this.loadMembers();
+      },
+      error: (err) => alert(err.error?.error || 'Ошибка обновления')
+    });
+  }
+
+  resetPassword(userId: string) {
+    const newPassword = prompt('Введите новый пароль (мин. 6 символов)');
+    if (newPassword && newPassword.length >= 6) {
+      this.memberService.resetPassword(userId, newPassword).subscribe({
+        next: () => alert('Пароль успешно изменен'),
+        error: (err) => alert(err.error?.error || 'Ошибка сброса пароля')
+      });
+    }
+  }
+
+  filteredMembers() {
+    return this.members.filter(member => {
+      const matchesSearch = !this.searchQuery ||
+        member.displayName?.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        member.email.toLowerCase().includes(this.searchQuery.toLowerCase());
+
+      const matchesRole = !this.selectedRole || member.roleName === this.selectedRole;
+      const matchesStatus = !this.selectedStatus || member.status === this.selectedStatus;
+
+      return matchesSearch && matchesRole && matchesStatus;
+    });
+  }
+
+
+
 }

@@ -233,3 +233,157 @@
     cursor: not-allowed;
   }
 }
+
+// Добавить в конец файла members.scss
+
+// Filters bar
+.filters-bar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  flex: 1;
+  min-width: 200px;
+
+  i {
+    color: $text-muted;
+    font-size: 1.2rem;
+  }
+
+  input {
+    background: transparent;
+    border: none;
+    color: white;
+    outline: none;
+    width: 100%;
+
+    &::placeholder {
+      color: $text-muted;
+    }
+  }
+}
+
+.filter-select {
+  background: $bg-card;
+  border: 1px solid $border;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  outline: none;
+  cursor: pointer;
+
+  &:focus {
+    border-color: $accent;
+  }
+}
+
+// Modal styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: $bg-card;
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 90%;
+  max-width: 500px;
+  border: 1px solid $border;
+
+  h3 {
+    margin: 0 0 1.5rem 0;
+    color: $accent;
+  }
+
+  .input-group {
+    margin-bottom: 1rem;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+  }
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid $border;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba($border, 0.2);
+  }
+}
+
+// Loader styles
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+  color: $text-muted;
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 3px solid $border;
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .invite-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions-cell {
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+
+      i {
+        font-size: 18px;
+      }
+    }
+  }
+}

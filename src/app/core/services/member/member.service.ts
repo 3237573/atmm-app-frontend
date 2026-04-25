@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {IMemberResponse} from '../../models/member.model';
 
@@ -23,6 +23,21 @@ export class MemberService {
 
   removeMember(userId: string) {
     return this.http.delete(`${this.baseUrl}/${userId}`);
+  }
+
+  updateMember(userId: string, roleName: string, displayName: string): Observable<any> {
+    return this.http.put(`${this.baseUrl}/${userId}`, { roleName, displayName });
+  }
+
+  resetPassword(userId: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/${userId}/reset-password`, { password: newPassword });
+  }
+
+  getMemberActivity(userId: string, from?: Date, to?: Date): Observable<any> {
+    const params = new HttpParams()
+      .set('from', from?.toISOString() || '')
+      .set('to', to?.toISOString() || '');
+    return this.http.get(`${this.baseUrl}/${userId}/activity`, { params });
   }
 
 }
