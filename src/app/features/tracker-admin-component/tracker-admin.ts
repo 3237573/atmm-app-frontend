@@ -157,7 +157,7 @@ export class TrackerAdmin implements OnInit {
     if (!this.canRecalculate() || this.isRecalculating()) return;
     if (this.isRecalculating() || !confirm('Применить классификацию к истории за 30 дней?')) return;
     this.isRecalculating.set(true);
-    this.http.post('admin/tracker/recalculate', {}).subscribe({
+    this.trackerAdminService.recalculate().subscribe({
       next: () => {
         alert('Успешно');
         this.isRecalculating.set(false);
@@ -165,5 +165,16 @@ export class TrackerAdmin implements OnInit {
       error: () => this.isRecalculating.set(false)
     });
   }
+
+  importDefaultTemplates(): void {
+    if (!confirm('Импортировать стандартные категории и правила? Это действие создаст копии шаблонов для вашей компании.')) {
+      return;
+    }
+    this.trackerAdminService.importDefaultTemplates().subscribe({
+      next: () => this.loadData(),
+      error: (err) => console.error('Ошибка импорта', err)
+    });
+  }
+
 
 }

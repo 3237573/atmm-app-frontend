@@ -1,0 +1,41 @@
+<div class="admin-page">
+  <header class="page-header">
+    <div class="header-info">
+      <h2>Company</h2>
+    </div>
+
+    <nav class="admin-tabs">
+      @for (tab of tabs; track tab.id) {
+        <button
+          [class.active]="activeTab === tab.id"
+          (click)="setActiveTab(tab.id)">
+          <i class="material-icons">{{ tab.icon }}</i>
+          {{ tab.label }}
+        </button>
+      }
+    </nav>
+  </header>
+
+  <section class="admin-content">
+    @switch (activeTab) {
+      @case ('profile') {
+        <app-company-profile></app-company-profile>
+      }
+      @case ('members') {
+        <app-members></app-members>
+      }
+      @case ('roles') {
+        <app-role-manager></app-role-manager>
+      }
+      @case ('permissions') {
+        <app-permission-manager></app-permission-manager>
+      }
+      @case ('tracker') {
+        <app-tracker-admin></app-tracker-admin>
+      }
+      @default {
+        <div class="empty-state">Select a tab</div>
+      }
+    }
+  </section>
+</div>

@@ -20,14 +20,42 @@
 
       <div class="form-field icon-part">
         <label>{{ t('tracker.category.icon') }}</label>
-        <div class="icon-input-group">
-          <i class="material-icons">{{ categoryForm.value.icon || 'folder' }}</i>
-          <input type="text" formControlName="icon" placeholder="folder">
+        <div class="icon-selector-wrapper">
+          <div class="icon-display" (click)="toggleIconPicker()">
+            <i class="material-icons">{{ categoryForm.value.icon || 'folder' }}</i>
+            <span class="icon-name">{{ categoryForm.value.icon || 'folder' }}</span>
+            <i class="material-icons dropdown-icon">arrow_drop_down</i>
+          </div>
+
+          @if (showIconPicker()) {
+            <div class="icon-picker-dropdown">
+              <div class="icon-search">
+                <i class="material-icons">search</i>
+                <input
+                  type="text"
+                  [placeholder]="'Поиск иконок...'"
+                  [(ngModel)]="iconSearchQuery"
+                  (click)="$event.stopPropagation()"
+                />
+              </div>
+              <div class="icon-grid">
+                @for (icon of filteredIcons(); track icon) {
+                  <div class="icon-option" (click)="selectIcon(icon)">
+                    <i class="material-icons">{{ icon }}</i>
+                    <span>{{ icon }}</span>
+                  </div>
+                }
+                @if (filteredIcons().length === 0) {
+                  <div class="no-icons">Иконок не найдено</div>
+                }
+              </div>
+            </div>
+          }
         </div>
       </div>
     </div>
 
-    <div class="form-field inline-group">
+    <div class="form-field">
       <label>{{ t('tracker.category.priority') }}</label>
       <input type="number" formControlName="priority" class="dark-number-input">
     </div>

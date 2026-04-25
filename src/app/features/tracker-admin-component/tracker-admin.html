@@ -17,6 +17,12 @@
             <span>{{ t('tracker.category.new') }}</span>
           </button>
         }
+        @if (canManage()) {
+          <button class="btn btn-amber" (click)="importDefaultTemplates()">
+            <i class="material-icons">download</i>
+            Импортировать шаблоны
+          </button>
+        }
       </div>
     </div>
   </header>
