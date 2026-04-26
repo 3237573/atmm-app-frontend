@@ -85,8 +85,10 @@ export class MembersList implements OnInit {
   }
 
   assignTask(member: IMemberResponse): void {
-    // TODO: назначить задачу
-    console.log('Assign task to', member.displayName);
+    // Переходим на создание задачи с параметром исполнителя
+    void this.router.navigate(['/tasks/create'], {
+      queryParams: { assigneeId: member.membershipId, assigneeName: member.displayName }
+    });
   }
 
   viewProfile(member: IMemberResponse): void {
@@ -102,5 +104,7 @@ export class MembersList implements OnInit {
       default: return 'member';
     }
   }
+
+
 
 }

@@ -1,0 +1,268 @@
+@use "../../../app.scss" as *;
+
+.task-create {
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      color: $accent;
+      font-size: 1.75rem;
+    }
+  }
+}
+
+.form-container {
+  background: $bg-card;
+  border-radius: 1rem;
+  border: 1px solid $border;
+  padding: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+
+  label {
+    //display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: $text-muted;
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  background: $bg-main;
+  border: 1px solid $border;
+  border-radius: 0.5rem;
+  color: $text-main;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: $accent;
+    box-shadow: 0 0 0 2px rgba($accent, 0.1);
+  }
+
+  &.invalid {
+    border-color: $danger;
+
+    &:focus {
+      box-shadow: 0 0 0 2px rgba($danger, 0.1);
+    }
+  }
+}
+
+textarea.form-control {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.error-text {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.7rem;
+  color: $danger;
+}
+
+.hint-text {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  color: $text-muted;
+}
+
+.members-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid $border;
+  border-radius: 0.5rem;
+  background: $bg-main;
+  overflow: hidden;
+}
+
+.member-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid rgba($border, 0.3);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: rgba($accent, 0.05);
+  }
+
+  input {
+    margin: 0;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: $accent;
+  }
+
+  .member-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+    min-width: 150px;
+  }
+
+  .member-email {
+    //font-size: 0.75rem;
+    color: $text-muted;
+    flex: 1;
+  }
+
+  .member-role {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.2rem 0.7rem;
+    border-radius: 2rem;
+    text-align: center;
+    min-width: 70px;
+
+    &.owner {
+      background: rgba($role-owner-color, 0.15);
+      color: $role-owner-color;
+      border: 1px solid rgba($role-owner-color, 0.3);
+    }
+    &.admin {
+      background: rgba($role-admin-color, 0.15);
+      color: $role-admin-color;
+      border: 1px solid rgba($role-admin-color, 0.3);
+    }
+    &.member {
+      background: rgba($role-member-color, 0.15);
+      color: $role-member-color;
+      border: 1px solid rgba($role-member-color, 0.3);
+    }
+    &.guest {
+      background: rgba($role-guest-color, 0.15);
+      color: $role-guest-color;
+      border: 1px solid rgba($role-guest-color, 0.3);
+    }
+  }
+}
+
+.empty-members {
+  text-align: center;
+  padding: 2rem;
+  color: $text-muted;
+  font-size: 0.85rem;
+}
+
+.loader-small {
+  text-align: center;
+  padding: 2rem;
+  color: $text-muted;
+  font-size: 0.85rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid $border;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      font-size: 1.1rem;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .task-create {
+    padding: 1rem;
+  }
+
+  .form-container {
+    padding: 1rem;
+  }
+
+  .member-row {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    .member-name {
+      min-width: 100px;
+    }
+
+    .member-email {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .member-role {
+      margin-left: auto;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .member-row {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .member-role {
+      margin-left: 0;
+    }
+  }
+}

@@ -1,0 +1,105 @@
+<div class="task-create">
+  <div class="page-header">
+    <h1>
+      <i class="material-icons">assignment_add</i>
+      Создать задачу
+    </h1>
+    <button class="btn-secondary" routerLink="/tasks">
+      <i class="material-icons">arrow_back</i>
+      Назад
+    </button>
+  </div>
+
+  <div class="form-container">
+    <div class="form-group">
+      <label>Название задачи *</label>
+      <input
+        type="text"
+        [(ngModel)]="taskData.title"
+        placeholder="Введите название задачи"
+        class="form-control"
+        [class.invalid]="!taskData.title.trim() && taskData.title.length > 0"
+      >
+      @if (!taskData.title.trim() && taskData.title.length > 0) {
+        <small class="error-text">Название задачи обязательно</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label>Описание</label>
+      <textarea
+        [(ngModel)]="taskData.description"
+        placeholder="Подробное описание задачи..."
+        rows="5"
+        class="form-control"
+      ></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Приоритет</label>
+        <select [(ngModel)]="taskData.priority" class="form-control">
+          <option value="LOW">🟢 Низкий</option>
+          <option value="MEDIUM">🟡 Средний</option>
+          <option value="HIGH">🟠 Высокий</option>
+          <option value="URGENT">🔴 Срочный</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Срок выполнения</label>
+        <input
+          type="date"
+          [(ngModel)]="taskData.dueDate"
+          class="form-control"
+          [min]="minDate"
+        >
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Исполнители</label>
+      <div class="members-list">
+        @if (loading()) {
+          <div>Загрузка...</div>
+        } @else {
+          @for (member of members(); track member.membershipId) {
+            <label class="member-row">
+              <input
+                type="checkbox"
+                [checked]="isSelected(member.membershipId)"
+                (change)="toggleAssignee(member.membershipId)"
+              >
+              <span class="member-name">{{ member.displayName }}</span>
+              <span class="member-email">{{ member.email }}</span>
+              <span class="member-role" [class]="getRoleBadgeClass(member.roleName)">{{ member.roleName }}</span>
+            </label>
+          }
+        }
+      </div>
+      @if (taskData.assigneeMembershipIds.length === 0) {
+        <small class="hint-text">Выберите хотя бы одного исполнителя</small>
+      }
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-secondary" routerLink="/tasks">
+        <i class="material-icons">close</i>
+        Отмена
+      </button>
+      <button
+        class="btn-primary"
+        [disabled]="submitting() || !taskData.title.trim() || taskData.assigneeMembershipIds.length === 0"
+        (click)="onSubmit()"
+      >
+        @if (submitting()) {
+          <i class="material-icons spinning">refresh</i>
+          <span>Создание...</span>
+        } @else {
+          <i class="material-icons">check</i>
+          <span>Создать задачу</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>

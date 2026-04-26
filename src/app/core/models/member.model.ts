@@ -5,9 +5,10 @@ export interface IMemberVO {
 
 export interface IMemberResponse {
   userId: string;
+  membershipId: string;  // ✅ добавить это поле
   email: string;
   displayName: string;
   roleName: string;
-  departmentName: string | null;
+  departmentName?: string;
   status: string;
 }

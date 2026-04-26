@@ -70,13 +70,30 @@
                 </span>
               </td>
               <td class="actions-cell">
-                <button class="action-btn" (click)="sendMessage(member)" title="Написать">
-                  <i class="material-icons">chat_bubble</i>
-                </button>
-                <button class="action-btn" (click)="assignTask(member)" title="Назначить задачу">
-                  <i class="material-icons">assignment_add</i>
-                </button>
-                <button class="action-btn" (click)="viewProfile(member)" title="Профиль">
+                @if (currentUser()?.id !== member.userId) {
+                  <!-- Задачи - первая -->
+                  <button class="action-btn task" (click)="assignTask(member)" title="Назначить задачу">
+                    <i class="material-icons">assignment_add</i>
+                  </button>
+
+                  <!-- Чат - вторая -->
+                  <button class="action-btn chat" (click)="sendMessage(member)" title="Написать сообщение">
+                    <i class="material-icons">chat_bubble</i>
+                  </button>
+                } @else {
+                  <!-- Себе тоже можно поставить задачу -->
+                  <button class="action-btn task" (click)="assignTask(member)" title="Поставить задачу себе">
+                    <i class="material-icons">assignment_add</i>
+                  </button>
+
+                  <!-- Себе писать сообщение не нужно, но можно -->
+                  <button class="action-btn chat" (click)="sendMessage(member)" title="Написать себе" style="opacity: 0.5;">
+                    <i class="material-icons">chat_bubble</i>
+                  </button>
+                }
+
+                <!-- Профиль у всех одинаково -->
+                <button class="action-btn profile" (click)="viewProfile(member)" title="Просмотр профиля">
                   <i class="material-icons">visibility</i>
                 </button>
               </td>

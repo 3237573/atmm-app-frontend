@@ -22,6 +22,7 @@ export class Sidebar implements OnInit {
 
   menuItems = [
     { path: '/members', icon: 'groups', label: 'Members' },
+    { path: '/tasks', icon: 'task', label: 'Tasks' },
     { path: '/tracker', icon: 'schedule', label: 'Tracker' },
     { path: '/admin', icon: 'settings', label: 'Admin' }
   ];

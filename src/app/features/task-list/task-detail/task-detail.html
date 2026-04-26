@@ -1,0 +1,153 @@
+<div class="task-detail">
+  <!-- Header -->
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <i class="material-icons">arrow_back</i>
+      Назад к задачам
+    </button>
+
+    <div class="header-actions">
+      @if (!editing() && !loading()) {
+        <button class="btn-edit" (click)="startEdit()">
+          <i class="material-icons">edit</i>
+          Редактировать
+        </button>
+        <button class="btn-delete" (click)="deleteTask()" [disabled]="deleting()">
+          @if (deleting()) {
+            <i class="material-icons spinning">refresh</i>
+          } @else {
+            <i class="material-icons">delete</i>
+          }
+          <span>Удалить</span>
+        </button>
+      }
+      @if (editing()) {
+        <button class="btn-cancel" (click)="cancelEdit()">
+          <i class="material-icons">close</i>
+          Отмена
+        </button>
+        <button class="btn-save" (click)="saveEdit()" [disabled]="saving()">
+          @if (saving()) {
+            <i class="material-icons spinning">refresh</i>
+          } @else {
+            <i class="material-icons">save</i>
+          }
+          <span>Сохранить</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loader-container">
+      <div class="spinner"></div>
+      <span>Загрузка задачи...</span>
+    </div>
+  } @else if (task(); as task) {
+    <div class="task-content">
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <div class="status-selector">
+          <span class="label">Статус:</span>
+          <select
+            [value]="task.status"
+            (change)="updateStatus($any($event.target).value)"
+            class="status-select"
+            [disabled]="editing()">
+            <option value="PENDING">🟡 Ожидает</option>
+            <option value="IN_PROGRESS">🔵 В работе</option>
+            <option value="REVIEW">🟣 На проверке</option>
+            <option value="COMPLETED">✅ Выполнена</option>
+          </select>
+        </div>
+
+        <div class="priority-badge" [class]="getPriorityColor(task.priority)">
+          {{ getPriorityLabel(task.priority) }}
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div class="task-title-section">
+        @if (!editing()) {
+          <h1>{{ task.title }}</h1>
+        } @else {
+          <input
+            type="text"
+            [(ngModel)]="editData.title"
+            class="title-input"
+            placeholder="Название задачи"
+          >
+        }
+      </div>
+
+      <!-- Meta Info -->
+      <div class="meta-info">
+        <div class="meta-item">
+          <i class="material-icons">person</i>
+          <span>Исполнитель: <strong>{{ task.assigneeName || 'Не назначен' }}</strong></span>
+        </div>
+        <div class="meta-item">
+          <i class="material-icons">business</i>
+          <span>Отдел: <strong>{{ task.departmentName || 'Общий' }}</strong></span>
+        </div>
+        <div class="meta-item">
+          <i class="material-icons">calendar_today</i>
+          <span>Создана: <strong>{{ formatDate(task.createdAt) }}</strong></span>
+        </div>
+        @if (task.dueDate) {
+          <div class="meta-item" [class.overdue]="isOverdue(task.dueDate)">
+            <i class="material-icons">event</i>
+            <span>Срок: <strong>{{ formatDate(task.dueDate) }}</strong></span>
+          </div>
+        }
+        @if (task.parentTaskTitle) {
+          <div class="meta-item">
+            <i class="material-icons">subdirectory_arrow_right</i>
+            <span>Родительская задача: <strong>{{ task.parentTaskTitle }}</strong></span>
+          </div>
+        }
+      </div>
+
+      <!-- Description -->
+      <div class="description-section">
+        <h3>
+          <i class="material-icons">description</i>
+          Описание
+        </h3>
+
+        @if (!editing()) {
+          <div class="description-content">
+            @if (task.description) {
+              <p>{{ task.description }}</p>
+            } @else {
+              <p class="empty-description">Нет описания</p>
+            }
+          </div>
+        } @else {
+          <textarea
+            [(ngModel)]="editData.description"
+            class="description-input"
+            rows="6"
+            placeholder="Введите описание задачи..."
+          ></textarea>
+        }
+      </div>
+
+      <!-- Due Date Edit (only in edit mode) -->
+      @if (editing()) {
+        <div class="due-date-section">
+          <h3>
+            <i class="material-icons">event</i>
+            Срок выполнения
+          </h3>
+          <input
+            type="date"
+            [(ngModel)]="editData.dueDate"
+            class="date-input"
+            [min]="minDate"
+          >
+        </div>
+      }
+    </div>
+  }
+</div>

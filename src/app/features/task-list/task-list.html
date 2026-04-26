@@ -1,0 +1,317 @@
+<div class="task-list">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-text">
+      <h1>
+        <i class="material-icons">assignment</i>
+        Задачи
+      </h1>
+      <p>Управление задачами компании</p>
+    </div>
+    <button class="btn-primary" routerLink="/tasks/create">
+      <i class="material-icons">add</i>
+      Создать задачу
+    </button>
+  </div>
+
+  <!-- Statistics -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ stats().total }}</div>
+      <div class="stat-label">Всего задач</div>
+    </div>
+    <div class="stat-card pending">
+      <div class="stat-value">{{ stats().pending }}</div>
+      <div class="stat-label">Ожидают</div>
+    </div>
+    <div class="stat-card progress">
+      <div class="stat-value">{{ stats().inProgress }}</div>
+      <div class="stat-label">В работе</div>
+    </div>
+    <div class="stat-card review">
+      <div class="stat-value">{{ stats().review }}</div>
+      <div class="stat-label">На проверке</div>
+    </div>
+    <div class="stat-card completed">
+      <div class="stat-value">{{ stats().completed }}</div>
+      <div class="stat-label">Выполнены</div>
+    </div>
+    <div class="stat-card overdue">
+      <div class="stat-value">{{ stats().overdue }}</div>
+      <div class="stat-label">Просрочены</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="search-box">
+      <i class="material-icons">search</i>
+      <input
+        type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        placeholder="Поиск по названию или исполнителю..."
+      >
+    </div>
+
+    <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)" class="filter-select">
+      <option value="">Все статусы</option>
+      <option value="PENDING">Ожидает</option>
+      <option value="IN_PROGRESS">В работе</option>
+      <option value="REVIEW">На проверке</option>
+      <option value="COMPLETED">Выполнены</option>
+    </select>
+
+    <select [ngModel]="selectedPriority()" (ngModelChange)="selectedPriority.set($event)" class="filter-select">
+      <option value="">Все приоритеты</option>
+      <option value="LOW">Низкий</option>
+      <option value="MEDIUM">Средний</option>
+      <option value="HIGH">Высокий</option>
+      <option value="URGENT">Срочный</option>
+    </select>
+
+    <div class="view-toggle">
+      <button
+        class="toggle-btn"
+        [class.active]="viewMode() === 'list'"
+        (click)="setViewMode('list')">
+        <i class="material-icons">view_list</i>
+      </button>
+      <button
+        class="toggle-btn"
+        [class.active]="viewMode() === 'board'"
+        (click)="setViewMode('board')">
+        <i class="material-icons">view_kanban</i>
+      </button>
+    </div>
+  </div>
+
+  <!-- List View -->
+  @if (viewMode() === 'list') {
+    <div class="table-container">
+      <table class="tasks-table">
+        <thead>
+        <tr>
+          <th>Задача</th>
+          <th>Исполнитель</th>
+          <th>Приоритет</th>
+          <th>Статус</th>
+          <th>Срок</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (task of filteredTasks(); track task.id) {
+            <tr [routerLink]="['/tasks', task.id]" class="task-row">
+              <td>
+                <div class="task-title">
+                  <strong>{{ task.title }}</strong>
+                  <span class="task-department">{{ task.departmentName }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="assignee">
+                  <div class="assignee-avatar">
+                    {{ task.assigneeName.charAt(0).toUpperCase() }}
+                  </div>
+                  <span>{{ task.assigneeName }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="priority-badge" [class]="getPriorityColor(task.priority)">
+                  {{ task.priority }}
+                </span>
+              </td>
+              <td>
+                <select
+                  [value]="task.status"
+                  (click)="$event.stopPropagation()"
+                  (change)="updateStatus(task, $any($event.target).value)"
+                  class="status-select">
+                  <option value="PENDING">Ожидает</option>
+                  <option value="IN_PROGRESS">В работе</option>
+                  <option value="REVIEW">На проверке</option>
+                  <option value="COMPLETED">Выполнена</option>
+                </select>
+              </td>
+              <td>
+                @if (task.dueDate) {
+                  <span class="due-date" [class.overdue]="isOverdue(task.dueDate)">
+                    {{ formatDate(task.dueDate) }}
+                  </span>
+                } @else {
+                  <span class="no-date">—</span>
+                }
+              </td>
+              <td>
+                <i class="material-icons">chevron_right</i>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-state">
+                <i class="material-icons">assignment_turned_in</i>
+                <p>Нет задач</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Board View -->
+  @if (viewMode() === 'board') {
+    <div class="kanban-board">
+      <!-- PENDING Column -->
+      <div class="kanban-column">
+        <div class="column-header">
+          <h3>Ожидает</h3>
+          <span class="task-count">{{ pendingTasks().length }}</span>
+        </div>
+        <div class="column-tasks">
+          @for (task of pendingTasks(); track task.id) {
+            <div class="kanban-card" [routerLink]="['/tasks', task.id]">
+              <div class="card-header">
+                <span class="priority-badge" [class]="getPriorityColor(task.priority)">
+                  {{ task.priority }}
+                </span>
+                <span class="task-id">#{{ task.id.slice(0, 8) }}</span>
+              </div>
+              <div class="card-title">{{ task.title }}</div>
+              <div class="card-footer">
+                <div class="assignee">
+                  <div class="assignee-avatar small">
+                    {{ task.assigneeName.charAt(0).toUpperCase() }}
+                  </div>
+                  <span>{{ task.assigneeName }}</span>
+                </div>
+                @if (task.dueDate) {
+                  <span class="due-date" [class.overdue]="isOverdue(task.dueDate)">
+                    {{ formatDate(task.dueDate) }}
+                  </span>
+                }
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-column">Нет задач</div>
+          }
+        </div>
+      </div>
+
+      <!-- IN_PROGRESS Column -->
+      <div class="kanban-column">
+        <div class="column-header">
+          <h3>В работе</h3>
+          <span class="task-count">{{ inProgressTasks().length }}</span>
+        </div>
+        <div class="column-tasks">
+          @for (task of inProgressTasks(); track task.id) {
+            <div class="kanban-card" [routerLink]="['/tasks', task.id]">
+              <div class="card-header">
+                <span class="priority-badge" [class]="getPriorityColor(task.priority)">
+                  {{ task.priority }}
+                </span>
+                <span class="task-id">#{{ task.id.slice(0, 8) }}</span>
+              </div>
+              <div class="card-title">{{ task.title }}</div>
+              <div class="card-footer">
+                <div class="assignee">
+                  <div class="assignee-avatar small">
+                    {{ task.assigneeName.charAt(0).toUpperCase() }}
+                  </div>
+                  <span>{{ task.assigneeName }}</span>
+                </div>
+                @if (task.dueDate) {
+                  <span class="due-date" [class.overdue]="isOverdue(task.dueDate)">
+                    {{ formatDate(task.dueDate) }}
+                  </span>
+                }
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-column">Нет задач</div>
+          }
+        </div>
+      </div>
+
+      <!-- REVIEW Column -->
+      <div class="kanban-column">
+        <div class="column-header">
+          <h3>На проверке</h3>
+          <span class="task-count">{{ reviewTasks().length }}</span>
+        </div>
+        <div class="column-tasks">
+          @for (task of reviewTasks(); track task.id) {
+            <div class="kanban-card" [routerLink]="['/tasks', task.id]">
+              <div class="card-header">
+                <span class="priority-badge" [class]="getPriorityColor(task.priority)">
+                  {{ task.priority }}
+                </span>
+                <span class="task-id">#{{ task.id.slice(0, 8) }}</span>
+              </div>
+              <div class="card-title">{{ task.title }}</div>
+              <div class="card-footer">
+                <div class="assignee">
+                  <div class="assignee-avatar small">
+                    {{ task.assigneeName.charAt(0).toUpperCase() }}
+                  </div>
+                  <span>{{ task.assigneeName }}</span>
+                </div>
+                @if (task.dueDate) {
+                  <span class="due-date" [class.overdue]="isOverdue(task.dueDate)">
+                    {{ formatDate(task.dueDate) }}
+                  </span>
+                }
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-column">Нет задач</div>
+          }
+        </div>
+      </div>
+
+      <!-- COMPLETED Column -->
+      <div class="kanban-column">
+        <div class="column-header">
+          <h3>Выполнены</h3>
+          <span class="task-count">{{ completedTasks().length }}</span>
+        </div>
+        <div class="column-tasks">
+          @for (task of completedTasks(); track task.id) {
+            <div class="kanban-card completed" [routerLink]="['/tasks', task.id]">
+              <div class="card-header">
+                <span class="priority-badge" [class]="getPriorityColor(task.priority)">
+                  {{ task.priority }}
+                </span>
+                <span class="task-id">#{{ task.id.slice(0, 8) }}</span>
+              </div>
+              <div class="card-title">{{ task.title }}</div>
+              <div class="card-footer">
+                <div class="assignee">
+                  <div class="assignee-avatar small">
+                    {{ task.assigneeName.charAt(0).toUpperCase() }}
+                  </div>
+                  <span>{{ task.assigneeName }}</span>
+                </div>
+                @if (task.dueDate) {
+                  <span class="due-date">{{ formatDate(task.dueDate) }}</span>
+                }
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-column">Нет задач</div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Loader -->
+  @if (loading()) {
+    <div class="loader-container">
+      <div class="spinner"></div>
+      <span>Загрузка задач...</span>
+    </div>
+  }
+</div>

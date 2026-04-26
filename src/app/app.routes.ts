@@ -5,17 +5,16 @@ import {authGuard} from './core/guards/auth.guard';
 import {Login} from './core/auth/login/login';
 import {Register} from './core/auth/register/register';
 import {Tracker} from './pages/tracker/tracker';
-import {Members} from './pages/members/members';
 import {MainLayout} from './core/layout/main-layout/main-layout';
 import {AdminPage} from './pages/admin-page/admin-page';
 import {MembersList} from './features/members-list/members-list';
+import {TaskList} from './features/task-list/task-list';
+import {TaskCreate} from './features/task-list/task-create/task-create';
+import {TaskDetail} from './features/task-list/task-detail/task-detail';
 
 export const routes: Routes = [
-  // 1. Публичные маршруты
   { path: 'login', component: Login },
   { path: 'register', component: Register },
-
-  // 2. Приватные маршруты
   {
     path: '',
     component: MainLayout,
@@ -23,18 +22,20 @@ export const routes: Routes = [
     children: [
       { path: 'tracker', component: Tracker },
       { path: 'members', component: MembersList },
-
-      // Администрирование (единая точка входа)
+      {
+        path: 'tasks',
+        children: [
+          { path: '', component: TaskList, title: 'Задачи' },
+          { path: 'create', component: TaskCreate, title: 'Создать задачу' },
+          { path: ':id', component: TaskDetail, title: 'Детали задачи' }
+        ]
+      },
       {
         path: 'admin',
-        component: AdminPage,  // 👈 Внутри будут вкладки: profile, members, roles, permissions, tracker
-        children: []  // Не нужны дочерние маршруты, так как AdminPage сам управляет вкладками
+        component: AdminPage,
       },
-
       { path: '', redirectTo: 'tracker', pathMatch: 'full' }
     ]
   },
-
-  // 3. Fallback
   { path: '**', redirectTo: '/login' }
 ];
