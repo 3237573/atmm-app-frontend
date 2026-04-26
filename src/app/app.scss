@@ -1,3 +1,4 @@
+@use "sass:color";
 // --- 1. Variables (Design System) ---
 $bg-main: #0f172a;
 $bg-card: #1e293b;
@@ -38,6 +39,8 @@ $role-guest-color: #a1a1aa;
   color: $color;
 }
 
+
+// ========== BUTTONS ==========
 .btn-primary {
   background: $accent;
   color: $bg-main;
@@ -50,8 +53,51 @@ $role-guest-color: #a1a1aa;
   font-weight: 700;
   cursor: pointer;
   transition: opacity 0.2s;
-  &:hover { opacity: 0.9; }
+
+  &:hover {
+    background: color.adjust($accent, $lightness: 8%);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  i {
+    font-size: 1.2rem;
+  }
 }
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid $border;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba($border, 0.2);
+    border-color: $accent;
+    color: $accent;
+  }
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: $accent;
+  cursor: pointer;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+
 
 // --- 4. Global Classes for Role Badges ---
 .badge-role {

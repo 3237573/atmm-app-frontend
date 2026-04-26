@@ -2,10 +2,9 @@ import {CommonModule} from '@angular/common';
 import {Component, OnInit} from '@angular/core';
 import {PermissionManager} from '../../features/admin/permission-manager/permission-manager';
 import {RoleManager} from '../../features/admin/role-manager/role-manager';
-import {Members} from '../members/members';
+import {MembersAdmin} from '../../features/admin/members-admin/members-admin';
 import {CompanyProfile} from '../../features/admin/company-profile/company-profile';
 import {TrackerAdmin} from '../../features/admin/tracker-admin/tracker-admin';
-
 
 type TabId = 'profile' | 'members' | 'roles' | 'permissions' | 'tracker';
 
@@ -18,7 +17,7 @@ interface ITab {
 @Component({
   selector: 'app-admin-page',
   standalone: true,
-  imports: [CommonModule, PermissionManager, RoleManager, Members, CompanyProfile, TrackerAdmin],
+  imports: [CommonModule, PermissionManager, RoleManager, MembersAdmin, CompanyProfile, TrackerAdmin],
   templateUrl: './admin-page.html',
   styleUrls: ['./admin-page.scss']
 })
