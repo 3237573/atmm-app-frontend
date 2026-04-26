@@ -50,7 +50,7 @@
   border-radius: 0.5rem;
   padding: 0.5rem 1rem;
   flex: 1;
-  max-width: 400px;
+  min-width: 250px;
 
   i {
     color: $text-muted;
@@ -63,7 +63,6 @@
     color: $text-main;
     outline: none;
     width: 100%;
-    font-size: 0.9rem;
 
     &::placeholder {
       color: $text-muted;
@@ -90,7 +89,7 @@
   }
 }
 
-// Table
+// ========== ДЕСКТОП (>= 768px) ==========
 .table-container {
   background: $bg-card;
   border-radius: 0.75rem;
@@ -102,11 +101,12 @@
 .members-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 600px;
 
   th {
     text-align: left;
-    padding: 1rem;
-    font-size: 0.75rem;
+    padding: 0.875rem 1rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
     color: $text-muted;
     font-weight: 600;
@@ -125,7 +125,6 @@
   }
 }
 
-// User cell
 .user-cell {
   display: flex;
   align-items: center;
@@ -133,14 +132,14 @@
 }
 
 .user-avatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9rem;
   flex-shrink: 0;
 }
 
@@ -154,51 +153,33 @@
     flex-wrap: wrap;
 
     .you-badge {
-      font-size: 0.65rem;
-      font-weight: 500;
+      font-size: 0.6rem;
       background: rgba($accent, 0.2);
       color: $accent;
-      padding: 0.1rem 0.5rem;
+      padding: 0.1rem 0.4rem;
       border-radius: 1rem;
     }
   }
 
   .user-email {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: $text-muted;
   }
 }
 
-// Role badge
 .role-badge {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 500;
-  padding: 0.2rem 0.7rem;
+  padding: 0.15rem 0.6rem;
   border-radius: 2rem;
   display: inline-block;
 
-  &.owner {
-    background: $role-owner-bg;
-    color: $role-owner-color;
-  }
-
-  &.admin {
-    background: $role-admin-bg;
-    color: $role-admin-color;
-  }
-
-  &.member {
-    background: $role-member-bg;
-    color: $role-member-color;
-  }
-
-  &.guest {
-    background: $role-guest-bg;
-    color: $role-guest-color;
-  }
+  &.owner { background: $role-owner-bg; color: $role-owner-color; }
+  &.admin { background: $role-admin-bg; color: $role-admin-color; }
+  &.member { background: $role-member-bg; color: $role-member-color; }
+  &.guest { background: $role-guest-bg; color: $role-guest-color; }
 }
 
-// Actions
 .actions-cell {
   display: flex;
   gap: 0.5rem;
@@ -217,72 +198,157 @@
   justify-content: center;
   transition: all 0.2s;
 
-  i {
-    font-size: 1.1rem;
-  }
+  i { font-size: 1rem; }
 
   &:hover {
     background: rgba($accent, 0.1);
     color: $accent;
     border-color: $accent;
-    transform: translateY(-1px);
   }
 }
 
-// Empty state
-.empty-state {
-  text-align: center;
-  padding: 3rem !important;
-  color: $text-muted;
-
-  i {
-    font-size: 3rem;
-    margin-bottom: 0.5rem;
-    opacity: 0.5;
-  }
-
-  p {
-    margin: 0;
-  }
-}
-
-// Loader
-.loader-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem;
-  gap: 1rem;
-  color: $text-muted;
-}
-
-// Responsive
+// ========== ПЛАНШЕТ (481px - 768px) ==========
 @media (max-width: 768px) {
   .members-list {
     padding: 1rem;
   }
 
-  .search-box {
-    max-width: 100%;
+  .members-table {
+    min-width: 500px;
   }
 
-  .actions-cell {
-    flex-direction: column;
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  .user-info .user-name {
+    font-size: 0.85rem;
+  }
+
+  .user-info .user-email {
+    font-size: 0.65rem;
   }
 
   .action-btn {
     width: 28px;
     height: 28px;
 
-    i {
-      font-size: 1rem;
+    i { font-size: 0.9rem; }
+  }
+}
+
+// ========== МОБИЛА (<= 480px) ==========
+@media (max-width: 480px) {
+  .members-list {
+    padding: 0.75rem;
+  }
+
+  // Убираем таблицу, переходим на карточки
+  .table-container {
+    background: transparent;
+    border: none;
+    overflow-x: visible;
+  }
+
+  .members-table {
+    min-width: auto;
+
+    thead {
+      display: none;
+    }
+
+    tbody, tr, td {
+      display: block;
+    }
+
+    tr {
+      background: $bg-card;
+      border: 1px solid $border;
+      border-radius: 0.75rem;
+      margin-bottom: 0.75rem;
+      padding: 0.75rem;
+    }
+
+    td {
+      border: none;
+      padding: 0.5rem 0;
+
+      &:first-child {
+        padding-top: 0;
+      }
+
+      &:last-child {
+        padding-bottom: 0;
+      }
     }
   }
 
+  .user-cell {
+    flex-direction: row;
+    align-items: center;
+  }
+
   .user-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .user-info .user-name {
+    font-size: 0.9rem;
+  }
+
+  .user-info .user-email {
+    font-size: 0.7rem;
+  }
+
+  .role-badge {
+    display: inline-block;
+    margin-top: 0.25rem;
+  }
+
+  .actions-cell {
+    justify-content: flex-start;
+    margin-top: 0.5rem;
+  }
+
+  .action-btn {
     width: 36px;
     height: 36px;
-    font-size: 0.9rem;
+
+    i { font-size: 1.1rem; }
+  }
+
+  .filters-bar {
+    flex-direction: column;
+  }
+
+  .search-box {
+    min-width: auto;
+  }
+}
+
+// ========== Loader ==========
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 0.75rem;
+  color: $text-muted;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem !important;
+  color: $text-muted;
+
+  i {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
   }
 }
