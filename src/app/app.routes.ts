@@ -8,6 +8,7 @@ import {Tracker} from './pages/tracker/tracker';
 import {Members} from './pages/members/members';
 import {MainLayout} from './core/layout/main-layout/main-layout';
 import {AdminPage} from './pages/admin-page/admin-page';
+import {MembersList} from './features/members-list/members-list';
 
 export const routes: Routes = [
   // 1. Публичные маршруты
@@ -21,7 +22,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: 'tracker', component: Tracker },
-      { path: 'members', component: Members },
+      { path: 'members', component: MembersList },
 
       // Администрирование (единая точка входа)
       {

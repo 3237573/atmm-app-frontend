@@ -1,0 +1,101 @@
+<div class="members-list">
+  <!-- Header -->
+  <div class="list-header">
+    <div class="header-text">
+      <h1>
+        <i class="material-icons">people</i>
+        Участники компании
+      </h1>
+      <p>{{ members().length }} человек в команде</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="search-box">
+      <i class="material-icons">search</i>
+      <input
+        type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        placeholder="Поиск по имени или email..."
+      >
+      @if (searchQuery()) {
+        <i class="material-icons clear" (click)="searchQuery.set('')">close</i>
+      }
+    </div>
+
+    <select [ngModel]="selectedRole()" (ngModelChange)="selectedRole.set($event)" class="filter-select">
+      <option value="">Все роли</option>
+      <option value="OWNER">Владелец</option>
+      <option value="ADMIN">Администратор</option>
+      <option value="MEMBER">Участник</option>
+      <option value="GUEST">Гость</option>
+    </select>
+  </div>
+
+  <!-- Members Table -->
+  @if (!loading()) {
+    <div class="table-container">
+      <table class="members-table">
+        <thead>
+        <tr>
+          <th>Участник</th>
+          <th>Роль</th>
+          <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (member of filteredMembers(); track member.userId) {
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar" [class]="getRoleBadgeClass(member.roleName)">
+                    {{ (member.displayName || member.email).charAt(0).toUpperCase() }}
+                  </div>
+                  <div class="user-info">
+                    <div class="user-name">
+                      {{ member.displayName }}
+                      @if (currentUser()?.id === member.userId) {
+                        <span class="you-badge">Вы</span>
+                      }
+                    </div>
+                    <div class="user-email">{{ member.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="role-badge" [class]="getRoleBadgeClass(member.roleName)">
+                  {{ member.roleName }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button class="action-btn" (click)="sendMessage(member)" title="Написать">
+                  <i class="material-icons">chat_bubble</i>
+                </button>
+                <button class="action-btn" (click)="assignTask(member)" title="Назначить задачу">
+                  <i class="material-icons">assignment_add</i>
+                </button>
+                <button class="action-btn" (click)="viewProfile(member)" title="Профиль">
+                  <i class="material-icons">visibility</i>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="3" class="empty-state">
+                <i class="material-icons">people_outline</i>
+                <p>Участники не найдены</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="loader-container">
+      <div class="spinner"></div>
+      <span>Загрузка команды...</span>
+    </div>
+  }
+</div>
