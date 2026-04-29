@@ -14,7 +14,7 @@ export class TaskService {
     if (params?.departmentId) httpParams = httpParams.set('departmentId', params.departmentId);
     if (params?.assigneeId) httpParams = httpParams.set('assigneeId', params.assigneeId);
 
-    return this.http.get<ITaskRO[]>(this.baseUrl, { params: httpParams });
+    return this.http.get<ITaskRO[]>(`${this.baseUrl}/my`, { params: httpParams });
   }
 
   getTaskById(id: string): Observable<ITaskRO> {

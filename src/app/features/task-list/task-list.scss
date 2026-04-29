@@ -24,6 +24,25 @@
   p { margin: 0.25rem 0 0; color: $text-muted; }
 }
 
+/* Кнопка создания задачи - прижата к левому краю */
+.create-task-button {
+  margin-right: auto; /* Прижимает к левому краю */
+}
+
+/* Если нужно, чтобы кнопка была слева, а остальное справа */
+.page-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.page-header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 // Statistics
 .stats-grid {
   display: grid;
