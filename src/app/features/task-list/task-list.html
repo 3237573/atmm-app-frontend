@@ -92,31 +92,17 @@
       <table class="tasks-table">
         <thead>
         <tr>
-          <th>Задача</th>
-          <th>Исполнитель</th>
           <th>Приоритет</th>
           <th>Статус</th>
           <th>Срок</th>
+          <th>Задача</th>
+          <th>Исполнитель</th>
           <th></th>
         </tr>
         </thead>
         <tbody>
           @for (task of filteredTasks(); track task.id) {
             <tr [routerLink]="['/tasks', task.id]" class="task-row">
-              <td>
-                <div class="task-title">
-                  <strong>{{ task.title }}</strong>
-                  <span class="task-department">{{ task.departmentName }}</span>
-                </div>
-              </td>
-              <td>
-                <div class="assignee">
-                  <div class="assignee-avatar">
-                    {{ task.assigneeName.charAt(0).toUpperCase() }}
-                  </div>
-                  <span>{{ task.assigneeName }}</span>
-                </div>
-              </td>
               <td>
                 <span class="priority-badge" [class]="getPriorityColor(task.priority)">
                   {{ task.priority }}
@@ -142,6 +128,26 @@
                 } @else {
                   <span class="no-date">—</span>
                 }
+              </td>
+              <td>
+                <div class="task-title">
+                  <strong>{{ task.title }}</strong>
+                  <span class="task-department">{{ task.departmentName }}</span>
+                </div>
+              </td>
+              <td class="comments-cell">
+                <div class="task-comments-count">
+                  <i class="material-icons">chat_bubble_outline</i>
+                  <span>{{ task.commentsCount || 0 }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="assignee">
+                  <div class="assignee-avatar">
+                    {{ task.assigneeName.charAt(0).toUpperCase() }}
+                  </div>
+                  <span>{{ formatAssigneeName(task.assigneeName) }}</span>
+                </div>
               </td>
               <td>
                 <i class="material-icons">chevron_right</i>
@@ -184,7 +190,7 @@
                   <div class="assignee-avatar small">
                     {{ task.assigneeName.charAt(0).toUpperCase() }}
                   </div>
-                  <span>{{ task.assigneeName }}</span>
+                  <span>{{ formatAssigneeName(task.assigneeName) }}</span>
                 </div>
                 @if (task.dueDate) {
                   <span class="due-date" [class.overdue]="isOverdue(task.dueDate)">
@@ -220,7 +226,7 @@
                   <div class="assignee-avatar small">
                     {{ task.assigneeName.charAt(0).toUpperCase() }}
                   </div>
-                  <span>{{ task.assigneeName }}</span>
+                  <span>{{ formatAssigneeName(task.assigneeName) }}</span>
                 </div>
                 @if (task.dueDate) {
                   <span class="due-date" [class.overdue]="isOverdue(task.dueDate)">
@@ -256,7 +262,7 @@
                   <div class="assignee-avatar small">
                     {{ task.assigneeName.charAt(0).toUpperCase() }}
                   </div>
-                  <span>{{ task.assigneeName }}</span>
+                  <span>{{ formatAssigneeName(task.assigneeName) }}</span>
                 </div>
                 @if (task.dueDate) {
                   <span class="due-date" [class.overdue]="isOverdue(task.dueDate)">
@@ -292,7 +298,7 @@
                   <div class="assignee-avatar small">
                     {{ task.assigneeName.charAt(0).toUpperCase() }}
                   </div>
-                  <span>{{ task.assigneeName }}</span>
+                  <span>{{ formatAssigneeName(task.assigneeName) }}</span>
                 </div>
                 @if (task.dueDate) {
                   <span class="due-date">{{ formatDate(task.dueDate) }}</span>

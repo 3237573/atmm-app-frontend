@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
+import {CompanyInfo} from '../../models/auth.model';
 
 @Component({
   selector: 'app-company-selector',
@@ -28,15 +29,21 @@ export class CompanySelector {
     }
   }
 
-  async selectCompany(companyId: string) {
-    this.loading.set(true);
-    this.authService.selectCompany(companyId).subscribe({
-      next: () => {
-        this.router.navigate(['/members']);
+  // При выборе компании нужно передать companyId и membershipId
+  selectCompany(company: CompanyInfo): void {
+    // Убедитесь, что в CompanyInfo есть membershipId
+    if (!company.membershipId) {
+      console.error('No membershipId for company', company);
+      return;
+    }
+
+    this.authService.selectCompany(company.companyId, company.membershipId).subscribe({
+      next: (res) => {
+        // Обработка успеха
+        this.router.navigate(['/tracker']);
       },
       error: (err) => {
-        console.error('Ошибка выбора компании', err);
-        this.loading.set(false);
+        console.error('Error selecting company', err);
       }
     });
   }

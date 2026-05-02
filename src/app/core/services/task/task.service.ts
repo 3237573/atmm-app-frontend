@@ -1,24 +1,24 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ITaskRO, ITaskCreateRO, ITaskUpdateRO } from '../../models/task.model';
+import { TaskRO, ITaskCreateRO, ITaskUpdateRO } from '../../models/task/task.model';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = '/v1/tasks';
 
-  getTasks(params?: { status?: string; departmentId?: string; assigneeId?: string }): Observable<ITaskRO[]> {
+  getTasks(params?: { status?: string; departmentId?: string; assigneeId?: string }): Observable<TaskRO[]> {
     let httpParams = new HttpParams();
     if (params?.status) httpParams = httpParams.set('status', params.status);
     if (params?.departmentId) httpParams = httpParams.set('departmentId', params.departmentId);
     if (params?.assigneeId) httpParams = httpParams.set('assigneeId', params.assigneeId);
 
-    return this.http.get<ITaskRO[]>(`${this.baseUrl}/my`, { params: httpParams });
+    return this.http.get<TaskRO[]>(`${this.baseUrl}/my`, { params: httpParams });
   }
 
-  getTaskById(id: string): Observable<ITaskRO> {
-    return this.http.get<ITaskRO>(`${this.baseUrl}/${id}`);
+  getTaskById(id: string): Observable<TaskRO> {
+    return this.http.get<TaskRO>(`${this.baseUrl}/${id}`);
   }
 
   createTask(request: ITaskCreateRO): Observable<{ id: string }> {

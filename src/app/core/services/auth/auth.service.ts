@@ -1,9 +1,9 @@
-import {computed, inject, Injectable, signal} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Router} from '@angular/router';
-import {Observable, of} from 'rxjs';
-import {catchError, tap} from 'rxjs/operators';
-import {AuthMeResponse, CompanyInfo, IUser, UserCompaniesResponse} from '../../models/auth.model';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { Observable, of } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
+import { AuthMeResponse, CompanyInfo, IMembership, UserCompaniesResponse } from '../../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -11,19 +11,21 @@ export class AuthService {
   private readonly router = inject(Router);
 
   // Состояние
-  readonly currentUser = signal<IUser | null>(null);
+  readonly currentMembership = signal<IMembership | null>(null);
   readonly currentCompany = signal<CompanyInfo | null>(null);
   readonly permissions = signal<string[]>([]);
   readonly isAuthenticated = signal<boolean>(false);
   readonly availableCompanies = signal<CompanyInfo[]>([]);
   readonly authStep = signal<'login' | 'select-company'>('login');
 
-  // Computed
+  // Computed для обратной совместимости
+  readonly currentUser = computed(() => this.currentMembership());
+
   readonly hasMultipleCompanies = computed(() => this.availableCompanies().length > 1);
   readonly displayName = computed(() => {
     const company = this.currentCompany();
-    const user = this.currentUser();
-    return company?.displayName || user?.fullName || user?.email?.split('@')[0] || 'User';
+    const membership = this.currentMembership();
+    return company?.displayName || membership?.displayName || membership?.fullName || membership?.email?.split('@')[0] || 'User';
   });
 
   hasPermission(permission: string): boolean {
@@ -36,7 +38,7 @@ export class AuthService {
 
   private handleAuthResponse(res: AuthMeResponse | null): void {
     if (res) {
-      this.currentUser.set(res.user);
+      this.currentMembership.set(res.membership);
       this.currentCompany.set(res.company);
       this.permissions.set(res.permissions);
       this.isAuthenticated.set(true);
@@ -47,7 +49,7 @@ export class AuthService {
   }
 
   clearAuth(): void {
-    this.currentUser.set(null);
+    this.currentMembership.set(null);
     this.currentCompany.set(null);
     this.permissions.set([]);
     this.isAuthenticated.set(false);
@@ -67,12 +69,10 @@ export class AuthService {
 
   /** Шаг 1: Проверка пароля и получение списка компаний */
   authenticate(credentials: { email: string; password: string }): Observable<UserCompaniesResponse> {
-    // Очищаем состояние перед новой аутентификацией
     this.clearAuth();
 
     return this.http.post<UserCompaniesResponse>('/auth/authenticate', credentials).pipe(
       tap((res) => {
-        this.currentUser.set({ id: res.userId, email: res.email, fullName: res.fullName });
         this.availableCompanies.set(res.companies);
         this.authStep.set('select-company');
       })
@@ -80,10 +80,10 @@ export class AuthService {
   }
 
   /** Шаг 2: Выбор компании и получение токена */
-  selectCompany(companyId: string): Observable<AuthMeResponse> {
+  selectCompany(companyId: string, membershipId: string): Observable<AuthMeResponse> {
     return this.http.post<AuthMeResponse>('/auth/select-company', {
-      userId: this.currentUser()?.id,
-      companyId
+      companyId: companyId,
+      membershipId: membershipId
     }, { withCredentials: true }).pipe(
       tap((res) => this.handleAuthResponse(res))
     );

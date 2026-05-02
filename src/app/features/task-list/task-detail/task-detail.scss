@@ -3,8 +3,8 @@
 
 .task-detail {
   padding: 1.5rem;
-  max-width: 1000px;
-  margin: 0 auto;
+  //max-width: 1000px;
+  //margin: 0 auto;
   min-height: 100vh;
 }
 
@@ -266,6 +266,10 @@
       color: $danger;
     }
   }
+
+  .overdue-text {
+    color: $danger;
+  }
 }
 
 // Description Section
@@ -386,5 +390,46 @@
 
   .status-selector {
     justify-content: space-between;
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.edit-assignees-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 0.25rem;
+  margin-left: 0.5rem;
+  transition: all 0.2s;
+  color: $text-muted;
+
+  i {
+    font-size: 1rem;
+  }
+
+  &:hover {
+    background: rgba($accent, 0.15);
+    color: $accent;
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 }

@@ -10,7 +10,7 @@
       <p class="hint">Choose a company to continue</p>
 
       @for (company of companies(); track company.companyId) {
-        <button class="company" (click)="selectCompany(company.companyId)">
+        <button class="company" (click)="selectCompany(company)">
           <div class="company-left">
             <!-- ✨ Используем глобальный класс avatar-role -->
             <div class="avatar-role" [class]="company.role | lowercase">

@@ -4,6 +4,16 @@ export interface IUser {
   id: string;
   email: string;
   fullName?: string;
+  displayName?: string;
+}
+
+export interface IMembership {
+  id: string;           // membershipId - основной идентификатор в компании
+  userId: string;       // глобальный userId (для справки)
+  email: string;
+  fullName?: string;
+  displayName?: string;
+  role: string;
 }
 
 export interface CompanyInfo {
@@ -12,6 +22,13 @@ export interface CompanyInfo {
   code: string;
   role: string;
   displayName: string;
+  membershipId: string;
+}
+
+export interface AuthMeResponse {
+  membership: IMembership;
+  company: CompanyInfo;
+  permissions: string[];
 }
 
 export interface UserCompaniesResponse {
@@ -21,8 +38,4 @@ export interface UserCompaniesResponse {
   companies: CompanyInfo[];
 }
 
-export interface AuthMeResponse {
-  user: IUser;
-  company: CompanyInfo;
-  permissions: string[];
-}
+export interface IUser extends IMembership {}

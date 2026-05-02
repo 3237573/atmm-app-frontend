@@ -8,18 +8,20 @@
 
     <div class="header-actions">
       @if (!editing() && !loading()) {
-        <button class="btn-edit" (click)="startEdit()">
-          <i class="material-icons">edit</i>
-          Редактировать
-        </button>
-        <button class="btn-delete" (click)="deleteTask()" [disabled]="deleting()">
-          @if (deleting()) {
-            <i class="material-icons spinning">refresh</i>
-          } @else {
-            <i class="material-icons">delete</i>
-          }
-          <span>Удалить</span>
-        </button>
+        @if (canEditTask()) {
+          <button class="btn-edit" (click)="startEdit()">
+            <i class="material-icons">edit</i>
+            Редактировать
+          </button>
+          <button class="btn-delete" (click)="deleteTask()" [disabled]="deleting()">
+            @if (deleting()) {
+              <i class="material-icons spinning">refresh</i>
+            } @else {
+              <i class="material-icons">delete</i>
+            }
+            <span>Удалить</span>
+          </button>
+        }
       }
       @if (editing()) {
         <button class="btn-cancel" (click)="cancelEdit()">
@@ -60,7 +62,6 @@
             <option value="COMPLETED">✅ Выполнена</option>
           </select>
         </div>
-
         <div class="priority-badge" [class]="getPriorityColor(task.priority)">
           {{ getPriorityLabel(task.priority) }}
         </div>
@@ -74,6 +75,7 @@
           <input
             type="text"
             [(ngModel)]="editData.title"
+            (ngModelChange)="editing.set(true)"
             class="title-input"
             placeholder="Название задачи"
           >
@@ -83,38 +85,49 @@
       <!-- Meta Info -->
       <div class="meta-info">
         <div class="meta-item">
-          <i class="material-icons">person</i>
-          <span>Исполнитель: <strong>{{ task.assigneeName || 'Не назначен' }}</strong></span>
+          <i class="material-icons">people</i>
+          <span>Исполнители:</span>
+          <strong>{{ formatAssigneeNames(task.assigneeName) }}</strong>
+          @if (canManageAssignees()) {
+            <button class="edit-assignees-btn" (click)="openAssigneeModal()" title="Изменить исполнителей">
+              <i class="material-icons">edit</i>
+            </button>
+          }
+        </div>
+        <div class="meta-item">
+          <i class="material-icons">person_add</i>
+          <span>Постановщик:</span>
+          <strong>{{ (currentMembership()?.id === task.creatorMembershipId) ? 'Я' : (task.creatorName || 'Не указан') }}</strong>
         </div>
         <div class="meta-item">
           <i class="material-icons">business</i>
-          <span>Отдел: <strong>{{ task.departmentName || 'Общий' }}</strong></span>
+          <span>Отдел:</span>
+          <strong>{{ task.departmentName || 'Общий' }}</strong>
         </div>
         <div class="meta-item">
           <i class="material-icons">calendar_today</i>
-          <span>Создана: <strong>{{ formatDate(task.createdAt) }}</strong></span>
+          <span>Создана:</span>
+          <strong>{{ formatDate(task.createdAt) }}</strong>
         </div>
         @if (task.dueDate) {
           <div class="meta-item" [class.overdue]="isOverdue(task.dueDate)">
             <i class="material-icons">event</i>
-            <span>Срок: <strong>{{ formatDate(task.dueDate) }}</strong></span>
+            <span>Срок:</span>
+            <strong [class.overdue-text]="isOverdue(task.dueDate)">{{ formatDate(task.dueDate) }}</strong>
           </div>
         }
         @if (task.parentTaskTitle) {
           <div class="meta-item">
             <i class="material-icons">subdirectory_arrow_right</i>
-            <span>Родительская задача: <strong>{{ task.parentTaskTitle }}</strong></span>
+            <span>Родительская задача:</span>
+            <strong>{{ task.parentTaskTitle }}</strong>
           </div>
         }
       </div>
 
       <!-- Description -->
       <div class="description-section">
-        <h3>
-          <i class="material-icons">description</i>
-          Описание
-        </h3>
-
+        <h3><i class="material-icons">description</i> Описание</h3>
         @if (!editing()) {
           <div class="description-content">
             @if (task.description) {
@@ -126,6 +139,7 @@
         } @else {
           <textarea
             [(ngModel)]="editData.description"
+            (ngModelChange)="editing.set(true)"
             class="description-input"
             rows="6"
             placeholder="Введите описание задачи..."
@@ -136,18 +150,32 @@
       <!-- Due Date Edit (only in edit mode) -->
       @if (editing()) {
         <div class="due-date-section">
-          <h3>
-            <i class="material-icons">event</i>
-            Срок выполнения
-          </h3>
+          <h3><i class="material-icons">event</i> Срок выполнения</h3>
           <input
             type="date"
             [(ngModel)]="editData.dueDate"
+            (ngModelChange)="editing.set(true)"
             class="date-input"
             [min]="minDate"
           >
         </div>
       }
+    </div>
+  }
+
+  <app-task-comments
+    [taskId]="task()?.id || ''"
+    [reloadTrigger]="reloadComments()"
+  />
+
+  @if (showAssigneeModal()) {
+    <div class="modal-overlay" (click)="closeAssigneeModal()">
+      <div (click)="$event.stopPropagation()">
+        <app-assignee-manager
+          [task]="task()!"
+          (assigneesUpdated)="onAssigneesUpdated()"
+        />
+      </div>
     </div>
   }
 </div>

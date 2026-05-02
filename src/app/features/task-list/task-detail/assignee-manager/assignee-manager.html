@@ -1,0 +1,62 @@
+<div class="assignee-manager">
+  <div class="modal-header">
+    <h3>
+      <i class="material-icons">people</i>
+      Управление исполнителями
+    </h3>
+    <button class="close-btn" (click)="assigneesUpdated.emit()">×</button>
+  </div>
+
+  <div class="modal-body">
+    <div class="search-box">
+      <i class="material-icons">search</i>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        placeholder="Поиск сотрудников..."
+      >
+    </div>
+
+    @if (loading()) {
+      <div class="loader-small">Загрузка...</div>
+    } @else {
+      <div class="members-list">
+        @for (member of filteredMembers(); track member.membershipId) {
+          <label class="member-item" [class.selected]="isSelected(member.membershipId)">
+            <input
+              type="checkbox"
+              [checked]="isSelected(member.membershipId)"
+              (change)="toggleAssignee(member.membershipId)"
+            >
+            <div class="member-avatar" [class]="getRoleClass(member.roleName)">
+              {{ getInitials(member) }}
+            </div>
+            <div class="member-info">
+              <div class="member-name">{{ member.displayName }}</div>
+              <div class="member-email">{{ member.email }}</div>
+              <div class="member-role" [class]="getRoleClass(member.roleName)">
+                {{ member.roleName }}
+              </div>
+            </div>
+            @if (member.membershipId === currentMembershipId) {
+              <span class="you-badge">Вы</span>
+            }
+          </label>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn-cancel" (click)="assigneesUpdated.emit()">Отмена</button>
+    <button class="btn-save" (click)="saveAssignees()" [disabled]="saving()">
+      @if (saving()) {
+        <i class="material-icons spinning">refresh</i>
+        <span>Сохранение...</span>
+      } @else {
+        <i class="material-icons">save</i>
+        <span>Сохранить</span>
+      }
+    </button>
+  </div>
+</div>

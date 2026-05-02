@@ -1,9 +1,10 @@
-import {Component, OnInit, inject, signal, computed, effect} from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TaskService } from '../../core/services/task/task.service';
-import { ITaskRO, TaskStatus, TaskPriority } from '../../core/models/task.model';
+import { TaskRO, TaskStatus, TaskPriority } from '../../core/models/task/task.model';
+import { AuthService } from '../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-task-list',
@@ -15,8 +16,10 @@ import { ITaskRO, TaskStatus, TaskPriority } from '../../core/models/task.model'
 export class TaskList implements OnInit {
   private readonly taskService = inject(TaskService);
   private readonly storageKey = 'task_view_mode';
+  private readonly authService = inject(AuthService);
 
-  tasks = signal<ITaskRO[]>([]);
+  currentUser = this.authService.currentUser;
+  tasks = signal<TaskRO[]>([]);
   loading = signal(true);
   viewMode = signal<'list' | 'board'>('list');
 
@@ -58,10 +61,28 @@ export class TaskList implements OnInit {
     localStorage.setItem(this.storageKey, mode);
   }
 
-  // Вспомогательные методы для шаблона
   isOverdue(dueDate: string | undefined): boolean {
     if (!dueDate) return false;
     return new Date(dueDate) < new Date();
+  }
+
+  formatAssigneeName(assigneeName: string): string {
+    console.log("assigneeName", assigneeName);
+    if (!assigneeName) return 'Не назначен';
+
+    const user = this.currentUser();
+    if (!user) return assigneeName;
+
+    const currentUserName = user.displayName || user.fullName || user.email?.split('@')[0] || '';
+    console.log("currentUserName", currentUserName, user);
+
+    const assignees = assigneeName.split(',').map(a => a.trim());
+    const formattedAssignees = assignees.map(name => {
+      if (name === currentUserName) return 'Я';
+      return name;
+    });
+
+    return formattedAssignees.join(', ');
   }
 
   formatDate(dateStr: string | undefined): string {
@@ -106,7 +127,7 @@ export class TaskList implements OnInit {
     });
   }
 
-  filteredTasks(): ITaskRO[] {
+  filteredTasks(): TaskRO[] {
     const tasks = this.tasks();
     if (!tasks.length) return [];
 
@@ -122,7 +143,7 @@ export class TaskList implements OnInit {
     });
   }
 
-  updateStatus(task: ITaskRO, newStatus: string): void {
+  updateStatus(task: TaskRO, newStatus: string): void {
     this.taskService.updateTaskStatus(task.id, newStatus).subscribe({
       next: () => this.loadTasks()
     });

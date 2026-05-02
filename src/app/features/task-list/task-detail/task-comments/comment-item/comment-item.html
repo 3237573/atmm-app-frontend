@@ -1,0 +1,84 @@
+<div class="comment-item" [class.deleted]="comment.status === 'DELETED'">
+  <!-- Аватар -->
+  <div class="comment-avatar" [style.background]="getAvatarColor(comment.authorName)">
+    {{ comment.authorAvatar || comment.authorName.charAt(0).toUpperCase() }}
+  </div>
+
+  <!-- Содержание -->
+  <div class="comment-content">
+    @if (editing()) {
+      <textarea [(ngModel)]="editingContent" class="edit-input" rows="3"></textarea>
+      <div class="edit-actions">
+        <button class="btn-cancel" (click)="cancelEdit()">Отмена</button>
+        <button class="btn-save" (click)="saveEdit()">Сохранить</button>
+      </div>
+    } @else {
+      <!-- Одна строка: автор время : текст + кнопки справа -->
+      <div class="comment-header-row">
+        <div class="comment-line">
+          <span class="comment-author">{{ (currentMembership()?.id === comment.authorId) ? 'Я' : comment.authorName }}</span>
+          <span class="comment-date">{{ formatDate(comment.createdAt) }}</span>
+          @if (comment.status === 'EDITED') {
+            <span class="comment-edited">(изменено)</span>
+          }
+          <span class="comment-text">: {{ comment.content }}</span>
+        </div>
+
+        <!-- ДОБАВИТЬ ЭТОТ БЛОК -->
+        <div class="action-buttons">
+          <button class="action-reply" (click)="toggleReplyForm()" title="Ответить">
+            <i class="material-icons">reply</i>
+          </button>
+          @if (canEdit()) {
+            <button class="action-edit" (click)="startEdit()" title="Редактировать">
+              <i class="material-icons">edit</i>
+            </button>
+            <button class="action-delete" (click)="deleteComment()" title="Удалить">
+              <i class="material-icons">delete</i>
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Форма ответа -->
+    @if (showReplyForm()) {
+      <div class="reply-form">
+        <div class="reply-avatar">
+          {{ (currentMembership()?.fullName || currentMembership()?.email || 'U').charAt(0).toUpperCase() }}
+        </div>
+        <div class="reply-input-wrapper">
+          <textarea
+            [(ngModel)]="replyContent"
+            placeholder="Написать ответ..."
+            rows="2"
+            class="reply-input"
+          ></textarea>
+          <div class="reply-actions">
+            <button class="btn-cancel-small" (click)="toggleReplyForm()">Отмена</button>
+            <button class="btn-submit-small" (click)="submitReply()" [disabled]="isSubmitting() || !replyContent().trim()">
+              @if (isSubmitting()) {
+                <i class="material-icons spinning">refresh</i>
+              } @else {
+                <i class="material-icons">send</i>
+              }
+              <span>Ответить</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Рекурсивный вывод ответов -->
+    @if (comment.replies && comment.replies.length > 0) {
+      <div class="replies">
+        @for (reply of comment.replies; track reply.id) {
+          <app-comment-item
+            [comment]="reply"
+            [taskId]="taskId"
+          />
+        }
+      </div>
+    }
+  </div>
+</div>

@@ -1,15 +1,22 @@
 export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'REVIEW' | 'COMPLETED' | 'ARCHIVED';
 export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 
-export interface ITaskRO {
+export interface TaskRO {
   id: string;
   title: string;
+  commentsCount?: number;
+  creatorId?: string;
+  creatorName?: string
+  creatorMembershipId?: string;
   description: string;
   status: TaskStatus;
   priority: TaskPriority;
+  assigneeId?: string;
   assigneeName: string;
   assigneeIds?: string[];
   departmentName: string;
+  assigneeMembershipId?: string;
+  assigneeMembershipIds?: string[];
   departmentId?: string;
   projectName?: string;
   projectId?: string;
@@ -48,8 +55,15 @@ export interface ITaskUpdateRO {
 export interface ITaskComment {
   id: string;
   taskId: string;
+  membershipId: string;
   authorId: string;
   authorName: string;
+  authorEmail: string;
+  authorAvatar: string;
   content: string;
+  parentCommentId?: string;
+  status: 'ACTIVE' | 'EDITED' | 'DELETED';
   createdAt: string;
+  updatedAt: string;
+  replies?: ITaskComment[];
 }
