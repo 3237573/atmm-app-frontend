@@ -4,11 +4,13 @@ import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AuthMeResponse, CompanyInfo, IMembership, UserCompaniesResponse } from '../../models/auth.model';
+import { NavigationService } from '../navigation/navigation.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly navigationService = inject(NavigationService);
 
   // Состояние
   readonly currentMembership = signal<IMembership | null>(null);
@@ -73,6 +75,7 @@ export class AuthService {
 
     return this.http.post<UserCompaniesResponse>('/auth/authenticate', credentials).pipe(
       tap((res) => {
+        // Сохраняем email для отображения (но не userId)
         this.availableCompanies.set(res.companies);
         this.authStep.set('select-company');
       })
@@ -85,7 +88,11 @@ export class AuthService {
       companyId: companyId,
       membershipId: membershipId
     }, { withCredentials: true }).pipe(
-      tap((res) => this.handleAuthResponse(res))
+      tap((res) => {
+        this.handleAuthResponse(res);
+        const lastRoute = this.navigationService.getLastRoute();
+        void this.router.navigate([lastRoute || '/tasks']);
+      })
     );
   }
 

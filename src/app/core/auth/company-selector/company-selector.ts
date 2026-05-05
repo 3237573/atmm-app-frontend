@@ -1,9 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import {Component, computed, inject, signal} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
-import {CompanyInfo} from '../../models/auth.model';
-import {NavigationService} from '../../services/navigation/navigation.service';
+import { CompanyInfo } from '../../models/auth.model';
+import {email} from '@angular/forms/signals';
 
 @Component({
   selector: 'app-company-selector',
@@ -14,12 +13,9 @@ import {NavigationService} from '../../services/navigation/navigation.service';
 })
 export class CompanySelector {
   private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
-  private readonly navigationService = inject(NavigationService);
 
   loading = signal(false);
   companies = this.authService.availableCompanies;
-  email = this.authService.currentUser()?.email || '';
 
   getRoleLabel(role: string): string {
     switch (role) {
@@ -31,7 +27,6 @@ export class CompanySelector {
     }
   }
 
-  // При выборе компании нужно передать companyId и membershipId
   selectCompany(company: CompanyInfo): void {
     if (!company.membershipId) {
       console.error('No membershipId for company', company);
@@ -40,14 +35,11 @@ export class CompanySelector {
 
     this.loading.set(true);
     this.authService.selectCompany(company.companyId, company.membershipId).subscribe({
-      next: () => {
-        this.loading.set(false);
-        // Восстанавливаем последний маршрут или идём на tracker
-        const lastRoute = this.navigationService.getLastRoute();
-        void this.router.navigate([lastRoute || '/tracker']);
-      },
       error: (err) => {
         console.error('Error selecting company', err);
+        this.loading.set(false);
+      },
+      complete: () => {
         this.loading.set(false);
       }
     });
@@ -56,4 +48,6 @@ export class CompanySelector {
   backToLogin() {
     this.authService.resetToLogin();
   }
+
+  protected readonly email = computed(() => this.authService.currentUser()?.email || '');
 }
