@@ -5,6 +5,7 @@ export interface TaskRO {
   id: string;
   title: string;
   commentsCount?: number;
+  subtasksCount?: number;
   creatorId?: string;
   creatorName?: string
   creatorMembershipId?: string;
@@ -52,7 +53,7 @@ export interface ITaskUpdateRO {
   parentTaskId?: string;
 }
 
-export interface ITaskComment {
+export interface TaskComment {
   id: string;
   taskId: string;
   membershipId: string;
@@ -65,5 +66,10 @@ export interface ITaskComment {
   status: 'ACTIVE' | 'EDITED' | 'DELETED';
   createdAt: string;
   updatedAt: string;
-  replies?: ITaskComment[];
+  replies?: TaskComment[];
+}
+
+export interface TaskTreeRO {
+  task: TaskRO;
+  subtasks: TaskTreeRO[];
 }

@@ -24,6 +24,7 @@ export class TaskCreate implements OnInit {
   loading = signal(false);
   submitting = signal(false);
 
+  parentTaskId: string | undefined = undefined;
   minDate: string = new Date().toISOString().split('T')[0];
 
   taskData = {
@@ -48,15 +49,24 @@ export class TaskCreate implements OnInit {
   ngOnInit(): void {
     this.loadMembers();
 
+    // Подписываемся на queryParams
     this.route.queryParams.subscribe(params => {
+      // 1. Извлекаем parentId (он приходит из TaskDetail.createSubtask)
+      if (params['parentId']) {
+        this.parentTaskId = params['parentId'];
+      }
+
+      // Остальные параметры
       if (params['assigneeId']) {
         this.taskData.assigneeMembershipIds = [params['assigneeId']];
       }
       if (params['title']) {
         this.taskData.title = params['title'];
       }
-      // Сохраняем начальное состояние
-      this.initialData = { ...this.taskData };
+
+      // ВАЖНО: Обновляем initialData ПОСЛЕ того, как применили параметры из URL
+      // Чтобы Guard не срабатывал сразу при входе на страницу
+      this.initialData = JSON.parse(JSON.stringify(this.taskData));
     });
   }
 
@@ -71,13 +81,16 @@ export class TaskCreate implements OnInit {
     });
   }
 
-  // Проверка, есть ли несохранённые изменения
+  // Единственный правильный метод проверки на изменения (с сортировкой массивов)
   hasUnsavedChanges(): boolean {
+    const currentAssignees = JSON.stringify([...this.taskData.assigneeMembershipIds].sort());
+    const initialAssignees = JSON.stringify([...this.initialData.assigneeMembershipIds].sort());
+
     return this.taskData.title !== this.initialData.title ||
       this.taskData.description !== this.initialData.description ||
       this.taskData.priority !== this.initialData.priority ||
       this.taskData.departmentId !== this.initialData.departmentId ||
-      JSON.stringify(this.taskData.assigneeMembershipIds) !== JSON.stringify(this.initialData.assigneeMembershipIds) ||
+      currentAssignees !== initialAssignees ||
       this.taskData.dueDate !== this.initialData.dueDate;
   }
 
@@ -96,36 +109,40 @@ export class TaskCreate implements OnInit {
   onSubmit(): void {
     if (!this.taskData.title.trim()) return;
 
-    const validMembershipIds = this.taskData.assigneeMembershipIds.filter(id => {
-      const member = this.members().find(m => m.membershipId === id);
-      return !!member;
-    });
+    // Оптимизировано: используем .some() вместо .find() для булевой проверки
+    const validMembershipIds = this.taskData.assigneeMembershipIds.filter(id =>
+      this.members().some(m => m.membershipId === id)
+    );
 
     if (validMembershipIds.length === 0) {
-      alert('Выберите исполнителя');
+      alert('Выберите хотя бы одного исполнителя');
       return;
     }
 
     this.submitting.set(true);
+
+    // СОБИРАЕМ ПРАВИЛЬНЫЙ ЗАПРОС
     const request: ITaskCreateRO = {
-      title: this.taskData.title,
-      description: this.taskData.description || undefined,
+      title: this.taskData.title.trim(),
+      description: this.taskData.description?.trim() || undefined,
       priority: this.taskData.priority,
       departmentId: this.taskData.departmentId || undefined,
       assigneeMembershipIds: validMembershipIds,
       dueDate: this.taskData.dueDate || undefined,
-      parentTaskId: undefined
+      parentTaskId: this.parentTaskId // Передаем ID родителя
     };
 
     this.taskService.createTask(request).subscribe({
       next: (res) => {
         this.submitting.set(false);
+        // Сбрасываем данные перед переходом, чтобы Guard не ругался
+        this.initialData = JSON.parse(JSON.stringify(this.taskData));
         this.router.navigate(['/tasks', res.id]);
       },
       error: (err) => {
-        console.error('Ошибка', err);
+        console.error('Ошибка создания задачи/подзадачи', err);
         this.submitting.set(false);
-        alert('Ошибка создания задачи');
+        alert('Ошибка сервера: ' + (err.error?.message || 'не удалось создать задачу'));
       }
     });
   }

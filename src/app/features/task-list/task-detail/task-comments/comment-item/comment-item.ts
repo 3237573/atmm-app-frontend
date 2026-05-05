@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../../core/services/auth/auth.service';
 import { TaskCommentService } from '../../../../../core/services/task-comment/task-comment.service';
-import { ITaskComment } from '../../../../../core/models/task/task.model';
+import { TaskComment } from '../../../../../core/models/task/task.model';
 
 @Component({
   selector: 'app-comment-item',
@@ -13,7 +13,7 @@ import { ITaskComment } from '../../../../../core/models/task/task.model';
   styleUrl: './comment-item.scss'
 })
 export class CommentItem {
-  @Input() comment!: ITaskComment;
+  @Input() comment!: TaskComment;
   @Input() taskId!: string;
 
   private readonly authService = inject(AuthService);

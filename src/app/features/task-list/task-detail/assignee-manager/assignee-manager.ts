@@ -16,8 +16,8 @@ import { AuthService } from '../../../../core/services/auth/auth.service';
 })
 export class AssigneeManager implements OnInit {
   @Input() task!: TaskRO;
+    @Input() visible = false;
   @Output() assigneesUpdated = new EventEmitter<void>();
-  @Input() visible = false;
   @Output() closed = new EventEmitter<void>();
 
   private readonly memberService = inject(MemberService);

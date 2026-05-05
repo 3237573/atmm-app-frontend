@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {ITaskComment} from '../../models/task/task.model';
+import {TaskComment} from '../../models/task/task.model';
 import {ITaskCommentCreateRequest, ITaskCommentUpdateRequest} from '../../models/task/task-comment.model';
 
 
@@ -10,16 +10,16 @@ export class TaskCommentService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = '/v1/task-comments';
 
-  getTaskComments(taskId: string): Observable<ITaskComment[]> {
-    return this.http.get<ITaskComment[]>(`${this.baseUrl}/task/${taskId}`);
+  getTaskComments(taskId: string): Observable<TaskComment[]> {
+    return this.http.get<TaskComment[]>(`${this.baseUrl}/task/${taskId}`);
   }
 
-  createComment(request: ITaskCommentCreateRequest): Observable<ITaskComment> {
-    return this.http.post<ITaskComment>(this.baseUrl, request);
+  createComment(request: ITaskCommentCreateRequest): Observable<TaskComment> {
+    return this.http.post<TaskComment>(this.baseUrl, request);
   }
 
-  updateComment(commentId: string, request: ITaskCommentUpdateRequest): Observable<ITaskComment> {
-    return this.http.put<ITaskComment>(`${this.baseUrl}/${commentId}`, request);
+  updateComment(commentId: string, request: ITaskCommentUpdateRequest): Observable<TaskComment> {
+    return this.http.put<TaskComment>(`${this.baseUrl}/${commentId}`, request);
   }
 
   deleteComment(commentId: string): Observable<void> {

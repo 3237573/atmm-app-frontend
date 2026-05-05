@@ -38,5 +38,5 @@ export const routes: Routes = [
       {path: '', redirectTo: 'tracker', pathMatch: 'full'}
     ]
   },
-  {path: '**', redirectTo: '/login'}
+  // {path: '**', redirectTo: '/login'}
 ];

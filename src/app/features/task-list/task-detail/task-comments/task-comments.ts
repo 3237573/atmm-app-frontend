@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { TaskCommentService } from '../../../../core/services/task-comment/task-comment.service';
-import { ITaskComment } from '../../../../core/models/task/task.model';
+import { TaskComment } from '../../../../core/models/task/task.model';
 import { CommentItem } from './comment-item/comment-item';
 
 @Component({
@@ -21,7 +21,7 @@ export class TaskComments implements OnChanges {
   private readonly commentService = inject(TaskCommentService);
 
   currentUser = this.authService.currentUser;
-  comments = signal<ITaskComment[]>([]);
+  comments = signal<TaskComment[]>([]);
   loading = signal(true);
   newComment = signal('');
   isSubmitting = signal(false);
@@ -51,9 +51,9 @@ export class TaskComments implements OnChanges {
     });
   }
 
-  buildCommentTree(comments: ITaskComment[]): ITaskComment[] {
-    const commentMap = new Map<string, ITaskComment>();
-    const rootComments: ITaskComment[] = [];
+  buildCommentTree(comments: TaskComment[]): TaskComment[] {
+    const commentMap = new Map<string, TaskComment>();
+    const rootComments: TaskComment[] = [];
 
     comments.forEach(comment => {
       commentMap.set(comment.id, { ...comment, replies: [] });

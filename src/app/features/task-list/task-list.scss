@@ -1,360 +1,126 @@
 @use "../../app.scss" as *;
 
-.task-list {
-  padding: 1.5rem;
-  min-height: 100vh;
-}
+.task-list { padding: 1.5rem; background: $bg-main; min-height: 100vh; }
 
 .page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-
-  h1 {
-    margin: 0;
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    i { color: $accent; }
-  }
-
-  p { margin: 0.25rem 0 0; color: $text-muted; }
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
+  .header-info h1 { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 1.5rem; i { color: $accent; } }
+  p { color: $text-muted; margin: 4px 0 0; font-size: 0.9rem; }
 }
 
-/* Кнопка создания задачи - прижата к левому краю */
-.create-task-button {
-  margin-right: auto; /* Прижимает к левому краю */
-}
-
-/* Если нужно, чтобы кнопка была слева, а остальное справа */
-.page-header-left {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.page-header-right {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-// Statistics
+// Статистика (Компактная)
 .stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.75rem; margin-bottom: 1.5rem; max-width: 1000px;
 }
-
 .stat-card {
-  background: $bg-card;
-  border-radius: 0.75rem;
-  padding: 0.75rem;
-  text-align: center;
-  border: 1px solid $border;
-
-  .stat-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: $accent;
-  }
-
-  .stat-label {
-    font-size: 0.7rem;
-    color: $text-muted;
-    margin-top: 0.25rem;
-  }
-
-  &.pending .stat-value { color: #f59e0b; }
-  &.progress .stat-value { color: #3b82f6; }
-  &.review .stat-value { color: #8b5cf6; }
-  &.completed .stat-value { color: #10b981; }
-  &.overdue .stat-value { color: #ef4444; }
+  background: $bg-card; padding: 0.75rem; border-radius: 10px; border: 1px solid $border; text-align: center;
+  .stat-value { font-size: 1.25rem; font-weight: 800; color: $accent; line-height: 1.2; }
+  .stat-label { font-size: 0.65rem; color: $text-muted; text-transform: uppercase; margin-top: 3px; }
+  &.pending .stat-value { color: #ffab00; }
+  &.progress .stat-value { color: #00b8d9; }
+  &.completed .stat-value { color: #36b37e; }
+  &.overdue .stat-value { color: #998dd9; }
 }
 
-// Filters
-.filters-bar {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
+// Поиск и Фильтры
+.filters-container { max-width: 1000px; margin-bottom: 1.5rem; }
+.filters-bar { display: flex; gap: 1rem; align-items: center; }
 .search-box {
-  flex: 1;
-  min-width: 200px;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: $bg-card;
-  border: 1px solid $border;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-
-  input {
-    background: transparent;
-    border: none;
-    color: $text-main;
-    outline: none;
-    width: 100%;
-  }
-}
-
-.filter-select {
-  background: $bg-card;
-  border: 1px solid $border;
-  color: $text-main;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
+  flex: 1; display: flex; align-items: center; gap: 10px; background: $bg-card;
+  border: 1px solid $border; padding: 0 15px; border-radius: 8px; height: 38px;
+  input { background: transparent; border: none; color: white; width: 100%; outline: none; font-size: 0.9rem; }
+  i { color: $text-muted; font-size: 20px; }
 }
 
 .view-toggle {
-  display: flex;
-  gap: 0.25rem;
-  background: $bg-card;
-  border: 1px solid $border;
-  border-radius: 0.5rem;
-  padding: 0.25rem;
-}
-
-.toggle-btn {
-  background: transparent;
-  border: none;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  color: $text-muted;
-
-  &.active {
-    background: $accent;
-    color: $bg-main;
+  display: flex; background: $bg-card; border: 1px solid $border; border-radius: 8px; padding: 3px;
+  .toggle-btn {
+    background: transparent; border: none; color: $text-muted; padding: 5px 10px; border-radius: 6px;
+    cursor: pointer; transition: 0.2s; display: flex; align-items: center;
+    &.active { background: $accent; color: white; }
   }
 }
 
-// Table view
-.table-container {
-  background: $bg-card;
-  border-radius: 0.75rem;
-  border: 1px solid $border;
-  overflow-x: auto;
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 
+.indent-spacer {
+  display: inline-block;
+  width: 1px;
+  flex-shrink: 0;
+}
+
+.subtask-icon {
+  color: $accent;
+  font-size: 16px;
+}
+
+// Таблица
+.table-container { background: $bg-card; border-radius: 12px; border: 1px solid $border; overflow: hidden; }
 .tasks-table {
-  width: 100%;
-  border-collapse: collapse;
+  width: 100%; border-collapse: collapse;
+  th { background: rgba(white, 0.03); padding: 12px 10px; text-align: left; font-size: 0.7rem; color: $text-muted; text-transform: uppercase; border-bottom: 1px solid $border; }
+  td { padding: 10px; border-bottom: 1px solid $border; vertical-align: middle; }
+  .task-row:hover { background: rgba($accent, 0.05); cursor: pointer; }
 
-  th {
-    text-align: left;
-    padding: 0.875rem 1rem;
-    color: $text-muted;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    background: rgba($border, 0.2);
-  }
-
-  td {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid $border;
-  }
+  .col-priority { width: 70px; }
+  .col-status { width: 100px; }
+  .col-date { width: 80px; }
+  .col-icon { width: 45px; text-align: center; i { font-size: 16px; opacity: 0.5; } }
+  .col-assignee { width: 150px; }
+  .col-arrow { width: 30px; }
 }
 
-.task-row {
-  cursor: pointer;
-  transition: background 0.2s;
+// Статусы
+.status-select-wrapper {
+  position: relative; display: inline-flex; align-items: center; border-radius: 6px; padding: 2px 8px;
+  border: 1px solid transparent; min-width: 110px; height: 30px; transition: 0.2s;
+  &.status-pending { background: rgba(#ffab00, 0.15); color: #ffab00; }
+  &.status-progress { background: rgba(#00b8d9, 0.15); color: #00b8d9; }
+  &.status-review { background: rgba(#6554c0, 0.15); color: #998dd9; }
+  &.status-completed { background: rgba(#36b37e, 0.15); color: #36b37e; }
 
-  &:hover { background: rgba($border, 0.1); }
+  &:not([class*="status-"]) { background: rgba(white, 0.05); color: $text-muted; }
+
+  .status-select-styled { background: transparent; border: none; color: inherit; font-size: 0.75rem; font-weight: 700; width: 100%; appearance: none; outline: none; cursor: pointer; option { background: #1c252e; color: white; } }
+  .select-arrow { position: absolute; right: 4px; font-size: 16px; pointer-events: none; }
 }
 
-.task-title {
-  strong { display: block; margin-bottom: 0.25rem; }
-  .task-department { font-size: 0.7rem; color: $text-muted; }
-}
-
-.assignee {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.assignee-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 0.375rem;
-  background: $accent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-
-  &.small { width: 24px; height: 24px; font-size: 0.65rem; }
-}
-
-// Priority badges
-.priority-badge {
-  font-size: 0.65rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 1rem;
-
-  &.priority-low { background: rgba($success, 0.2); color: $success; }
-  &.priority-medium { background: rgba($warning, 0.2); color: $warning; }
-  &.priority-high { background: rgba($accent, 0.2); color: $accent; }
-  &.priority-urgent { background: rgba($danger, 0.2); color: $danger; }
-}
-
-.status-select {
-  background: $bg-main;
-  border: 1px solid $border;
-  color: $text-main;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.375rem;
-  font-size: 0.8rem;
-}
-
-.due-date {
-  font-size: 0.8rem;
-
-  &.overdue { color: $danger; font-weight: 600; }
-}
-
-.no-date { color: $text-muted; }
-
-// Kanban board
-.kanban-board {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  overflow-x: auto;
-}
-
+// Канбан
+.kanban-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
 .kanban-column {
-  background: rgba($bg-card, 0.5);
-  border-radius: 0.75rem;
-  padding: 0.75rem;
-  min-width: 280px;
-
-  .column-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid $border;
-
-    h3 { margin: 0; font-size: 0.9rem; }
-    .task-count {
-      background: $bg-card;
-      padding: 0.2rem 0.5rem;
-      border-radius: 1rem;
-      font-size: 0.7rem;
-    }
-  }
+  background: rgba($bg-card, 0.5); border-radius: 10px; border: 1px solid $border; min-height: 400px;
+  .column-header { padding: 12px; border-bottom: 1px solid $border; h3 { margin: 0; font-size: 0.8rem; color: $text-muted; text-transform: uppercase; } }
+  .column-tasks { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
 }
-
 .kanban-card {
-  background: $bg-card;
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  margin-bottom: 0.75rem;
-  cursor: pointer;
-  border: 1px solid $border;
-  transition: all 0.2s;
-
-  &:hover {
-    transform: translateY(-2px);
-    border-color: $accent;
-  }
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-  }
-
-  .card-title {
-    font-size: 0.85rem;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-  }
-
-  .card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.7rem;
-    color: $text-muted;
-  }
+  background: $bg-card; border: 1px solid $border; border-radius: 8px; padding: 12px; cursor: pointer; transition: 0.2s;
+  &:hover { border-color: $accent; transform: translateY(-2px); }
+  .card-title { font-size: 0.85rem; font-weight: 600; margin: 8px 0; display: flex; align-items: center; gap: 5px; i { color: $accent; font-size: 14px; } }
+  .card-footer { display: flex; justify-content: space-between; align-items: center; .card-meta { display: flex; gap: 8px; font-size: 0.7rem; color: $text-muted; span { display: flex; align-items: center; gap: 3px; i { font-size: 14px; } } } }
 }
 
-// Responsive
-@media (max-width: 768px) {
-  .task-list { padding: 1rem; }
-  .kanban-board { overflow-x: auto; }
-  .stats-grid { grid-template-columns: repeat(3, 1fr); }
-}
+.priority-badge { font-size: 0.6rem; font-weight: 800; padding: 2px 5px; border-radius: 4px; text-transform: uppercase;
+  &.priority-high { color: #00b8d9; background: rgba(#00b8d9, 0.1); }
+  &.priority-urgent { color: #ff5630; background: rgba(#ff5630, 0.1); }
+  &.priority-medium { background: rgba(#6554c0, 0.15); color: #998dd9; }
+  &.priority-low { background: rgba(#36b37e, 0.15); color: #36b37e; } }
 
-.empty-column {
-  text-align: center;
-  padding: 1.5rem;
-  color: $text-muted;
-  font-size: 0.8rem;
-  background: rgba($bg-card, 0.3);
-  border-radius: 0.5rem;
-}
-
-.kanban-card {
-  // ... existing styles
-
-  &.completed {
-    opacity: 0.7;
-
-    .card-title {
-      text-decoration: line-through;
-    }
-  }
-}
+.count-text { font-weight: 800; font-size: 0.8rem; color: $accent; &.muted { color: $text-muted; opacity: 0.6; } }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.title-wrapper { display: flex; align-items: center; gap: 6px; .subtask-icon { color: $accent; font-size: 16px; }
+.task-title { font-size: 0.9rem; font-weight: 500; } }
+.due-date { font-size: 0.9rem; font-weight: 500;
+  //&.overdue { color: #ff5630; }
+  &.overdue { color: #998dd9; }
+  &.today { color: #ffab00; }
+  &.soon { color: #00b8d9; }
+  &.future { color: #36b37e; }}
 
 
-// Task table
-.tasks-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: auto; /* разрешает колонкам растягиваться по содержимому */
-
-  th, td {
-    padding: 0.875rem 0.5rem 0.875rem 1rem;
-    white-space: nowrap;
-  }
-
-  /* колонка Задача должна занимать всё свободное место и переносить текст */
-  th:nth-child(4),
-  td:nth-child(4) {
-    white-space: normal;
-    width: 100%; /* растягивается */
-  }
-
-  /* Исполнитель и стрелка прижаты к правому краю */
-  th:nth-child(5),
-  td:nth-child(5),
-  th:nth-child(6),
-  td:nth-child(6) {
-    text-align: right;
-  }
-
-  /* исполнитель – флекс с выравниванием вправо */
-  td:nth-child(5) .assignee {
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  /* стрелка – только иконка */
-  td:nth-child(6) i {
-    margin-left: 8px;
-  }
-}
