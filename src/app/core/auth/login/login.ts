@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CompanySelector } from '../company-selector/company-selector';
 import { AuthService } from '../../services/auth/auth.service';
+import {NavigationService} from '../../services/navigation/navigation.service';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +16,7 @@ import { AuthService } from '../../services/auth/auth.service';
 export class Login {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
+  private readonly navigationService = inject(NavigationService);
 
   loading = signal(false);
   error = signal<string | null>(null);

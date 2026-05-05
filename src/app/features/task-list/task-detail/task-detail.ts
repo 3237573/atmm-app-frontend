@@ -1,5 +1,5 @@
 import {Component, HostListener, inject, OnInit, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {CommonModule, Location} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {AuthService} from '../../../core/services/auth/auth.service';
@@ -8,6 +8,7 @@ import {TaskPriority, TaskRO, TaskStatus, TaskTreeRO} from '../../../core/models
 import {TaskComments} from './task-comments/task-comments';
 import {AssigneeManager} from './assignee-manager/assignee-manager';
 import {SubtaskTreeComponent} from './subtask-tree';
+
 
 
 @Component({
@@ -23,8 +24,9 @@ export class TaskDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly location = inject(Location);
 
-  currentMembership = this.authService.currentMembership;
+  currentUser = this.authService.currentUser;
 
   // State signals
   task = signal<TaskRO | null>(null);
@@ -164,7 +166,7 @@ export class TaskDetail implements OnInit {
     const task = this.task();
     if (!task) return false;
     // Обычно может менять либо создатель, либо владелец
-    return task.creatorMembershipId === this.currentMembership()?.id;
+    return task.creatorMembershipId === this.currentUser()?.id;
   }
 
   canEditTask(): boolean {
@@ -204,9 +206,40 @@ export class TaskDetail implements OnInit {
   onAssigneesUpdated(): void { this.closeAssigneeModal(); this.loadTaskData(this.task()!.id); }
   triggerCommentsReload(): void { this.reloadComments.update(v => v + 1); }
   isOverdue(dueDate: string | undefined): boolean { return false; /* твой код */ }
-  formatAssigneeNames(name: string): string { return name || 'Не назначены'; }
+  formatAssigneeName(assigneeName: string): string {
+    if (!assigneeName) return 'Не назначен';
+
+    const user = this.currentUser();
+    if (!user) return assigneeName;
+
+    const currentUserName = user.displayName || user.fullName || user.email?.split('@')[0] || '';
+
+    const assignees = assigneeName.split(',').map(a => a.trim());
+    const formattedAssignees = assignees.map(name => {
+      if (name === currentUserName) return 'Я';
+      return name;
+    });
+
+    return formattedAssignees.join(', ');
+  }
   getPriorityColor(p: TaskPriority): string { return 'priority-' + p.toLowerCase(); }
   getPriorityLabel(p: TaskPriority): string { return p; }
-  formatDate(d: string | undefined): string { return d ? new Date(d).toLocaleDateString() : '—'; }
-  goBack(): void { this.router.navigate(['/tasks']); }
+  formatDate(dateStr: string | undefined): string {
+    if (!dateStr) return '—';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '—';
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+  }
+  goBack(): void {
+    // Пытаемся вернуться назад. Если не получится (вне приложения), перейдём в список.
+    // Однако метод back() не возвращает успех. Используем window.history.length.
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/tasks']);
+    }
+  }
 }

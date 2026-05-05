@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import {CompanyInfo} from '../../models/auth.model';
+import {NavigationService} from '../../services/navigation/navigation.service';
 
 @Component({
   selector: 'app-company-selector',
@@ -14,6 +15,7 @@ import {CompanyInfo} from '../../models/auth.model';
 export class CompanySelector {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly navigationService = inject(NavigationService);
 
   loading = signal(false);
   companies = this.authService.availableCompanies;
@@ -31,19 +33,22 @@ export class CompanySelector {
 
   // При выборе компании нужно передать companyId и membershipId
   selectCompany(company: CompanyInfo): void {
-    // Убедитесь, что в CompanyInfo есть membershipId
     if (!company.membershipId) {
       console.error('No membershipId for company', company);
       return;
     }
 
+    this.loading.set(true);
     this.authService.selectCompany(company.companyId, company.membershipId).subscribe({
-      next: (res) => {
-        // Обработка успеха
-        this.router.navigate(['/tracker']);
+      next: () => {
+        this.loading.set(false);
+        // Восстанавливаем последний маршрут или идём на tracker
+        const lastRoute = this.navigationService.getLastRoute();
+        void this.router.navigate([lastRoute || '/tracker']);
       },
       error: (err) => {
         console.error('Error selecting company', err);
+        this.loading.set(false);
       }
     });
   }

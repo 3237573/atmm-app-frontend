@@ -9,14 +9,18 @@ import { TaskTreeRO } from '../../../core/models/task/task.model';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="subtask-node">
-      <div class="subtask-item" [routerLink]="['/tasks', node.task.id]">
-        <span class="status-dot" [class]="node.task.status.toLowerCase()"></span>
-        <span class="subtask-title">{{ node.task.title }}</span>
-        <span class="subtask-assignee">{{ node.task.assigneeName || 'Не назначен' }}</span>
+      <div class="subtask-row" [routerLink]="['/tasks', node.task.id]">
+        <div class="subtask-title">
+          @if (node.task.parentTaskId) {
+            <i class="material-icons sub-icon">subdirectory_arrow_right</i>
+          }
+          {{ node.task.title }}
+        </div>
+        <div class="subtask-assignee">{{ node.task.assigneeName || '—' }}</div>
+        <div class="subtask-due">{{ (node.task.dueDate | date:'dd.MM.yyyy') || '—' }}</div>
         <i class="material-icons chevron">chevron_right</i>
       </div>
-
-      @if (node.subtasks && node.subtasks.length > 0) {
+      @if (node.subtasks && node.subtasks.length) {
         <div class="subtask-children">
           @for (child of node.subtasks; track child.task.id) {
             <app-subtask-tree [node]="child"></app-subtask-tree>
@@ -30,53 +34,50 @@ import { TaskTreeRO } from '../../../core/models/task/task.model';
       display: flex;
       flex-direction: column;
     }
-
-    .subtask-item {
-      display: flex;
+    .subtask-row {
+      display: grid;
+      grid-template-columns: 1fr 180px 100px 32px;
       align-items: center;
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid rgba(255,255,255, 0.05); // Подгони под свой $border
+      gap: 0.75rem;
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
       cursor: pointer;
       transition: background 0.2s;
-      gap: 1rem;
-
-      &:hover {
-        background: rgba(59, 130, 246, 0.05); // $accent hover
-      }
     }
-
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-
-      &.completed { background: #10b981; } // $success
-      &.pending { background: #f59e0b; } // $warning
-      &.in_progress { background: #3b82f6; } // $accent
-      &.review { background: #a855f7; }
+    .subtask-row:hover {
+      background: rgba(59, 130, 246, 0.05);
     }
-
     .subtask-title {
-      flex: 1;
-      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.9rem;
       font-weight: 500;
     }
-
-    .subtask-assignee {
-      font-size: 0.8rem;
-      color: #9ca3af; // $text-muted
+    .sub-icon {
+      font-size: 16px;
+      color: #3b82f6;
     }
-
+    .subtask-assignee, .subtask-due {
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
     .chevron {
       color: #9ca3af;
       font-size: 1.2rem;
+      justify-self: end;
     }
-
-    /* Магия иерархии - лесенка для вложенных задач */
     .subtask-children {
       margin-left: 24px;
-      border-left: 1px dashed rgba(255,255,255, 0.15);
+      border-left: 1px dashed rgba(255,255,255,0.15);
+    }
+    @media (max-width: 768px) {
+      .subtask-row {
+        grid-template-columns: 1fr 32px;
+      }
+      .subtask-assignee, .subtask-due {
+        display: none;
+      }
     }
   `]
 })

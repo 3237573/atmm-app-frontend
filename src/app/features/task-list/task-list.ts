@@ -17,7 +17,6 @@ export class TaskList implements OnInit {
   private readonly taskService = inject(TaskService);
   private readonly authService = inject(AuthService);
 
-  currentMembership = this.authService.currentMembership;
   currentUser = this.authService.currentUser;
 
   // Храним деревья задач
@@ -68,6 +67,10 @@ export class TaskList implements OnInit {
   });
 
   ngOnInit(): void {
+    const savedViewMode = localStorage.getItem('task_view_mode');
+    if (savedViewMode === 'list' || savedViewMode === 'board') {
+      this.viewMode.set(savedViewMode);
+    }
     this.loadTasks();
   }
 
@@ -186,6 +189,7 @@ export class TaskList implements OnInit {
 
   setViewMode(mode: 'list' | 'board') {
     this.viewMode.set(mode);
+    localStorage.setItem('task_view_mode', mode);
   }
 
   // Для отображения уровня вложенности в списке
