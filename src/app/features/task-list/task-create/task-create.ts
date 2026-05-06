@@ -1,11 +1,11 @@
-import { Component, OnInit, inject, signal, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import { TaskService } from '../../../core/services/task/task.service';
-import { MemberService } from '../../../core/services/member/member.service';
-import { IMemberResponse } from '../../../core/models/member.model';
-import { ITaskCreateRO, TaskPriority } from '../../../core/models/task/task.model';
+import {Component, HostListener, inject, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {TaskService} from '../../../core/services/task/task.service';
+import {MemberService} from '../../../core/services/member/member.service';
+import {MemberResponse} from '../../../core/models/member.model';
+import {TaskCreateRO, TaskPriority} from '../../../core/models/task/task.model';
 
 @Component({
   selector: 'app-task-create',
@@ -20,7 +20,7 @@ export class TaskCreate implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  members = signal<IMemberResponse[]>([]);
+  members = signal<MemberResponse[]>([]);
   loading = signal(false);
   submitting = signal(false);
 
@@ -111,7 +111,7 @@ export class TaskCreate implements OnInit {
 
     // Оптимизировано: используем .some() вместо .find() для булевой проверки
     const validMembershipIds = this.taskData.assigneeMembershipIds.filter(id =>
-      this.members().some(m => m.membershipId === id)
+      this.members().some(m => m.id === id)
     );
 
     if (validMembershipIds.length === 0) {
@@ -122,12 +122,12 @@ export class TaskCreate implements OnInit {
     this.submitting.set(true);
 
     // СОБИРАЕМ ПРАВИЛЬНЫЙ ЗАПРОС
-    const request: ITaskCreateRO = {
+    const request: TaskCreateRO = {
       title: this.taskData.title.trim(),
       description: this.taskData.description?.trim() || undefined,
       priority: this.taskData.priority,
-      departmentId: this.taskData.departmentId || undefined,
-      assigneeMembershipIds: validMembershipIds,
+      departmentId: this.taskData.departmentId,
+      assigneeIds: validMembershipIds,
       dueDate: this.taskData.dueDate || undefined,
       parentTaskId: this.parentTaskId // Передаем ID родителя
     };

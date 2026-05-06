@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {TaskRO, ITaskCreateRO, ITaskUpdateRO, TaskTreeRO} from '../../models/task/task.model';
+import {TaskRO, TaskCreateRO, ITaskUpdateRO, TaskTreeRO} from '../../models/task/task.model';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
@@ -29,7 +29,7 @@ export class TaskService {
     return this.http.get<TaskTreeRO>(`${this.baseUrl}/${taskId}/tree`);
   }
 
-  createTask(request: ITaskCreateRO): Observable<{ id: string }> {
+  createTask(request: TaskCreateRO): Observable<{ id: string }> {
     return this.http.post<{ id: string }>(this.baseUrl, request);
   }
 

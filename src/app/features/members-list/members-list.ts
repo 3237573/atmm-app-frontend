@@ -1,7 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MemberService } from '../../core/services/member/member.service';
-import { IMemberResponse } from '../../core/models/member.model';
+import { MemberResponse } from '../../core/models/member.model';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -16,7 +16,7 @@ import { AuthService } from '../../core/services/auth/auth.service';
 export class MembersList implements OnInit {
   private readonly authService = inject(AuthService);
 
-  members = signal<IMemberResponse[]>([]);
+  members = signal<MemberResponse[]>([]);
   loading = signal(true);
   searchQuery = signal('');
   selectedRole = signal('');
@@ -47,7 +47,7 @@ export class MembersList implements OnInit {
     });
   }
 
-  filteredMembers(): IMemberResponse[] {
+  filteredMembers(): MemberResponse[] {
     return this.members().filter(member => {
       const matchesSearch = !this.searchQuery() ||
         member.displayName?.toLowerCase().includes(this.searchQuery().toLowerCase()) ||
@@ -59,7 +59,7 @@ export class MembersList implements OnInit {
     });
   }
 
-  private sortMembersByRole(members: IMemberResponse[]): IMemberResponse[] {
+  private sortMembersByRole(members: MemberResponse[]): MemberResponse[] {
     const rolePriority: { [key: string]: number } = {
       'OWNER': 1,
       'ADMIN': 2,
@@ -79,20 +79,20 @@ export class MembersList implements OnInit {
   }
 
   // Действия с пользователем
-  sendMessage(member: IMemberResponse): void {
+  sendMessage(member: MemberResponse): void {
     // TODO: открыть чат
     console.log('Send message to', member.displayName);
   }
 
-  assignTask(member: IMemberResponse): void {
+  assignTask(member: MemberResponse): void {
     // Переходим на создание задачи с параметром исполнителя
     void this.router.navigate(['/tasks/create'], {
-      queryParams: { assigneeId: member.membershipId, assigneeName: member.displayName }
+      queryParams: { assigneeId: member.id, assigneeName: member.displayName }
     });
   }
 
-  viewProfile(member: IMemberResponse): void {
-    this.router.navigate(['/profile', member.userId]);
+  viewProfile(member: MemberResponse): void {
+    this.router.navigate(['/profile', member.id]);
   }
 
   getRoleBadgeClass(roleName: string): string {

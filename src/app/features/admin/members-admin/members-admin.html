@@ -212,7 +212,7 @@
         </tr>
         </thead>
         <tbody>
-          @for (member of paginatedMembers(); track member.userId) {
+          @for (member of paginatedMembers(); track member.id) {
             <tr [class.deleted-row]="member.status === 'DELETED'">
               <td>
                 <div class="user-info">
@@ -256,21 +256,21 @@
                       <i class="material-icons">edit</i>
                     </button>
 
-                    <button class="btn-icon reset" (click)="resetPassword(member.userId, member.displayName)" title="Сбросить пароль">
+                    <button class="btn-icon reset" (click)="resetPassword(member.id, member.displayName)" title="Сбросить пароль">
                       <i class="material-icons">vpn_key</i>
                     </button>
 
-                    <button class="btn-icon view" (click)="viewActivity(member.userId)" title="Активность">
+                    <button class="btn-icon view" (click)="viewActivity(member.id)" title="Активность">
                       <i class="material-icons">visibility</i>
                     </button>
 
                     @if (canDelete()) {
-                      <button class="btn-icon delete" (click)="deleteMember(member.userId, member.displayName)" title="Удалить">
+                      <button class="btn-icon delete" (click)="deleteMember(member.id, member.displayName)" title="Удалить">
                         <i class="material-icons">person_remove</i>
                       </button>
                     }
                   } @else {
-                    <button class="btn-icon restore" (click)="restoreMember(member.userId, member.displayName)" title="Восстановить">
+                    <button class="btn-icon restore" (click)="restoreMember(member.id, member.displayName)" title="Восстановить">
                       <i class="material-icons">restore_from_trash</i>
                     </button>
                   }

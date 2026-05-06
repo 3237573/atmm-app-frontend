@@ -20,11 +20,12 @@ import {SubtaskTreeComponent} from './subtask-tree';
   styleUrl: './task-detail.scss'
 })
 export class TaskDetail implements OnInit {
-  private readonly taskService = inject(TaskService);
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly location = inject(Location);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly taskService = inject(TaskService);
+
 
   currentUser = this.authService.currentUser;
 
@@ -234,8 +235,6 @@ export class TaskDetail implements OnInit {
     return `${day}.${month}.${year}`;
   }
   goBack(): void {
-    // Пытаемся вернуться назад. Если не получится (вне приложения), перейдём в список.
-    // Однако метод back() не возвращает успех. Используем window.history.length.
     if (window.history.length > 1) {
       this.location.back();
     } else {

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MemberService } from '../../../../core/services/member/member.service';
 import { TaskService } from '../../../../core/services/task/task.service';
-import { IMemberResponse } from '../../../../core/models/member.model';
+import { MemberResponse } from '../../../../core/models/member.model';
 import { TaskRO } from '../../../../core/models/task/task.model';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 
@@ -24,7 +24,7 @@ export class AssigneeManager implements OnInit {
   private readonly taskService = inject(TaskService);
   private readonly authService = inject(AuthService);
 
-  members = signal<IMemberResponse[]>([]);
+  members = signal<MemberResponse[]>([]);
   selectedMembershipIds = signal<string[]>([]);
   loading = signal(true);
   saving = signal(false);
@@ -41,15 +41,14 @@ export class AssigneeManager implements OnInit {
     this.memberService.getMembers().subscribe({
       next: (data) => {
         this.members.set(data);
-        // Заполняем текущих исполнителей (нужно будет получить из задачи)
-        this.selectedMembershipIds.set(this.task.assigneeMembershipIds || []);
+        this.selectedMembershipIds.set(this.task.assigneeIds || []);
         this.loading.set(false);
       },
       error: () => this.loading.set(false)
     });
   }
 
-  filteredMembers(): IMemberResponse[] {
+  filteredMembers(): MemberResponse[] {
     const query = this.searchQuery().toLowerCase();
     if (!query) return this.members();
 
@@ -99,7 +98,7 @@ export class AssigneeManager implements OnInit {
     this.assigneesUpdated.emit();
   }
 
-  getInitials(member: IMemberResponse): string {
+  getInitials(member: MemberResponse): string {
     return (member.displayName || member.email).charAt(0).toUpperCase();
   }
 

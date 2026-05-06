@@ -1,0 +1,147 @@
+import { Component, computed, HostListener, inject, OnInit, signal } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
+
+import { MemberService } from '../../../core/services';
+import { MemberResponse } from '../../../core/models/member.model';
+import { DepartmentService } from '../../../core/services/departament/departament.service';
+import { DepartmentRO } from '../../../core/models/departament.model';
+
+@Component({
+  selector: 'app-department-detail',
+  standalone: true,
+  imports: [CommonModule, RouterModule, FormsModule],
+  templateUrl: './department-detail.html',
+  styleUrl: './department-detail.scss'
+})
+export class DepartmentDetail implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly deptService = inject(DepartmentService);
+  private readonly location = inject(Location);
+  private readonly memberService = inject(MemberService);
+
+  allMembers = signal<MemberResponse[]>([]);
+  allDepartments = signal<DepartmentRO[]>([]);
+  department = signal<DepartmentRO | null>(null);
+
+  isNew = signal(false);
+  loading = signal(true);
+  showAddMemberModal = signal(false);
+
+  @HostListener('document:keydown.escape')
+  onEscape() { this.goBack(); }
+
+  ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
+
+    if (id === 'create') {
+      this.isNew.set(true);
+      forkJoin([
+        this.memberService.getMembers(),
+        this.deptService.getDepartments()
+      ]).subscribe({
+        next: ([members, depts]) => {
+          this.allMembers.set(members);
+          this.allDepartments.set(depts);
+          this.department.set({ id: '', name: '', status: 'ACTIVE', parentDepartmentId: null } as DepartmentRO);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false)
+      });
+    } else if (id) {
+      this.isNew.set(false);
+      this.loadData(id);
+    }
+  }
+
+  loadData(id: string) {
+    this.loading.set(true);
+    forkJoin([
+      this.deptService.getDepartmentById(id),
+      this.memberService.getMembers(),
+      this.deptService.getDepartments()
+    ]).subscribe({
+      next: ([dept, members, depts]) => {
+        this.department.set(dept);
+        this.allMembers.set(members || []);
+        this.allDepartments.set(depts || []);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false)
+    });
+  }
+
+  deptEmployees = computed(() => {
+    const dept = this.department();
+    if (!dept) return [];
+    return this.allMembers().filter(m =>
+      m.affiliations?.some(a => a.departmentId === dept.id)
+    );
+  });
+
+  availableToAssign = computed(() => {
+    const employeesInDept = new Set(this.deptEmployees().map(e => e.id));
+    return this.allMembers().filter(m => !employeesInDept.has(m.id));
+  });
+
+  save() {
+    const dept = this.department();
+    if (!dept || !dept.name.trim()) return;
+
+    const payload = {
+      name: dept.name,
+      parentDepartmentId: dept.parentDepartmentId || null,
+      headMembershipId: dept.headMembershipId || null
+    };
+
+    const request$ = this.isNew()
+      ? this.deptService.createDepartment(payload)
+      : this.deptService.updateDepartment(dept.id, payload);
+
+    request$.subscribe({
+      next: (res) => {
+        if (this.isNew()) {
+          this.router.navigate(['/departments', res.id]);
+        }
+      },
+      error: (err) => alert('Ошибка при сохранении: ' + err.error?.message)
+    });
+  }
+
+  getRoleInDept(member: MemberResponse, deptId: string): string {
+    const affiliation = member.affiliations?.find(a => a.departmentId === deptId);
+    return affiliation ? affiliation.role : 'Участник';
+  }
+
+  assignMember(membershipId: string, roleInDepartment: string) {
+    const deptId = this.department()?.id;
+    if (!deptId) return;
+
+    this.deptService.assignEmployee(deptId, membershipId, roleInDepartment).subscribe({
+      next: () => {
+        this.showAddMemberModal.set(false);
+        this.loadData(deptId);
+      }
+    });
+  }
+
+  removeFromDept(membershipId: string) {
+    const deptId = this.department()?.id;
+    if (deptId && confirm('Убрать сотрудника из отдела?')) {
+      this.deptService.removeEmployee(deptId, membershipId).subscribe(() => {
+        this.loadData(deptId);
+      });
+    }
+  }
+
+  goBack(): void {
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/departments']);
+    }
+  }
+}

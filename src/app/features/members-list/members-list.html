@@ -46,7 +46,7 @@
         </tr>
         </thead>
         <tbody>
-          @for (member of filteredMembers(); track member.userId) {
+          @for (member of filteredMembers(); track member.id) {
             <tr>
               <td>
                 <div class="user-cell">
@@ -56,7 +56,7 @@
                   <div class="user-info">
                     <div class="user-name">
                       {{ member.displayName }}
-                      @if (currentUser()?.id === member.userId) {
+                      @if (currentUser()?.id === member.id) {
                         <span class="you-badge">Вы</span>
                       }
                     </div>
@@ -70,7 +70,7 @@
                 </span>
               </td>
               <td class="actions-cell">
-                @if (currentUser()?.id !== member.userId) {
+                @if (currentUser()?.id !== member.id) {
                   <!-- Задачи - первая -->
                   <button class="action-btn task" (click)="assignTask(member)" title="Назначить задачу">
                     <i class="material-icons">assignment_add</i>

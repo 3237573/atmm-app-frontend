@@ -1,7 +1,7 @@
 import {Component, computed, inject, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MemberService} from '../../core/services/member/member.service';
-import {IMemberResponse} from '../../core/models/member.model';
+import {MemberResponse} from '../../core/models/member.model';
 import {Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import {AuthService} from '../../core/services/auth/auth.service';
@@ -15,9 +15,9 @@ import {AuthService} from '../../core/services/auth/auth.service';
 })
 export class Members implements OnInit {
   private readonly authService = inject(AuthService);
-  members: IMemberResponse[] = [];
+  members: MemberResponse[] = [];
   loading = true;
-  editingMember: IMemberResponse | null = null;
+  editingMember: MemberResponse | null = null;
   showEditModal = false;
   searchQuery = '';
   selectedRole = '';
@@ -106,7 +106,7 @@ export class Members implements OnInit {
     }
   }
 
-  private sortMembersByRole(members: IMemberResponse[]): IMemberResponse[] {
+  private sortMembersByRole(members: MemberResponse[]): MemberResponse[] {
     const rolePriority: { [key: string]: number } = {
       'OWNER': 1,
       'ADMIN': 2,
@@ -130,7 +130,7 @@ export class Members implements OnInit {
     });
   }
 
-  editMember(member: IMemberResponse) {
+  editMember(member: MemberResponse) {
     this.editingMember = { ...member };
     this.showEditModal = true;
   }
@@ -139,7 +139,7 @@ export class Members implements OnInit {
     if (!this.editingMember) return;
 
     this.memberService.updateMember(
-      this.editingMember.userId,
+      this.editingMember.id,
       this.editingMember.roleName,
       this.editingMember.displayName
     ).subscribe({

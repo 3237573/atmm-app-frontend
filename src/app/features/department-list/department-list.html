@@ -1,0 +1,50 @@
+<div class="department-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h1><i class="material-icons">account_tree</i> Структура компании</h1>
+      <p>Управление отделами и иерархией</p>
+    </div>
+    <button class="btn-primary" [routerLink]="['/departments/create']">
+      <i class="material-icons">add</i> Добавить отдел
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loader">Загрузка структуры...</div>
+  } @else {
+    <div class="tree-root">
+      <ng-container *ngTemplateOutlet="recursiveTree; context: { $implicit: departmentTree() }"></ng-container>
+    </div>
+  }
+</div>
+
+<ng-template #recursiveTree let-nodes>
+  <ul class="tree-branch">
+    @for (node of nodes; track node.id) {
+      <li class="tree-node">
+        <div class="node-content" [routerLink]="['/departments', node.id]">
+          <i class="material-icons node-icon">
+            {{ node.childDepartments?.length ? 'domain' : 'corporate_fare' }}
+          </i>
+
+          <div class="node-info">
+            <span class="node-name">{{ node.name }}</span>
+            @if (node.headMembershipId) {
+              <span class="node-meta">Руководитель назначен</span>
+            }
+          </div>
+
+          <div class="node-actions">
+            <button class="icon-btn" (click)="$event.stopPropagation();">
+              <i class="material-icons">edit</i>
+            </button>
+          </div>
+        </div>
+
+        @if (node.childDepartments?.length) {
+          <ng-container *ngTemplateOutlet="recursiveTree; context: { $implicit: node.childDepartments }"></ng-container>
+        }
+      </li>
+    }
+  </ul>
+</ng-template>

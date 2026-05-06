@@ -91,7 +91,7 @@
         </tr>
         </thead>
         <tbody>
-          @for (member of filteredMembers(); track member.userId) {
+          @for (member of filteredMembers(); track member.id) {
             <tr>
               <td>
                 <div class="user-info">
@@ -116,16 +116,16 @@
                     <i class="material-icons">edit</i>
                   </button>
 
-                  <button class="btn-icon reset" (click)="resetPassword(member.userId)" title="Сбросить пароль">
+                  <button class="btn-icon reset" (click)="resetPassword(member.id)" title="Сбросить пароль">
                     <i class="material-icons">vpn_key</i>
                   </button>
 
-                  <button class="btn-icon view" (click)="viewActivity(member.userId)" title="Активность">
+                  <button class="btn-icon view" (click)="viewActivity(member.id)" title="Активность">
                     <i class="material-icons">visibility</i>
                   </button>
 
                   @if (member.status !== 'DELETED') {
-                    <button class="btn-icon delete" (click)="deleteMember(member.userId)" title="Удалить">
+                    <button class="btn-icon delete" (click)="deleteMember(member.id)" title="Удалить">
                       <i class="material-icons">person_remove</i>
                     </button>
                   }

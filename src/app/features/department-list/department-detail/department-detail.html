@@ -1,0 +1,107 @@
+<div class="detail-container">
+  @if (loading()) {
+    <div class="loader">Загрузка данных...</div>
+  }
+  @else if (department(); as dept) {
+    <div class="header-main">
+      <div class="title-group">
+        <button class="btn-icon back-btn" (click)="goBack()">
+          <i class="material-icons">arrow_back</i>
+        </button>
+        <input [(ngModel)]="dept.name"
+               class="title-input"
+               placeholder="Название отдела..."
+               (blur)="save()">
+      </div>
+      <button class="btn-primary" (click)="save()">
+        <i class="material-icons">save</i> Сохранить
+      </button>
+    </div>
+
+    <div class="detail-grid">
+      <section class="card employees-card">
+        <div class="card-header">
+          <h3><i class="material-icons">groups</i> Участники отдела</h3>
+          @if (!isNew()) {
+            <button class="btn-secondary btn-sm" (click)="showAddMemberModal.set(true)">
+              <i class="material-icons">person_add</i> Добавить
+            </button>
+          }
+        </div>
+
+        @if (isNew()) {
+          <div class="empty-state">Сначала сохраните отдел, чтобы добавить сотрудников.</div>
+        } @else {
+          <div class="employee-list">
+            @for (m of deptEmployees(); track m.id) {
+              <div class="employee-item">
+                <div class="emp-info">
+                  <span class="emp-name">{{ m.displayName }}</span>
+                  <span class="emp-email">{{ m.email }}</span>
+                </div>
+
+                <div class="role-selector">
+                  <span class="role-badge">{{ getRoleInDept(m, dept.id) }}</span>
+                </div>
+
+                <button class="btn-icon delete" (click)="removeFromDept(m.id)">
+                  <i class="material-icons">logout</i>
+                </button>
+              </div>
+            } @empty {
+              <div class="empty-state">В этом отделе пока нет сотрудников</div>
+            }
+          </div>
+        }
+      </section>
+
+      <aside class="side-column">
+        <div class="card settings-card">
+          <h4>Иерархия</h4>
+          <div class="form-group">
+            <label>Родительский отдел</label>
+            <select [(ngModel)]="dept.parentDepartmentId" class="form-input" (change)="save()">
+              <option [ngValue]="null">Корневой уровень</option>
+              @for (d of allDepartments(); track d.id) {
+                @if (d.id !== dept.id) {
+                  <option [value]="d.id">{{ d.name }}</option>
+                }
+              }
+            </select>
+          </div>
+        </div>
+      </aside>
+    </div>
+  }
+</div>
+
+@if (showAddMemberModal()) {
+  <div class="modal-overlay" (click)="showAddMemberModal.set(false)">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>Добавить сотрудника</h3>
+
+      <div class="selection-list">
+        @for (m of availableToAssign(); track m.id) {
+          <div class="selection-row">
+            <div class="m-info">
+              <p>{{ m.displayName }}</p>
+              <small>{{ m.email }}</small>
+            </div>
+
+            <select #roleSelect class="role-input form-input">
+              <option value="Участник">Участник</option>
+              <option value="Лид">Лид</option>
+              <option value="Глава">Глава</option>
+            </select>
+
+            <button class="btn-primary btn-sm" (click)="assignMember(m.id, roleSelect.value)">
+              Добавить
+            </button>
+          </div>
+        } @empty {
+          <div class="empty-state">Все сотрудники уже в этом отделе.</div>
+        }
+      </div>
+    </div>
+  </div>
+}

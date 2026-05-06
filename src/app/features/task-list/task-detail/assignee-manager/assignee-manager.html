@@ -21,12 +21,12 @@
       <div class="loader-small">Загрузка...</div>
     } @else {
       <div class="members-list">
-        @for (member of filteredMembers(); track member.membershipId) {
-          <label class="member-item" [class.selected]="isSelected(member.membershipId)">
+        @for (member of filteredMembers(); track member.id) {
+          <label class="member-item" [class.selected]="isSelected(member.id)">
             <input
               type="checkbox"
-              [checked]="isSelected(member.membershipId)"
-              (change)="toggleAssignee(member.membershipId)"
+              [checked]="isSelected(member.id)"
+              (change)="toggleAssignee(member.id)"
             >
             <div class="member-avatar" [class]="getRoleClass(member.roleName)">
               {{ getInitials(member) }}
@@ -38,7 +38,7 @@
                 {{ member.roleName }}
               </div>
             </div>
-            @if (member.membershipId === currentMembershipId) {
+            @if (member.id === currentMembershipId) {
               <span class="you-badge">Вы</span>
             }
           </label>

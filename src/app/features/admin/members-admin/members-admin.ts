@@ -1,7 +1,7 @@
 import { Component, computed, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MemberService } from '../../../core/services/member/member.service';
-import { IMemberResponse } from '../../../core/models/member.model';
+import { MemberResponse } from '../../../core/models/member.model';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth/auth.service';
@@ -35,12 +35,12 @@ export class MembersAdmin implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
   // Reactive state
-  members = signal<IMemberResponse[]>([]);
+  members = signal<MemberResponse[]>([]);
   loading = signal(true);
   isSubmitting = signal(false);
 
   // Edit modal
-  editingMember = signal<IMemberResponse | null>(null);
+  editingMember = signal<MemberResponse | null>(null);
   showEditModal = signal(false);
 
   // Invite form
@@ -111,7 +111,7 @@ export class MembersAdmin implements OnInit, OnDestroy {
 
   // ========== FILTERING AND SORTING ==========
 
-  filteredMembers(): IMemberResponse[] {
+  filteredMembers(): MemberResponse[] {
     let filtered = this.members().filter(member => {
       const matchesSearch = !this.searchQuery() ||
         member.displayName?.toLowerCase().includes(this.searchQuery().toLowerCase()) ||
@@ -129,17 +129,17 @@ export class MembersAdmin implements OnInit, OnDestroy {
     return filtered;
   }
 
-  paginatedMembers(): IMemberResponse[] {
+  paginatedMembers(): MemberResponse[] {
     const filtered = this.filteredMembers();
     const start = (this.currentPage() - 1) * this.itemsPerPage();
     const end = start + this.itemsPerPage();
     return filtered.slice(start, end);
   }
 
-  sortMembers(members: IMemberResponse[]): IMemberResponse[] {
+  sortMembers(members: MemberResponse[]): MemberResponse[] {
     return [...members].sort((a, b) => {
-      let aValue: any = a[this.sortColumn() as keyof IMemberResponse];
-      let bValue: any = b[this.sortColumn() as keyof IMemberResponse];
+      let aValue: any = a[this.sortColumn() as keyof MemberResponse];
+      let bValue: any = b[this.sortColumn() as keyof MemberResponse];
 
       // Handle displayName sorting
       if (this.sortColumn() === 'displayName') {
@@ -231,7 +231,7 @@ export class MembersAdmin implements OnInit, OnDestroy {
     });
   }
 
-  editMember(member: IMemberResponse): void {
+  editMember(member: MemberResponse): void {
     this.editingMember.set({ ...member });
     this.showEditModal.set(true);
   }
@@ -241,7 +241,7 @@ export class MembersAdmin implements OnInit, OnDestroy {
     if (!member) return;
 
     this.memberService.updateMember(
-      member.userId,
+      member.id,
       member.roleName,
       member.displayName
     ).pipe(takeUntil(this.destroy$))
@@ -322,7 +322,7 @@ export class MembersAdmin implements OnInit, OnDestroy {
     };
   }
 
-  private sortMembersByRole(members: IMemberResponse[]): IMemberResponse[] {
+  private sortMembersByRole(members: MemberResponse[]): MemberResponse[] {
     const rolePriority: { [key: string]: number } = {
       'OWNER': 1,
       'ADMIN': 2,

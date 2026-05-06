@@ -3,8 +3,21 @@
 .task-list { padding: 1.5rem; background: $bg-main; min-height: 100vh; }
 
 .page-header {
-  display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
-  .header-info h1 { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 1.5rem; i { color: $accent; } }
+  display: flex;
+  justify-content: flex-start; // Кнопка прижмется к левому краю
+  align-items: center;
+  gap: 2rem;                   // Расстояние между заголовком и кнопкой
+  margin-bottom: 1.5rem;
+
+  .header-info h1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 1.5rem;
+    i { color: $accent; }
+  }
+
   p { color: $text-muted; margin: 4px 0 0; font-size: 0.9rem; }
 }
 

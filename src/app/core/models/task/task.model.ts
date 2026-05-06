@@ -13,12 +13,10 @@ export interface TaskRO {
   status: TaskStatus;
   priority: TaskPriority;
   assigneeId?: string;
-  assigneeName: string;
   assigneeIds?: string[];
+  assigneeName: string;
   departmentName: string;
-  assigneeMembershipId?: string;
-  assigneeMembershipIds?: string[];
-  departmentId?: string;
+  departmentId: string;
   projectName?: string;
   projectId?: string;
   dueDate?: string;
@@ -30,13 +28,13 @@ export interface TaskRO {
   estimatedHours?: number;
 }
 
-export interface ITaskCreateRO {
+export interface TaskCreateRO {
   title: string;
   description?: string;
   priority: TaskPriority;
-  departmentId?: string;
+  departmentId: string;
   projectId?: string;
-  assigneeMembershipIds: string[];
+  assigneeIds: string[];
   dueDate?: string;
   parentTaskId?: string;
 }

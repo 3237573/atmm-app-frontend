@@ -1,0 +1,88 @@
+<div class="create-container">
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <i class="material-icons">arrow_back</i> Назад к структуре
+    </button>
+  </div>
+
+  <div class="form-card">
+    <div class="card-header">
+      <h2><i class="material-icons">add_business</i> Новый отдел</h2>
+      <p>Создайте подразделение для организации структуры компании</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #deptForm="ngForm">
+      <div class="form-group">
+        <label for="name">Название отдела *</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          [(ngModel)]="formData.name"
+          required
+          placeholder="Например: Департамент разработки"
+          class="form-input">
+      </div>
+
+      <div class="form-group">
+        <label for="parent">Родительский отдел</label>
+        <div class="select-wrapper">
+          <select
+            id="parent"
+            name="parentDepartmentId"
+            [(ngModel)]="formData.parentDepartmentId"
+            class="form-input select-styled">
+            <option [ngValue]="null">Без родителя (Корневой)</option>
+            @for (dept of departments(); track dept.id) {
+              <option [value]="dept.id">{{ dept.name }}</option>
+            }
+          </select>
+          <i class="material-icons select-arrow">expand_more</i>
+        </div>
+        <small class="help-text">Выберите отдел, в состав которого войдет новый</small>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="goBack()">Отмена</button>
+        <button
+          type="submit"
+          class="btn-save"
+          [disabled]="!deptForm.form.valid || loading()">
+          @if (loading()) {
+            <i class="material-icons spinning">refresh</i>
+          } @else {
+            <i class="material-icons">check</i>
+          }
+          <span>Создать отдел</span>
+        </button>
+      </div>
+    </form>
+
+    <!-- ========================= -->
+    <!--     ВЫБОР СОТРУДНИКОВ     -->
+    <!-- ========================= -->
+
+    <h3>Сотрудники отдела</h3>
+
+    <div class="selection-list">
+      @for (m of allMembers(); track m.id) {
+        <div class="selection-row">
+          <label class="checkbox-row">
+            <input type="checkbox"
+                   [checked]="selectedMembers().has(m.id)"
+                   (change)="toggleMember(m.id, $any($event.target).checked)">
+            <span>{{ m.displayName }} ({{ m.email }})</span>
+          </label>
+
+          <select class="role-input form-input"
+                  [disabled]="!selectedMembers().has(m.id)"
+                  (change)="setRole(m.id, $any($event.target).value)">
+            <option value="Участник">Участник</option>
+            <option value="Лид">Лид</option>
+            <option value="Глава">Глава</option>
+          </select>
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,67 @@
+import { CommonModule, Location } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { Component, computed, HostListener, inject, OnInit, signal } from '@angular/core';
+import { DepartmentService } from '../../core/services/departament/departament.service';
+import { DepartmentRO } from '../../core/models/departament.model';
+
+@Component({
+  selector: 'app-department-list',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  templateUrl: './department-list.html',
+  styleUrl: './department-list.scss'
+})
+export class DepartmentList implements OnInit {
+  private readonly deptService = inject(DepartmentService);
+  private readonly location = inject(Location);
+  private readonly router = inject(Router);
+
+  private readonly rawDepartments = signal<DepartmentRO[]>([]);
+  loading = signal(true);
+
+  @HostListener('document:keydown.escape')
+  onEscape() { this.goBack(); }
+
+  departmentTree = computed(() => {
+    const list = this.rawDepartments();
+    const map = new Map<string | null, DepartmentRO[]>();
+
+    list.forEach(dept => {
+      const pId = dept.parentDepartmentId || null;
+      if (!map.has(pId)) map.set(pId, []);
+      map.get(pId)!.push({ ...dept, childDepartments: [] as DepartmentRO[] });
+    });
+
+    const build = (parentDepartmentId: string | null): DepartmentRO[] => {
+      const children = map.get(parentDepartmentId) || [];
+      return children.map(child => ({
+        ...child,
+        childDepartments: build(child.id)
+      }));
+    };
+
+    return build(null);
+  });
+
+  ngOnInit() {
+    this.load();
+  }
+
+  load() {
+    this.deptService.getDepartments().subscribe({
+      next: (data) => {
+        this.rawDepartments.set(data);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false)
+    });
+  }
+
+  goBack(): void {
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/tracker']);
+    }
+  }
+}

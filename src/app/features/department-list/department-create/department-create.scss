@@ -1,0 +1,109 @@
+@use "../../../app.scss" as *;
+
+.create-container {
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.form-card {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+  .card-header {
+    margin-bottom: 2rem;
+    h2 { margin: 0; display: flex; align-items: center; gap: 10px; color: $text-main; }
+    p { color: $text-muted; font-size: 0.9rem; margin-top: 5px; }
+    i { color: $accent; }
+  }
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  label { display: block; margin-bottom: 0.5rem; font-size: 0.85rem; color: $text-muted; font-weight: 500; }
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: $bg-main;
+  border: 1px solid $border;
+  border-radius: 0.5rem;
+  color: $text-main;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+
+  &:focus { outline: none; border-color: $accent; }
+}
+
+.select-wrapper {
+  position: relative;
+  .select-styled { appearance: none; cursor: pointer; }
+  .select-arrow { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); pointer-events: none; color: $text-muted; }
+}
+
+.help-text { font-size: 0.75rem; color: $text-muted; margin-top: 0.5rem; display: block; }
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid $border;
+}
+
+.btn-save {
+  background: $accent;
+  color: $bg-main;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.btn-cancel {
+  background: transparent;
+  border: 1px solid $border;
+  color: $text-muted;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  &:hover { background: rgba(white, 0.05); }
+}
+
+.selection-list {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.selection-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.role-input {
+  width: 150px;
+}
+
+.spinning { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

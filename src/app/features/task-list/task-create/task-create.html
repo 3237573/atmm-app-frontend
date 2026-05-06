@@ -63,12 +63,12 @@
         @if (loading()) {
           <div>Загрузка...</div>
         } @else {
-          @for (member of members(); track member.membershipId) {
+          @for (member of members(); track member.id) {
             <label class="member-row">
               <input
                 type="checkbox"
-                [checked]="isSelected(member.membershipId)"
-                (change)="toggleAssignee(member.membershipId)"
+                [checked]="isSelected(member.id)"
+                (change)="toggleAssignee(member.id)"
               >
               <span class="member-name">{{ member.displayName }}</span>
               <span class="member-email">{{ member.email }}</span>

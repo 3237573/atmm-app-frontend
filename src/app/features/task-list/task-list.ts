@@ -1,7 +1,7 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {Component, computed, HostListener, inject, OnInit, signal} from '@angular/core';
+import {CommonModule, Location} from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import {Router, RouterModule} from '@angular/router';
 import { TaskService } from '../../core/services/task/task.service';
 import { TaskTreeRO, TaskRO } from '../../core/models/task/task.model';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -14,8 +14,10 @@ import { AuthService } from '../../core/services/auth/auth.service';
   styleUrl: './task-list.scss'
 })
 export class TaskList implements OnInit {
-  private readonly taskService = inject(TaskService);
   private readonly authService = inject(AuthService);
+  private readonly location = inject(Location);
+  private readonly router = inject(Router);
+  private readonly taskService = inject(TaskService);
 
   currentUser = this.authService.currentUser;
 
@@ -27,6 +29,9 @@ export class TaskList implements OnInit {
   searchQuery = signal('');
   selectedStatus = signal<string>('');
   selectedPriority = signal<string>('');
+
+  @HostListener('document:keydown.escape')
+  onEscape() { this.goBack(); }
 
   // Преобразуем деревья в плоский список для статистики и фильтрации
   flatTasks = computed(() => {
@@ -203,5 +208,13 @@ export class TaskList implements OnInit {
       currentId = parent.parentTaskId;
     }
     return level;
+  }
+
+  goBack(): void {
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/tasks']);
+    }
   }
 }

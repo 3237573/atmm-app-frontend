@@ -10,6 +10,8 @@ import {TaskList} from './features/task-list/task-list';
 import {TaskCreate} from './features/task-list/task-create/task-create';
 import {TaskDetail} from './features/task-list/task-detail/task-detail';
 import {UnsavedChangesGuard} from './core/interceptors/unsaved-changes.guard';
+import {DepartmentDetail} from './features/department-list/department-detail/department-detail';
+import {DepartmentList} from './features/department-list/department-list';
 
 export const routes: Routes = [
   {path: 'login', component: Login, title: 'Вход'},
@@ -21,6 +23,20 @@ export const routes: Routes = [
     children: [
       {path: 'tracker', component: Tracker, title: 'Трекер'},
       {path: 'members', component: MembersList, title: 'Участники'},
+      {
+        path: 'departments',
+        children: [
+          { path: '', component: DepartmentList, title: 'Структура компании' },
+          {
+            path: 'create',
+            loadComponent: () =>
+              import('./features/department-list/department-create/department-create')
+                .then(m => m.DepartmentCreate),
+            title: 'Создать отдел'
+          },
+          { path: ':id', component: DepartmentDetail, title: 'Детали отдела' }
+        ]
+      },
       {
         path: 'tasks',
         children: [
