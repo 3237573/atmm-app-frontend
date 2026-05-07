@@ -11,7 +11,6 @@
 
 .header-main {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
 }
@@ -36,18 +35,7 @@
   border: 1px solid $border;
   background: $bg-main;
   color: $text-main;
-}
-
-.btn-primary {
-  background: $accent;
-  color: $bg-main;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 0.5rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  cursor: pointer;
+  width: 52rem;
 }
 
 .detail-grid {
@@ -86,43 +74,63 @@
   cursor: pointer;
 }
 
-.btn-sm {
-  font-size: 0.8rem;
-}
-
 .employee-list {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
 }
 
+/* --- СТРОКА СОТРУДНИКА --- */
 .employee-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0.6rem;
-  border-radius: 0.4rem;
-  background: rgba(255, 255, 255, 0.02);
+  justify-content: space-between;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.55rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.emp-info {
-  flex: 1;
-  .emp-name {
-    color: $text-main;
-  }
-  .emp-email {
-    font-size: 0.8rem;
-    color: $text-muted;
-  }
+/* имя + email + роль — в одну линию */
+.emp-line {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-.role-selector {
-  .role-badge {
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.4rem;
-    background: rgba($accent, 0.1);
-    color: $accent;
-    font-size: 0.8rem;
+.emp-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: $text-main;
+}
+
+.emp-email {
+  font-size: 0.82rem;
+  color: $text-muted;
+}
+
+/* компактный badge-input */
+.role-badge-input {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.25rem 0.55rem;
+  border-radius: 0.45rem;
+  font-size: 0.82rem;
+  color: $text-main;
+  width: 150px;
+
+  transition: all 0.18s ease;
+  outline: none;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  &:focus {
+    background: rgba($accent, 0.12);
+    border-color: $accent;
+    box-shadow: 0 0 0 2px rgba($accent, 0.25);
   }
 }
 
@@ -159,7 +167,6 @@
 }
 
 /* Модалка */
-
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -193,9 +200,11 @@
 
 .m-info {
   flex: 1;
+
   p {
     margin: 0;
   }
+
   small {
     color: $text-muted;
   }

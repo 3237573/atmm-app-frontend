@@ -29,11 +29,15 @@ export class DepartmentService {
     return this.http.delete<{ success: boolean }>(`${this.baseUrl}/${id}`);
   }
 
-  // department.service.ts
   assignEmployee(departmentId: string, membershipId: string, roleInDepartment: string): Observable<void> {
     // На бэкенде: POST /v1/departments/{id}/employees с телом { membershipId }
     return this.http.post<void>(`${this.baseUrl}/${departmentId}/employees`, {membershipId, roleInDepartment});
   }
+
+  updateEmployeeRole(departmentId: string, membershipId: string, role: string) {
+    return this.http.patch(`/v1/departments/${departmentId}/employees/${membershipId}`, { role });
+  }
+
 
   removeEmployee(departmentId: string, membershipId: string): Observable<void> {
     // На бэкенде: DELETE /v1/departments/employees/{membershipId}
@@ -42,7 +46,7 @@ export class DepartmentService {
 
   setHead(departmentId: string, headMembershipId: string): Observable<void> {
     // На бэкенде: PUT /v1/departments/{id}/head
-    return this.http.put<void>(`${this.baseUrl}/${departmentId}/head`, {headMembershipId});
+    return this.http.patch<void>(`${this.baseUrl}/${departmentId}/head`, {headMembershipId});
   }
 
 }

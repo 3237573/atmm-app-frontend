@@ -1,101 +1,10 @@
 @use "../../../app" as *;
 @use "sass:color";
 
-.members-admin {
-  padding: 1.5rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
+.members-admin { padding: 1.5rem; width: 100%; min-height: 100vh; }
 
-// ========== HEADER ==========
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-
-  .header-text {
-    h2 {
-      margin: 0;
-      color: $accent;
-      font-size: 1.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-
-      i {
-        font-size: 2rem;
-      }
-    }
-
-    p {
-      margin: 0.5rem 0 0;
-      color: $text-muted;
-      font-size: 0.9rem;
-    }
-  }
-}
-
-// ========== STATISTICS ==========
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.stat-card {
-  background: $bg-card;
-  border-radius: 1rem;
-  padding: 1.25rem;
-  border: 1px solid $border;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  }
-
-  .stat-icon {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .stat-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: white;
-    line-height: 1;
-    margin-bottom: 0.25rem;
-  }
-
-  .stat-label {
-    font-size: 0.75rem;
-    color: $text-muted;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: $accent;
-  }
-
-  &.active::before { background: #10b981; }
-  &.admin::before { background: $accent; }
-  &.guest::before { background: #f59e0b; }
-  &.pending::before { background: #f59e0b; }
-  &.deleted::before { background: #ef4444; }
-}
+// ========== HEADER, STATISTICS ==========
+// from app.scss
 
 // ========== INVITE PANEL ==========
 .invite-panel {

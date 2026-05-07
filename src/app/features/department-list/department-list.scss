@@ -4,40 +4,6 @@
   padding: 1.5rem;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-
-  .header-info {
-    h1 {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin: 0;
-      color: $text-main;
-    }
-    p {
-      margin: 0.25rem 0 0;
-      color: $text-muted;
-      font-size: 0.9rem;
-    }
-  }
-}
-
-.btn-primary {
-  background: $accent;
-  color: $bg-main;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 0.5rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  cursor: pointer;
-}
-
 .loader {
   margin-top: 2rem;
   color: $text-muted;
@@ -87,7 +53,7 @@
 }
 
 .node-actions {
-  margin-left: auto;
+  //margin-left: auto;
 }
 
 .icon-btn {

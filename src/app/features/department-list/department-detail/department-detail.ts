@@ -29,6 +29,7 @@ export class DepartmentDetail implements OnInit {
 
   isNew = signal(false);
   loading = signal(true);
+  showHeadModal = signal(false);
   showAddMemberModal = signal(false);
 
   @HostListener('document:keydown.escape')
@@ -116,6 +117,26 @@ export class DepartmentDetail implements OnInit {
     return affiliation ? affiliation.role : 'Участник';
   }
 
+  getHeadName(membershipId: string): string {
+    const member = this.allMembers().find(m => m.id === membershipId);
+    return member ? member.displayName : 'Не найден';
+  }
+
+
+  assignHead(membershipId: string) {
+    const deptId = this.department()?.id;
+    if (!deptId) return;
+
+    this.deptService.setHead(deptId, membershipId).subscribe({
+      next: () => {
+        this.showHeadModal.set(false);
+        this.loadData(deptId);
+      },
+      error: (err) => alert('Ошибка: ' + err.error?.message)
+    });
+  }
+
+
   assignMember(membershipId: string, roleInDepartment: string) {
     const deptId = this.department()?.id;
     if (!deptId) return;
@@ -144,4 +165,15 @@ export class DepartmentDetail implements OnInit {
       this.router.navigate(['/departments']);
     }
   }
+
+  updateRole(membershipId: string, newRole: string) {
+    const deptId = this.department()?.id;
+    if (!deptId) return;
+
+    this.deptService.updateEmployeeRole(deptId, membershipId, newRole).subscribe({
+      next: () => this.loadData(deptId)
+    });
+  }
+
+
 }

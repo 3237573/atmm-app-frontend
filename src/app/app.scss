@@ -1,3 +1,4 @@
+// --- app.scss ---
 @use "sass:color";
 // --- 1. Variables (Design System) ---
 $bg-main: #0f172a;
@@ -37,6 +38,25 @@ $role-guest-color: #a1a1aa;
 @mixin role-badge($bg, $color) {
   background: $bg;
   color: $color;
+}
+
+.page-header {
+  display: flex;
+  justify-content: flex-start; // Кнопка прижмется к левому краю
+  align-items: center;
+  gap: 2rem;                   // Расстояние между заголовком и кнопкой
+  margin-bottom: 1.5rem;
+
+  .header-info h1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 1.5rem;
+    i { color: $accent; }
+  }
+
+  p { color: $text-muted; margin: 4px 0 0; font-size: 0.9rem; }
 }
 
 
@@ -97,6 +117,25 @@ $role-guest-color: #a1a1aa;
   }
 }
 
+// Statistics (Compact)
+.stats-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.75rem; margin-bottom: 1.5rem; max-width: 1000px;
+}
+.stat-card {
+  background: $bg-card; padding: 0.75rem; border-radius: 10px; border: 1px solid $border; text-align: center;
+  .stat-value { font-size: 1.25rem; font-weight: 800; color: $accent; line-height: 1.2; }
+  .stat-label { font-size: 0.65rem; color: $text-muted; text-transform: uppercase; margin-top: 3px; }
+  &.pending .stat-value { color: #ffab00; }
+  &.progress .stat-value { color: #00b8d9; }
+  &.completed .stat-value { color: #36b37e; }
+  &.overdue .stat-value { color: #998dd9; }
+  &.active::before { background: #10b981; }
+  &.admin::before { background: $accent; }
+  &.guest::before { background: #f59e0b; }
+  &.pending::before { background: #f59e0b; }
+  &.deleted::before { background: #ef4444; }
+}
 
 
 // --- 4. Global Classes for Role Badges ---

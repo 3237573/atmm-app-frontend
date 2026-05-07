@@ -28,16 +28,14 @@
           </i>
 
           <div class="node-info">
-            <span class="node-name">{{ node.name }}</span>
+            <span class="node-name">{{ node.name }}: {{ node.employeeCount }}</span>
             @if (node.headMembershipId) {
               <span class="node-meta">Руководитель назначен</span>
             }
           </div>
 
-          <div class="node-actions">
-            <button class="icon-btn" (click)="$event.stopPropagation();">
-              <i class="material-icons">edit</i>
-            </button>
+          <div class="node-actions icon-btn">
+            <i class="material-icons">edit</i>
           </div>
         </div>
 

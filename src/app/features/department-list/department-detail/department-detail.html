@@ -35,19 +35,20 @@
           <div class="employee-list">
             @for (m of deptEmployees(); track m.id) {
               <div class="employee-item">
-                <div class="emp-info">
+                <div class="emp-line">
                   <span class="emp-name">{{ m.displayName }}</span>
                   <span class="emp-email">{{ m.email }}</span>
-                </div>
 
-                <div class="role-selector">
-                  <span class="role-badge">{{ getRoleInDept(m, dept.id) }}</span>
+                  <input class="role-badge-input"
+                         [value]="getRoleInDept(m, dept.id)"
+                         (blur)="updateRole(m.id, $any($event.target).value)">
                 </div>
 
                 <button class="btn-icon delete" (click)="removeFromDept(m.id)">
                   <i class="material-icons">logout</i>
                 </button>
               </div>
+
             } @empty {
               <div class="empty-state">В этом отделе пока нет сотрудников</div>
             }
@@ -58,6 +59,7 @@
       <aside class="side-column">
         <div class="card settings-card">
           <h4>Иерархия</h4>
+
           <div class="form-group">
             <label>Родительский отдел</label>
             <select [(ngModel)]="dept.parentDepartmentId" class="form-input" (change)="save()">
@@ -69,11 +71,53 @@
               }
             </select>
           </div>
+
+          <div class="form-group" style="margin-top: 1rem;">
+            <label>Глава отдела</label>
+
+            @if (dept.headMembershipId) {
+              <p class="current-head">
+                Текущий: {{ getHeadName(dept.headMembershipId) }}
+              </p>
+            } @else {
+              <p class="current-head empty">Глава не назначен</p>
+            }
+
+            <button class="btn-secondary btn-sm" (click)="showHeadModal.set(true)">
+              <i class="material-icons">person</i> Назначить главу
+            </button>
+          </div>
         </div>
       </aside>
     </div>
   }
 </div>
+
+@if (showHeadModal()) {
+  <div class="modal-overlay" (click)="showHeadModal.set(false)">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>Назначить главу отдела</h3>
+
+      <div class="selection-list">
+        @for (m of deptEmployees(); track m.id) {
+          <div class="selection-row">
+            <div class="m-info">
+              <p>{{ m.displayName }}</p>
+              <small>{{ m.email }}</small>
+            </div>
+
+            <button class="btn-primary btn-sm" (click)="assignHead(m.id)">
+              Назначить
+            </button>
+          </div>
+        } @empty {
+          <div class="empty-state">В отделе нет сотрудников для назначения.</div>
+        }
+      </div>
+    </div>
+  </div>
+}
+
 
 @if (showAddMemberModal()) {
   <div class="modal-overlay" (click)="showAddMemberModal.set(false)">
@@ -88,15 +132,11 @@
               <small>{{ m.email }}</small>
             </div>
 
-            <select #roleSelect class="role-input form-input">
-              <option value="Участник">Участник</option>
-              <option value="Лид">Лид</option>
-              <option value="Глава">Глава</option>
-            </select>
-
-            <button class="btn-primary btn-sm" (click)="assignMember(m.id, roleSelect.value)">
+            <input #roleInput class="role-input form-input" placeholder="Роль в отделе...">
+            <button class="btn-primary btn-sm" (click)="assignMember(m.id, roleInput.value)">
               Добавить
             </button>
+
           </div>
         } @empty {
           <div class="empty-state">Все сотрудники уже в этом отделе.</div>
