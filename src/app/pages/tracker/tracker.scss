@@ -1,19 +1,22 @@
 @use "sass:color";
-@use "../../app.scss" as *;
 
-// --- Основной контейнер ---
+/* ============================================================
+   TRACKER — DARK THEME
+   ============================================================ */
+
+/* --- Основной контейнер --- */
 .tracker-container {
-  background: $bg-card;
+  background: var(--bg-elevated);
   border-radius: 1.5rem;
   padding: 2.5rem;
   min-height: 600px;
   position: relative;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba($border, 0.5);
-  transition: all 0.3s $ease;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-strong);
+  transition: all 0.3s ease;
 }
 
-// --- Header ---
+/* --- Header --- */
 .tracker-header {
   display: flex;
   justify-content: space-between;
@@ -25,35 +28,37 @@
     font-weight: 800;
     letter-spacing: -0.02em;
     margin: 0;
-    color: $text-main;
+    color: var(--text-main);
   }
 }
 
-// --- Навигация (Стрелки и дата) ---
+/* --- Навигация (стрелки + дата) --- */
 .date-navigator {
   display: flex;
   align-items: center;
-  background: rgba($bg-main, 0.6);
+  background: var(--bg-soft);
   padding: 0.35rem;
   border-radius: 0.85rem;
-  border: 1px solid $border;
+  border: 1px solid var(--border-subtle);
   gap: 0.5rem;
 
   .nav-btn {
-    @include flex-center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 34px;
     height: 34px;
     border: none;
     background: transparent;
-    color: $text-muted;
+    color: var(--text-subtle);
     border-radius: 0.6rem;
     cursor: pointer;
-    transition: all 0.2s $ease;
+    transition: all 0.2s ease;
     font-size: 1.1rem;
 
     &:hover:not(:disabled) {
-      background: $accent;
-      color: $bg-main;
+      background: var(--accent);
+      color: var(--bg-main);
     }
 
     &:disabled {
@@ -75,7 +80,8 @@
     .date-label {
       font-size: 0.9rem;
       font-weight: 700;
-      color: $text-main;
+      color: var(--text-main);
+
       &::after {
         content: '▾';
         margin-left: 6px;
@@ -93,15 +99,19 @@
   }
 }
 
-// --- Timeline (График активности) ---
+/* --- Timeline (фон + сетка) --- */
 .timeline-wrapper {
   position: relative;
-  background: linear-gradient(to bottom, rgba($bg-main, 0.6), rgba($bg-main, 0.3));
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--bg-main-rgb), 0.6),
+    rgba(var(--bg-main-rgb), 0.3)
+  );
   height: 80px;
   border-radius: 0.75rem;
-  border: 1px solid $border;
-  margin-bottom: 4rem; // Место для подписей часов под шкалой
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 4rem;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.25);
 }
 
 .timeline-grid {
@@ -113,9 +123,12 @@
 
   .hour-cell {
     flex: 1;
-    border-right: 1px solid rgba($border, 0.2);
+    border-right: 1px solid var(--border-subtle);
     position: relative;
-    &:last-child { border-right: none; }
+
+    &:last-child {
+      border-right: none;
+    }
 
     .hour-label {
       position: absolute;
@@ -124,7 +137,7 @@
       width: 100%;
       text-align: center;
       font-size: 0.7rem;
-      color: $text-muted;
+      color: var(--text-subtle);
       font-weight: 600;
       font-family: 'JetBrains Mono', monospace;
     }
@@ -138,7 +151,7 @@
   pointer-events: none;
 }
 
-// --- Сегменты задач ---
+/* --- Сегменты задач --- */
 .task-segment {
   position: absolute;
   top: 50%;
@@ -146,16 +159,16 @@
   height: 36px;
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.2s $ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255,255,255,0.1);
   pointer-events: auto;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
 
   &:hover {
     height: 48px;
     z-index: 100;
     filter: brightness(1.2) saturate(1.1);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.45);
 
     .task-tooltip {
       opacity: 1;
@@ -167,8 +180,8 @@
   &.highlighted {
     height: 52px;
     z-index: 50;
-    border: 1.5px solid white;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    border: 1.5px solid var(--accent);
+    box-shadow: 0 0 15px var(--accent-soft);
   }
 
   &.dimmed {
@@ -176,28 +189,28 @@
     filter: grayscale(0.5);
   }
 
-  // Тултип
+  /* --- Tooltip --- */
   .task-tooltip {
     position: absolute;
     bottom: 100%;
     left: 50%;
     transform: translate(-50%, 0) scale(0.9);
-    background: #1e293b;
-    color: white;
+    background: var(--bg-elevated);
+    color: var(--text-main);
     padding: 0.6rem 0.9rem;
     border-radius: 0.6rem;
     font-size: 0.75rem;
     white-space: nowrap;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.2s $ease;
-    border: 1px solid $border;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-strong);
     pointer-events: none;
 
     strong {
       display: block;
-      color: $accent;
+      color: var(--accent);
       margin-bottom: 2px;
     }
 
@@ -209,41 +222,47 @@
     &::after {
       content: '';
       position: absolute;
-      top: 100%; left: 50%;
+      top: 100%;
+      left: 50%;
       transform: translateX(-50%);
       border: 6px solid transparent;
-      border-top-color: $border;
+      border-top-color: var(--border-subtle);
     }
   }
 }
 
-// --- Маркер текущего времени ---
+/* --- Маркер текущего времени --- */
 .now-marker {
   position: absolute;
-  top: -5px; bottom: -5px;
+  top: -5px;
+  bottom: -5px;
   width: 2px;
-  background: $danger;
+  background: var(--danger);
   z-index: 30;
   pointer-events: none;
 
   &::after {
     content: '';
     position: absolute;
-    top: -2px; left: -4px;
-    width: 10px; height: 10px;
+    top: -2px;
+    left: -4px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background: $danger;
-    box-shadow: 0 0 10px $danger;
+    background: var(--danger);
+    box-shadow: 0 0 10px var(--danger);
   }
 }
 
-// --- Состояния ---
+/* --- Loading overlay --- */
 .loading-overlay {
   position: absolute;
   inset: 0;
   z-index: 100;
-  @include flex-center;
-  background: rgba($bg-card, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--bg-card-rgb), 0.85);
   backdrop-filter: blur(8px);
   border-radius: 1.5rem;
 }

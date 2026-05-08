@@ -1,27 +1,25 @@
-/* main-layout.scss */
-@use "sass:color";
-
 .layout-wrapper {
   display: flex;
   width: 100%;
   height: 100vh;
   overflow: hidden;
+  background: var(--bg-main);
+  color: var(--text-main);
 
-  // Правая часть
   .main-container {
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-width: 0; // Критично, чтобы хедер не схлопывался
+    min-width: 0;
     height: 100%;
   }
 
   .header-area {
     width: 100%;
     height: 64px;
-    background-color: #1e293b;
-    border-bottom: 1px solid #334155;
-    flex-shrink: 0; // Не дает хедеру уменьшаться по высоте
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
     display: flex;
     align-items: center;
   }
@@ -30,15 +28,15 @@
     flex: 1;
     padding: 24px;
     overflow-y: auto;
-    background-color: #0f172a;
+    background-color: var(--bg-main);
   }
 
-  // Центрирование для логина/регистрации
   &.auth-mode {
     .main-container {
       align-items: center;
       justify-content: center;
     }
+
     .content-area {
       display: flex;
       align-items: center;

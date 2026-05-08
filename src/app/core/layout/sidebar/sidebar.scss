@@ -1,10 +1,10 @@
-@use "../../../app.scss" as *;
+@use "../../../../app/app.scss" as app;
 
 :host {
   display: block;
   height: 100%;
   width: 260px;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.3s var(--ease);
 
   &.collapsed {
     width: 70px;
@@ -12,11 +12,11 @@
 }
 
 nav {
-  background: $bg-card;
+  background: var(--bg-card);
   height: 100%;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid $border;
+  border-right: 1px solid var(--border);
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -27,13 +27,13 @@ nav {
   justify-content: center;
   padding: 1.25rem;
   min-height: 64px;
-  border-bottom: 1px solid $border;
+  border-bottom: 1px solid var(--border);
 }
 
 .logo {
   font-size: 1.25rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #fff, $accent);
+  background: linear-gradient(135deg, #fff, var(--accent));
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
@@ -41,7 +41,7 @@ nav {
 }
 
 .toggle-btn {
-  background: $border;
+  background: var(--border);
   border: none;
   cursor: pointer;
   width: 32px;
@@ -61,12 +61,11 @@ nav {
     background: #475569;
 
     svg {
-      stroke: $accent;
+      stroke: var(--accent);
     }
   }
 }
 
-/* ✅ Стрелка поворачивается когда сайдбар СВЁРНУТ (isCollapsed = true) */
 svg.rotated {
   transform: rotate(180deg);
 }
@@ -87,17 +86,18 @@ a {
   gap: 0.75rem;
   padding: 0.625rem 0.75rem;
   border-radius: 0.5rem;
-  color: $text-muted;
+  color: var(--text-muted);
   text-decoration: none;
   transition: all 0.2s;
   white-space: nowrap;
 
-  &:hover, &.active {
-    background: $border;
-    color: $text-main;
+  &:hover,
+  &.active {
+    background: var(--border);
+    color: var(--text-main);
 
     .icon {
-      color: $accent;
+      color: var(--accent);
     }
   }
 }
@@ -108,7 +108,7 @@ a {
   justify-content: center;
   width: 24px;
   height: 24px;
-  color: $text-muted;
+  color: var(--text-muted);
   transition: color 0.2s;
 
   i.material-icons {
@@ -120,7 +120,6 @@ a {
   transition: opacity 0.2s;
 }
 
-/* Collapsed state */
 nav.collapsed {
   .text {
     opacity: 0;
@@ -147,10 +146,10 @@ nav::-webkit-scrollbar {
 }
 
 nav::-webkit-scrollbar-track {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 nav::-webkit-scrollbar-thumb {
-  background: $border;
+  background: var(--border);
   border-radius: 4px;
 }
