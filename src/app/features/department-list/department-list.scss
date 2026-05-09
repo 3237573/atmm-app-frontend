@@ -64,14 +64,16 @@
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
   background: var(--bg-card);
-  border: 1px solid var(--border);
-  transition: all 0.2s ease;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
 
   &:hover {
+    transform: translateX(-1px);
+    box-shadow: var(--shadow-strong);
     background: var(--bg-elevated);
     border-color: var(--accent);
-    transform: translateX(4px);
 
     .node-actions {
       opacity: 1;

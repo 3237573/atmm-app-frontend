@@ -5,6 +5,7 @@ import {RoleManager} from '../../features/admin/role-manager/role-manager';
 import {MembersAdmin} from '../../features/admin/members-admin/members-admin';
 import {CompanyProfile} from '../../features/admin/company-profile/company-profile';
 import {TrackerAdmin} from '../../features/admin/tracker-admin/tracker-admin';
+import {BackOnEscapeDirective} from '../../core/services/navigation/back-on-escape';
 
 type TabId = 'profile' | 'members' | 'roles' | 'permissions' | 'tracker';
 
@@ -17,7 +18,7 @@ interface ITab {
 @Component({
   selector: 'app-admin-page',
   standalone: true,
-  imports: [CommonModule, PermissionManager, RoleManager, MembersAdmin, CompanyProfile, TrackerAdmin],
+  imports: [CommonModule, PermissionManager, RoleManager, MembersAdmin, CompanyProfile, TrackerAdmin, BackOnEscapeDirective],
   templateUrl: './admin-page.html',
   styleUrls: ['./admin-page.scss']
 })

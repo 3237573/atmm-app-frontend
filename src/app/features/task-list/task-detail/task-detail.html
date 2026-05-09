@@ -1,5 +1,4 @@
-<div class="task-detail">
-  <!-- Header: только кнопка назад -->
+<div class="task-detail"  appBackOnEscape>
   <div class="page-header">
     <button class="btn-back" (click)="goBack()">
       <i class="material-icons">arrow_back</i>
@@ -13,7 +12,6 @@
       <span>Загрузка задачи...</span>
     </div>
   } @else if (task(); as task) {
-    <!-- Статус-бар: статус+приоритет слева, кнопки справа -->
     <div class="status-bar">
       <div class="status-left">
         <div class="status-selector">

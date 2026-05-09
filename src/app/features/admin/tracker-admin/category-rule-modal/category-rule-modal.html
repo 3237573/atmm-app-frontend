@@ -1,4 +1,4 @@
-<div class="modal-overlay" (click)="close.emit()" *transloco="let t">
+<div class="modal-overlay" (click)="close.emit()" *transloco="let t" appBackOnEscape>
   <div class="modal-content rule-modal" (click)="$event.stopPropagation()">
     <div class="modal-header-with-icon">
       <i class="material-icons" style="color: #3b82f6">filter_alt</i>

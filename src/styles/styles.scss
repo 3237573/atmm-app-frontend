@@ -1,60 +1,83 @@
-// /src/styles.scss
-@use "../app/app.scss" as app;
-@use "legacy-vars";
-
 /* ============================================================
    DESIGN TOKENS — GLOBAL CSS VARIABLES
    ============================================================ */
+
 :root {
-  /* === Base Dark Palette === */
-  --bg-main: #0f1117;      /* глубокий, но не черный */
-  --bg-card: #1a1d25;      /* чуть светлее для карточек */
-  --bg-elevated: #222632;  /* всплывающие элементы */
-  --bg-soft: #1c1f27;      /* мягкие панели */
+  /* === LIGHT MODE (Default) === */
+  --bg-main: #f1f5f9;      /* Светлый фон страницы */
+  --bg-card: #ffffff;      /* Белые карточки */
+  --bg-elevated: #e2e8f0;  /* Чуть темнее для выделения */
+  --bg-soft: #f8fafc;
 
-  --border: #2a2f3a;       /* нейтральная граница */
-  --border-subtle: rgba(255,255,255,0.06);
-  --border-strong: rgba(255,255,255,0.12);
+  --border: #e2e8f0;       /* Тонкая серая граница */
+  --border-subtle: rgba(0, 0, 0, 0.05);
+  --border-strong: rgba(0, 0, 0, 0.1);
 
-  --text-main: #f3f4f6;    /* чистый белый, но не ядовитый */
-  --text-muted: #9ca3af;   /* серый для второстепенного */
-  --text-subtle: rgba(156,163,175,0.6);
+  --text-main: #334155;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
 
-  /* === Accent Colors === */
-  --accent: #3b82f6;       /* насыщенный синий */
-  --accent-rgb: 59,130,246;
-  --accent-soft: rgba(var(--accent-rgb), 0.12);
-  --accent-hover: rgba(var(--accent-rgb), 0.18);
-  --accent-strong: rgba(var(--accent-rgb), 0.35);
+  /* Accent Colors */
+  --accent: #4f46e5;
+  --accent-rgb: 79, 70, 229;
+  --accent-soft: rgba(var(--accent-rgb), 0.08);
+  --accent-hover: rgba(var(--accent-rgb), 0.12);
+  --accent-strong: rgba(var(--accent-rgb), 0.25);
 
-  /* === Semantic Colors === */
+  /* Semantic */
   --success: #22c55e;
-  --success-rgb: 34,197,94;
-
   --warning: #f59e0b;
-  --warning-rgb: 245,158,11;
-
   --danger: #ef4444;
-  --danger-rgb: 239,68,68;
 
-  /* === Shadows === */
-  --shadow-soft: 0 2px 6px rgba(0,0,0,0.35);
-  --shadow-strong: 0 4px 14px rgba(0,0,0,0.45);
+  --shadow-soft: 0 2px 12px -2px rgba(51, 65, 85, 0.08), 0 4px 6px -2px rgba(51, 65, 85, 0.04);
+  --shadow-strong: 0 20px 25px -5px rgba(51, 65, 85, 0.1), 0 10px 10px -5px rgba(51, 65, 85, 0.04);
 
-  /* === Role Colors === */
-  --role-owner-bg: #2a1e12;
-  --role-owner-color: #f97316;
-
-  --role-admin-bg: #11223b;
-  --role-admin-color: #3b82f6;
-
-  --role-member-bg: #102a1c;
-  --role-member-color: #22c55e;
-
-  --role-guest-bg: #2a2a30;
-  --role-guest-color: #a1a1aa;
+  /* Роли сотрудников: приглушаем цвета, чтобы они не кричали */
+  --role-owner-bg: #fef3c7;
+  --role-owner-color: #b45309;
+  --role-admin-bg: #e0e7ff;
+  --role-admin-color: #4338ca;
+  --role-member-bg: #dcfce7;
+  --role-member-color: #15803d;
+  --role-guest-bg: #f1f5f9;
+  --role-guest-color: #475569;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* === DARK MODE OVERRIDES === */
+    --bg-main: #0f1117;
+    --bg-card: #1a1d25;
+    --bg-elevated: #222632;
+    --bg-soft: #1c1f27;
+
+    --border: #2a2f3a;
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-strong: rgba(255, 255, 255, 0.12);
+
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+    --text-subtle: rgba(156, 163, 175, 0.6);
+
+    --accent: #60a5fa; /* Делаем синий чуть светлее для контраста на черном */
+    --accent-soft: rgba(var(--accent-rgb), 0.15);
+    --accent-hover: rgba(var(--accent-rgb), 0.22);
+    --accent-strong: rgba(var(--accent-rgb), 0.4);
+
+    --shadow-soft: 0 4px 10px rgba(0, 0, 0, 0.4);
+    --shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+    /* Role Colors (Dark) */
+    --role-owner-bg: #2a1e12;
+    --role-owner-color: #f97316;
+    --role-admin-bg: #11223b;
+    --role-admin-color: #3b82f6;
+    --role-member-bg: #102a1c;
+    --role-member-color: #22c55e;
+    --role-guest-bg: #2a2a30;
+    --role-guest-color: #a1a1aa;
+  }
+}
 
 /* ============================================================
    GLOBAL RESET & BASE
@@ -71,6 +94,8 @@ body {
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* Плавный переход при смене темы */
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 html, body {

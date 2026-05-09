@@ -3,27 +3,23 @@ import { Router, RouterModule } from '@angular/router';
 import { Component, computed, HostListener, inject, OnInit, signal } from '@angular/core';
 import { DepartmentService } from '../../core/services/departament/departament.service';
 import { DepartmentRO } from '../../core/models/departament.model';
+import {BackOnEscapeDirective} from '../../core/services/navigation/back-on-escape';
 
 @Component({
   selector: 'app-department-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, BackOnEscapeDirective],
   templateUrl: './department-list.html',
   styleUrl: './department-list.scss'
 })
 export class DepartmentList implements OnInit {
   private readonly deptService = inject(DepartmentService);
-  private readonly location = inject(Location);
-  private readonly router = inject(Router);
 
   private readonly rawDepartments = signal<DepartmentRO[]>([]);
   loading = signal(true);
 
   // Сигнал для хранения ID развернутых узлов
   expandedNodes = signal<Set<string>>(new Set());
-
-  @HostListener('document:keydown.escape')
-  onEscape() { this.goBack(); }
 
   departmentTree = computed(() => {
     const list = this.rawDepartments();
@@ -69,7 +65,4 @@ export class DepartmentList implements OnInit {
     this.expandedNodes.set(newSet);
   }
 
-  goBack() {
-    this.location.back();
-  }
 }

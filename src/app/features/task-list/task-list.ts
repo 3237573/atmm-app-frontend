@@ -5,18 +5,17 @@ import {Router, RouterModule} from '@angular/router';
 import { TaskService } from '../../core/services/task/task.service';
 import { TaskTreeRO, TaskRO } from '../../core/models/task/task.model';
 import { AuthService } from '../../core/services/auth/auth.service';
+import {BackOnEscapeDirective} from '../../core/services/navigation/back-on-escape';
 
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, BackOnEscapeDirective],
   templateUrl: './task-list.html',
   styleUrl: './task-list.scss'
 })
 export class TaskList implements OnInit {
   private readonly authService = inject(AuthService);
-  private readonly location = inject(Location);
-  private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
 
   currentUser = this.authService.currentUser;
@@ -29,9 +28,6 @@ export class TaskList implements OnInit {
   searchQuery = signal('');
   selectedStatus = signal<string>('');
   selectedPriority = signal<string>('');
-
-  @HostListener('document:keydown.escape')
-  onEscape() { this.goBack(); }
 
   // Преобразуем деревья в плоский список для статистики и фильтрации
   flatTasks = computed(() => {
@@ -210,11 +206,4 @@ export class TaskList implements OnInit {
     return level;
   }
 
-  goBack(): void {
-    if (window.history.length > 1) {
-      this.location.back();
-    } else {
-      this.router.navigate(['/tasks']);
-    }
-  }
 }

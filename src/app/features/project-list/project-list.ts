@@ -1,26 +1,25 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { ProjectService } from '../../core/services/project/project.service';
-import { ProjectRO } from '../../core/models/project.model';
+import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RouterModule} from '@angular/router';
+import {ProjectService} from '../../core/services/project/project.service';
+import {ProjectRO} from '../../core/models/project.model';
+import {BackOnEscapeDirective} from '../../core/services/navigation/back-on-escape';
 
 @Component({
   selector: 'app-project-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, BackOnEscapeDirective],
   templateUrl: './project-list.html',
   styleUrl: './project-list.scss'
 })
 export class ProjectList implements OnInit {
   private readonly projectService = inject(ProjectService);
 
-  // Храним сырой ответ от бэкенда
   private readonly rawProjects = signal<ProjectRO[]>([]);
 
   loading = signal(true);
   expandedNodes = signal<Set<string>>(new Set());
 
-  // Собираем дерево на лету для корректного отображения иерархии
   projectTree = computed(() => {
     const list = this.rawProjects();
     const map = new Map<string | null, ProjectRO[]>();
@@ -64,4 +63,5 @@ export class ProjectList implements OnInit {
     if (newSet.has(id)) newSet.delete(id); else newSet.add(id);
     this.expandedNodes.set(newSet);
   }
+
 }

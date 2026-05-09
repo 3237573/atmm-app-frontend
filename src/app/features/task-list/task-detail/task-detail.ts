@@ -8,20 +8,20 @@ import {TaskPriority, TaskRO, TaskStatus, TaskTreeRO} from '../../../core/models
 import {TaskComments} from './task-comments/task-comments';
 import {AssigneeManager} from './assignee-manager/assignee-manager';
 import {SubtaskTreeComponent} from './subtask-tree';
-
-
+import {BackOnEscapeDirective} from '../../../core/services/navigation/back-on-escape';
+import {NavigationService} from '../../../core/services/navigation/navigation.service';
 
 @Component({
   selector: 'app-task-detail',
   standalone: true,
   // ДОБАВИЛИ SubtaskTreeComponent в imports
-  imports: [CommonModule, FormsModule, RouterModule, TaskComments, AssigneeManager, SubtaskTreeComponent],
+  imports: [CommonModule, FormsModule, RouterModule, TaskComments, AssigneeManager, SubtaskTreeComponent, BackOnEscapeDirective],
   templateUrl: './task-detail.html',
   styleUrl: './task-detail.scss'
 })
 export class TaskDetail implements OnInit {
   private readonly authService = inject(AuthService);
-  private readonly location = inject(Location);
+  private readonly navService = inject(NavigationService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
@@ -53,9 +53,6 @@ export class TaskDetail implements OnInit {
       }
     });
   }
-
-  @HostListener('document:keydown.escape')
-  onEscape() { this.goBack(); }
 
   // ========== TASK CRUD ==========
   loadTaskData(id: string): void {
@@ -234,11 +231,8 @@ export class TaskDetail implements OnInit {
     const year = date.getFullYear();
     return `${day}.${month}.${year}`;
   }
-  goBack(): void {
-    if (window.history.length > 1) {
-      this.location.back();
-    } else {
-      this.router.navigate(['/tasks']);
-    }
+
+  goBack() {
+    this.navService.back('/tasks');
   }
 }

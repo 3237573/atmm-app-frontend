@@ -1,4 +1,4 @@
-<div class="modal-overlay" (click)="close.emit()" *transloco="let t">
+<div class="modal-overlay" (click)="close.emit()" *transloco="let t" appBackOnEscape>
   <div class="modal-content" (click)="$event.stopPropagation()" [formGroup]="categoryForm">
     <h3>{{ category() ? t('tracker.category.edit') : t('tracker.category.new') }}</h3>
 

@@ -8,6 +8,7 @@ import {AppStatDTO} from '../../core/models/activity.model';
 import {ActivityDetail} from './activity-detail/activity-detail';
 import {TrackerAnalytics} from './tracker-analytics/tracker-analytics';
 import {TranslocoPipe} from '@ngneat/transloco';
+import {BackOnEscapeDirective} from '../../core/services/navigation/back-on-escape';
 
 export interface UserActivityReportV2 {
   userId: string;
@@ -21,7 +22,7 @@ export interface UserActivityReportV2 {
 @Component({
   selector: 'app-tracker',
   standalone: true,
-  imports: [CommonModule, ActivityDetail, TrackerAnalytics, TranslocoPipe],
+  imports: [CommonModule, ActivityDetail, TrackerAnalytics, TranslocoPipe, BackOnEscapeDirective],
   templateUrl: './tracker.html',
   styleUrl: './tracker.scss'
 })

@@ -6,11 +6,12 @@ import {CompanyService} from '../../../core/services/company/company.service';
 import {finalize, Subject, takeUntil} from 'rxjs';
 import {AuthService} from '../../../core/services/auth/auth.service';
 import {Clipboard, ClipboardModule} from '@angular/cdk/clipboard';
+import {BackOnEscapeDirective} from '../../../core/services/navigation/back-on-escape';
 
 @Component({
   selector: 'app-company-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, ClipboardModule],
+  imports: [CommonModule, FormsModule, ClipboardModule, BackOnEscapeDirective],
   templateUrl: './company-profile.html',
   styleUrls: ['./company-profile.scss'],
 })

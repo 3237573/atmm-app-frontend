@@ -8,20 +8,23 @@ import { MemberService } from '../../../core/services';
 import { MemberResponse } from '../../../core/models/member.model';
 import { DepartmentService } from '../../../core/services/departament/departament.service';
 import { DepartmentRO } from '../../../core/models/departament.model';
+import {NavigationService} from '../../../core/services/navigation/navigation.service';
+import {BackOnEscapeDirective} from '../../../core/services/navigation/back-on-escape';
 
 @Component({
   selector: 'app-department-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, BackOnEscapeDirective],
   templateUrl: './department-detail.html',
   styleUrl: './department-detail.scss'
 })
 export class DepartmentDetail implements OnInit {
+  private readonly deptService = inject(DepartmentService);
+  private readonly navService = inject(NavigationService);
+  private readonly memberService = inject(MemberService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly deptService = inject(DepartmentService);
-  private readonly location = inject(Location);
-  private readonly memberService = inject(MemberService);
+
 
   allMembers = signal<MemberResponse[]>([]);
   allDepartments = signal<DepartmentRO[]>([]);
@@ -31,9 +34,6 @@ export class DepartmentDetail implements OnInit {
   loading = signal(true);
   showHeadModal = signal(false);
   showAddMemberModal = signal(false);
-
-  @HostListener('document:keydown.escape')
-  onEscape() { this.goBack(); }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -159,11 +159,7 @@ export class DepartmentDetail implements OnInit {
   }
 
   goBack(): void {
-    if (window.history.length > 1) {
-      this.location.back();
-    } else {
-      this.router.navigate(['/departments']);
-    }
+    this.navService.back('/departments');
   }
 
   updateRole(membershipId: string, newRole: string) {

@@ -1,11 +1,12 @@
 import {Component, HostListener, input, output} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {TranslocoModule} from '@ngneat/transloco';
+import {BackOnEscapeDirective} from '../../../../core/services/navigation/back-on-escape';
 
 @Component({
   selector: 'app-category-rule-modal',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslocoModule],
+  imports: [ReactiveFormsModule, TranslocoModule, BackOnEscapeDirective],
   templateUrl: './category-rule-modal.html',
   styleUrls: ['../tracker-admin.scss']
 })

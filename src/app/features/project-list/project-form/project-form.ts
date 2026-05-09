@@ -1,14 +1,15 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {Component, OnInit, inject, signal, HostListener} from '@angular/core';
+import {CommonModule, Location} from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ProjectService } from '../../../core/services/project/project.service';
 import { ProjectRO } from '../../../core/models/project.model';
+import {BackOnEscapeDirective} from '../../../core/services/navigation/back-on-escape';
 
 @Component({
   selector: 'app-project-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, BackOnEscapeDirective],
   templateUrl: './project-form.html',
   styleUrl: './project-form.scss'
 })
@@ -82,4 +83,5 @@ export class ProjectForm implements OnInit {
   onCancel() {
     this.router.navigate(['/projects']);
   }
+
 }
