@@ -19,6 +19,9 @@ export class DepartmentList implements OnInit {
   private readonly rawDepartments = signal<DepartmentRO[]>([]);
   loading = signal(true);
 
+  // Сигнал для хранения ID развернутых узлов
+  expandedNodes = signal<Set<string>>(new Set());
+
   @HostListener('document:keydown.escape')
   onEscape() { this.goBack(); }
 
@@ -57,11 +60,16 @@ export class DepartmentList implements OnInit {
     });
   }
 
-  goBack(): void {
-    if (window.history.length > 1) {
-      this.location.back();
-    } else {
-      this.router.navigate(['/tracker']);
-    }
+  // Метод для сворачивания/разворачивания
+  toggleNode(id: string, event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const newSet = new Set(this.expandedNodes());
+    if (newSet.has(id)) newSet.delete(id); else newSet.add(id);
+    this.expandedNodes.set(newSet);
+  }
+
+  goBack() {
+    this.location.back();
   }
 }

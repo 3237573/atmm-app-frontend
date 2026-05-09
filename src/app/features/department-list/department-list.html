@@ -23,23 +23,36 @@
     @for (node of nodes; track node.id) {
       <li class="tree-node">
         <div class="node-content" [routerLink]="['/departments', node.id]">
-          <i class="material-icons node-icon">
-            {{ node.childDepartments?.length ? 'domain' : 'corporate_fare' }}
-          </i>
 
-          <div class="node-info">
-            <span class="node-name">{{ node.name }}: {{ node.employeeCount }}</span>
-            @if (node.headMembershipId) {
-              <span class="node-meta">Руководитель назначен</span>
+          <div class="node-main">
+            @if (node.childDepartments?.length) {
+              <i class="material-icons node-toggle"
+                 [class.open]="expandedNodes().has(node.id)"
+                 (click)="toggleNode(node.id, $event)">chevron_right</i>
+            } @else {
+              <span class="node-spacer"></span>
             }
+
+            <i class="material-icons node-icon">
+              {{ node.childDepartments?.length ? 'domain' : 'corporate_fare' }}
+            </i>
+
+            <div class="node-info">
+              <span class="node-name">{{ node.name }} <span class="badge-count">{{ node.employeeCount || 0 }}</span></span>
+              @if (node.headMembershipId) {
+                <span class="node-meta">Руководитель назначен</span>
+              } @else {
+                <span class="node-meta muted">Нет руководителя</span>
+              }
+            </div>
           </div>
 
-          <div class="node-actions icon-btn">
-            <i class="material-icons">edit</i>
+          <div class="node-actions icon-btn" (click)="$event.preventDefault(); $event.stopPropagation()">
+            <i class="material-icons">more_vert</i>
           </div>
         </div>
 
-        @if (node.childDepartments?.length) {
+        @if (node.childDepartments?.length && expandedNodes().has(node.id)) {
           <ng-container *ngTemplateOutlet="recursiveTree; context: { $implicit: node.childDepartments }"></ng-container>
         }
       </li>
