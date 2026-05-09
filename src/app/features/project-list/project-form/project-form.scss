@@ -1,0 +1,121 @@
+.form-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 1rem;
+  background: var(--bg-main);
+  min-height: calc(100vh - 64px);
+}
+
+.form-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 640px;
+  padding: 2.5rem;
+  box-shadow: var(--shadow-strong);
+  transition: opacity 0.3s;
+
+  &.loading { opacity: 0.7; pointer-events: none; }
+}
+
+.form-header {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+
+  .icon-box {
+    width: 56px;
+    height: 56px;
+    background: rgba(var(--accent-rgb), 0.1);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    i { font-size: 28px; }
+  }
+
+  .title-group {
+    h2 { margin: 0; font-size: 1.5rem; color: var(--text-main); }
+    p { margin: 4px 0 0; color: var(--text-muted); font-size: 0.95rem; }
+  }
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    span { color: #f44336; }
+  }
+
+  input, textarea, select {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    color: var(--text-main);
+    font-size: 1rem;
+    transition: all 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--bg-card);
+      box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.1);
+    }
+  }
+
+  &.error {
+    input { border-color: #f44336; }
+    .error-hint { color: #f44336; font-size: 0.75rem; margin-top: 4px; }
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: 1.5rem;
+  .half { flex: 1; }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+// Кнопки и спиннер (убедись, что они есть в глобальных стилях)
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  padding: 0.8rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  &:hover { background: var(--bg-soft); }
+}

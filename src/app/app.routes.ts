@@ -1,28 +1,38 @@
-import {Routes} from '@angular/router';
-import {authGuard} from './core/guards/auth.guard';
-import {Login} from './core/auth/login/login';
-import {Register} from './core/auth/register/register';
-import {Tracker} from './pages/tracker/tracker';
-import {MainLayout} from './core/layout/main-layout/main-layout';
-import {AdminPage} from './pages/admin-page/admin-page';
-import {MembersList} from './features/members-list/members-list';
-import {TaskList} from './features/task-list/task-list';
-import {TaskCreate} from './features/task-list/task-create/task-create';
-import {TaskDetail} from './features/task-list/task-detail/task-detail';
-import {UnsavedChangesGuard} from './core/interceptors/unsaved-changes.guard';
-import {DepartmentDetail} from './features/department-list/department-detail/department-detail';
-import {DepartmentList} from './features/department-list/department-list';
+import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
+import { Login } from './core/auth/login/login';
+import { Register } from './core/auth/register/register';
+import { Tracker } from './pages/tracker/tracker';
+import { MainLayout } from './core/layout/main-layout/main-layout';
+import { AdminPage } from './pages/admin-page/admin-page';
+import { MembersList } from './features/members-list/members-list';
+import { TaskList } from './features/task-list/task-list';
+import { TaskCreate } from './features/task-list/task-create/task-create';
+import { TaskDetail } from './features/task-list/task-detail/task-detail';
+import { UnsavedChangesGuard } from './core/interceptors/unsaved-changes.guard';
+import { DepartmentDetail } from './features/department-list/department-detail/department-detail';
+import { DepartmentList } from './features/department-list/department-list';
+import { ProjectList } from './features/project-list/project-list';
+import { ProjectForm } from './features/project-list/project-form/project-form';
 
 export const routes: Routes = [
-  {path: 'login', component: Login, title: 'Вход'},
-  {path: 'register', component: Register, title: 'Регистрация'},
+  { path: 'login', component: Login, title: 'Вход' },
+  { path: 'register', component: Register, title: 'Регистрация' },
   {
     path: '',
     component: MainLayout,
     canActivate: [authGuard],
     children: [
-      {path: 'tracker', component: Tracker, title: 'Трекер'},
-      {path: 'members', component: MembersList, title: 'Участники'},
+      { path: 'tracker', component: Tracker, title: 'Трекер' },
+      { path: 'members', component: MembersList, title: 'Участники' },
+      {
+        path: 'projects',
+        children: [
+          { path: '', component: ProjectList, title: 'Проекты' },
+          { path: 'create', component: ProjectForm, title: 'Новый проект' },
+          { path: 'edit/:id', component: ProjectForm, title: 'Редактирование проекта' }
+        ]
+      },
       {
         path: 'departments',
         children: [
@@ -40,19 +50,18 @@ export const routes: Routes = [
       {
         path: 'tasks',
         children: [
-          {path: '', component: TaskList, title: 'Задачи'},
-          {path: 'create', component: TaskCreate, title: 'Создать задачу', canDeactivate: [UnsavedChangesGuard]},
-          {path: ':id', component: TaskDetail, title: 'Детали задачи', canDeactivate: [UnsavedChangesGuard]}
+          { path: '', component: TaskList, title: 'Задачи' },
+          { path: 'create', component: TaskCreate, title: 'Создать задачу', canDeactivate: [UnsavedChangesGuard] },
+          { path: ':id', component: TaskDetail, title: 'Детали задачи', canDeactivate: [UnsavedChangesGuard] }
         ]
       },
       {
         path: 'admin',
         component: AdminPage,
-        title: 'Администрирование',
-        canActivate: [authGuard]  // можно заменить на adminGuard при необходимости
+        title: 'Администрирование'
       },
-      {path: '', redirectTo: 'tracker', pathMatch: 'full'}
+      { path: '', redirectTo: 'tracker', pathMatch: 'full' }
     ]
   },
-  // {path: '**', redirectTo: '/login'}
+  { path: '**', redirectTo: 'tracker' }
 ];

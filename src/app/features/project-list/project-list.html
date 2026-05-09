@@ -1,0 +1,57 @@
+<div class="project-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h1><i class="material-icons">folder_copy</i> Проекты</h1>
+      <p>Иерархическая структура и подпроекты</p>
+    </div>
+    <button class="btn-primary" [routerLink]="['/projects/create']">
+      <i class="material-icons">add</i> Создать проект
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loader">Синхронизация с базой...</div>
+  } @else {
+    <div class="tree-root">
+      <ng-container *ngTemplateOutlet="recursiveTree; context: { $implicit: projectTree() }"></ng-container>
+    </div>
+  }
+</div>
+
+<ng-template #recursiveTree let-nodes>
+  <ul class="tree-branch">
+    @for (project of nodes; track project.id) {
+      <li class="tree-node">
+
+        <div class="node-content" [routerLink]="['/projects/edit', project.id]">
+          <div class="node-main">
+            @if (project.subProjects?.length) {
+              <i class="material-icons node-toggle"
+                 [class.open]="expandedNodes().has(project.id)"
+                 (click)="toggleNode(project.id, $event)">chevron_right</i>
+            } @else {
+              <span class="node-spacer"></span>
+            }
+
+            <i class="material-icons node-icon">rocket_launch</i>
+
+            <div class="node-info">
+              <span class="node-name">{{ project.title }}</span>
+              <span class="node-meta">
+                <span class="status-badge" [attr.data-status]="project.status">{{ project.status }}</span> • {{ project.members?.length || 0 }} чел.
+              </span>
+            </div>
+          </div>
+
+          <div class="node-actions">
+            <button class="icon-btn" (click)="$event.preventDefault(); $event.stopPropagation()"><i class="material-icons">more_vert</i></button>
+          </div>
+        </div>
+
+        @if (project.subProjects?.length && expandedNodes().has(project.id)) {
+          <ng-container *ngTemplateOutlet="recursiveTree; context: { $implicit: project.subProjects }"></ng-container>
+        }
+      </li>
+    }
+  </ul>
+</ng-template>

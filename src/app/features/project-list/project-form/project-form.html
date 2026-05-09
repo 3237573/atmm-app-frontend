@@ -1,0 +1,67 @@
+<div class="form-wrapper">
+  <div class="form-container" [class.loading]="loading()">
+
+    <header class="form-header">
+      <div class="icon-box">
+        <i class="material-icons">{{ isEditMode() ? 'edit' : 'rocket_launch' }}</i>
+      </div>
+      <div class="title-group">
+        <h2>{{ isEditMode() ? 'Редактирование проекта' : 'Создание проекта' }}</h2>
+        <p>{{ isEditMode() ? 'Обновите параметры и статус проекта' : 'Заполните данные для нового рабочего пространства' }}</p>
+      </div>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+      <div class="form-group" [class.error]="form.get('title')?.invalid && form.get('title')?.touched">
+        <label>Название проекта <span>*</span></label>
+        <div class="input-wrapper">
+          <input type="text" formControlName="title" placeholder="Напр: Редизайн мобильного приложения">
+          @if (form.get('title')?.invalid && form.get('title')?.touched) {
+            <span class="error-hint">Минимум 3 символа</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Описание</label>
+        <textarea formControlName="description" rows="4" placeholder="Краткое описание целей и задач..."></textarea>
+      </div>
+
+      <div class="form-row">
+        @if (isEditMode()) {
+          <div class="form-group half">
+            <label>Статус</label>
+            <select formControlName="status">
+              <option value="ACTIVE">Активен</option>
+              <option value="DRAFT">Черновик</option>
+              <option value="ARCHIVED">Архив</option>
+            </select>
+          </div>
+        }
+
+        <div class="form-group" [class.half]="isEditMode()">
+          <label>Родительский проект</label>
+          <select formControlName="parentProjectId">
+            <option [ngValue]="null">Корневой уровень</option>
+            @for (p of projects(); track p.id) {
+              @if (p.id !== currentId()) {
+                <option [value]="p.id">{{ p.title }}</option>
+              }
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="onCancel()" [disabled]="loading()">
+          Отмена
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || loading()">
+          @if (loading()) { <span class="spinner"></span> }
+          {{ isEditMode() ? 'Сохранить изменения' : 'Создать проект' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
