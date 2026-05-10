@@ -1,38 +1,31 @@
 /* ============================================================
-   DESIGN TOKENS — GLOBAL CSS VARIABLES
+   1. ИМПОРТЫ
    ============================================================ */
+// Используем относительный путь с точкой!
+@use './ui-components';
 
+/* ============================================================
+   2. CSS ПЕРЕМЕННЫЕ (THEMING)
+   ============================================================ */
 :root {
-  /* === LIGHT MODE (Default) === */
-  --bg-main: #f1f5f9;      /* Светлый фон страницы */
-  --bg-card: #ffffff;      /* Белые карточки */
-  --bg-elevated: #e2e8f0;  /* Чуть темнее для выделения */
+  /* LIGHT MODE (Default) */
+  --bg-main: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-elevated: #e2e8f0;
   --bg-soft: #f8fafc;
-
-  --border: #e2e8f0;       /* Тонкая серая граница */
+  --border: #e2e8f0;
   --border-subtle: rgba(0, 0, 0, 0.05);
-  --border-strong: rgba(0, 0, 0, 0.1);
-
   --text-main: #334155;
   --text-muted: #64748b;
-  --text-subtle: #94a3b8;
-
-  /* Accent Colors */
   --accent: #4f46e5;
   --accent-rgb: 79, 70, 229;
-  --accent-soft: rgba(var(--accent-rgb), 0.08);
-  --accent-hover: rgba(var(--accent-rgb), 0.12);
-  --accent-strong: rgba(var(--accent-rgb), 0.25);
-
-  /* Semantic */
   --success: #22c55e;
   --warning: #f59e0b;
   --danger: #ef4444;
 
-  --shadow-soft: 0 2px 12px -2px rgba(51, 65, 85, 0.08), 0 4px 6px -2px rgba(51, 65, 85, 0.04);
-  --shadow-strong: 0 20px 25px -5px rgba(51, 65, 85, 0.1), 0 10px 10px -5px rgba(51, 65, 85, 0.04);
+  --shadow-soft: 0 2px 12px -2px rgba(51, 65, 85, 0.08);
+  --shadow-strong: 0 20px 25px -5px rgba(51, 65, 85, 0.1);
 
-  /* Роли сотрудников: приглушаем цвета, чтобы они не кричали */
   --role-owner-bg: #fef3c7;
   --role-owner-color: #b45309;
   --role-admin-bg: #e0e7ff;
@@ -45,29 +38,16 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* === DARK MODE OVERRIDES === */
+    /* DARK MODE */
     --bg-main: #0f1117;
     --bg-card: #1a1d25;
     --bg-elevated: #222632;
     --bg-soft: #1c1f27;
-
     --border: #2a2f3a;
     --border-subtle: rgba(255, 255, 255, 0.06);
-    --border-strong: rgba(255, 255, 255, 0.12);
-
     --text-main: #f3f4f6;
     --text-muted: #9ca3af;
-    --text-subtle: rgba(156, 163, 175, 0.6);
-
-    --accent: #60a5fa; /* Делаем синий чуть светлее для контраста на черном */
-    --accent-soft: rgba(var(--accent-rgb), 0.15);
-    --accent-hover: rgba(var(--accent-rgb), 0.22);
-    --accent-strong: rgba(var(--accent-rgb), 0.4);
-
-    --shadow-soft: 0 4px 10px rgba(0, 0, 0, 0.4);
-    --shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.5);
-
-    /* Role Colors (Dark) */
+    --accent: #60a5fa;
     --role-owner-bg: #2a1e12;
     --role-owner-color: #f97316;
     --role-admin-bg: #11223b;
@@ -80,31 +60,18 @@
 }
 
 /* ============================================================
-   GLOBAL RESET & BASE
+   3. ГЛОБАЛЬНЫЙ СБРОС (Был продублирован в app.scss)
    ============================================================ */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; width: 100%; }
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background: var(--bg-main);
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-  /* Плавный переход при смене темы */
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-html, body {
-  height: 100%;
-  width: 100%;
-}
-
-app-root {
-  display: block;
-  height: 100%;
-  width: 100%;
-}
+app-root { display: block; height: 100%; width: 100%; }

@@ -23,7 +23,8 @@
 
   .comment-content {
     flex: 1;
-    background: rgba($bg-card, 0.3);
+    /* Вместо rgba($bg-card, 0.3) */
+    background: color-mix(in srgb, var(--bg-card), transparent 70%);
     border-radius: 0.75rem;
     padding: 0.6rem 1rem;
   }
@@ -31,14 +32,17 @@
   .edit-input {
     width: 100%;
     padding: 0.5rem;
-    background: $bg-main;
-    border: 1px solid $border;
+    background: var(--bg-main);
+    border: 1px solid var(--border);
     border-radius: 0.5rem;
-    color: $text-main;
+    color: var(--text-main);
     font-size: 0.85rem;
     margin-bottom: 0.5rem;
 
-    &:focus { outline: none; border-color: $accent; }
+    &:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
   }
 
   .edit-actions {
@@ -52,13 +56,13 @@
     gap: 0.5rem;
     margin-top: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px solid $border;
+    border-top: 1px solid var(--border);
 
     .reply-avatar {
       width: 32px;
       height: 32px;
       border-radius: 0.5rem;
-      background: $accent;
+      background: var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -73,14 +77,14 @@
       .reply-input {
         width: 100%;
         padding: 0.5rem;
-        background: $bg-main;
-        border: 1px solid $border;
+        background: var(--bg-main);
+        border: 1px solid var(--border);
         border-radius: 0.5rem;
-        color: $text-main;
+        color: var(--text-main);
         font-size: 0.8rem;
         resize: vertical;
 
-        &:focus { outline: none; border-color: $accent; }
+        &:focus { outline: none; border-color: var(--accent); }
       }
 
       .reply-actions {
@@ -96,7 +100,7 @@
     margin-top: 0.5rem;
     margin-left: -3rem;
     padding-left: 0.5rem;
-    border-left: 1px solid rgba($border, 0.3);
+    border-left: 1px solid color-mix(in srgb, var(--border), transparent 70%);
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -113,23 +117,23 @@
   .comment-author {
     font-weight: 600;
     font-size: 0.85rem;
-    color: $accent;
+    color: var(--accent);
   }
 
   .comment-date {
     font-size: 0.7rem;
-    color: $text-muted;
+    color: var(--text-muted);
   }
 
   .comment-edited {
     font-size: 0.65rem;
-    color: $text-muted;
+    color: var(--text-muted);
     font-style: italic;
   }
 
   .comment-text {
     font-size: 0.85rem;
-    color: $text-main;
+    color: var(--text-main);
     flex: 1;
     word-break: break-word;
   }
@@ -164,13 +168,8 @@
   transition: all 0.2s;
   white-space: nowrap;
 
-  i {
-    font-size: 0.8rem;
-  }
-
-  span {
-    font-size: 0.7rem;
-  }
+  i { font-size: 0.8rem; }
+  span { font-size: 0.7rem; }
 
   &:hover {
     transform: translateY(-1px);
@@ -178,55 +177,47 @@
 }
 
 .reply-btn {
-  color: $success;
-  background: rgba($success, 0.08);
+  color: var(--success);
+  background: color-mix(in srgb, var(--success), transparent 92%);
 
   &:hover {
-    background: rgba($success, 0.2);
-    color: lighten($success, 10%);
+    background: color-mix(in srgb, var(--success), transparent 80%);
+    color: color-mix(in srgb, var(--success), white 10%);
   }
 }
 
 .edit-btn {
-  color: $accent;
-  background: rgba($accent, 0.08);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent), transparent 92%);
 
   &:hover {
-    background: rgba($accent, 0.2);
-    color: lighten($accent, 10%);
+    background: color-mix(in srgb, var(--accent), transparent 80%);
+    color: color-mix(in srgb, var(--accent), white 10%);
   }
 }
 
 .delete-btn {
-  color: $danger;
-  background: rgba($danger, 0.08);
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger), transparent 92%);
 
   &:hover {
-    background: rgba($danger, 0.2);
-    color: lighten($danger, 10%);
+    background: color-mix(in srgb, var(--danger), transparent 80%);
+    color: color-mix(in srgb, var(--danger), white 10%);
   }
-}
-
-// Buttons
-.btn-cancel-small, .btn-save-small, .btn-cancel, .btn-save {
-  padding: 0.25rem 0.75rem;
-  border-radius: 0.375rem;
-  font-size: 0.7rem;
-  cursor: pointer;
 }
 
 .btn-cancel-small, .btn-cancel {
   background: transparent;
-  border: 1px solid $border;
-  color: $text-muted;
-  &:hover { background: rgba($border, 0.2); }
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  &:hover { background: color-mix(in srgb, var(--border), transparent 80%); }
 }
 
 .btn-save-small, .btn-save {
-  background: $accent;
+  background: var(--accent);
   border: none;
-  color: $bg-main;
-  &:hover { background: color.adjust($accent, $lightness: 8%); }
+  color: var(--bg-main);
+  &:hover { filter: brightness(1.1); }
 }
 
 .btn-submit-small {
@@ -234,24 +225,14 @@
   align-items: center;
   gap: 0.25rem;
   padding: 0.25rem 0.75rem;
-  background: $accent;
-  color: $bg-main;
+  background: var(--accent);
+  color: var(--bg-main);
   border: none;
   border-radius: 0.375rem;
   font-size: 0.7rem;
   cursor: pointer;
 
   &:disabled { opacity: 0.5; cursor: not-allowed; }
-}
-
-.spinning { animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.action-buttons {
-  display: flex;
-  gap: 0.25rem;
-  flex-shrink: 0;
-  align-items: center;
 }
 
 .action-reply, .action-edit, .action-delete {
@@ -268,22 +249,14 @@
 
   i {
     font-size: 1rem;
-    color: $text-muted;
+    color: var(--text-muted);
   }
 
   &:hover {
-    background: rgba($border, 0.2);
+    background: color-mix(in srgb, var(--border), transparent 80%);
   }
 }
 
-.action-reply:hover i {
-  color: $success;
-}
-
-.action-edit:hover i {
-  color: $accent;
-}
-
-.action-delete:hover i {
-  color: $danger;
-}
+.action-reply:hover i { color: var(--success); }
+.action-edit:hover i { color: var(--accent); }
+.action-delete:hover i { color: var(--danger); }

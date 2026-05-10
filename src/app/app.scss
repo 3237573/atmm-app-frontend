@@ -1,28 +1,31 @@
-// --- app.scss ---
-@use "sass:color";
-// --- 1. Variables (Design System) ---
-$bg-main: #0f172a;
-$bg-card: #1e293b;
-$border: #334155;
-$text-main: #f1f5f9;
-$text-muted: #94a3b8;
-$accent: #38bdf8;
-$danger: #ef4444;
-$success: #4ade80;
-$warning: #f59e0b;
+// --- app.scss (SASS ПЕРЕМЕННЫЕ И МИКСИНЫ) ---
+// Мы мапим старые Sass переменные на новые CSS переменные,
+// чтобы старые компоненты сразу стали поддерживать смену тем!
+
+// 1. Базовые переменные
+$bg-main: var(--bg-main);
+$bg-card: var(--bg-card);
+$border: var(--border);
+$text-main: var(--text-main);
+$text-muted: var(--text-muted);
+$accent: var(--accent);
+$danger: var(--danger);
+$success: var(--success);
+$warning: var(--warning);
+
+// 2. Анимации (починит ошибку Undefined variable $ease)
 $ease: cubic-bezier(0.4, 0, 0.2, 1);
 
-// --- 2. Цвета ролей (Role Colors) ---
-$role-owner-bg: #2a1e12;
-$role-owner-color: #f97316;
-$role-admin-bg: #11223b;
-$role-admin-color: #3b82f6;
-$role-member-bg: #102a1c;
-$role-member-color: #22c55e;
-$role-guest-bg: #2a2a30;
-$role-guest-color: #a1a1aa;
+// 3. Роли (починит ошибки Undefined variable $role-...)
+$role-owner-bg: var(--role-owner-bg);
+$role-owner-color: var(--role-owner-color);
+$role-admin-bg: var(--role-admin-bg);
+$role-admin-color: var(--role-admin-color);
+$role-member-bg: var(--role-member-bg);
+$role-member-color: var(--role-member-color);
+$role-guest-bg: var(--role-guest-bg);
+$role-guest-color: var(--role-guest-color);
 
-// --- 3. Mixins ---
 @mixin flex-center {
   display: flex;
   align-items: center;
@@ -32,199 +35,10 @@ $role-guest-color: #a1a1aa;
 @mixin custom-scrollbar {
   &::-webkit-scrollbar { width: 6px; height: 6px; }
   &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb { background: $border; border-radius: 10px; }
+  &::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 }
 
 @mixin role-badge($bg, $color) {
   background: $bg;
   color: $color;
-}
-
-.page-header {
-  display: flex;
-  justify-content: flex-start; // Кнопка прижмется к левому краю
-  align-items: center;
-  gap: 2rem;                   // Расстояние между заголовком и кнопкой
-  margin-bottom: 1.5rem;
-
-  .header-info h1 {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0;
-    font-size: 1.5rem;
-    i { color: $accent; }
-  }
-
-  p { color: $text-muted; margin: 4px 0 0; font-size: 0.9rem; }
-}
-
-
-// ========== BUTTONS ==========
-.btn-primary {
-  background: $accent;
-  color: $bg-main;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.2s;
-
-  &:hover {
-    background: color.adjust($accent, $lightness: 8%);
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  i {
-    font-size: 1.2rem;
-  }
-}
-
-.btn-secondary {
-  background: transparent;
-  border: 1px solid $border;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    background: rgba($border, 0.2);
-    border-color: $accent;
-    color: $accent;
-  }
-}
-
-.btn-link {
-  background: none;
-  border: none;
-  color: $accent;
-  cursor: pointer;
-  padding: 0.5rem;
-  font-size: 0.85rem;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-// Statistics (Compact)
-.stats-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 0.75rem; margin-bottom: 1.5rem; max-width: 1000px;
-}
-.stat-card {
-  background: $bg-card; padding: 0.75rem; border-radius: 10px; border: 1px solid $border; text-align: center;
-  .stat-value { font-size: 1.25rem; font-weight: 800; color: $accent; line-height: 1.2; }
-  .stat-label { font-size: 0.65rem; color: $text-muted; text-transform: uppercase; margin-top: 3px; }
-  &.pending .stat-value { color: #ffab00; }
-  &.progress .stat-value { color: #00b8d9; }
-  &.completed .stat-value { color: #36b37e; }
-  &.overdue .stat-value { color: #998dd9; }
-  &.active::before { background: #10b981; }
-  &.admin::before { background: $accent; }
-  &.guest::before { background: #f59e0b; }
-  &.pending::before { background: #f59e0b; }
-  &.deleted::before { background: #ef4444; }
-}
-
-
-// --- 4. Global Classes for Role Badges ---
-.badge-role {
-  font-size: 0.7rem;
-  font-weight: 500;
-  padding: 0.25rem 0.8rem;
-  border-radius: 2rem;
-  display: inline-block;
-  text-align: center;
-
-  &.owner {
-    background: $role-owner-bg;
-    color: $role-owner-color;
-  }
-
-  &.admin {
-    background: $role-admin-bg;
-    color: $role-admin-color;
-  }
-
-  &.member {
-    background: $role-member-bg;
-    color: $role-member-color;
-  }
-
-  &.guest {
-    background: $role-guest-bg;
-    color: $role-guest-color;
-  }
-}
-
-// --- 5. Global Classes for Role Avatars ---
-.avatar-role {
-  width: 44px;
-  height: 44px;
-  border-radius: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 1.2rem;
-  flex-shrink: 0;
-
-  &.owner {
-    background: $role-owner-bg;
-    color: $role-owner-color;
-  }
-
-  &.admin {
-    background: $role-admin-bg;
-    color: $role-admin-color;
-  }
-
-  &.member {
-    background: $role-member-bg;
-    color: $role-member-color;
-  }
-
-  &.guest {
-    background: $role-guest-bg;
-    color: $role-guest-color;
-  }
-}
-
-// --- 6. Global Reset & Base ---
-body {
-  margin: 0;
-  background-color: $bg-main;
-  color: $text-main;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-* { box-sizing: border-box; }
-
-// --- 7. Shared Components (Анимации и общие классы) ---
-@keyframes spin { to { transform: rotate(360deg); } }
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba($success, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba($success, 0); }
-  100% { box-shadow: 0 0 0 0 rgba($success, 0); }
-}
-
-.spinner {
-  width: 48px; height: 48px;
-  border: 4px solid rgba($accent, 0.1);
-  border-top-color: $accent;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
 }

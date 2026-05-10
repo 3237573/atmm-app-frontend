@@ -225,7 +225,7 @@
   transition: all 0.2s;
 
   &:hover:not(:disabled) {
-    background: color.adjust($accent, $lightness: 8%);
+    filter: brightness(1.1);
   }
 
   &:disabled {

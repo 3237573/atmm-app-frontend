@@ -132,7 +132,7 @@ button[type="submit"] {
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background: color.adjust($accent, $lightness: 8%);
+    filter: brightness(1.1);
     transform: translateY(-1px);
   }
 

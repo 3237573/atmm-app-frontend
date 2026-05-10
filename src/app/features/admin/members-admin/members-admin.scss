@@ -128,7 +128,7 @@
   gap: 0.5rem;
 
   &:hover:not(:disabled) {
-    background: color.adjust($accent, $lightness: 8%);
+    //background: color.adjust(var(--accent), var(--accent): 8%);
     transform: translateY(-1px);
   }
 
@@ -332,7 +332,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, $accent, color.adjust($accent, $lightness: -20%));
+    //background: linear-gradient(135deg, $accent, color.adjust($accent, $lightness: -20%));
     color: $bg-main;
     display: flex;
     align-items: center;
@@ -380,7 +380,7 @@
   }
 
   &.admin {
-    background: linear-gradient(135deg, $accent, color.adjust($accent, $lightness: -10%));
+    //background: linear-gradient(135deg, $accent, color.adjust($accent, $lightness: -10%));
     color: $bg-main;
   }
 
@@ -799,7 +799,7 @@
   border-radius: 4px;
 
   &:hover {
-    background: color.adjust($accent, $lightness: 10%);
+    //background: color.adjust($accent, $lightness: 10%);
   }
 }
 

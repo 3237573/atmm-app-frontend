@@ -2,36 +2,7 @@
    DEPARTMENT TREE — THEME AWARE (Light/Dark Support)
    ============================================================ */
 
-.department-container {
-  padding: 1.5rem 2rem;
-  width: 100%;
-  color: var(--text-main);
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border-subtle);
-  padding-bottom: 1rem;
-
-  .header-info {
-    h1 {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 0;
-      font-size: 1.5rem;
-      color: var(--accent);
-    }
-    p {
-      color: var(--text-muted);
-      margin: 4px 0 0;
-      font-size: 0.9rem;
-    }
-  }
-}
+.department-container { padding: 1.5rem 2rem; width: 100%;  color: var(--text-main); }
 
 .loader {
   margin-top: 2rem;
