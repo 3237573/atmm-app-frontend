@@ -1,19 +1,13 @@
-import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth.guard';
-import { Login } from './core/auth/login/login';
-import { Register } from './core/auth/register/register';
-import { Tracker } from './pages/tracker/tracker';
-import { MainLayout } from './core/layout/main-layout/main-layout';
-import { AdminPage } from './pages/admin-page/admin-page';
-import { MembersList } from './features/members-list/members-list';
-import { TaskList } from './features/task-list/task-list';
-import { TaskCreate } from './features/task-list/task-create/task-create';
-import { TaskDetail } from './features/task-list/task-detail/task-detail';
-import { UnsavedChangesGuard } from './core/interceptors/unsaved-changes.guard';
-import { DepartmentDetail } from './features/department-list/department-detail/department-detail';
-import { DepartmentList } from './features/department-list/department-list';
-import { ProjectList } from './features/project-list/project-list';
-import { ProjectForm } from './features/project-list/project-form/project-form';
+import {AdminPage} from './pages/admin-page/admin-page';
+import {permissionGuard} from './core/guards/permission.guard';
+import {ProjectForm} from './features/project-list/project-form/project-form';
+import {ProjectList} from './features/project-list/project-list';
+import {Routes} from '@angular/router';
+import {Register} from './core/auth/register/register';
+import {Login} from './core/auth/login/login';
+import {MainLayout} from './core/layout/main-layout/main-layout';
+import {authGuard} from './core/guards/auth.guard';
+import {Tracker} from './pages/tracker/tracker';
 
 export const routes: Routes = [
   { path: 'login', component: Login, title: 'Вход' },
@@ -24,42 +18,63 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: 'tracker', component: Tracker, title: 'Трекер' },
-      { path: 'members', component: MembersList, title: 'Участники' },
+
+      // PROJECT: Добавляем проверку прав на чтение
       {
         path: 'projects',
+        data: { permission: 'project:read' },
+        canActivate: [permissionGuard],
         children: [
           { path: '', component: ProjectList, title: 'Проекты' },
-          { path: 'create', component: ProjectForm, title: 'Новый проект' },
-          { path: 'edit/:id', component: ProjectForm, title: 'Редактирование проекта' }
-        ]
-      },
-      {
-        path: 'departments',
-        children: [
-          { path: '', component: DepartmentList, title: 'Структура компании' },
           {
             path: 'create',
-            loadComponent: () =>
-              import('./features/department-list/department-create/department-create')
-                .then(m => m.DepartmentCreate),
-            title: 'Создать отдел'
+            component: ProjectForm,
+            title: 'Новый проект',
+            data: { permission: 'project:create' } // Уточняем право
           },
-          { path: ':id', component: DepartmentDetail, title: 'Детали отдела' }
+          {
+            path: 'edit/:id',
+            component: ProjectForm,
+            title: 'Редактирование проекта',
+            data: { permission: 'project:update' }
+          }
         ]
       },
+
+      // DEPARTMENTS: Оптимизируем через Lazy Loading
       {
-        path: 'tasks',
+        path: 'departments',
+        data: { permission: 'department:read' },
+        canActivate: [permissionGuard],
         children: [
-          { path: '', component: TaskList, title: 'Задачи' },
-          { path: 'create', component: TaskCreate, title: 'Создать задачу', canDeactivate: [UnsavedChangesGuard] },
-          { path: ':id', component: TaskDetail, title: 'Детали задачи', canDeactivate: [UnsavedChangesGuard] }
+          {
+            path: '',
+            loadComponent: () => import('./features/department-list/department-list').then(m => m.DepartmentList),
+            title: 'Структура компании'
+          },
+          {
+            path: 'create',
+            loadComponent: () => import('./features/department-list/department-create/department-create').then(m => m.DepartmentCreate),
+            title: 'Создать отдел',
+            data: { permission: 'department:create' }
+          },
+          {
+            path: ':id',
+            loadComponent: () => import('./features/department-list/department-detail/department-detail').then(m => m.DepartmentDetail),
+            title: 'Детали отдела'
+          }
         ]
       },
+
+      // ADMIN: Защищаем целиком
       {
         path: 'admin',
         component: AdminPage,
+        canActivate: [permissionGuard],
+        data: { permission: 'owner:owner' },
         title: 'Администрирование'
       },
+
       { path: '', redirectTo: 'tracker', pathMatch: 'full' }
     ]
   },

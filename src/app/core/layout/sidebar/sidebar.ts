@@ -21,7 +21,7 @@ interface MenuItem {
   styleUrl: './sidebar.scss'
 })
 export class Sidebar implements OnInit {
-  private auth = inject(AuthService);
+  private readonly auth = inject(AuthService);
   private readonly companyService = inject(CompanyService);
   private readonly navigationService = inject(NavigationService);
   private readonly router = inject(Router)
@@ -34,11 +34,11 @@ export class Sidebar implements OnInit {
   }
 
   private readonly allMenuItems: MenuItem[] = [
-    { path: '/departments', icon: 'account_tree', label: 'Structure' },
-    { path: '/projects', icon: 'folder_copy', label: 'Projects' },
-    { path: '/members', icon: 'groups', label: 'Members' },
-    { path: '/tasks', icon: 'task', label: 'Tasks' },
-    { path: '/tracker', icon: 'schedule', label: 'Tracker' },
+    { path: '/departments', icon: 'account_tree', label: 'Structure', permission: 'department:read' },
+    { path: '/projects', icon: 'folder_copy', label: 'Projects', permission: 'project:read' },
+    { path: '/members', icon: 'groups', label: 'Members', permission: 'member:read' },
+    { path: '/tasks', icon: 'task', label: 'Tasks', permission: 'task:read' },
+    { path: '/tracker', icon: 'schedule', label: 'Tracker', permission: 'tracker:read' },
     { path: '/admin', icon: 'settings', label: 'Admin', permission: 'owner:owner' },
   ];
 

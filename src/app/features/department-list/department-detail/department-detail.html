@@ -13,7 +13,7 @@
                placeholder="Название отдела..."
                (blur)="save()">
       </div>
-      <button *appHasPermission="'department:create'" class="btn-primary" (click)="save()">
+      <button *appHasPermission="['department:create', 'department:update']" class="btn-primary" (click)="save()">
         <i class="material-icons">save</i> Сохранить
       </button>
     </div>
@@ -23,7 +23,7 @@
         <div class="card-header">
           <h3><i class="material-icons">groups</i> Участники отдела</h3>
           @if (!isNew()) {
-            <button *appHasPermission="'department:create'" class="btn-secondary btn-sm" (click)="showAddMemberModal.set(true)">
+            <button *appHasPermission="['department:create']" class="btn-secondary btn-sm" (click)="showAddMemberModal.set(true)">
               <i class="material-icons">person_add</i> Добавить
             </button>
           }
@@ -44,7 +44,7 @@
                          (blur)="updateRole(m.id, $any($event.target).value)">
                 </div>
 
-                <button *appHasPermission="'department:create'" class="btn-icon delete" (click)="removeFromDept(m.id)">
+                <button *appHasPermission="['department:create']" class="btn-icon delete" (click)="removeFromDept(m.id)">
                   <i class="material-icons">logout</i>
                 </button>
               </div>
@@ -83,7 +83,7 @@
               <p class="current-head empty">Глава не назначен</p>
             }
 
-            <button *appHasPermission="'department:create'" class="btn-secondary btn-sm" (click)="showHeadModal.set(true)">
+            <button *appHasPermission="['department:create']" class="btn-secondary btn-sm" (click)="showHeadModal.set(true)">
               <i class="material-icons">person</i> Назначить главу
             </button>
           </div>

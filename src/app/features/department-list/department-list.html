@@ -6,7 +6,7 @@
     </div>
 
     <button
-      *appHasPermission="'department:create'"
+      *appHasPermission="['department:create']"
       class="btn-primary" [routerLink]="['/departments/create']"
     >
       <i class="material-icons">add</i> Добавить отдел

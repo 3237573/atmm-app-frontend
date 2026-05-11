@@ -69,4 +69,5 @@ export class DepartmentList implements OnInit {
     this.expandedNodes.set(newSet);
   }
 
+  protected readonly Array = Array;
 }
