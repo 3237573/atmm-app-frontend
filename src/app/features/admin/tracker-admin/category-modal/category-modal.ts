@@ -5,7 +5,7 @@ import { TranslocoModule } from '@ngneat/transloco';
 import { CommonModule } from '@angular/common';
 import { Category } from '../../../../core/models/tracker/category.model';
 import { translit } from '../../../../core/utils/translit.utils';
-import {BackOnEscapeDirective} from '../../../../core/services/navigation/back-on-escape';
+import {BackOnEscapeDirective} from '../../../../core/directives/back-on-escape.directive';
 
 // Популярные иконки для категорий
 const POPULAR_ICONS = [

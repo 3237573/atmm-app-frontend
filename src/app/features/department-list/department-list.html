@@ -2,11 +2,16 @@
   <div class="page-header">
     <div class="header-info">
       <h1><i class="material-icons">account_tree</i> Структура компании</h1>
-      <p>Управление отделами и иерархией</p>
+      <p>Отделы и подраздедления</p>
     </div>
-    <button class="btn-primary" [routerLink]="['/departments/create']">
+
+    <button
+      *appHasPermission="'department:create'"
+      class="btn-primary" [routerLink]="['/departments/create']"
+    >
       <i class="material-icons">add</i> Добавить отдел
     </button>
+
   </div>
 
   @if (loading()) {

@@ -1,19 +1,23 @@
-import { CommonModule, Location } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import { Component, computed, HostListener, inject, OnInit, signal } from '@angular/core';
-import { DepartmentService } from '../../core/services/departament/departament.service';
-import { DepartmentRO } from '../../core/models/departament.model';
-import {BackOnEscapeDirective} from '../../core/services/navigation/back-on-escape';
+import {CommonModule} from '@angular/common';
+import {RouterModule} from '@angular/router';
+import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {DepartmentService} from '../../core/services/departament/departament.service';
+import {DepartmentRO} from '../../core/models/departament.model';
+import {BackOnEscapeDirective} from '../../core/directives/back-on-escape.directive';
+import {NavigationService} from '../../core/services/navigation/navigation.service';
+import {HasPermissionDirective} from '../../core/directives/has-permission.directive';
 
 @Component({
   selector: 'app-department-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, BackOnEscapeDirective],
+  imports: [CommonModule, RouterModule, BackOnEscapeDirective, HasPermissionDirective],
   templateUrl: './department-list.html',
   styleUrl: './department-list.scss'
 })
 export class DepartmentList implements OnInit {
   private readonly deptService = inject(DepartmentService);
+  private readonly navService = inject(NavigationService);
+
 
   private readonly rawDepartments = signal<DepartmentRO[]>([]);
   loading = signal(true);

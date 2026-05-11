@@ -9,12 +9,13 @@ import { MemberResponse } from '../../../core/models/member.model';
 import { DepartmentService } from '../../../core/services/departament/departament.service';
 import { DepartmentRO } from '../../../core/models/departament.model';
 import {NavigationService} from '../../../core/services/navigation/navigation.service';
-import {BackOnEscapeDirective} from '../../../core/services/navigation/back-on-escape';
+import {BackOnEscapeDirective} from '../../../core/directives/back-on-escape.directive';
+import {HasPermissionDirective} from '../../../core/directives/has-permission.directive';
 
 @Component({
   selector: 'app-department-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, BackOnEscapeDirective],
+  imports: [CommonModule, RouterModule, FormsModule, BackOnEscapeDirective, HasPermissionDirective],
   templateUrl: './department-detail.html',
   styleUrl: './department-detail.scss'
 })

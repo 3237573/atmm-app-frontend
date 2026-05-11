@@ -5,7 +5,7 @@ import {RoleManager} from '../../features/admin/role-manager/role-manager';
 import {MembersAdmin} from '../../features/admin/members-admin/members-admin';
 import {CompanyProfile} from '../../features/admin/company-profile/company-profile';
 import {TrackerAdmin} from '../../features/admin/tracker-admin/tracker-admin';
-import {BackOnEscapeDirective} from '../../core/services/navigation/back-on-escape';
+import {BackOnEscapeDirective} from '../../core/directives/back-on-escape.directive';
 
 type TabId = 'profile' | 'members' | 'roles' | 'permissions' | 'tracker';
 

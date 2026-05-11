@@ -10,7 +10,7 @@ import {CategoryRuleModal} from './category-rule-modal/category-rule-modal';
 import {CategoryModal} from './category-modal/category-modal';
 import {AuthService} from '../../../core/services/auth/auth.service';
 import {MemberTokenPanel} from './member-token-panel/member-token-panel';
-import {BackOnEscapeDirective} from '../../../core/services/navigation/back-on-escape';
+import {BackOnEscapeDirective} from '../../../core/directives/back-on-escape.directive';
 
 
 @Component({

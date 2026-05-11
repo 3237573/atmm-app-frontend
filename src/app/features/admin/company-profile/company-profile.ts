@@ -6,7 +6,7 @@ import {CompanyService} from '../../../core/services/company/company.service';
 import {finalize, Subject, takeUntil} from 'rxjs';
 import {AuthService} from '../../../core/services/auth/auth.service';
 import {Clipboard, ClipboardModule} from '@angular/cdk/clipboard';
-import {BackOnEscapeDirective} from '../../../core/services/navigation/back-on-escape';
+import {BackOnEscapeDirective} from '../../../core/directives/back-on-escape.directive';
 
 @Component({
   selector: 'app-company-profile',

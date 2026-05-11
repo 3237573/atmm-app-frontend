@@ -5,7 +5,7 @@ import {Router, RouterModule} from '@angular/router';
 import { TaskService } from '../../core/services/task/task.service';
 import { TaskTreeRO, TaskRO } from '../../core/models/task/task.model';
 import { AuthService } from '../../core/services/auth/auth.service';
-import {BackOnEscapeDirective} from '../../core/services/navigation/back-on-escape';
+import {BackOnEscapeDirective} from '../../core/directives/back-on-escape.directive';
 
 @Component({
   selector: 'app-task-list',

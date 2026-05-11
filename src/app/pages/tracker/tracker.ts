@@ -8,7 +8,7 @@ import {AppStatDTO} from '../../core/models/activity.model';
 import {ActivityDetail} from './activity-detail/activity-detail';
 import {TrackerAnalytics} from './tracker-analytics/tracker-analytics';
 import {TranslocoPipe} from '@ngneat/transloco';
-import {BackOnEscapeDirective} from '../../core/services/navigation/back-on-escape';
+import {BackOnEscapeDirective} from '../../core/directives/back-on-escape.directive';
 
 export interface UserActivityReportV2 {
   userId: string;

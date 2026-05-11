@@ -1,7 +1,7 @@
 import {Component, HostListener, input, output} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {TranslocoModule} from '@ngneat/transloco';
-import {BackOnEscapeDirective} from '../../../../core/services/navigation/back-on-escape';
+import {BackOnEscapeDirective} from '../../../../core/directives/back-on-escape.directive';
 
 @Component({
   selector: 'app-category-rule-modal',

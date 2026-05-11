@@ -8,7 +8,7 @@ import {TaskPriority, TaskRO, TaskStatus, TaskTreeRO} from '../../../core/models
 import {TaskComments} from './task-comments/task-comments';
 import {AssigneeManager} from './assignee-manager/assignee-manager';
 import {SubtaskTreeComponent} from './subtask-tree';
-import {BackOnEscapeDirective} from '../../../core/services/navigation/back-on-escape';
+import {BackOnEscapeDirective} from '../../../core/directives/back-on-escape.directive';
 import {NavigationService} from '../../../core/services/navigation/navigation.service';
 
 @Component({

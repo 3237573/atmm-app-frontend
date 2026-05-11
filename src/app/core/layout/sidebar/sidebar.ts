@@ -1,9 +1,17 @@
-import { Component, HostBinding, OnInit, inject, signal } from '@angular/core';
+import {Component, HostBinding, OnInit, inject, signal, computed} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {NavigationEnd, Router, RouterLink, RouterLinkActive} from '@angular/router';
 import {CompanyService} from '../../services/company/company.service';
 import {NavigationService} from '../../services/navigation/navigation.service';
 import {filter} from 'rxjs';
+import {AuthService} from '../../services/auth/auth.service';
+
+interface MenuItem {
+  path: string;
+  label: string;
+  icon: string;
+  permission?: string; // Optional field
+}
 
 @Component({
   selector: 'app-sidebar',
@@ -13,6 +21,7 @@ import {filter} from 'rxjs';
   styleUrl: './sidebar.scss'
 })
 export class Sidebar implements OnInit {
+  private auth = inject(AuthService);
   private readonly companyService = inject(CompanyService);
   private readonly navigationService = inject(NavigationService);
   private readonly router = inject(Router)
@@ -24,14 +33,23 @@ export class Sidebar implements OnInit {
     return this.isCollapsed;
   }
 
-  menuItems = [
+  private readonly allMenuItems: MenuItem[] = [
     { path: '/departments', icon: 'account_tree', label: 'Structure' },
     { path: '/projects', icon: 'folder_copy', label: 'Projects' },
     { path: '/members', icon: 'groups', label: 'Members' },
     { path: '/tasks', icon: 'task', label: 'Tasks' },
     { path: '/tracker', icon: 'schedule', label: 'Tracker' },
-    { path: '/admin', icon: 'settings', label: 'Admin' }
+    { path: '/admin', icon: 'settings', label: 'Admin', permission: 'owner:owner' },
   ];
+
+  menuItems = computed(() => {
+    const isAuth = this.auth.isAuthenticated(); // Допустим, есть такой сигнал
+    if (!isAuth) return [];
+
+    return this.allMenuItems.filter(item =>
+      !item.permission || this.auth.hasPermission(item.permission)
+    );
+  });
 
   ngOnInit() {
     const saved = localStorage.getItem('sidebarCollapsed');
