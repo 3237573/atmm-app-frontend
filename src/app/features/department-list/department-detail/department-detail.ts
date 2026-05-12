@@ -118,7 +118,7 @@ export class DepartmentDetail implements OnInit {
     return affiliation ? affiliation.role : 'Участник';
   }
 
-  getHeadName(membershipId: string): string {
+  getMemberName(membershipId: string): string {
     const member = this.allMembers().find(m => m.id === membershipId);
     return member ? member.displayName : 'Не найден';
   }

@@ -77,7 +77,7 @@
 
             @if (dept.headMembershipId) {
               <p class="current-head">
-                Текущий: {{ getHeadName(dept.headMembershipId) }}
+                Текущий: {{ getMemberName(dept.headMembershipId) }}
               </p>
             } @else {
               <p class="current-head empty">Глава не назначен</p>
