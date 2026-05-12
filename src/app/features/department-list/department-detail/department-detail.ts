@@ -80,7 +80,7 @@ export class DepartmentDetail implements OnInit {
     const dept = this.department();
     if (!dept) return [];
     return this.allMembers().filter(m =>
-      m.affiliations?.some(a => a.departmentId === dept.id)
+      m.departments?.some(a => a.departmentId === dept.id)
     );
   });
 
@@ -114,7 +114,7 @@ export class DepartmentDetail implements OnInit {
   }
 
   getRoleInDept(member: MemberResponse, deptId: string): string {
-    const affiliation = member.affiliations?.find(a => a.departmentId === deptId);
+    const affiliation = member.departments?.find(a => a.departmentId === deptId);
     return affiliation ? affiliation.role : 'Участник';
   }
 
@@ -122,7 +122,6 @@ export class DepartmentDetail implements OnInit {
     const member = this.allMembers().find(m => m.id === membershipId);
     return member ? member.displayName : 'Не найден';
   }
-
 
   assignHead(membershipId: string) {
     const deptId = this.department()?.id;

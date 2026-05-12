@@ -7,61 +7,75 @@
       </div>
       <div class="title-group">
         <h2>{{ isEditMode() ? 'Редактирование проекта' : 'Создание проекта' }}</h2>
-        <p>{{ isEditMode() ? 'Обновите параметры и статус проекта' : 'Заполните данные для нового рабочего пространства' }}</p>
+        <p>{{ isEditMode() ? 'Обновите параметры и статус проекта' : 'Заполните данные для нового проекта' }}</p>
       </div>
     </header>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
-
       <div class="form-group" [class.error]="form.get('title')?.invalid && form.get('title')?.touched">
         <label>Название проекта <span>*</span></label>
-        <div class="input-wrapper">
-          <input type="text" formControlName="title" placeholder="Напр: Редизайн мобильного приложения">
-          @if (form.get('title')?.invalid && form.get('title')?.touched) {
-            <span class="error-hint">Минимум 3 символа</span>
-          }
+        <input type="text" formControlName="title" placeholder="Напр: Редизайн приложения">
+      </div>
+
+      <div class="form-main">
+        <div class="col left">
+          <div class="form-group">
+            <label>Описание</label>
+            <textarea formControlName="description"></textarea>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label>Описание</label>
-        <textarea formControlName="description" rows="4" placeholder="Краткое описание целей и задач..."></textarea>
-      </div>
+        <div class="col right">
+          @if (isEditMode()) {
+            <div class="form-group">
+              <label>Статус</label>
+              <select formControlName="status">
+                <option value="ACTIVE">Активен</option>
+                <option value="DRAFT">Черновик</option>
+                <option value="ARCHIVED">Архив</option>
+              </select>
+            </div>
+          }
 
-      <div class="form-row">
-        @if (isEditMode()) {
-          <div class="form-group half">
-            <label>Статус</label>
-            <select formControlName="status">
-              <option value="ACTIVE">Активен</option>
-              <option value="DRAFT">Черновик</option>
-              <option value="ARCHIVED">Архив</option>
+          <div class="form-group">
+            <label>Родительский проект</label>
+            <select formControlName="parentProjectId">
+              <option [ngValue]="null">Корневой уровень</option>
+              @for (p of projects(); track p.id) {
+                @if (p.id !== currentId()) {
+                  <option [value]="p.id">{{ p.title }}</option>
+                }
+              }
             </select>
           </div>
-        }
-
-        <div class="form-group" [class.half]="isEditMode()">
-          <label>Родительский проект</label>
-          <select formControlName="parentProjectId">
-            <option [ngValue]="null">Корневой уровень</option>
-            @for (p of projects(); track p.id) {
-              @if (p.id !== currentId()) {
-                <option [value]="p.id">{{ p.title }}</option>
-              }
-            }
-          </select>
         </div>
       </div>
+
+      @if (isEditMode() && currentProject()) {
+        <app-project-members
+          [projectMembers]="currentProject()?.members || []"
+          [allMembers]="allMembers()"
+          [loading]="loading()"
+          (onAdd)="assignMember($event)"
+          (onRemove)="removeMember($event)">
+        </app-project-members>
+      }
 
       <div class="form-actions">
         <button type="button" class="btn-secondary" (click)="onCancel()" [disabled]="loading()">
           Отмена
         </button>
+
         <button type="submit" class="btn-primary" [disabled]="form.invalid || loading()">
-          @if (loading()) { <span class="spinner"></span> }
-          {{ isEditMode() ? 'Сохранить изменения' : 'Создать проект' }}
+          @if (loading()) {
+            <span class="spinner"></span>
+          } @else {
+            <i class="material-icons">{{ isEditMode() ? 'save' : 'add' }}</i>
+            {{ isEditMode() ? 'Сохранить изменения' : 'Создать проект' }}
+          }
         </button>
       </div>
     </form>
   </div>
 </div>
+

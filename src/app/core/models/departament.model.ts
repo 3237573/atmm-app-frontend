@@ -27,3 +27,9 @@ export interface SetDepartmentHeadRequest {
 export interface AssignEmployeeRequest {
   membershipId: string;
 }
+
+export interface DepartmentAffiliation {
+  departmentId: string;
+  departmentName: string;
+  role: string; // Строка, никаких енамов
+}

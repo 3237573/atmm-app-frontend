@@ -1,7 +1,5 @@
 <div class="company-profile" appBackOnEscape>
-  <!-- Основная информационная карточка -->
   <div class="settings-card">
-    <!-- Заголовок секции + кнопка редактирования -->
     <div class="card-header">
       <div class="card-title">Основная информация</div>
       @if (canEdit()) {
@@ -12,15 +10,9 @@
       }
     </div>
 
-    <!-- Сообщения об ошибках/успехе -->
-    @if (errorMessage) {
-      <div class="alert error">{{ errorMessage }}</div>
-    }
-    @if (successMessage) {
-      <div class="alert success">{{ successMessage }}</div>
-    }
+    @if (errorMessage) { <div class="alert error">{{ errorMessage }}</div> }
+    @if (successMessage) { <div class="alert success">{{ successMessage }}</div> }
 
-    <!-- Строка: Название + Код -->
     <div class="settings-row">
       <div class="settings-field half">
         <label>Название компании</label>
@@ -35,24 +27,26 @@
 
       <div class="settings-field half">
         <label>Код компании</label>
-        <div class="field-value code-value">
+        <div class="field-value code-container">
           @if (editing) {
             <input type="text" [(ngModel)]="company.code" placeholder="Код"/>
           } @else {
-            <div class="code-with-copy">
-              <code>{{ company.code }}</code>
-              <button class="copy-btn" (click)="copyCode(company.code)" [class.copied]="copySuccess">
-                <i class="material-icons">content_copy</i>
-                <span class="copy-tooltip" [class.show]="copySuccess">Скопировано!</span>
-              </button>
-            </div>
+            <code>{{ company.code }}</code>
+            <button
+              class="copy-btn"
+              [cdkCopyToClipboard]="company.code"
+              (click)="onCopy()"
+              [class.success]="copySuccess"
+              type="button">
+              <i class="material-icons">{{ copySuccess ? 'done' : 'content_copy' }}</i>
+              @if (copySuccess) {
+                <span class="copy-tooltip">Скопировано!</span>
+              }
+            </button>
           }
         </div>
       </div>
-    </div>
 
-    <!-- Строка: Владелец + Статус -->
-    <div class="settings-row">
       <div class="settings-field half">
         <label>Владелец</label>
         <div class="field-value">
@@ -74,28 +68,15 @@
       </div>
     </div>
 
-    <!-- Кнопки действий при редактировании (СОХРАНИТЬ/ОТМЕНА) -->
     @if (editing) {
       <div class="form-actions">
         <button class="btn-primary" (click)="saveChanges()" [disabled]="saving">
-          @if (saving) {
-            <span class="spinner-small"></span>
-          } @else {
-            <i class="material-icons">save</i>
-          }
+          @if (saving) { <span class="spinner-small"></span> }
+          @else { <i class="material-icons">save</i> }
           {{ saving ? 'Сохранение...' : 'Сохранить' }}
         </button>
-        <button class="btn-secondary" (click)="cancelEditing()" [disabled]="saving">
-          Отмена
-        </button>
+        <button class="btn-secondary" (click)="cancelEditing()" [disabled]="saving">Отмена</button>
       </div>
     }
   </div>
-
-  <!-- Общий спиннер загрузки -->
-  @if (loading) {
-    <div class="loading-overlay">
-      <div class="spinner"></div>
-    </div>
-  }
 </div>

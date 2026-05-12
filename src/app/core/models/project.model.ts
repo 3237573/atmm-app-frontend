@@ -31,3 +31,9 @@ export interface UpdateProjectRO {
   status: string;
   version: number;
 }
+
+export interface ProjectAffiliation {
+  projectId: string;
+  projectName: string;
+  role: string;
+}

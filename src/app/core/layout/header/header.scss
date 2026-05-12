@@ -11,6 +11,54 @@
   padding: 0 24px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.theme-toggle {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  i {
+    font-size: 20px;
+    /* Эффект вращения при смене иконки */
+    transition: transform 0.5s ease;
+  }
+
+  &:hover {
+    background: rgba(var(--accent-rgb), 0.1);
+    color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+/* Стили для имитации выбора языка как на скриншоте */
+.lang-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+
+  i { font-size: 18px; }
+}
+
 .page-title .user-email-display {
   font-size: 0.95rem;
   font-weight: 400;

@@ -6,9 +6,16 @@
   </div>
 
   <div class="user-actions">
+
     <button class="lang-btn" (click)="toggleLanguage()" type="button">
       <i class="material-icons">language</i>
       <span>{{ activeLang | uppercase }}</span>
+    </button>
+
+    <button class="theme-toggle" (click)="themeService.toggleTheme()" [title]="themeService.theme() === 'dark' ? 'Светлая тема' : 'Темная тема'">
+      <i class="material-icons">
+        {{ themeService.theme() === 'dark' ? 'light_mode' : 'dark_mode' }}
+      </i>
     </button>
 
     @if (currentUserEmail() && !(isAuthPage$ | async)) {

@@ -22,6 +22,9 @@
   --success: #22c55e;
   --warning: #f59e0b;
   --danger: #ef4444;
+  /* RGB версии для прозрачности */
+  --danger-rgb: 244, 67, 54;
+  --success-rgb: 76, 175, 80;
 
   --shadow-soft: 0 2px 12px -2px rgba(51, 65, 85, 0.08);
   --shadow-strong: 0 20px 25px -5px rgba(51, 65, 85, 0.1);
@@ -59,6 +62,34 @@
   }
 }
 
+body.dark-theme {
+  --bg-main: #0f1218;
+  --bg-card: #161b22;
+  --bg-elevated: #1c2128; /* Чуть светлее чем card */
+  --text-main: #ffffff;
+  --text-muted: #8b949e;
+  --border: #30363d;
+  --accent: #4a90e2;
+  --accent-rgb: 74, 144, 226;
+  --success-rgb: 46, 204, 113;
+  --danger-rgb: 231, 76, 60;
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+body.light-theme {
+  --bg-main: #f8f9fa;
+  --bg-card: #ffffff;
+  --bg-elevated: #ffffff;
+  --text-main: #1f2328;
+  --text-muted: #656d76;
+  --border: #d0d7de;
+  --accent: #4a90e2;
+  --accent-rgb: 74, 144, 226;
+  --success-rgb: 39, 174, 96;
+  --danger-rgb: 192, 57, 43;
+  --shadow: 0 8px 30px rgba(149, 157, 165, 0.2);
+}
+
 /* ============================================================
    3. ГЛОБАЛЬНЫЙ СБРОС (Был продублирован в app.scss)
    ============================================================ */
@@ -74,4 +105,7 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
+.header-area, nav, .main-container, .content-area {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
 app-root { display: block; height: 100%; width: 100%; }

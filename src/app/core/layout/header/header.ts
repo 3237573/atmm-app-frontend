@@ -4,6 +4,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import { filter, map, startWith } from 'rxjs';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
+import {ThemeService} from '../../services/theme.service';
 
 @Component({
   selector: 'app-header',
@@ -15,6 +16,7 @@ import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 export class Header {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  protected themeService = inject(ThemeService);
   private readonly translocoService = inject(TranslocoService);
 
   readonly currentUserEmail = computed(() => this.authService.currentUser()?.email ?? '');

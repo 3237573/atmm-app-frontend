@@ -7,25 +7,38 @@ import {CreateProjectRO, ProjectRO, UpdateProjectRO} from '../../models/project.
 @Injectable({ providedIn: 'root' })
 export class ProjectService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = '/v1/projects';
+  private readonly baseUrl = '/v1/projects';
 
   getProjects(): Observable<ProjectRO[]> {
-    return this.http.get<ProjectRO[]>(this.apiUrl);
+    return this.http.get<ProjectRO[]>(this.baseUrl);
   }
 
   getProject(id: string): Observable<ProjectRO> {
-    return this.http.get<ProjectRO>(`${this.apiUrl}/${id}`);
+    return this.http.get<ProjectRO>(`${this.baseUrl}/${id}`);
   }
 
   createProject(project: CreateProjectRO): Observable<ProjectRO> {
-    return this.http.post<ProjectRO>(this.apiUrl, project);
+    return this.http.post<ProjectRO>(this.baseUrl, project);
   }
 
   updateProject(id: string, project: UpdateProjectRO): Observable<ProjectRO> {
-    return this.http.put<ProjectRO>(`${this.apiUrl}/${id}`, project);
+    return this.http.put<ProjectRO>(`${this.baseUrl}/${id}`, project);
   }
 
   deleteProject(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  assignEmployee(projectId: string, membershipId: string, roleInProject: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${projectId}/members`, {membershipId, roleInProject});
+  }
+
+  updateEmployeeRole(projectId: string, membershipId: string, role: string) {
+    return this.http.patch(`/v1/departments/${projectId}/members/${membershipId}`, { role });
+  }
+
+
+  removeEmployee(projectId: string, membershipId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${projectId}/members/${membershipId}`);
   }
 }

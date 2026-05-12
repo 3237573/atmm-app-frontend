@@ -1,28 +1,38 @@
-import {Component, OnInit, inject, signal, HostListener} from '@angular/core';
-import {CommonModule, Location} from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { ProjectService } from '../../../core/services/project/project.service';
-import { ProjectRO } from '../../../core/models/project.model';
+import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {ProjectService} from '../../../core/services/project/project.service';
+import {ProjectRO} from '../../../core/models/project.model';
 import {BackOnEscapeDirective} from '../../../core/directives/back-on-escape.directive';
+import {MemberResponse} from '../../../core/models/member.model';
+import {MemberService} from '../../../core/services';
+import {forkJoin} from 'rxjs';
+import {ProjectMembersComponent} from '../project-members/project-members';
 
 @Component({
   selector: 'app-project-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, BackOnEscapeDirective],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, BackOnEscapeDirective, ProjectMembersComponent],
   templateUrl: './project-form.html',
   styleUrl: './project-form.scss'
 })
 export class ProjectForm implements OnInit {
   private readonly fb = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
   private readonly projectService = inject(ProjectService);
-  private readonly route = inject(ActivatedRoute); // Оставляем private
+  private readonly memberService = inject(MemberService);
   private readonly router = inject(Router);
 
+  allMembers = signal<MemberResponse[]>([]);
   isEditMode = signal(false);
   loading = signal(false);
+  currentId = signal<string | null>(null);
+  currentProject = signal<ProjectRO | null>(null);
   projects = signal<ProjectRO[]>([]);
-  currentId = signal<string | null>(null); // Добавляем сигнал для ID
+  showAddMemberModal = signal(false);
+
+
   projectVersion = 1;
 
   form = this.fb.group({
@@ -48,40 +58,90 @@ export class ProjectForm implements OnInit {
 
   private loadProjectDetails(id: string) {
     this.loading.set(true);
-    this.projectService.getProject(id).subscribe({
-      next: (p) => {
-        this.projectVersion = p.version;
+    forkJoin([
+      this.projectService.getProject(id),
+      this.memberService.getMembers()]).subscribe({
+      next: ([project, members]) => {
+        this.currentProject.set(project)
+        this.projectVersion = project.version;
         this.form.patchValue({
-          title: p.title,
-          description: p.description,
-          status: p.status,
-          parentProjectId: p.parentProjectId
+          title: project.title,
+          description: project.description,
+          status: project.status,
+          parentProjectId: project.parentProjectId
         });
+
+        this.allMembers.set(members)
         this.loading.set(false);
       },
       error: () => this.router.navigate(['/projects'])
     });
   }
 
-  onSubmit() {
-    if (this.form.invalid) return;
-    this.loading.set(true);
+  projectMembers = computed(() => {
+    const project = this.currentProject()
+    if (!project) return [];
+    return this.allMembers().filter(m => {
+      m.projects?.some(a => a.projectId === project.id)
+    });
+  })
 
+  onSubmit() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.loading.set(true);
     const val = this.form.value;
     const id = this.currentId();
 
-    const obs = (this.isEditMode() && id)
+    const request$ = (this.isEditMode() && id)
       ? this.projectService.updateProject(id, { ...val, version: this.projectVersion } as any)
       : this.projectService.createProject(val as any);
 
-    obs.subscribe({
+    request$.subscribe({
       next: () => this.router.navigate(['/projects']),
-      error: () => this.loading.set(false)
+      error: (err) => {
+        console.error(err);
+        this.loading.set(false);
+      },
+      complete: () => this.loading.set(false)
     });
+  }
+
+  availableToAssign = computed(() => {
+    const memberInProject = new Set(this.projectMembers().map(e => e.id));
+    return this.allMembers().filter(m => !memberInProject.has(m.id));
+  });
+
+  assignMember(data: { membershipId: string; role: string }) {
+    const projectId = this.currentId();
+    if (!projectId) return;
+
+    this.projectService.assignEmployee(projectId, data.membershipId, data.role).subscribe(() => {
+      this.loadProjectDetails(projectId); // Перезагружаем проект с новым списком участников
+    });
+  }
+
+  removeMember(membershipId: string) {
+    const projectId = this.currentId();
+    if (!projectId || !confirm('Удалить участника из проекта?')) return;
+
+    this.projectService.removeEmployee(projectId, membershipId).subscribe(() => {
+      this.loadProjectDetails(projectId);
+    });
+  }
+
+  onAddMembers() {
+    this.loading.set(true);
+    this.showAddMemberModal = signal(true);
+
   }
 
   onCancel() {
     this.router.navigate(['/projects']);
   }
+
 
 }
