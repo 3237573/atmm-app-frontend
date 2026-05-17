@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {MemberResponse} from '../../models/member.model';
+import {MemberRO} from '../models/member.model';
 
 @Injectable({providedIn: 'root'})
 export class MemberService {
@@ -12,11 +12,16 @@ export class MemberService {
   //   return this.http.get<MemberResponse[]>('/members');
   // }
 
-  getMembers(): Observable<MemberResponse[]> {
-    return this.http.get<MemberResponse[]>(this.baseUrl);
+
+  getMember(memberId: string): Observable<MemberRO> {
+    return this.http.get<MemberRO>(`${this.baseUrl}/${memberId}`);
   }
 
-  inviteMember(email: string, roleName: string, password: string, displayName: string): Observable<MemberResponse[]> {
+  getMembers(): Observable<MemberRO[]> {
+    return this.http.get<MemberRO[]>(this.baseUrl);
+  }
+
+  inviteMember(email: string, roleName: string, password: string, displayName: string): Observable<MemberRO[]> {
     // Путь должен совпадать с тем, что мы прописали в Ktor
     return this.http.post<any>(`${this.baseUrl}/invite`, { email, roleName, password, displayName });
   }

@@ -1,7 +1,6 @@
 @use "sass:color";
 
 /* === Task List Page === */
-
 .task-list {
   padding: 1.5rem;
   min-height: 100vh;
@@ -34,32 +33,51 @@
   }
 }
 
-/* === Stats Grid === */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 0.75rem;
+/* === Row: Filters (1/3) + Stats (2/3) === */
+.filters-stats-row {
+  display: flex;
+  gap: 1rem;
   margin-bottom: 1.5rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+
+  .filters-container {
+    flex: 1 1 33%; // занимает ~1/3
+    min-width: 240px;
+    margin-bottom: 0;
+  }
+
+  .stats-grid {
+    flex: 1 1 66%; // занимает ~2/3
+    margin-bottom: 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+  }
 }
 
+/* === Stats Cards (ещё компактнее) === */
 .stat-card {
   background: var(--bg-card);
-  padding: 0.75rem;
-  border-radius: 10px;
+  padding: 0.35rem 0.2rem;
+  border-radius: 8px;
   border: 1px solid var(--border);
   text-align: center;
 
   .stat-value {
-    font-size: 1.25rem;
-    font-weight: 800;
+    font-size: 0.95rem;
+    font-weight: 700;
     color: var(--accent);
+    line-height: 1.2;
   }
 
   .stat-label {
-    font-size: 0.65rem;
+    font-size: 0.55rem;
     color: var(--text-muted);
     text-transform: uppercase;
-    margin-top: 3px;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    margin-top: 2px;
   }
 
   &.pending .stat-value { color: #ffab00; }
@@ -68,37 +86,38 @@
   &.overdue .stat-value { color: #ef4444; }
 }
 
-/* === Filters === */
-.filters-container {
-  margin-bottom: 1rem;
-}
-
+/* === Filters Bar === */
 .filters-bar {
   display: flex;
-  gap: 1rem;
+  gap: 0.6rem;
   align-items: center;
   flex-wrap: wrap;
 }
 
+/* === Search Box === */
 .search-box {
+  flex: 1;
+  min-width: 140px;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  padding: 0.5rem 0.75rem;
+  padding: 0.35rem 0.6rem;
   border-radius: 0.5rem;
 
   i {
     color: var(--text-muted);
+    font-size: 1.1rem;
   }
 
   input {
+    width: 100%;
     background: transparent;
     border: none;
     color: var(--text-main);
     outline: none;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
 }
 
@@ -113,10 +132,10 @@
     background: var(--bg-card);
     border: 1px solid var(--border);
     color: var(--text-main);
-    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    padding: 0.35rem 1.6rem 0.35rem 0.6rem;
     border-radius: 0.5rem;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
 
     &:focus {
       outline: none;
@@ -126,25 +145,31 @@
 
   .select-arrow {
     position: absolute;
-    right: 10px;
+    right: 6px;
     color: var(--text-muted);
     pointer-events: none;
+    font-size: 1rem;
   }
 }
 
 /* === View Toggle === */
 .view-toggle {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.3rem;
 
   .toggle-btn {
     background: var(--bg-card);
     border: 1px solid var(--border);
     color: var(--text-muted);
-    padding: 0.5rem;
+    padding: 0.35rem;
     border-radius: 0.5rem;
     cursor: pointer;
-    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+
+    i {
+      font-size: 1.1rem;
+    }
 
     &.active {
       background: var(--accent);
@@ -200,10 +225,11 @@
 
 /* === Priority Badge === */
 .priority-badge {
-  padding: 0.25rem 0.75rem;
+  padding: 0.2rem 0.6rem;
   border-radius: 2rem;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
+  white-space: nowrap;
 
   &.low { background: rgba(var(--success-rgb), 0.2); color: var(--success); }
   &.medium { background: rgba(var(--warning-rgb), 0.2); color: var(--warning); }
@@ -247,8 +273,8 @@
     background: var(--bg-main);
     border: 1px solid var(--border);
     border-radius: 0.75rem;
-    padding: 1rem;
-    margin-bottom: 1rem;
+    padding: 0.8rem;
+    margin-bottom: 0.8rem;
     cursor: pointer;
     transition: all 0.2s;
 
@@ -258,37 +284,53 @@
     }
 
     .card-header {
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.3rem;
     }
 
     .card-title {
-      font-size: 0.95rem;
-      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-
-      .sub-icon {
-        font-size: 1rem;
-        color: var(--text-muted);
-      }
+      gap: 0.4rem;
     }
 
     .card-footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-size: 0.7rem;
       color: var(--text-muted);
-
-      .card-meta {
-        display: flex;
-        gap: 0.75rem;
-
-        i {
-          font-size: 1rem;
-          margin-right: 0.25rem;
-        }
-      }
     }
+  }
+}
+
+/* === Адаптивность === */
+@media (max-width: 1000px) {
+  .filters-stats-row .stats-grid {
+    gap: 0.4rem;
+  }
+  .stat-card .stat-label {
+    font-size: 0.5rem;
+    white-space: normal;
+    line-height: 1.2;
+  }
+}
+
+@media (max-width: 800px) {
+  .filters-stats-row {
+    flex-direction: column;
+    .filters-container,
+    .stats-grid {
+      flex: auto;
+      width: 100%;
+    }
+    .stats-grid {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+    }
+  }
+  .search-box {
+    min-width: auto;
   }
 }

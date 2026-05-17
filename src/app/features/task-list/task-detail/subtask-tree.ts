@@ -9,14 +9,18 @@ import { TaskTreeRO } from '../../../core/models/task/task.model';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="subtask-node">
-      <div class="subtask-row" [routerLink]="['/tasks', node.task.id]">
+      <div class="subtask-row" [routerLink]="['/tasks', 'edit', node.task.id]">
         <div class="subtask-title">
           @if (node.task.parentTaskId) {
             <i class="material-icons sub-icon">subdirectory_arrow_right</i>
           }
           {{ node.task.title }}
         </div>
-        <div class="subtask-assignee">{{ node.task.assigneeName || '—' }}</div>
+        <div class="subtask-assignee">
+          {{ (node.task.assigneeNames && node.task.assigneeNames.length > 0)
+          ? node.task.assigneeNames + ', '
+          : '—' }}
+        </div>
         <div class="subtask-due">{{ (node.task.dueDate | date:'dd.MM.yyyy') || '—' }}</div>
         <i class="material-icons chevron">chevron_right</i>
       </div>

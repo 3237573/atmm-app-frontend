@@ -1,8 +1,8 @@
 import { Component, Input, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../../../core/services/auth/auth.service';
-import { TaskCommentService } from '../../../../../core/services/task-comment/task-comment.service';
+import { AuthService } from '../../../../../core/services/auth.service';
+import { TaskCommentService } from '../../../../../core/services/task-comment.service';
 import { TaskComment } from '../../../../../core/models/task/task.model';
 
 @Component({

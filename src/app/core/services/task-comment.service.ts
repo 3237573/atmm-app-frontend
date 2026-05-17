@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {TaskComment} from '../../models/task/task.model';
-import {ITaskCommentCreateRequest, ITaskCommentUpdateRequest} from '../../models/task/task-comment.model';
+import {TaskComment} from '../models/task/task.model';
+import {ITaskCommentCreateRequest, ITaskCommentUpdateRequest} from '../models/task/task-comment.model';
 
 
 @Injectable({ providedIn: 'root' })

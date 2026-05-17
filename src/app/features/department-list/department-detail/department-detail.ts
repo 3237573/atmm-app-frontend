@@ -5,12 +5,14 @@ import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 
 import { MemberService } from '../../../core/services';
-import { MemberResponse } from '../../../core/models/member.model';
-import { DepartmentService } from '../../../core/services/departament/departament.service';
+import { MemberRO } from '../../../core/models/member.model';
+import { DepartmentService } from '../../../core/services/departament.service';
 import { DepartmentRO } from '../../../core/models/departament.model';
-import {NavigationService} from '../../../core/services/navigation/navigation.service';
+import {NavigationService} from '../../../core/services/navigation.service';
 import {BackOnEscapeDirective} from '../../../core/directives/back-on-escape.directive';
 import {HasPermissionDirective} from '../../../core/directives/has-permission.directive';
+import {ProjectService} from '../../../core/services/project.service';
+import {ProjectRO} from '../../../core/models/project.model';
 
 @Component({
   selector: 'app-department-detail',
@@ -23,13 +25,17 @@ export class DepartmentDetail implements OnInit {
   private readonly deptService = inject(DepartmentService);
   private readonly navService = inject(NavigationService);
   private readonly memberService = inject(MemberService);
+  private readonly projectService = inject(ProjectService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
 
-  allMembers = signal<MemberResponse[]>([]);
+  allMembers = signal<MemberRO[]>([]);
   allDepartments = signal<DepartmentRO[]>([]);
+  allProjects = signal<ProjectRO[]>([]);
+
   department = signal<DepartmentRO | null>(null);
+  projects = signal<ProjectRO[]>([]);
 
   isNew = signal(false);
   loading = signal(true);
@@ -66,8 +72,8 @@ export class DepartmentDetail implements OnInit {
       this.memberService.getMembers(),
       this.deptService.getDepartments()
     ]).subscribe({
-      next: ([dept, members, depts]) => {
-        this.department.set(dept);
+      next: ([department, members, depts]) => {
+        this.department.set(department);
         this.allMembers.set(members || []);
         this.allDepartments.set(depts || []);
         this.loading.set(false);
@@ -76,7 +82,7 @@ export class DepartmentDetail implements OnInit {
     });
   }
 
-  deptEmployees = computed(() => {
+  departmentEmployees = computed(() => {
     const dept = this.department();
     if (!dept) return [];
     return this.allMembers().filter(m =>
@@ -85,7 +91,7 @@ export class DepartmentDetail implements OnInit {
   });
 
   availableToAssign = computed(() => {
-    const employeesInDept = new Set(this.deptEmployees().map(e => e.id));
+    const employeesInDept = new Set(this.departmentEmployees().map(e => e.id));
     return this.allMembers().filter(m => !employeesInDept.has(m.id));
   });
 
@@ -113,7 +119,7 @@ export class DepartmentDetail implements OnInit {
     });
   }
 
-  getRoleInDept(member: MemberResponse, deptId: string): string {
+  getRoleInDept(member: MemberRO, deptId: string): string {
     const affiliation = member.departments?.find(a => a.departmentId === deptId);
     return affiliation ? affiliation.role : 'Участник';
   }

@@ -8,6 +8,9 @@ import {Login} from './core/auth/login/login';
 import {MainLayout} from './core/layout/main-layout/main-layout';
 import {authGuard} from './core/guards/auth.guard';
 import {Tracker} from './pages/tracker/tracker';
+import {TaskList} from './features/task-list/task-list';
+import {TaskDetail} from './features/task-list/task-detail/task-detail';
+import {TaskCreate} from './features/task-list/task-create/task-create';
 
 export const routes: Routes = [
   { path: 'login', component: Login, title: 'Вход' },
@@ -37,6 +40,26 @@ export const routes: Routes = [
             component: ProjectForm,
             title: 'Редактирование проекта',
             data: { permission: 'project:update' }
+          }
+        ]
+      },
+      {
+        path: 'tasks',
+        data: { permission: 'task:read' },
+        canActivate: [permissionGuard],
+        children: [
+          { path: '', component: TaskList, title: 'Задачи' },
+          {
+            path: 'create',
+            component: TaskCreate,
+            title: 'Новая задача',
+            data: { permission: 'task:create' }
+          },
+          {
+            path: 'edit/:id',
+            component: TaskDetail,
+            title: 'Редактирование pflfxb',
+            data: { permission: 'task:update' }
           }
         ]
       },

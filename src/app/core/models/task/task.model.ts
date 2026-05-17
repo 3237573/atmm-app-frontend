@@ -14,7 +14,7 @@ export interface TaskRO {
   priority: TaskPriority;
   assigneeId?: string;
   assigneeIds?: string[];
-  assigneeName: string;
+  assigneeNames: string;
   departmentName: string;
   departmentId: string;
   projectName?: string;

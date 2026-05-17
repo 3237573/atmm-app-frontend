@@ -1,7 +1,9 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {CreateDepartmentRequest, DepartmentRO, UpdateDepartmentRequest} from '../../models/departament.model';
+import {CreateDepartmentRequest, DepartmentRO, UpdateDepartmentRequest} from '../models/departament.model';
+import {MemberRO} from '../models/member.model';
+import {MemberService} from './member.service';
 
 
 @Injectable({providedIn: 'root'})
@@ -15,6 +17,10 @@ export class DepartmentService {
 
   getDepartmentById(id: string): Observable<DepartmentRO> {
     return this.http.get<DepartmentRO>(`${this.baseUrl}/${id}`);
+  }
+
+  getDepartmentEmployees(id: string): Observable<MemberRO[]> {
+    return this.http.get<MemberRO[]>(`${this.baseUrl}/${id}/employees`);
   }
 
   createDepartment(request: CreateDepartmentRequest): Observable<DepartmentRO> {

@@ -1,6 +1,6 @@
 import { Component, input, output, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MemberResponse } from '../../../core/models/member.model';
+import { MemberRO } from '../../../core/models/member.model';
 import { ProjectMemberRO } from '../../../core/models/project.model';
 
 @Component({
@@ -13,7 +13,7 @@ import { ProjectMemberRO } from '../../../core/models/project.model';
 export class ProjectMembersComponent {
   // Входные данные
   projectMembers = input.required<ProjectMemberRO[]>();
-  allMembers = input.required<MemberResponse[]>();
+  allMembers = input.required<MemberRO[]>();
   loading = input<boolean>(false);
 
   // События

@@ -1,6 +1,6 @@
 import {Component, computed, inject, signal} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../services/auth/auth.service';
+import { AuthService } from '../../services/auth.service';
 import { CompanyInfo } from '../../models/auth.model';
 import {email} from '@angular/forms/signals';
 

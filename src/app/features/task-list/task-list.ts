@@ -1,10 +1,10 @@
-import {Component, computed, HostListener, inject, OnInit, signal} from '@angular/core';
-import {CommonModule, Location} from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import {Router, RouterModule} from '@angular/router';
-import { TaskService } from '../../core/services/task/task.service';
-import { TaskTreeRO, TaskRO } from '../../core/models/task/task.model';
-import { AuthService } from '../../core/services/auth/auth.service';
+import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {RouterModule} from '@angular/router';
+import {TaskService} from '../../core/services/task.service';
+import {TaskRO, TaskTreeRO} from '../../core/models/task/task.model';
+import {AuthService} from '../../core/services/auth.service';
 import {BackOnEscapeDirective} from '../../core/directives/back-on-escape.directive';
 
 @Component({
@@ -89,15 +89,25 @@ export class TaskList implements OnInit {
     });
   }
 
-  formatAssigneeName(assigneeName: string): string {
+  formatAssigneeName(assigneeName: string | string[]): string {
     if (!assigneeName) return 'Не назначен';
 
+    // Приводим к строке, если пришёл массив
+    let assigneeString: string;
+    if (Array.isArray(assigneeName)) {
+      assigneeString = assigneeName.join(', ');
+    } else if (typeof assigneeName !== 'string') {
+      assigneeString = String(assigneeName);
+    } else {
+      assigneeString = assigneeName;
+    }
+
     const user = this.currentUser();
-    if (!user) return assigneeName;
+    if (!user) return assigneeString;
 
     const currentUserName = user.displayName || user.fullName || user.email?.split('@')[0] || '';
 
-    const assignees = assigneeName.split(',').map(a => a.trim());
+    const assignees = assigneeString.split(',').map(a => a.trim());
     const formattedAssignees = assignees.map(name => {
       if (name === currentUserName) return 'Я';
       return name;

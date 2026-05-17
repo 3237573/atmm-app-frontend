@@ -1,4 +1,4 @@
-<div class="task-create">
+<div class="task-create" appBackOnEscape>
   <div class="page-header">
     <h1>
       <i class="material-icons">assignment_add</i>
@@ -35,14 +35,37 @@
       ></textarea>
     </div>
 
+    <div class="form-row" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+      <div class="form-group" style="flex: 1; margin-bottom: 0;">
+        <label>Отдел задачи *</label>
+        <select [ngModel]="selectedDepartmentId()" (ngModelChange)="onDepartmentChange($event)"
+                class="form-control" style="width: 100%;">
+          <option value="" disabled>-- Выберите отдел --</option>
+          @for (dept of userDepartments(); track dept.departmentId) {
+            <option [value]="dept.departmentId">🏢 {{ dept.departmentName }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group" style="flex: 1; margin-bottom: 0;">
+        <label>Проект</label>
+        <select [(ngModel)]="taskData.projectId" class="form-control" style="width: 100%;">
+          <option value="">Без проекта (Общая задача)</option>
+          @for (project of userProjects(); track project.projectId) {
+            <option [value]="project.projectId">📁 {{ project.projectTitle }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
     <div class="form-row">
       <div class="form-group">
         <label>Приоритет</label>
         <select [(ngModel)]="taskData.priority" class="form-control">
           <option value="LOW">🟢 Низкий</option>
           <option value="MEDIUM">🟡 Средний</option>
-          <option value="HIGH">🟠 Высокий</option>
-          <option value="URGENT">🔴 Срочный</option>
+          <option value="HIGH">🔴 Высокий</option>
+          <option value="CRITICAL">🔥 Критический</option>
         </select>
       </div>
 
@@ -58,12 +81,12 @@
     </div>
 
     <div class="form-group">
-      <label>Исполнители</label>
+      <label>Исполнители *</label>
       <div class="members-list">
-        @if (loading()) {
-          <div>Загрузка...</div>
+        @if (loadingMembers()) {
+          <div>Загрузка сотрудников...</div>
         } @else {
-          @for (member of members(); track member.id) {
+          @for (member of departmentMembers(); track member.id) {
             <label class="member-row">
               <input
                 type="checkbox"
@@ -75,9 +98,12 @@
               <span class="member-role" [class]="getRoleBadgeClass(member.roleName)">{{ member.roleName }}</span>
             </label>
           }
+          @if (departmentMembers().length === 0 && !loadingMembers()) {
+            <div class="empty-members">В этом отделе нет сотрудников</div>
+          }
         }
       </div>
-      @if (taskData.assigneeMembershipIds.length === 0) {
+      @if (taskData.assigneeMembershipIds.length === 0 && !loadingMembers()) {
         <small class="hint-text">Выберите хотя бы одного исполнителя</small>
       }
     </div>

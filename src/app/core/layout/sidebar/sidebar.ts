@@ -1,10 +1,10 @@
 import {Component, HostBinding, OnInit, inject, signal, computed} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {NavigationEnd, Router, RouterLink, RouterLinkActive} from '@angular/router';
-import {CompanyService} from '../../services/company/company.service';
-import {NavigationService} from '../../services/navigation/navigation.service';
+import {CompanyService} from '../../services/company.service';
+import {NavigationService} from '../../services/navigation.service';
 import {filter} from 'rxjs';
-import {AuthService} from '../../services/auth/auth.service';
+import {AuthService} from '../../services/auth.service';
 
 interface MenuItem {
   path: string;

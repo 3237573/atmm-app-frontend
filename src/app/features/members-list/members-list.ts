@@ -1,10 +1,10 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MemberService } from '../../core/services/member/member.service';
-import { MemberResponse } from '../../core/models/member.model';
+import { MemberService } from '../../core/services/member.service';
+import { MemberRO } from '../../core/models/member.model';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../core/services/auth/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-members-list',
@@ -16,7 +16,7 @@ import { AuthService } from '../../core/services/auth/auth.service';
 export class MembersList implements OnInit {
   private readonly authService = inject(AuthService);
 
-  members = signal<MemberResponse[]>([]);
+  members = signal<MemberRO[]>([]);
   loading = signal(true);
   searchQuery = signal('');
   selectedRole = signal('');
@@ -47,7 +47,7 @@ export class MembersList implements OnInit {
     });
   }
 
-  filteredMembers(): MemberResponse[] {
+  filteredMembers(): MemberRO[] {
     return this.members().filter(member => {
       const matchesSearch = !this.searchQuery() ||
         member.displayName?.toLowerCase().includes(this.searchQuery().toLowerCase()) ||
@@ -59,7 +59,7 @@ export class MembersList implements OnInit {
     });
   }
 
-  private sortMembersByRole(members: MemberResponse[]): MemberResponse[] {
+  private sortMembersByRole(members: MemberRO[]): MemberRO[] {
     const rolePriority: { [key: string]: number } = {
       'OWNER': 1,
       'ADMIN': 2,
@@ -79,19 +79,19 @@ export class MembersList implements OnInit {
   }
 
   // Действия с пользователем
-  sendMessage(member: MemberResponse): void {
+  sendMessage(member: MemberRO): void {
     // TODO: открыть чат
     console.log('Send message to', member.displayName);
   }
 
-  assignTask(member: MemberResponse): void {
+  assignTask(member: MemberRO): void {
     // Переходим на создание задачи с параметром исполнителя
     void this.router.navigate(['/tasks/create'], {
       queryParams: { assigneeId: member.id, assigneeName: member.displayName }
     });
   }
 
-  viewProfile(member: MemberResponse): void {
+  viewProfile(member: MemberRO): void {
     this.router.navigate(['/profile', member.id]);
   }
 

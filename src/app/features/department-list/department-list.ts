@@ -1,10 +1,10 @@
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {Component, computed, inject, OnInit, signal} from '@angular/core';
-import {DepartmentService} from '../../core/services/departament/departament.service';
+import {DepartmentService} from '../../core/services/departament.service';
 import {DepartmentRO} from '../../core/models/departament.model';
 import {BackOnEscapeDirective} from '../../core/directives/back-on-escape.directive';
-import {NavigationService} from '../../core/services/navigation/navigation.service';
+import {NavigationService} from '../../core/services/navigation.service';
 import {HasPermissionDirective} from '../../core/directives/has-permission.directive';
 
 @Component({

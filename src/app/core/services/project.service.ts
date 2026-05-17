@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {CreateProjectRO, ProjectRO, UpdateProjectRO} from '../../models/project.model';
+import {CreateProjectRO, ProjectRO, UpdateProjectRO} from '../models/project.model';
 
 
 @Injectable({ providedIn: 'root' })

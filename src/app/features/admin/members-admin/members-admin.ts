@@ -1,10 +1,10 @@
 import { Component, computed, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MemberService } from '../../../core/services/member/member.service';
-import { MemberResponse } from '../../../core/models/member.model';
+import { MemberService } from '../../../core/services/member.service';
+import { MemberRO } from '../../../core/models/member.model';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../core/services/auth/auth.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Subject, finalize, takeUntil } from 'rxjs';
 
 interface InviteData {
@@ -35,12 +35,12 @@ export class MembersAdmin implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
   // Reactive state
-  members = signal<MemberResponse[]>([]);
+  members = signal<MemberRO[]>([]);
   loading = signal(true);
   isSubmitting = signal(false);
 
   // Edit modal
-  editingMember = signal<MemberResponse | null>(null);
+  editingMember = signal<MemberRO | null>(null);
   showEditModal = signal(false);
 
   // Invite form
@@ -111,7 +111,7 @@ export class MembersAdmin implements OnInit, OnDestroy {
 
   // ========== FILTERING AND SORTING ==========
 
-  filteredMembers(): MemberResponse[] {
+  filteredMembers(): MemberRO[] {
     let filtered = this.members().filter(member => {
       const matchesSearch = !this.searchQuery() ||
         member.displayName?.toLowerCase().includes(this.searchQuery().toLowerCase()) ||
@@ -129,17 +129,17 @@ export class MembersAdmin implements OnInit, OnDestroy {
     return filtered;
   }
 
-  paginatedMembers(): MemberResponse[] {
+  paginatedMembers(): MemberRO[] {
     const filtered = this.filteredMembers();
     const start = (this.currentPage() - 1) * this.itemsPerPage();
     const end = start + this.itemsPerPage();
     return filtered.slice(start, end);
   }
 
-  sortMembers(members: MemberResponse[]): MemberResponse[] {
+  sortMembers(members: MemberRO[]): MemberRO[] {
     return [...members].sort((a, b) => {
-      let aValue: any = a[this.sortColumn() as keyof MemberResponse];
-      let bValue: any = b[this.sortColumn() as keyof MemberResponse];
+      let aValue: any = a[this.sortColumn() as keyof MemberRO];
+      let bValue: any = b[this.sortColumn() as keyof MemberRO];
 
       // Handle displayName sorting
       if (this.sortColumn() === 'displayName') {
@@ -231,7 +231,7 @@ export class MembersAdmin implements OnInit, OnDestroy {
     });
   }
 
-  editMember(member: MemberResponse): void {
+  editMember(member: MemberRO): void {
     this.editingMember.set({ ...member });
     this.showEditModal.set(true);
   }
@@ -322,7 +322,7 @@ export class MembersAdmin implements OnInit, OnDestroy {
     };
   }
 
-  private sortMembersByRole(members: MemberResponse[]): MemberResponse[] {
+  private sortMembersByRole(members: MemberRO[]): MemberRO[] {
     const rolePriority: { [key: string]: number } = {
       'OWNER': 1,
       'ADMIN': 2,

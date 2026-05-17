@@ -34,6 +34,6 @@ export interface UpdateProjectRO {
 
 export interface ProjectAffiliation {
   projectId: string;
-  projectName: string;
+  projectTitle: string;
   role: string;
 }

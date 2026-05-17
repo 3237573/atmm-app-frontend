@@ -1,5 +1,3 @@
-import {types} from 'sass';
-import List = types.List;
 import {DepartmentAffiliation} from './departament.model';
 import {ProjectAffiliation} from './project.model';
 
@@ -8,11 +6,7 @@ export interface IMemberVO {
   displayName: string;
 }
 
-
-
-
-
-export interface MemberResponse {
+export interface MemberRO {
   id: string;
   email: string;
   displayName: string;

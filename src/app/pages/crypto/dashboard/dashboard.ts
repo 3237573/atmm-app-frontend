@@ -1,5 +1,5 @@
 import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
-import {AuthService} from '../../../core/services/auth/auth.service';
+import {AuthService} from '../../../core/services/auth.service';
 import {ExchangePrice, ExchangeSpread} from '../../../core/models/crypto.model';
 import {CommonModule, DecimalPipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';

@@ -3,7 +3,7 @@ import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {RouterLink} from '@angular/router';
 import {CommonModule} from '@angular/common';
 import {CompanySelector} from '../company-selector/company-selector';
-import {AuthService} from '../../services/auth/auth.service';
+import {AuthService} from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',

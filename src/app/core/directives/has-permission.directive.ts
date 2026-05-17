@@ -1,6 +1,6 @@
 // has-permission.directive.ts
 import {Directive, inject, Input, OnInit, TemplateRef, ViewContainerRef} from '@angular/core';
-import {AuthService} from '../services/auth/auth.service';
+import {AuthService} from '../services/auth.service';
 
 @Directive({
   selector: '[appHasPermission]',

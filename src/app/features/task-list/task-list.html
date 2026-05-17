@@ -9,48 +9,53 @@
     </button>
   </div>
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-value">{{ stats().total }}</div>
-      <div class="stat-label">Всего</div>
+  <!-- Новая строка: фильтры + статистика -->
+  <div class="filters-stats-row">
+    <!-- Фильтры (50% ширины) -->
+    <div class="filters-container">
+      <div class="filters-bar">
+        <div class="search-box">
+          <i class="material-icons">search</i>
+          <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Поиск...">
+        </div>
+        <div class="status-select-wrapper" [class]="getStatusClass(selectedStatus())">
+          <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)" class="status-select-styled">
+            <option value="">Все статусы</option>
+            <option value="PENDING">Ожидает</option>
+            <option value="IN_PROGRESS">В работе</option>
+            <option value="REVIEW">Проверка</option>
+            <option value="COMPLETED">Готово</option>
+          </select>
+          <i class="material-icons select-arrow">expand_more</i>
+        </div>
+        <div class="view-toggle">
+          <button class="toggle-btn" [class.active]="viewMode() === 'list'" (click)="setViewMode('list')"><i class="material-icons">view_list</i></button>
+          <button class="toggle-btn" [class.active]="viewMode() === 'board'" (click)="setViewMode('board')"><i class="material-icons">view_kanban</i></button>
+        </div>
+      </div>
     </div>
-    <div class="stat-card pending">
-      <div class="stat-value">{{ stats().pending }}</div>
-      <div class="stat-label">Ожидают</div>
-    </div>
-    <div class="stat-card progress">
-      <div class="stat-value">{{ stats().inProgress }}</div>
-      <div class="stat-label">В работе</div>
-    </div>
-    <div class="stat-card completed">
-      <div class="stat-value">{{ stats().completed }}</div>
-      <div class="stat-label">Готово</div>
-    </div>
-    <div class="stat-card overdue">
-      <div class="stat-value">{{ stats().overdue }}</div>
-      <div class="stat-label">Просрочено</div>
-    </div>
-  </div>
 
-  <div class="filters-container">
-    <div class="filters-bar">
-      <div class="search-box">
-        <i class="material-icons">search</i>
-        <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Поиск...">
+    <!-- Статистика (50% ширины, в одну строку) -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">{{ stats().total }}</div>
+        <div class="stat-label">Всего</div>
       </div>
-      <div class="status-select-wrapper" [class]="getStatusClass(selectedStatus())">
-        <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)" class="status-select-styled">
-          <option value="">Все статусы</option>
-          <option value="PENDING">Ожидает</option>
-          <option value="IN_PROGRESS">В работе</option>
-          <option value="REVIEW">Проверка</option>
-          <option value="COMPLETED">Готово</option>
-        </select>
-        <i class="material-icons select-arrow">expand_more</i>
+      <div class="stat-card pending">
+        <div class="stat-value">{{ stats().pending }}</div>
+        <div class="stat-label">Ожидают</div>
       </div>
-      <div class="view-toggle">
-        <button class="toggle-btn" [class.active]="viewMode() === 'list'" (click)="setViewMode('list')"><i class="material-icons">view_list</i></button>
-        <button class="toggle-btn" [class.active]="viewMode() === 'board'" (click)="setViewMode('board')"><i class="material-icons">view_kanban</i></button>
+      <div class="stat-card progress">
+        <div class="stat-value">{{ stats().inProgress }}</div>
+        <div class="stat-label">В работе</div>
+      </div>
+      <div class="stat-card completed">
+        <div class="stat-value">{{ stats().completed }}</div>
+        <div class="stat-label">Готово</div>
+      </div>
+      <div class="stat-card overdue">
+        <div class="stat-value">{{ stats().overdue }}</div>
+        <div class="stat-label">Просрочено</div>
       </div>
     </div>
   </div>
@@ -72,7 +77,7 @@
         </thead>
         <tbody>
           @for (task of filteredTasks(); track task.id) {
-            <tr [routerLink]="['/tasks', task.id]" class="task-row" [style.padding-left.px]="getIndentLevel(task, flatTasks()) * 20">
+            <tr [routerLink]="['/tasks', 'edit', task.id]" class="task-row" [style.padding-left.px]="getIndentLevel(task, flatTasks()) * 20">
               <td><span class="priority-badge" [class]="getPriorityColor(task.priority)">{{ task.priority }}</span></td>
               <td>
                 <div class="status-select-wrapper" [class]="getStatusClass(task.status)">
@@ -124,7 +129,7 @@
               </td>
               <td class="assignee-cell">
                 <div class="assignee">
-                  <span>{{ formatAssigneeName(task.assigneeName) || 'Не назначен' }}</span>
+                  <span>{{ formatAssigneeName(task.assigneeNames) || 'Не назначен' }}</span>
                 </div>
               </td>
               <td class="text-right"><i class="material-icons arrow">chevron_right</i></td>
@@ -143,7 +148,7 @@
           <div class="column-tasks">
             @for (task of flatTasks(); track task.id) {
               @if (task.status === status) {
-                <div class="kanban-card" [routerLink]="['/tasks', task.id]">
+                <div class="kanban-card" [routerLink]="['/tasks', 'edit', task.id]">
                   <div class="card-header"><span class="priority-badge" [class]="getPriorityColor(task.priority)">{{ task.priority }}</span></div>
                   <div class="card-title">
                     @if (task.parentTaskId) {
@@ -153,7 +158,7 @@
                   </div>
                   <div class="card-footer">
                     <div class="assignee">
-                      <span>{{ formatAssigneeName(task.assigneeName) }}</span>
+                      <span>{{ formatAssigneeName(task.assigneeNames) }}</span>
                     </div>
                     <div class="card-meta">
                       @if ((task.subtasksCount || 0) > 0) {

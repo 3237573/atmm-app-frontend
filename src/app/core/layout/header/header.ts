@@ -1,6 +1,6 @@
 import {Component, computed, inject} from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { AuthService } from '../../services/auth/auth.service';
+import { AuthService } from '../../services/auth.service';
 import { filter, map, startWith } from 'rxjs';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';

@@ -3,8 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { AuthMeResponse, CompanyInfo, IMembership, UserCompaniesResponse } from '../../models/auth.model';
-import { NavigationService } from '../navigation/navigation.service';
+import { AuthMeResponse, CompanyInfo, IMembership, UserCompaniesResponse } from '../models/auth.model';
+import { NavigationService } from './navigation.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

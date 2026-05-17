@@ -7,7 +7,7 @@ import {
 import {provideRouter} from '@angular/router';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
 import {routes} from './app.routes';
-import {AuthService} from './core/services/auth/auth.service';
+import {AuthService} from './core/services/auth.service';
 import {credentialsInterceptor} from './core/interceptors/credentials.interceptor';
 import {apiInterceptor} from './core/interceptors/api.interceptor';
 import {TranslocoHttpLoader} from './transloco-loader';

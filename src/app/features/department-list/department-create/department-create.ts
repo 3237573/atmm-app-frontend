@@ -4,10 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
-import { DepartmentService } from '../../../core/services/departament/departament.service';
+import { DepartmentService } from '../../../core/services/departament.service';
 import { MemberService } from '../../../core/services';
 import { CreateDepartmentRequest } from '../../../core/models/departament.model';
-import { MemberResponse } from '../../../core/models/member.model';
+import { MemberRO } from '../../../core/models/member.model';
 
 @Component({
   selector: 'app-department-create',
@@ -23,7 +23,7 @@ export class DepartmentCreate implements OnInit {
 
   loading = signal(false);
   departments = signal<any[]>([]);
-  allMembers = signal<MemberResponse[]>([]);
+  allMembers = signal<MemberRO[]>([]);
   selectedMembers = signal<Map<string, string>>(new Map());
 
   formData: CreateDepartmentRequest = {

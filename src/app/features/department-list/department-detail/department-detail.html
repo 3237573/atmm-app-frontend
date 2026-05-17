@@ -33,7 +33,7 @@
           <div class="empty-state">Сначала сохраните отдел, чтобы добавить сотрудников.</div>
         } @else {
           <div class="employee-list">
-            @for (m of deptEmployees(); track m.id) {
+            @for (m of departmentEmployees(); track m.id) {
               <div class="employee-item">
                 <div class="emp-line">
                   <span class="emp-name">{{ m.displayName }}</span>
@@ -99,7 +99,7 @@
       <h3>Назначить главу отдела</h3>
 
       <div class="selection-list">
-        @for (m of deptEmployees(); track m.id) {
+        @for (m of departmentEmployees(); track m.id) {
           <div class="selection-row">
             <div class="m-info">
               <p>{{ m.displayName }}</p>

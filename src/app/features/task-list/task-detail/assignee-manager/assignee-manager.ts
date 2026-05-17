@@ -1,11 +1,11 @@
 import { Component, Input, Output, EventEmitter, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MemberService } from '../../../../core/services/member/member.service';
-import { TaskService } from '../../../../core/services/task/task.service';
-import { MemberResponse } from '../../../../core/models/member.model';
+import { MemberService } from '../../../../core/services/member.service';
+import { TaskService } from '../../../../core/services/task.service';
+import { MemberRO } from '../../../../core/models/member.model';
 import { TaskRO } from '../../../../core/models/task/task.model';
-import { AuthService } from '../../../../core/services/auth/auth.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-assignee-manager',
@@ -24,7 +24,7 @@ export class AssigneeManager implements OnInit {
   private readonly taskService = inject(TaskService);
   private readonly authService = inject(AuthService);
 
-  members = signal<MemberResponse[]>([]);
+  members = signal<MemberRO[]>([]);
   selectedMembershipIds = signal<string[]>([]);
   loading = signal(true);
   saving = signal(false);
@@ -48,7 +48,7 @@ export class AssigneeManager implements OnInit {
     });
   }
 
-  filteredMembers(): MemberResponse[] {
+  filteredMembers(): MemberRO[] {
     const query = this.searchQuery().toLowerCase();
     if (!query) return this.members();
 
@@ -98,7 +98,7 @@ export class AssigneeManager implements OnInit {
     this.assigneesUpdated.emit();
   }
 
-  getInitials(member: MemberResponse): string {
+  getInitials(member: MemberRO): string {
     return (member.displayName || member.email).charAt(0).toUpperCase();
   }
 

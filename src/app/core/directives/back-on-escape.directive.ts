@@ -1,5 +1,5 @@
 import { Directive, HostListener, inject, input } from '@angular/core';
-import { NavigationService } from '../services/navigation/navigation.service';
+import { NavigationService } from '../services/navigation.service';
 
 @Directive({
   selector: '[appBackOnEscape]',

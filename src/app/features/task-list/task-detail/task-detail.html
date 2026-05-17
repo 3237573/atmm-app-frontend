@@ -86,7 +86,7 @@
         <div class="meta-item">
           <i class="material-icons">people</i>
           <span>Исполнители:</span>
-          <strong>{{ formatAssigneeName(task.assigneeName) }}</strong>
+          <strong>{{ formatAssigneeName(task.assigneeNames) }}</strong>
           @if (canManageAssignees()) {
             <button class="edit-assignees-btn" (click)="openAssigneeModal()" title="Изменить исполнителей">
               <i class="material-icons">edit</i>
@@ -96,12 +96,17 @@
         <div class="meta-item">
           <i class="material-icons">person_add</i>
           <span>Постановщик:</span>
-          <strong>{{ (currentUser()?.id === task.creatorMembershipId) ? 'Я' : (task.creatorName || 'Не указан') }}</strong>
+          <strong>{{ formatAssigneeName(task.creatorName) }}</strong>
         </div>
         <div class="meta-item">
           <i class="material-icons">business</i>
           <span>Отдел:</span>
           <strong>{{ task.departmentName || 'Общий' }}</strong>
+        </div>
+        <div class="meta-item">
+          <i class="material-icons">folder</i>
+          <span>Проект:</span>
+          <strong>{{ task.projectName || 'Без проекта (Общая задача)' }}</strong>
         </div>
         <div class="meta-item">
           <i class="material-icons">calendar_today</i>
@@ -144,6 +149,18 @@
         }
       </div>
 
+      <div class="info-row">
+        <div class="info-item">
+          <span class="label"><i class="material-icons">people</i> Исполнители:</span>
+          <button class="btn-add-subtask">
+          <span class="value clickable" (click)="openAssigneeModal()">
+      {{ formatAssigneeName(task.assigneeNames) }}
+            <i class="material-icons edit-icon">edit_note</i>
+    </span>
+          </button>
+        </div>
+      </div>
+
       <!-- Редактирование срока -->
       @if (editing()) {
         <div class="due-date-section">
@@ -156,6 +173,20 @@
         </div>
       }
     </div>
+
+    @if (editing()) {
+      <div class="edit-group" style="margin-bottom: 1rem;">
+        <h3 style="font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <i class="material-icons">folder</i> Проект задачи
+        </h3>
+        <select [(ngModel)]="editData.projectId" class="status-select" style="width: 100%; max-width: 300px; padding: 0.5rem;">
+          <option value="">Без проекта (Общая задача)</option>
+          @for (project of userProjects(); track project.projectId) {
+            <option [value]="project.projectId">{{ project.projectTitle }}</option>
+          }
+        </select>
+      </div>
+    }
 
     <!-- Подзадачи -->
     <div class="subtasks-section">

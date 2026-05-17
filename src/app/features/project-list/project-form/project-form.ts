@@ -2,10 +2,10 @@ import {Component, computed, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ActivatedRoute, Router, RouterModule} from '@angular/router';
-import {ProjectService} from '../../../core/services/project/project.service';
+import {ProjectService} from '../../../core/services/project.service';
 import {ProjectRO} from '../../../core/models/project.model';
 import {BackOnEscapeDirective} from '../../../core/directives/back-on-escape.directive';
-import {MemberResponse} from '../../../core/models/member.model';
+import {MemberRO} from '../../../core/models/member.model';
 import {MemberService} from '../../../core/services';
 import {forkJoin} from 'rxjs';
 import {ProjectMembersComponent} from '../project-members/project-members';
@@ -24,7 +24,7 @@ export class ProjectForm implements OnInit {
   private readonly memberService = inject(MemberService);
   private readonly router = inject(Router);
 
-  allMembers = signal<MemberResponse[]>([]);
+  allMembers = signal<MemberRO[]>([]);
   isEditMode = signal(false);
   loading = signal(false);
   currentId = signal<string | null>(null);

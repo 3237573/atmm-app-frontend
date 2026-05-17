@@ -1,7 +1,7 @@
 import {Component, computed, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
-import {ProjectService} from '../../core/services/project/project.service';
+import {ProjectService} from '../../core/services/project.service';
 import {ProjectRO} from '../../core/models/project.model';
 import {BackOnEscapeDirective} from '../../core/directives/back-on-escape.directive';
 

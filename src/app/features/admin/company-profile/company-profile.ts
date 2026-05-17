@@ -2,9 +2,9 @@ import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ICompany } from '../../../core/models/company.model';
-import { CompanyService } from '../../../core/services/company/company.service';
+import { CompanyService } from '../../../core/services/company.service';
 import { finalize, Subject, takeUntil } from 'rxjs';
-import { AuthService } from '../../../core/services/auth/auth.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { BackOnEscapeDirective } from '../../../core/directives/back-on-escape.directive';
 
