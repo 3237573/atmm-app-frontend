@@ -11,7 +11,10 @@ import {AssigneeManager} from './assignee-manager/assignee-manager';
 import {SubtaskTreeComponent} from './subtask-tree';
 import {BackOnEscapeDirective} from '../../../core/directives/back-on-escape.directive';
 import {NavigationService} from '../../../core/services/navigation.service';
-import {ProjectAffiliation} from '../../../core/models/project.model'; // Добавили модель проектов
+import {ProjectAffiliation} from '../../../core/models/project.model';
+import {DepartmentService} from '../../../core/services/departament.service';
+import {DepartmentAffiliation} from '../../../core/models/departament.model';
+import {MemberRO} from '../../../core/models/member.model'; // Добавили модель проектов
 
 @Component({
   selector: 'app-task-detail',
@@ -22,6 +25,7 @@ import {ProjectAffiliation} from '../../../core/models/project.model'; // Доб
 })
 export class TaskDetail implements OnInit {
   private readonly authService = inject(AuthService);
+  private readonly departmentService = inject(DepartmentService);
   private readonly memberService = inject(MemberService); // Добавили инжект
   private readonly navService = inject(NavigationService);
   private readonly route = inject(ActivatedRoute);
@@ -30,10 +34,13 @@ export class TaskDetail implements OnInit {
 
   currentUser = this.authService.currentUser;
 
-  // State signals
   task = signal<TaskRO | null>(null);
   taskTree = signal<TaskTreeRO | null>(null);
-  userProjects = signal<ProjectAffiliation[]>([]); // Проекты текущего пользователя для редактирования
+  userDepartments = signal<DepartmentAffiliation[]>([]);
+  userProjects = signal<ProjectAffiliation[]>([]);
+  departmentMembers = signal<MemberRO[]>([]);
+  selectedDepartmentId = signal<string>('');   // ← теперь это основной источник departmentId
+
   loading = signal(true);
   editing = signal(false);
   saving = signal(false);

@@ -1,4 +1,5 @@
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+// task-list.ts
+import {Component, computed, effect, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
@@ -19,31 +20,28 @@ export class TaskList implements OnInit {
   private readonly taskService = inject(TaskService);
 
   currentUser = this.authService.currentUser;
-
-  // Храним деревья задач
   taskTrees = signal<TaskTreeRO[]>([]);
   loading = signal(true);
   viewMode = signal<'list' | 'board'>('list');
-
   searchQuery = signal('');
   selectedStatus = signal<string>('');
   selectedPriority = signal<string>('');
+  expandedNodes = signal<Set<string>>(new Set());
 
-  // Преобразуем деревья в плоский список для статистики и фильтрации
+  // Все задачи плоским списком
   flatTasks = computed(() => {
     const flatten = (trees: TaskTreeRO[]): TaskRO[] => {
       let tasks: TaskRO[] = [];
       for (const tree of trees) {
         tasks.push(tree.task);
-        if (tree.subtasks?.length) {
-          tasks.push(...flatten(tree.subtasks));
-        }
+        if (tree.subtasks?.length) tasks.push(...flatten(tree.subtasks));
       }
       return tasks;
     };
     return flatten(this.taskTrees());
   });
 
+  // Статистика (без учёта фильтров)
   stats = computed(() => {
     const tasks = this.flatTasks();
     return {
@@ -56,18 +54,103 @@ export class TaskList implements OnInit {
     };
   });
 
-  // Фильтрованные задачи (плоский список для отображения)
-  filteredTasks = computed(() => {
-    return this.flatTasks().filter(task => {
-      const matchesSearch = !this.searchQuery() ||
-        task.title.toLowerCase().includes(this.searchQuery().toLowerCase());
-      const matchesStatus = !this.selectedStatus() || task.status === this.selectedStatus();
-      const matchesPriority = !this.selectedPriority() || task.priority === this.selectedPriority();
-      return matchesSearch && matchesStatus && matchesPriority;
-    });
+  // ID задач, прошедших фильтрацию
+  filteredTaskIds = computed(() => {
+    const tasks = this.flatTasks();
+    const query = this.searchQuery().toLowerCase();
+    const status = this.selectedStatus();
+    const priority = this.selectedPriority();
+    return new Set(
+      tasks
+        .filter(task => {
+          const matchSearch = !query || task.title.toLowerCase().includes(query);
+          const matchStatus = !status || task.status === status;
+          const matchPriority = !priority || task.priority === priority;
+          return matchSearch && matchStatus && matchPriority;
+        })
+        .map(t => t.id)
+    );
   });
 
-  ngOnInit(): void {
+  // Карта родительских связей
+  private parentMap = computed(() => {
+    const map = new Map<string, string | null>();
+    for (const task of this.flatTasks()) {
+      map.set(task.id, task.parentTaskId ?? null);
+    }
+    return map;
+  });
+
+  // Автоматическое разворачивание предков при фильтрации
+  // task-list.ts (исправленный фрагмент)
+  private updateExpandedFromFilter() {
+    const filteredIds = this.filteredTaskIds();
+    if (filteredIds.size === 0) {
+      this.expandedNodes.set(new Set());
+      return;
+    }
+    const ancestors = new Set<string>();
+    const parentMap = this.parentMap();
+    for (const id of filteredIds) {
+      let current: string | null = id;
+      while (current) {
+        const parent: any = parentMap.get(current) ?? null; // преобразуем undefined в null
+        if (parent) ancestors.add(parent);
+        current = parent;
+      }
+    }
+    this.expandedNodes.set(ancestors);
+  }
+
+  // Отслеживаем изменения фильтров
+  private readonly filterSignal = computed(() => ({
+    query: this.searchQuery(),
+    status: this.selectedStatus(),
+    priority: this.selectedPriority(),
+  }));
+
+  constructor() {
+    effect(() => {
+      this.filterSignal();
+      this.updateExpandedFromFilter();
+    });
+  }
+
+  // Видимые задачи с уровнем вложенности для отрисовки
+  visibleTasks = computed(() => {
+    const filteredIds = this.filteredTaskIds();
+    const expanded = this.expandedNodes();
+    const result: (TaskRO & { level: number })[] = [];
+
+    const hasMatchingDescendant = (node: TaskTreeRO): boolean => {
+      if (!node.subtasks?.length) return false;
+      for (const child of node.subtasks) {
+        if (filteredIds.has(child.task.id)) return true;
+        if (hasMatchingDescendant(child)) return true;
+      }
+      return false;
+    };
+
+    const traverse = (trees: TaskTreeRO[], level: number) => {
+      for (const node of trees) {
+        const task = node.task;
+        const matches = filteredIds.has(task.id);
+        const hasDescendantMatch = hasMatchingDescendant(node);
+        if (!matches && !hasDescendantMatch) continue;
+
+        result.push({ ...task, level });
+
+        if (expanded.has(task.id) && node.subtasks?.length) {
+          traverse(node.subtasks, level + 1);
+        }
+      }
+    };
+
+    traverse(this.taskTrees(), 0);
+    return result;
+  });
+
+  ngOnInit() {
     const savedViewMode = localStorage.getItem('task_view_mode');
     if (savedViewMode === 'list' || savedViewMode === 'board') {
       this.viewMode.set(savedViewMode);
@@ -75,7 +158,7 @@ export class TaskList implements OnInit {
     this.loadTasks();
   }
 
-  loadTasks(): void {
+  loadTasks() {
     this.loading.set(true);
     this.taskService.getMyTaskTree().subscribe({
       next: (data) => {
@@ -89,10 +172,17 @@ export class TaskList implements OnInit {
     });
   }
 
+  toggleNode(id: string, event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const newSet = new Set(this.expandedNodes());
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    this.expandedNodes.set(newSet);
+  }
+
   formatAssigneeName(assigneeName: string | string[]): string {
     if (!assigneeName) return 'Не назначен';
-
-    // Приводим к строке, если пришёл массив
     let assigneeString: string;
     if (Array.isArray(assigneeName)) {
       assigneeString = assigneeName.join(', ');
@@ -101,18 +191,11 @@ export class TaskList implements OnInit {
     } else {
       assigneeString = assigneeName;
     }
-
     const user = this.currentUser();
     if (!user) return assigneeString;
-
     const currentUserName = user.displayName || user.fullName || user.email?.split('@')[0] || '';
-
     const assignees = assigneeString.split(',').map(a => a.trim());
-    const formattedAssignees = assignees.map(name => {
-      if (name === currentUserName) return 'Я';
-      return name;
-    });
-
+    const formattedAssignees = assignees.map(name => name === currentUserName ? 'Я' : name);
     return formattedAssignees.join(', ');
   }
 
@@ -144,18 +227,15 @@ export class TaskList implements OnInit {
     this.taskService.updateTaskStatus(task.id, newStatus).subscribe(() => this.loadTasks());
   }
 
-  // Обновим существующий isOverdue для корректного сравнения дат
   isOverdue(dateStr: string): boolean {
     if (!dateStr) return false;
     const date = new Date(dateStr);
     const today = new Date();
-    // Сравниваем только дату, отбросив время
     date.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
     return date < today;
   }
 
-// Является ли дата сегодняшним днём
   isToday(dateStr: string): boolean {
     if (!dateStr) return false;
     const date = new Date(dateStr);
@@ -165,7 +245,6 @@ export class TaskList implements OnInit {
     return date.getTime() === today.getTime();
   }
 
-// Ближайшие 3 дня (не включая сегодня)
   isSoon(dateStr: string): boolean {
     if (!dateStr) return false;
     const date = new Date(dateStr);
@@ -191,29 +270,11 @@ export class TaskList implements OnInit {
   formatDate(date: string): string {
     if (!date) return '—';
     const d = new Date(date);
-    return d.toLocaleDateString('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
   setViewMode(mode: 'list' | 'board') {
     this.viewMode.set(mode);
     localStorage.setItem('task_view_mode', mode);
   }
-
-  // Для отображения уровня вложенности в списке
-  getIndentLevel(task: TaskRO, tasks: TaskRO[]): number {
-    let level = 0;
-    let currentId = task.parentTaskId;
-    while (currentId) {
-      const parent = tasks.find(t => t.id === currentId);
-      if (!parent) break;
-      level++;
-      currentId = parent.parentTaskId;
-    }
-    return level;
-  }
-
 }

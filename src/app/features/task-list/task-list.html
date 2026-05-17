@@ -1,3 +1,4 @@
+<!-- task-list.html -->
 <div class="task-list" appBackOnEscape>
   <div class="page-header">
     <div class="header-info">
@@ -9,9 +10,7 @@
     </button>
   </div>
 
-  <!-- Новая строка: фильтры + статистика -->
   <div class="filters-stats-row">
-    <!-- Фильтры (50% ширины) -->
     <div class="filters-container">
       <div class="filters-bar">
         <div class="search-box">
@@ -34,29 +33,12 @@
         </div>
       </div>
     </div>
-
-    <!-- Статистика (50% ширины, в одну строку) -->
     <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-value">{{ stats().total }}</div>
-        <div class="stat-label">Всего</div>
-      </div>
-      <div class="stat-card pending">
-        <div class="stat-value">{{ stats().pending }}</div>
-        <div class="stat-label">Ожидают</div>
-      </div>
-      <div class="stat-card progress">
-        <div class="stat-value">{{ stats().inProgress }}</div>
-        <div class="stat-label">В работе</div>
-      </div>
-      <div class="stat-card completed">
-        <div class="stat-value">{{ stats().completed }}</div>
-        <div class="stat-label">Готово</div>
-      </div>
-      <div class="stat-card overdue">
-        <div class="stat-value">{{ stats().overdue }}</div>
-        <div class="stat-label">Просрочено</div>
-      </div>
+      <div class="stat-card"><div class="stat-value">{{ stats().total }}</div><div class="stat-label">Всего</div></div>
+      <div class="stat-card pending"><div class="stat-value">{{ stats().pending }}</div><div class="stat-label">Ожидают</div></div>
+      <div class="stat-card progress"><div class="stat-value">{{ stats().inProgress }}</div><div class="stat-label">В работе</div></div>
+      <div class="stat-card completed"><div class="stat-value">{{ stats().completed }}</div><div class="stat-label">Готово</div></div>
+      <div class="stat-card overdue"><div class="stat-value">{{ stats().overdue }}</div><div class="stat-label">Просрочено</div></div>
     </div>
   </div>
 
@@ -69,15 +51,15 @@
           <th class="col-status">Статус</th>
           <th class="col-task">Задача</th>
           <th class="col-date">Срок</th>
-          <th class="col-icon" title="Количество подзадач"><i class="material-icons">account_tree</i></th>
-          <th class="col-icon" title="Количество комментариев"><i class="material-icons">chat_bubble_outline</i></th>
+          <th class="col-icon" title="Подзадачи"><i class="material-icons">account_tree</i></th>
+          <th class="col-icon" title="Комментарии"><i class="material-icons">chat_bubble_outline</i></th>
           <th class="col-assignee">Исполнитель</th>
           <th></th>
         </tr>
         </thead>
         <tbody>
-          @for (task of filteredTasks(); track task.id) {
-            <tr [routerLink]="['/tasks', 'edit', task.id]" class="task-row" [style.padding-left.px]="getIndentLevel(task, flatTasks()) * 20">
+          @for (task of visibleTasks(); track task.id) {
+            <tr [routerLink]="['/tasks', 'edit', task.id]" class="task-row">
               <td><span class="priority-badge" [class]="getPriorityColor(task.priority)">{{ task.priority }}</span></td>
               <td>
                 <div class="status-select-wrapper" [class]="getStatusClass(task.status)">
@@ -92,9 +74,13 @@
                 </div>
               </td>
               <td>
-                <div class="title-wrapper">
-                  @for (i of [].constructor(getIndentLevel(task, flatTasks())); track i) {
-                    <span class="indent-spacer"></span>
+                <div class="title-wrapper" [style.paddingLeft.px]="task.level * 20">
+                  @if ((task.subtasksCount || 0) > 0) {
+                    <i class="material-icons node-toggle"
+                       [class.open]="expandedNodes().has(task.id)"
+                       (click)="toggleNode(task.id, $event)">chevron_right</i>
+                  } @else {
+                    <span class="node-spacer"></span>
                   }
                   @if (task.parentTaskId) {
                     <i class="material-icons subtask-icon">subdirectory_arrow_right</i>
@@ -151,22 +137,14 @@
                 <div class="kanban-card" [routerLink]="['/tasks', 'edit', task.id]">
                   <div class="card-header"><span class="priority-badge" [class]="getPriorityColor(task.priority)">{{ task.priority }}</span></div>
                   <div class="card-title">
-                    @if (task.parentTaskId) {
-                      <i class="material-icons sub-icon">subdirectory_arrow_right</i>
-                    }
+                    @if (task.parentTaskId) { <i class="material-icons sub-icon">subdirectory_arrow_right</i> }
                     {{ task.title }}
                   </div>
                   <div class="card-footer">
-                    <div class="assignee">
-                      <span>{{ formatAssigneeName(task.assigneeNames) }}</span>
-                    </div>
+                    <div class="assignee"><span>{{ formatAssigneeName(task.assigneeNames) }}</span></div>
                     <div class="card-meta">
-                      @if ((task.subtasksCount || 0) > 0) {
-                        <span><i class="material-icons">account_tree</i>{{ task.subtasksCount }}</span>
-                      }
-                      @if ((task.commentsCount || 0) > 0) {
-                        <span><i class="material-icons">chat_bubble_outline</i>{{ task.commentsCount }}</span>
-                      }
+                      @if ((task.subtasksCount || 0) > 0) { <span><i class="material-icons">account_tree</i>{{ task.subtasksCount }}</span> }
+                      @if ((task.commentsCount || 0) > 0) { <span><i class="material-icons">chat_bubble_outline</i>{{ task.commentsCount }}</span> }
                     </div>
                   </div>
                 </div>

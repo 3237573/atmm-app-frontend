@@ -77,7 +77,7 @@ export class DepartmentCreate implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/departments']);
+    void this.router.navigate(['/departments']);
   }
 
   toggleMember(id: string, checked: boolean) {

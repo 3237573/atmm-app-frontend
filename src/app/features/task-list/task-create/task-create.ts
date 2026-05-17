@@ -191,7 +191,7 @@ export class TaskCreate implements OnInit {
       next: (res) => {
         this.submitting.set(false);
         this.saveInitialData();
-        this.router.navigate(['/tasks', 'edit', res.id]);
+        this.router.navigate(['/tasks']);
       },
       error: (err) => {
         console.error('Ошибка создания задачи', err);

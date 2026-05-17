@@ -2,7 +2,7 @@
 
 .page-header {
   display: flex;
-  justify-content: space-between;
+  //justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
   border-bottom: 1px solid var(--border-subtle);
@@ -31,6 +31,7 @@
 .btn-primary {
   background: var(--accent); color: #fff;
   box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
+  margin-left: 10px;
 
   &:hover {
     filter: brightness(1.1); // <-- ВМЕСТО color.adjust (он ломает CSS переменные)
