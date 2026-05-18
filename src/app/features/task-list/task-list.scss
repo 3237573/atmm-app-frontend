@@ -7,346 +7,341 @@
   color: var(--text-main);
 }
 
+/* ============================================================\
+   ЖЕСТКАЯ СЕТКА СТРОКИ: РОВНО 50% НА 50% С ВЫРАВНИВАНИЕМ В РЯД
+   ============================================================ */
 .filters-stats-row {
   display: flex;
-  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem; // Удобный отступ между половинками строки
   margin-bottom: 1.5rem;
-  flex-wrap: wrap;
+  width: 100%;
 
+  // Левая половина строки (Ровно 50% за вычетом половины зазора)
   .filters-container {
-    flex: 1 1 33%;
-    min-width: 240px;
+    flex: 0 0 calc(50% - 0.75rem);
+    width: calc(50% - 0.75rem);
+    display: flex;
+    align-items: center;
   }
 
+  // Правая половина строки (Ровно 50% за вычетом половины зазора)
   .stats-grid {
-    flex: 1 1 66%;
+    flex: 0 0 calc(50% - 0.75rem);
+    width: calc(50% - 0.75rem);
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 0.5rem;
+    grid-template-columns: repeat(5, 1fr); // 5 колонок под карточки
+    gap: 0.4rem;
   }
 }
 
+// Поведение элементов внутри левой половины (всегда в ряд)
+.filters-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+
+  .search-box {
+    position: relative;
+    flex: 1; // Строка поиска гибко занимает всё доступное место в своей половине
+    min-width: 0;
+
+    i {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.45rem 0.75rem 0.45rem 2.2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      height: 36px; // Фиксированная базовая высота строки
+      box-sizing: border-box;
+      transition: all 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+    }
+  }
+}
+
+// Кнопки переключения режимов (Список / Канбан)
+.view-toggle {
+  display: flex;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+  flex-shrink: 0;
+  height: 36px;
+  box-sizing: border-box;
+
+  .toggle-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 0 0.4rem;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    height: 100%;
+
+    i { font-size: 1.1rem; }
+    &:hover { color: var(--text-main); background: var(--bg-soft); }
+    &.active { background: var(--accent); color: #fff; }
+  }
+}
+
+/* ============================================================\
+   КОМПАКТНАЯ СТАТИСТИКА ПОД НАСТРОЕННУЮ ВЫСОТУ 36PX
+   ============================================================ */
 .stat-card {
   background: var(--bg-card);
-  padding: 0.35rem 0.2rem;
-  border-radius: 8px;
   border: 1px solid var(--border);
+  border-radius: 6px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 36px; // В идеальный стык с инпутами и кнопками слева
+  box-sizing: border-box;
+  padding: 0 0.2rem;
 
   .stat-value {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: 700;
     color: var(--accent);
-    line-height: 1.2;
+    line-height: 1;
   }
 
   .stat-label {
     font-size: 0.55rem;
     color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.2px;
+    line-height: 1;
+    margin-top: 1px;
     white-space: nowrap;
-    margin-top: 2px;
-  }
-
-  &.pending .stat-value {
-    color: #ffab00;
-  }
-
-  &.progress .stat-value {
-    color: #00b8d9;
-  }
-
-  &.completed .stat-value {
-    color: #36b37e;
-  }
-
-  &.overdue .stat-value {
-    color: #ef4444;
-  }
-}
-
-.filters-bar {
-  display: flex;
-  gap: 0.6rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.search-box {
-  flex: 1;
-  min-width: 140px;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  padding: 0.35rem 0.6rem;
-  border-radius: 0.5rem;
-
-  i {
-    color: var(--text-muted);
-    font-size: 1.1rem;
-  }
-
-  input {
+    overflow: hidden;
+    text-overflow: ellipsis;
     width: 100%;
-    background: transparent;
-    border: none;
-    color: var(--text-main);
-    outline: none;
-    font-size: 0.8rem;
+  }
+
+  &.pending .stat-value { color: var(--text-muted); }
+  &.progress .stat-value { color: var(--accent); }
+  &.completed .stat-value { color: var(--success); }
+  &.overdue {
+    background: rgba(239, 68, 68, 0.05);
+    border-color: rgba(239, 68, 68, 0.15);
+    .stat-value { color: var(--danger); }
   }
 }
 
-.status-select-wrapper {
+/* ============================================================\
+   КАСТОМНЫЕ СЕЛЕКТОРЫ СТАТУСОВ И ПРИОРИТЕТОВ
+   ============================================================ */
+.status-select-wrapper, .priority-select-wrapper {
   position: relative;
-  display: flex;
-  align-items: center;
+  display: inline-block;
+  flex-shrink: 0;
+  width: 120px; // Стабильная ширина, чтобы верстка не скакала при смене значений
 
-  select {
+  .status-select-styled, .priority-select-styled {
     appearance: none;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    color: var(--text-main);
-    padding: 0.35rem 1.6rem 0.35rem 0.6rem;
-    border-radius: 0.5rem;
     cursor: pointer;
+    padding: 0 1.5rem 0 0.5rem;
+    border-radius: 6px;
     font-size: 0.8rem;
+    font-weight: 600;
+    background: var(--bg-card);
+    transition: all 0.2s ease;
+    width: 100%;
+    height: 36px;
+    box-sizing: border-box;
+    border: 1px solid transparent;
 
-    &:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
+    &:focus { outline: none; }
+    option { background: var(--bg-card); color: var(--text-main); }
   }
 
   .select-arrow {
     position: absolute;
-    right: 6px;
-    color: var(--text-muted);
-    pointer-events: none;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
     font-size: 1rem;
+    pointer-events: none;
+  }
+
+  // Стилизация по классам статусов
+  &.status-pending {
+    .status-select-styled { background: rgba(148, 163, 184, 0.12); color: var(--text-muted); border-color: rgba(148, 163, 184, 0.2); }
+    .select-arrow { color: var(--text-muted); }
+  }
+  &.status-progress {
+    .status-select-styled { background: rgba(56, 189, 248, 0.12); color: var(--accent); border-color: rgba(56, 189, 248, 0.3); }
+    .select-arrow { color: var(--accent); }
+  }
+  &.status-review {
+    .status-select-styled { background: rgba(245, 158, 11, 0.12); color: var(--warning); border-color: rgba(245, 158, 11, 0.3); }
+    .select-arrow { color: var(--warning); }
+  }
+  &.status-completed {
+    .status-select-styled { background: rgba(74, 222, 128, 0.12); color: var(--success); border-color: rgba(74, 222, 128, 0.3); }
+    .select-arrow { color: var(--success); }
   }
 }
 
-.view-toggle {
-  display: flex;
-  gap: 0.3rem;
-
-  .toggle-btn {
-    background: var(--bg-card);
+.priority-select-wrapper {
+  .priority-select-styled {
     border: 1px solid var(--border);
-    color: var(--text-muted);
-    padding: 0.35rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-
-    i {
-      font-size: 1.1rem;
-    }
-
-    &.active {
-      background: var(--accent);
-      color: var(--bg-main);
-      border-color: var(--accent);
-    }
-
-    &:hover {
-      background: rgba(var(--accent-rgb), 0.15);
-      color: var(--accent);
-    }
+    color: var(--text-main);
   }
+  .select-arrow { color: var(--text-muted); }
+
+  &[data-priority="LOW"] .priority-select-styled { background: rgba(74, 222, 128, 0.1); color: var(--success); border-color: rgba(74, 222, 128, 0.2); }
+  &[data-priority="MEDIUM"] .priority-select-styled { background: rgba(245, 158, 11, 0.1); color: var(--warning); border-color: rgba(245, 158, 11, 0.2); }
+  &[data-priority="HIGH"] .priority-select-styled { background: rgba(239, 68, 110, 0.12); color: var(--danger); border-color: rgba(239, 68, 110, 0.2); }
 }
 
+/* ============================================================\
+   ТАБЛИЦА И ОСТАЛЬНЫЕ КОМПОНЕНТЫ ИНТЕРФЕЙСА (СОХРАНЕНО)
+   ============================================================ */
 .table-container {
-  overflow-x: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  overflow: hidden;
 }
 
 .tasks-table {
   width: 100%;
   border-collapse: collapse;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  overflow: hidden;
+  text-align: left;
+  font-size: 0.9rem;
+
+  th, td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
 
   th {
-    text-align: left;
-    padding: 0.75rem;
-    font-size: 0.8rem;
+    background: var(--bg-soft);
     color: var(--text-muted);
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
-  td {
-    padding: 0.75rem;
-    border-bottom: 1px solid rgba(var(--border-rgb), 0.2);
-    color: var(--text-main);
-    font-size: 0.9rem;
-  }
-
-  tr.task-row {
+  .task-row {
     cursor: pointer;
     transition: background 0.2s;
-
-    &:hover {
-      background: rgba(var(--accent-rgb), 0.05);
-    }
+    &:hover { background: rgba(var(--accent-rgb), 0.02); }
   }
 
-  /* Фиксированная ширина колонок */
-  th.col-priority, td:first-child {
-    width: 90px;
-  }
-
-  th.col-status, td:nth-child(2) {
-    width: 120px;
-  }
-
-  th.col-date, td:nth-child(3) {
-    width: 70px;
-  }
-
-  th.col-icon, td:nth-child(4), td:nth-child(5) {
-    width: 50px;
-    text-align: center;
-  }
-
-  th.col-assignee, td:nth-child(7) {
-    width: 200px;
-  }
-
-  th:last-child, td:last-child {
-    width: 40px;
-    text-align: right;
-  }
-
-  th.col-task, td:nth-child(6) {
-    width: auto;
-  }
-
-  td.text-center {
-    text-align: center;
-  }
-
-  td.text-right {
-    text-align: right;
-  }
-}
-
-.priority-badge {
-  padding: 0.2rem 0.6rem;
-  border-radius: 2rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  white-space: nowrap;
-
-  &.low {
-    background: rgba(var(--success-rgb), 0.2);
-    color: var(--success);
-  }
-
-  &.medium {
-    background: rgba(var(--accent-rgb), 0.2);
-    color: var(--accent);
-  }
-
-  &.high {
-    background: rgba(var(--warning-rgb), 0.2);
-    color: var(--warning);
-  }
-
-  &.urgent {
-    background: rgba(var(--danger-rgb), 0.2);
-    color: var(--danger);
-  }
-}
-
-.status-select-wrapper {
-  &.status-pending select {
-    color: var(--warning);
-    border-color: var(--warning);
-  }
-
-  &.status-progress select {
-    color: var(--accent);
-    border-color: var(--accent);
-  }
-
-  &.status-review select {
-    color: #9c27b0; /* или добавьте переменную --review в глобальные стили */
-    border-color: #9c27b0;
-  }
-
-  &.status-completed select {
-    color: var(--success);
-    border-color: var(--success);
-  }
-}
-
-.due-date {
-  &.today {
-    color: var(--danger);
-  }
-
-  &.overdue {
-    color: var(--text-muted);
-  }
-
-  &.soon {
-    color: var(--warning);
-  }
-
-  &.future {
-    color: var(--success);
-  }
+  // Ширина колонок
+  .col-priority { width: 90px; }
+  .col-status { width: 90px; }
+  .col-date { width: 110px; }
+  .col-icon { width: 50px; text-align: center; i { font-size: 1.2rem; color: var(--text-muted); } }
+  .col-task { width: auto; }
+  .col-assignee { width: 180px; }
 }
 
 .title-wrapper {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
-  flex-wrap: nowrap;
+  gap: 0.5rem;
 
   .node-toggle {
-    width: 20px;
-    height: 20px;
-    font-size: 1.2rem;
-    color: var(--text-muted);
     cursor: pointer;
-    transition: transform 0.2s, color 0.2s;
+    color: var(--text-muted);
+    transition: transform 0.2s;
     user-select: none;
-
-    &:hover {
-      color: var(--accent);
-    }
-
-    &.open {
-      transform: rotate(90deg);
-    }
+    font-size: 1.3rem;
+    margin-left: -4px;
+    &.open { transform: rotate(90deg); color: var(--accent); }
   }
-
-  .node-spacer {
-    width: 20px;
-    display: inline-block;
-  }
-
-  .task-title {
-    flex: 1;
-  }
+  .node-spacer { width: 20px; display: inline-block; }
+  .task-title { font-weight: 500; color: var(--text-main); }
 }
 
+.priority-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+
+  &.low { background: rgba(74, 222, 128, 0.12); color: var(--success); }
+  &.medium { background: rgba(245, 158, 11, 0.12); color: var(--warning); }
+  &.high { background: rgba(239, 68, 110, 0.15); color: var(--danger); }
+}
+
+.due-date {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  display: inline-block;
+
+  &.overdue { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+  &.today { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+  &.soon { background: rgba(79, 70, 229, 0.08); color: var(--accent); }
+  &.future { color: var(--text-muted); }
+}
+
+.count-text {
+  font-weight: 600;
+  color: var(--text-main);
+  font-size: 0.85rem;
+  &.muted { color: var(--border); font-weight: normal; }
+}
+
+.assignee-cell .assignee {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.arrow { color: var(--border); font-size: 1.2rem; transition: transform 0.2s; }
+.task-row:hover .arrow { color: var(--accent); transform: translateX(2px); }
+
+/* ============================================================\
+   КАНБАН ДОСКА (СОХРАНЕНО)
+   ============================================================ */
 .kanban-board {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  display: flex;
   gap: 1rem;
-  margin-top: 1rem;
+  align-items: flex-start;
 }
 
 .kanban-column {
+  flex: 1;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 1rem;
@@ -354,76 +349,60 @@
 
   .column-header {
     margin-bottom: 1rem;
-
-    h3 {
-      margin: 0;
-      font-size: 1rem;
-      color: var(--text-main);
-    }
-  }
-
-  .kanban-card {
-    background: var(--bg-main);
-    border: 1px solid var(--border);
-    border-radius: 0.75rem;
-    padding: 0.8rem;
-    margin-bottom: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    &:hover {
-      background: rgba(var(--accent-rgb), 0.1);
-      border-color: var(--accent);
-    }
-
-    .card-header {
-      margin-bottom: 0.3rem;
-    }
-
-    .card-title {
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.7rem;
-      color: var(--text-muted);
-    }
+    h3 { margin: 0; font-size: 1rem; color: var(--text-main); }
   }
 }
 
-@media (max-width: 1000px) {
-  .filters-stats-row .stats-grid {
+.kanban-card {
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 0.8rem;
+  margin-bottom: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover { background: rgba(var(--accent-rgb), 0.04); border-color: var(--accent); }
+  .card-header { margin-bottom: 0.3rem; }
+  .card-title {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
     gap: 0.4rem;
+    color: var(--text-main);
+    font-weight: 500;
+    .sub-icon { font-size: 1rem; color: var(--text-muted); transform: scaleX(-1); }
   }
-  .stat-card .stat-label {
-    font-size: 0.5rem;
-    white-space: normal;
-    line-height: 1.2;
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    .card-meta { display: flex; gap: 0.5rem; i { font-size: 0.9rem; vertical-align: middle; margin-right: 2px; } }
   }
 }
 
-@media (max-width: 800px) {
+/* ============================================================\
+   АДАПТИВНОСТЬ НА МАЛЕНЬКИХ ЭКРАНАХ
+   ============================================================ */
+@media (max-width: 1200px) {
   .filters-stats-row {
     flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
 
     .filters-container, .stats-grid {
-      flex: auto;
+      flex: 0 0 100%;
       width: 100%;
     }
-
     .stats-grid {
-      grid-template-columns: repeat(5, 1fr);
       gap: 0.5rem;
     }
-  }
-  .search-box {
-    min-width: auto;
+    .stat-card {
+      height: 40px;
+      .stat-value { font-size: 1rem; }
+    }
   }
 }

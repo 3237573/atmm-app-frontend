@@ -1,4 +1,3 @@
-<!-- task-list.html -->
 <div class="task-list" appBackOnEscape>
   <div class="page-header">
     <div class="header-info">
@@ -15,8 +14,9 @@
       <div class="filters-bar">
         <div class="search-box">
           <i class="material-icons">search</i>
-          <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Поиск...">
+          <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Поиск по названию и описанию...">
         </div>
+
         <div class="status-select-wrapper" [class]="getStatusClass(selectedStatus())">
           <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)" class="status-select-styled">
             <option value="">Все статусы</option>
@@ -27,18 +27,49 @@
           </select>
           <i class="material-icons select-arrow">expand_more</i>
         </div>
+
+        <div class="priority-select-wrapper" [attr.data-priority]="selectedPriority()">
+          <select [ngModel]="selectedPriority()" (ngModelChange)="selectedPriority.set($event)" class="priority-select-styled">
+            <option value="">Все приоритеты</option>
+            <option value="LOW">LOW</option>
+            <option value="MEDIUM">MEDIUM</option>
+            <option value="HIGH">HIGH</option>
+          </select>
+          <i class="material-icons select-arrow">expand_more</i>
+        </div>
+
         <div class="view-toggle">
-          <button class="toggle-btn" [class.active]="viewMode() === 'list'" (click)="setViewMode('list')"><i class="material-icons">view_list</i></button>
-          <button class="toggle-btn" [class.active]="viewMode() === 'board'" (click)="setViewMode('board')"><i class="material-icons">view_kanban</i></button>
+          <button class="toggle-btn" [class.active]="viewMode() === 'list'" (click)="setViewMode('list')">
+            <i class="material-icons">view_list</i>
+          </button>
+          <button class="toggle-btn" [class.active]="viewMode() === 'board'" (click)="setViewMode('board')">
+            <i class="material-icons">view_kanban</i>
+          </button>
         </div>
       </div>
     </div>
+
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-value">{{ stats().total }}</div><div class="stat-label">Всего</div></div>
-      <div class="stat-card pending"><div class="stat-value">{{ stats().pending }}</div><div class="stat-label">Ожидают</div></div>
-      <div class="stat-card progress"><div class="stat-value">{{ stats().inProgress }}</div><div class="stat-label">В работе</div></div>
-      <div class="stat-card completed"><div class="stat-value">{{ stats().completed }}</div><div class="stat-label">Готово</div></div>
-      <div class="stat-card overdue"><div class="stat-value">{{ stats().overdue }}</div><div class="stat-label">Просрочено</div></div>
+      <div class="stat-card">
+        <div class="stat-value">{{ stats().total }}</div>
+        <div class="stat-label">Всего</div>
+      </div>
+      <div class="stat-card pending">
+        <div class="stat-value">{{ stats().pending }}</div>
+        <div class="stat-label">Ожидают</div>
+      </div>
+      <div class="stat-card progress">
+        <div class="stat-value">{{ stats().inProgress }}</div>
+        <div class="stat-label">В работе</div>
+      </div>
+      <div class="stat-card completed">
+        <div class="stat-value">{{ stats().completed }}</div>
+        <div class="stat-label">Готово</div>
+      </div>
+      <div class="stat-card overdue">
+        <div class="stat-value">{{ stats().overdue }}</div>
+        <div class="stat-label">Просрочено</div>
+      </div>
     </div>
   </div>
 
@@ -60,11 +91,9 @@
         <tbody>
           @for (task of visibleTasks(); track task.id) {
             <tr [routerLink]="['/tasks', 'edit', task.id]" class="task-row">
-              <td><span class="priority-badge" [class]="getPriorityColor(task.priority)">{{ task.priority }}</span></td>
               <td>
                 <div class="status-select-wrapper" [class]="getStatusClass(task.status)">
-                  <select [value]="task.status" (click)="$event.stopPropagation()" (change)="updateStatus(task, $any($event.target).value)"
-                          class="status-select-styled">
+                  <select [value]="task.status" (click)="$event.stopPropagation()" (change)="updateStatus(task, $any($event.target).value)" class="status-select-styled">
                     <option value="PENDING">Ожидает</option>
                     <option value="IN_PROGRESS">В работе</option>
                     <option value="REVIEW">Проверка</option>
@@ -72,37 +101,22 @@
                   </select>
                 </div>
               </td>
+              <td><span class="priority-badge" [class]="getPriorityColor(task.priority)">{{ task.priority }}</span></td>
               <td>
                 @if (task.dueDate) {
-                  <span class="due-date"
-                        [class.overdue]="isOverdue(task.dueDate)"
-                        [class.today]="isToday(task.dueDate)"
-                        [class.soon]="isSoon(task.dueDate)"
-                        [class.future]="isFuture(task.dueDate)">
-          {{ formatDate(task.dueDate) }}
-        </span>
+                  <span class="due-date" [class]="task.dateClass">{{ task.formattedDate }}</span>
                 }
               </td>
               <td class="text-center">
-                @if ((task.subtasksCount || 0) > 0) {
-                  <span class="count-text">{{ task.subtasksCount }}</span>
-                } @else {
-                  <span class="count-text muted">—</span>
-                }
+                @if ((task.subtasksCount || 0) > 0) { <span class="count-text">{{ task.subtasksCount }}</span> } @else { <span class="count-text muted">—</span> }
               </td>
               <td class="text-center">
-                @if ((task.commentsCount || 0) > 0) {
-                  <span class="count-text muted">{{ task.commentsCount }}</span>
-                } @else {
-                  <span class="count-text muted">—</span>
-                }
+                @if ((task.commentsCount || 0) > 0) { <span class="count-text">{{ task.commentsCount }}</span> } @else { <span class="count-text muted">—</span> }
               </td>
               <td>
                 <div class="title-wrapper" [style.paddingLeft.px]="task.level * 20">
                   @if ((task.subtasksCount || 0) > 0) {
-                    <i class="material-icons node-toggle"
-                       [class.open]="expandedNodes().has(task.id)"
-                       (click)="toggleNode(task.id, $event)">chevron_right</i>
+                    <i class="material-icons node-toggle" [class.open]="expandedNodes().has(task.id)" (click)="toggleNode(task.id, $event)">chevron_right</i>
                   } @else {
                     <span class="node-spacer"></span>
                   }
@@ -110,9 +124,7 @@
                 </div>
               </td>
               <td class="assignee-cell">
-                <div class="assignee">
-                  <span>{{ formatAssigneeName(task.assigneeNames) || 'Не назначен' }}</span>
-                </div>
+                <div class="assignee"><span>{{ formatAssigneeName(task.assigneeNames) }}</span></div>
               </td>
               <td class="text-right"><i class="material-icons arrow">chevron_right</i></td>
             </tr>
@@ -128,7 +140,7 @@
         <div class="kanban-column">
           <div class="column-header"><h3>{{ getStatusLabel(status) }}</h3></div>
           <div class="column-tasks">
-            @for (task of flatTasks(); track task.id) {
+            @for (task of filteredFlatTasks(); track task.id) {
               @if (task.status === status) {
                 <div class="kanban-card" [routerLink]="['/tasks', 'edit', task.id]">
                   <div class="card-header"><span class="priority-badge" [class]="getPriorityColor(task.priority)">{{ task.priority }}</span></div>
