@@ -11,9 +11,6 @@ import { TaskTreeRO } from '../../../core/models/task/task.model';
     <div class="subtask-node">
       <div class="subtask-row" [routerLink]="['/tasks', 'edit', node.task.id]">
         <div class="subtask-title">
-          @if (node.task.parentTaskId) {
-            <i class="material-icons sub-icon">subdirectory_arrow_right</i>
-          }
           {{ node.task.title }}
         </div>
         <div class="subtask-assignee">

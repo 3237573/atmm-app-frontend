@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MemberService } from '../../../../core/services/member.service';
@@ -6,6 +6,7 @@ import { TaskService } from '../../../../core/services/task.service';
 import { MemberRO } from '../../../../core/models/member.model';
 import { TaskRO } from '../../../../core/models/task/task.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { DepartmentService } from '../../../../core/services/departament.service';
 
 @Component({
   selector: 'app-assignee-manager',
@@ -16,45 +17,53 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class AssigneeManager implements OnInit {
   @Input() task!: TaskRO;
-    @Input() visible = false;
+  @Input() visible = false;
   @Output() assigneesUpdated = new EventEmitter<void>();
   @Output() closed = new EventEmitter<void>();
 
+  private readonly authService = inject(AuthService);
+  private readonly departmentService = inject(DepartmentService);
   private readonly memberService = inject(MemberService);
   private readonly taskService = inject(TaskService);
-  private readonly authService = inject(AuthService);
 
-  members = signal<MemberRO[]>([]);
+  departmentMembers = signal<MemberRO[]>([]);
   selectedMembershipIds = signal<string[]>([]);
-  loading = signal(true);
+  loading = signal(true); // Используем ОДИН этот сигнал для контроля UI
   saving = signal(false);
   searchQuery = signal('');
 
   currentMembershipId = this.authService.currentMembership()?.id;
 
   ngOnInit(): void {
-    this.loadMembers();
+    this.loadDepartmentMembers(this.task.departmentId);
   }
 
-  loadMembers(): void {
-    this.loading.set(true);
-    this.memberService.getMembers().subscribe({
-      next: (data) => {
-        this.members.set(data);
+  loadDepartmentMembers(departmentId: string): void {
+    this.loading.set(true); // Включаем лоадер
+    this.departmentService.getDepartmentEmployees(departmentId).subscribe({
+      next: (members) => {
+        this.departmentMembers.set(members);
+        this.task.assigneeIds = (this.task.assigneeIds || []).filter(id =>
+          members.some(m => m.id === id)
+        );
         this.selectedMembershipIds.set(this.task.assigneeIds || []);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false)
+      error: (err) => {
+        console.error('Ошибка загрузки сотрудников отдела', err);
+        this.departmentMembers.set([]);
+        this.loading.set(false);
+      }
     });
   }
 
   filteredMembers(): MemberRO[] {
-    const query = this.searchQuery().toLowerCase();
-    if (!query) return this.members();
+    const query = this.searchQuery().trim().toLowerCase();
+    if (!query) return this.departmentMembers();
 
-    return this.members().filter(m =>
-      m.displayName.toLowerCase().includes(query) ||
-      m.email.toLowerCase().includes(query)
+    return this.departmentMembers().filter(m =>
+      (m.displayName || '').toLowerCase().includes(query) ||
+      (m.email || '').toLowerCase().includes(query)
     );
   }
 
@@ -71,7 +80,6 @@ export class AssigneeManager implements OnInit {
     }
   }
 
-  // В методе saveAssignees() измените эмит:
   saveAssignees(): void {
     this.saving.set(true);
     this.taskService.updateTask(this.task.id, {
@@ -79,9 +87,7 @@ export class AssigneeManager implements OnInit {
     }).subscribe({
       next: () => {
         this.saving.set(false);
-        // ✅ Эмитим событие, чтобы родитель перезагрузил задачу
         this.assigneesUpdated.emit();
-        // ✅ Закрываем модалку
         this.closeModal();
       },
       error: (err) => {
@@ -92,14 +98,12 @@ export class AssigneeManager implements OnInit {
     });
   }
 
-// Добавьте метод закрытия
   closeModal(): void {
-    // Эмитим событие для закрытия
     this.assigneesUpdated.emit();
   }
 
   getInitials(member: MemberRO): string {
-    return (member.displayName || member.email).charAt(0).toUpperCase();
+    return (member.displayName || member.email || '?').charAt(0).toUpperCase();
   }
 
   getRoleClass(roleName: string): string {

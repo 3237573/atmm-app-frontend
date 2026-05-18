@@ -222,16 +222,13 @@ export class TaskDetail implements OnInit {
   isOverdue(dueDate: string | undefined): boolean { return false; }
 
   formatAssigneeName(names: string | string[] | undefined): string {
-    // 1. Проверка на пустоту
     if (!names || (Array.isArray(names) && names.length === 0)) return 'Не назначен';
 
     const user = this.currentUser();
     const currentUserName = user?.displayName || user?.fullName || '';
 
-    // 2. Приводим к массиву в любом случае
     const namesArray = Array.isArray(names) ? names : names.split(',').map(n => n.trim());
 
-    // 3. Маппим "Я" и соединяем
     return namesArray
       .map(name => name === currentUserName ? 'Я' : name)
       .join(', ');
@@ -243,7 +240,7 @@ export class TaskDetail implements OnInit {
   formatDate(dateStr: string | undefined): string {
     if (!dateStr) return '—';
     const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return '—';
+    if (Number.isNaN(date.getTime())) return '—';
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();

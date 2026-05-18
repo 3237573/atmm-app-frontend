@@ -4,7 +4,7 @@
       <i class="material-icons">people</i>
       Управление исполнителями
     </h3>
-    <button class="close-btn" (click)="assigneesUpdated.emit()">×</button>
+    <button class="close-btn" (click)="closeModal()">×</button>
   </div>
 
   <div class="modal-body">
@@ -12,13 +12,14 @@
       <i class="material-icons">search</i>
       <input
         type="text"
-        [(ngModel)]="searchQuery"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
         placeholder="Поиск сотрудников..."
       >
     </div>
 
     @if (loading()) {
-      <div class="loader-small">Загрузка...</div>
+      <div class="loader-small">Загрузка сотрудников...</div>
     } @else {
       <div class="members-list">
         @for (member of filteredMembers(); track member.id) {
@@ -42,13 +43,15 @@
               <span class="you-badge">Вы</span>
             }
           </label>
+        } @empty {
+          <div class="no-members">Сотрудники не найдены</div>
         }
       </div>
     }
   </div>
 
   <div class="modal-footer">
-    <button class="btn-cancel" (click)="assigneesUpdated.emit()">Отмена</button>
+    <button class="btn-cancel" (click)="closeModal()">Отмена</button>
     <button class="btn-save" (click)="saveAssignees()" [disabled]="saving()">
       @if (saving()) {
         <i class="material-icons spinning">refresh</i>

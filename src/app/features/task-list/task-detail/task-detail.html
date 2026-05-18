@@ -220,10 +220,12 @@
     @if (showAssigneeModal()) {
       <div class="modal-overlay" (click)="closeAssigneeModal()">
         <div (click)="$event.stopPropagation()">
-          <!-- Исправлено: передаём task напрямую, а не task() -->
           <app-assignee-manager
             [task]="task"
-            (assigneesUpdated)="onAssigneesUpdated()" />
+            (assigneesUpdated)="onAssigneesUpdated()"
+            (closed)="closeAssigneeModal()"
+          />
+
         </div>
       </div>
     }
