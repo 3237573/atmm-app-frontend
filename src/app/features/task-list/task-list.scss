@@ -306,10 +306,10 @@
   border-radius: 4px;
   display: inline-block;
 
-  &.overdue { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-  &.today { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-  &.soon { background: rgba(79, 70, 229, 0.08); color: var(--accent); }
-  &.future { color: var(--text-muted); }
+  &.overdue { background: rgba(239, 68, 68, 0.1); color: var(--text-muted); }
+  &.today { background: rgba(245, 158, 11, 0.1); color: var(--danger); }
+  &.soon { background: rgba(79, 70, 229, 0.08); color: var(--warning); }
+  &.future { color: var(--accent); }
 }
 
 .count-text {
