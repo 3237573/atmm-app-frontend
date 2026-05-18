@@ -210,7 +210,7 @@ export class TaskList implements OnInit {
   }
 
   getPriorityColor(priority: string): string {
-    return `priority-${priority.toLowerCase()}`;
+    return priority.toLowerCase(); // 'low', 'medium', 'high', 'urgent'
   }
 
   getStatusLabel(status: string): string {

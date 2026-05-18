@@ -49,10 +49,10 @@
         <tr>
           <th class="col-priority">Приоритет</th>
           <th class="col-status">Статус</th>
-          <th class="col-task">Задача</th>
           <th class="col-date">Срок</th>
           <th class="col-icon" title="Подзадачи"><i class="material-icons">account_tree</i></th>
           <th class="col-icon" title="Комментарии"><i class="material-icons">chat_bubble_outline</i></th>
+          <th class="col-task">Задача</th>
           <th class="col-assignee">Исполнитель</th>
           <th></th>
         </tr>
@@ -70,22 +70,6 @@
                     <option value="REVIEW">Проверка</option>
                     <option value="COMPLETED">Готово</option>
                   </select>
-                  <i class="material-icons select-arrow">expand_more</i>
-                </div>
-              </td>
-              <td>
-                <div class="title-wrapper" [style.paddingLeft.px]="task.level * 20">
-                  @if ((task.subtasksCount || 0) > 0) {
-                    <i class="material-icons node-toggle"
-                       [class.open]="expandedNodes().has(task.id)"
-                       (click)="toggleNode(task.id, $event)">chevron_right</i>
-                  } @else {
-                    <span class="node-spacer"></span>
-                  }
-                  @if (task.parentTaskId) {
-                    <i class="material-icons subtask-icon">subdirectory_arrow_right</i>
-                  }
-                  <span class="task-title">{{ task.title }}</span>
                 </div>
               </td>
               <td>
@@ -95,8 +79,8 @@
                         [class.today]="isToday(task.dueDate)"
                         [class.soon]="isSoon(task.dueDate)"
                         [class.future]="isFuture(task.dueDate)">
-                    {{ formatDate(task.dueDate) }}
-                  </span>
+          {{ formatDate(task.dueDate) }}
+        </span>
                 }
               </td>
               <td class="text-center">
@@ -112,6 +96,18 @@
                 } @else {
                   <span class="count-text muted">—</span>
                 }
+              </td>
+              <td>
+                <div class="title-wrapper" [style.paddingLeft.px]="task.level * 20">
+                  @if ((task.subtasksCount || 0) > 0) {
+                    <i class="material-icons node-toggle"
+                       [class.open]="expandedNodes().has(task.id)"
+                       (click)="toggleNode(task.id, $event)">chevron_right</i>
+                  } @else {
+                    <span class="node-spacer"></span>
+                  }
+                  <span class="task-title">{{ task.title }}</span>
+                </div>
               </td>
               <td class="assignee-cell">
                 <div class="assignee">
