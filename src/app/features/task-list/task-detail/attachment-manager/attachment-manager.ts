@@ -2,11 +2,12 @@ import { Component, Input, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TaskService } from '../../../../core/services/task.service';
 import { TaskAttachmentRO } from '../../../../core/models/task/task.model';
+import {HasPermissionDirective} from '../../../../core/directives/has-permission.directive';
 
 @Component({
   selector: 'app-task-attachment-manager',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HasPermissionDirective],
   templateUrl: './attachment-manager.html',
   styleUrls: ['./attachment-manager.scss']
 })

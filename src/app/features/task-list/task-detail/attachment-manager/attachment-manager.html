@@ -1,6 +1,6 @@
 <div class="attachments-inline-container">
 
-  <div
+  <div *appHasPermission="['task:read']"
     class="compact-dropzone"
     [class.dragging]="isDragging()"
     [class.uploading]="isUploading()"
@@ -39,7 +39,7 @@
             {{ file.filename }}
           </a>
 
-          <button class="btn-delete-chip" (click)="deleteAttachment(file.id, $event)" title="Удалить">
+          <button *appHasPermission="['task:read']" class="btn-delete-chip" (click)="deleteAttachment(file.id, $event)" title="Удалить">
             <i class="material-icons">close</i>
           </button>
         </div>

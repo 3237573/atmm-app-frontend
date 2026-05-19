@@ -6,11 +6,12 @@ import { TaskService } from '../../core/services/task.service';
 import { TaskRO, TaskTreeRO } from '../../core/models/task/task.model';
 import { AuthService } from '../../core/services/auth.service';
 import { BackOnEscapeDirective } from '../../core/directives/back-on-escape.directive';
+import {ReplaceMePipe} from '../../core/pipes/replace-me.pipe';
 
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, BackOnEscapeDirective],
+  imports: [CommonModule, FormsModule, RouterModule, BackOnEscapeDirective, ReplaceMePipe],
   templateUrl: './task-list.html',
   styleUrl: './task-list.scss'
 })
@@ -247,21 +248,6 @@ export class TaskList implements OnInit {
     this.expandedNodes.set(newSet);
   }
 
-  formatAssigneeName(assigneeName: string | string[]): string {
-    if (!assigneeName) return 'Не назначен';
-    let assigneeString = Array.isArray(assigneeName) ? assigneeName.join(', ') : String(assigneeName);
-
-    const user = this.currentUser();
-    if (!user) return assigneeString;
-
-    const currentUserName = user.displayName || user.fullName || user.email?.split('@')[0] || '';
-    return assigneeString.split(',').map(a => {
-      const name = a.trim();
-      return name === currentUserName ? 'Я' : name;
-    }).join(', ');
-  }
-
-  // ТВОИ ОРИГИНАЛЬНЫЕ КЛАССЫ СТАТУСОВ (Без изменений)
   getStatusClass(status: string): string {
     const classes: Record<string, string> = {
       'PENDING': 'status-pending',

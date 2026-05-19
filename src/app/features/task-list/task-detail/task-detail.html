@@ -1,4 +1,4 @@
-<div class="task-detail"  appBackOnEscape>
+<div class="task-detail" appBackOnEscape>
   <div class="page-header">
     <button class="btn-back" (click)="goBack()">
       <i class="material-icons">arrow_back</i>
@@ -32,7 +32,7 @@
         </div>
       </div>
 
-      <div class="status-actions">
+      <div *appHasPermission="['task:update']" class="status-actions">
         @if (!editing() && !loading()) {
           @if (canEditTask()) {
             <button class="btn-edit" (click)="startEdit()">
@@ -84,19 +84,9 @@
       <!-- Мета-информация -->
       <div class="meta-info">
         <div class="meta-item">
-          <i class="material-icons">people</i>
-          <span>Исполнители:</span>
-          <strong>{{ formatAssigneeName(task.assigneeNames) }}</strong>
-          @if (canManageAssignees()) {
-            <button class="edit-assignees-btn" (click)="openAssigneeModal()" title="Изменить исполнителей">
-              <i class="material-icons">edit</i>
-            </button>
-          }
-        </div>
-        <div class="meta-item">
           <i class="material-icons">person_add</i>
           <span>Постановщик:</span>
-          <strong>{{ formatAssigneeName(task.creatorName) }}</strong>
+          <strong>{{ task.creatorName | replaceMe }}</strong>
         </div>
         <div class="meta-item">
           <i class="material-icons">business</i>
@@ -154,7 +144,7 @@
           <span class="label"><i class="material-icons">people</i> Исполнители:</span>
           <button class="btn-add-subtask">
           <span class="value clickable" (click)="openAssigneeModal()">
-      {{ formatAssigneeName(task.assigneeNames) }}
+      {{ task.assigneeNames | replaceMe }}
             <i class="material-icons edit-icon">edit_note</i>
     </span>
           </button>
@@ -190,23 +180,31 @@
 
     <app-task-attachment-manager
       [taskId]="task.id"
-      [initialAttachments]="task.attachments" />
+      [initialAttachments]="task.attachments"/>
 
-    <!-- Подзадачи -->
     <div class="subtasks-section">
       <div class="section-header">
-        <h3>
+        <h3
+          (click)="toggleSubtasks()"
+          [class.clickable]="taskTree()?.subtasks?.length"
+          class="subtasks-heading">
           <i class="material-icons">account_tree</i>
           Подзадачи :
           @if (task.subtasksCount) {
             <span class="badge">{{ task.subtasksCount }}</span>
+          }
+          @if (taskTree()?.subtasks?.length) {
+            <i class="material-icons toggle-arrow">
+              {{ subtasksExpanded() ? 'expand_less' : 'expand_more' }}
+            </i>
           }
         </h3>
         @if (!taskTree()?.subtasks?.length) {
           <span class="empty-inline">Подзадач пока нет</span>
         }
       </div>
-      @if (taskTree()?.subtasks?.length) {
+
+      @if (subtasksExpanded() && taskTree()?.subtasks?.length) {
         <div class="tree-root">
           @for (childNode of taskTree()!.subtasks; track childNode.task.id) {
             <app-subtask-tree [node]="childNode"></app-subtask-tree>
@@ -218,7 +216,7 @@
     <!-- Комментарии -->
     <app-task-comments
       [taskId]="task.id"
-      [reloadTrigger]="reloadComments()" />
+      [reloadTrigger]="reloadComments()"/>
 
     <!-- Модалка исполнителей -->
     @if (showAssigneeModal()) {

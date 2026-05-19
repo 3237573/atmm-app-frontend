@@ -124,7 +124,7 @@
                 </div>
               </td>
               <td class="assignee-cell">
-                <div class="assignee"><span>{{ formatAssigneeName(task.assigneeNames) }}</span></div>
+                <div class="assignee"><span>{{ task.assigneeNames | replaceMe }}</span></div>
               </td>
               <td class="text-right"><i class="material-icons arrow">chevron_right</i></td>
             </tr>
@@ -149,7 +149,7 @@
                     {{ task.title }}
                   </div>
                   <div class="card-footer">
-                    <div class="assignee"><span>{{ formatAssigneeName(task.assigneeNames) }}</span></div>
+                    <div class="assignee"><span>{{ task.assigneeNames | replaceMe }}</span></div>
                     <div class="card-meta">
                       @if ((task.subtasksCount || 0) > 0) { <span><i class="material-icons">account_tree</i>{{ task.subtasksCount }}</span> }
                       @if ((task.commentsCount || 0) > 0) { <span><i class="material-icons">chat_bubble_outline</i>{{ task.commentsCount }}</span> }

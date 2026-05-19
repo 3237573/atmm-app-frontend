@@ -366,6 +366,45 @@
   z-index: 1000;
 }
 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  .subtasks-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    user-select: none; // Чтобы текст не выделялся при двойном клике
+
+    &.clickable {
+      cursor: pointer;
+
+      &:hover {
+        color: $accent; // Или var(--accent), подсвечиваем при наведении
+
+        .toggle-arrow {
+          color: $accent;
+        }
+      }
+    }
+  }
+
+  .toggle-arrow {
+    font-size: 1.2rem;
+    color: $text-muted;
+    transition: color 0.2s;
+  }
+
+  .empty-inline {
+    color: $text-muted;
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }

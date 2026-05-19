@@ -5,7 +5,7 @@ import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {AuthService} from '../../../core/services/auth.service';
 import {TaskService} from '../../../core/services/task.service';
 import {MemberService} from '../../../core/services/member.service'; // Добавили импорт
-import {TaskAttachmentRO, TaskPriority, TaskRO, TaskStatus, TaskTreeRO} from '../../../core/models/task/task.model';
+import {TaskPriority, TaskRO, TaskStatus, TaskTreeRO} from '../../../core/models/task/task.model';
 import {TaskComments} from './task-comments/task-comments';
 import {AssigneeManager} from './assignee-manager/assignee-manager';
 import {SubtaskTreeComponent} from './subtask-tree';
@@ -13,20 +13,19 @@ import {BackOnEscapeDirective} from '../../../core/directives/back-on-escape.dir
 import {NavigationService} from '../../../core/services/navigation.service';
 import {ProjectAffiliation} from '../../../core/models/project.model';
 import {DepartmentService} from '../../../core/services/departament.service';
-import {DepartmentAffiliation} from '../../../core/models/departament.model';
-import {MemberRO} from '../../../core/models/member.model';
-import {AttachmentManager} from './attachment-manager/attachment-manager'; // Добавили модель проектов
+import {AttachmentManager} from './attachment-manager/attachment-manager';
+import {ReplaceMePipe} from '../../../core/pipes/replace-me.pipe';
+import {HasPermissionDirective} from '../../../core/directives/has-permission.directive'; // Добавили модель проектов
 
 @Component({
   selector: 'app-task-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, TaskComments, AssigneeManager, SubtaskTreeComponent, BackOnEscapeDirective, AttachmentManager],
+  imports: [CommonModule, FormsModule, RouterModule, TaskComments, AssigneeManager, SubtaskTreeComponent, BackOnEscapeDirective, AttachmentManager, ReplaceMePipe, HasPermissionDirective],
   templateUrl: './task-detail.html',
   styleUrl: './task-detail.scss'
 })
 export class TaskDetail implements OnInit {
   private readonly authService = inject(AuthService);
-  private readonly departmentService = inject(DepartmentService);
   private readonly memberService = inject(MemberService); // Добавили инжект
   private readonly navService = inject(NavigationService);
   private readonly route = inject(ActivatedRoute);
@@ -36,14 +35,11 @@ export class TaskDetail implements OnInit {
   currentUser = this.authService.currentUser;
   task = signal<TaskRO | null>(null);
   taskTree = signal<TaskTreeRO | null>(null);
-  userDepartments = signal<DepartmentAffiliation[]>([]);
   userProjects = signal<ProjectAffiliation[]>([]);
-  departmentMembers = signal<MemberRO[]>([]);
-  selectedDepartmentId = signal<string>('');   // ← теперь это основной источник departmentId
-
   loading = signal(true);
   editing = signal(false);
   saving = signal(false);
+  subtasksExpanded = signal(false);
   deleting = signal(false);
   showAssigneeModal = signal(false);
   reloadComments = signal(0);
@@ -221,19 +217,6 @@ export class TaskDetail implements OnInit {
   triggerCommentsReload(): void { this.reloadComments.update(v => v + 1); }
   isOverdue(dueDate: string | undefined): boolean { return false; }
 
-  formatAssigneeName(names: string | string[] | undefined): string {
-    if (!names || (Array.isArray(names) && names.length === 0)) return 'Не назначен';
-
-    const user = this.currentUser();
-    const currentUserName = user?.displayName || user?.fullName || '';
-
-    const namesArray = Array.isArray(names) ? names : names.split(',').map(n => n.trim());
-
-    return namesArray
-      .map(name => name === currentUserName ? 'Я' : name)
-      .join(', ');
-  }
-
   getPriorityColor(p: TaskPriority): string { return 'priority-' + p.toLowerCase(); }
   getPriorityLabel(p: TaskPriority): string { return p; }
 
@@ -249,5 +232,11 @@ export class TaskDetail implements OnInit {
 
   goBack() {
     this.navService.back('/tasks');
+  }
+
+  toggleSubtasks(): void {
+    if (this.taskTree()?.subtasks?.length) {
+      this.subtasksExpanded.update(expanded => !expanded);
+    }
   }
 }
