@@ -1,176 +1,165 @@
 @use "sass:color";
-@use "../../../../app" as *;
+@use "../../../../app" as *; // Импорт глобальных переменных темы ($border, $accent, $text-muted и т.д.)
 
-.attachments-container {
-  margin-top: 2rem;
-  background: rgba(var(--border), 0.05);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  padding: 1.5rem;
-
-  .section-header {
-    margin-bottom: 1rem;
-    h3 {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin: 0;
-      font-size: 1.1rem;
-      color: var(--text-main);
-
-      i { color: var(--text-muted); }
-    }
-    .badge {
-      background: var(--accent);
-      color: #fff;
-      padding: 0.15rem 0.5rem;
-      border-radius: 1rem;
-      font-size: 0.8rem;
-    }
-  }
+.attachments-inline-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba($border, 0.1);
+  border: 1px solid $border;
+  border-radius: 0.5rem;
+  min-height: 40px; /* Высота подгоняется под строку подзадач */
+  margin: 0.75rem 0;
+  box-sizing: border-box;
+  flex-wrap: wrap; /* Если чипсы не влезут на мелких экранах, они перенесутся */
 }
 
-// Стили дропзоны
-.dropzone {
-  border: 2px dashed var(--border);
-  border-radius: 0.75rem;
-  padding: 2rem;
-  text-align: center;
+// Левая кнопка "Дропзона"
+.compact-dropzone {
+  display: flex;
+  align-items: center;
+  border: 1px dashed $border;
+  border-radius: 0.375rem;
+  padding: 0 0.6rem;
   background: transparent;
   cursor: pointer;
+  height: 28px; /* Компактная высота */
   transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+
+  &:hover:not(.disabled) {
+    border-color: $accent;
+    background: rgba($accent, 0.05);
+
+    .upload-icon, .text-hint {
+      color: $accent;
+    }
+  }
 
   &.dragging {
-    border-color: var(--accent);
-    background: rgba(var(--accent), 0.05);
-    transform: scale(1.01);
+    border-color: $accent;
+    background: rgba($accent, 0.1);
   }
 
   &.uploading {
-    background: rgba($border, 0.1);
     cursor: not-allowed;
-    border-style: solid;
+    border-color: $border;
+    background: rgba($border, 0.03);
   }
 
-  &:hover:not(.uploading) {
-    border-color: rgba($text-muted, 0.5);
-    background: rgba($border, 0.1);
+  &.disabled {
+    cursor: not-allowed;
+    border-style: solid;
+    background: rgba($border, 0.05);
+    opacity: 0.6;
   }
 
   .dropzone-content {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
+    white-space: nowrap;
+  }
+
+  .upload-icon {
+    font-size: 1.1rem;
     color: $text-muted;
-    font-size: 0.9rem;
+    transition: color 0.2s;
+  }
 
-    .cloud-icon {
-      font-size: 2.5rem;
-      color: rgba($text-muted, 0.6);
-    }
+  .text-hint {
+    font-size: 0.8rem;
+    color: $text-muted;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+}
 
-    .browse-link {
+// Контейнер списка файлов справа
+.attachments-horizontal-list {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+// Чипсы файлов (горизонтальные элементы)
+.attachment-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba($border, 0.2);
+  border: 1px solid rgba($border, 0.5);
+  border-radius: 1.25rem; /* Округлые края */
+  padding: 0 0.5rem 0 0.6rem;
+  height: 26px;
+  max-width: 180px;
+  box-sizing: border-box;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: rgba($border, 0.35);
+  }
+
+  .file-icon {
+    font-size: 1rem;
+    color: $accent;
+    flex-shrink: 0;
+  }
+
+  .file-name {
+    color: $text-main;
+    font-size: 0.78rem;
+    font-weight: 400;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:hover {
       color: $accent;
-      font-weight: 500;
       text-decoration: underline;
     }
   }
-}
 
-// Карточки файлов
-.attachments-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.attachment-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  background: #fff;
-  border: 1px solid $border;
-  border-radius: 0.75rem;
-  transition: box-shadow 0.2s, border-color 0.2s;
-
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-    border-color: rgba($text-muted, 0.3);
-
-    .btn-delete-file { opacity: 1; }
-  }
-
-  .file-info-block {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    max-width: 85%;
-
-    .file-icon {
-      font-size: 2rem;
-      color: $accent;
-    }
-
-    .meta {
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-
-      .file-name {
-        color: var(--accent);
-        font-size: 0.9rem;
-        font-weight: 500;
-        text-decoration: none;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-
-        &:hover {
-          color: $accent;
-          text-decoration: underline;
-        }
-      }
-
-      .file-size {
-        font-size: 0.75rem;
-        color: $text-muted;
-        margin-top: 0.15rem;
-      }
-    }
-  }
-
-  .btn-delete-file {
+  .btn-delete-chip {
     background: transparent;
     border: none;
     color: #ef4444;
     cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 0.375rem;
-    opacity: 0.6; // Слегка приглушаем кнопку удаления, проявляем на ховер карточки
-    transition: all 0.15s;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-left: 0.15rem;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    transition: background-color 0.15s;
+
+    i {
+      font-size: 0.9rem;
+    }
 
     &:hover {
-      background: rgba(#ef4444, 0.1);
-      opacity: 1;
+      background: rgba(#ef4444, 0.15);
     }
   }
 }
 
-.empty-text {
+.empty-attachments-text {
+  font-size: 0.78rem;
   color: $text-muted;
   font-style: italic;
-  text-align: center;
-  font-size: 0.9rem;
-  margin-top: 1.5rem;
 }
 
-// Мини лоадер для загрузки
+// Мини-лоадер внутри кнопки при загрузке
 .spinner-small {
-  width: 24px;
-  height: 24px;
+  width: 12px;
+  height: 12px;
   border: 2px solid $border;
   border-top-color: $accent;
   border-radius: 50%;

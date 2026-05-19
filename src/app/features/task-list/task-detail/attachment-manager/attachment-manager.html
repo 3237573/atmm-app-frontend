@@ -1,62 +1,52 @@
-<div class="attachments-container">
-  <div class="section-header">
-    <h3>
-      <i class="material-icons">attachment</i>
-      Вложения
-      @if (attachments().length) {
-        <span class="badge">{{ attachments().length }}</span>
-      }
-    </h3>
-  </div>
+<div class="attachments-inline-container">
 
   <div
-    class="dropzone"
+    class="compact-dropzone"
     [class.dragging]="isDragging()"
     [class.uploading]="isUploading()"
+    [class.disabled]="attachments().length >= 3"
     (dragover)="onDragOver($event)"
     (dragleave)="onDragLeave($event)"
     (drop)="onDrop($event)"
-    (click)="fileInput.click()">
+    (click)="attachments().length < 3 && !isUploading() && fileInput.click()"
+    [title]="attachments().length >= 3 ? 'Достигнут лимит (макс. 3 файла)' : 'Перетащите файл или кликните для загрузки'">
 
     <input
       type="file"
       #fileInput
       (change)="onFileSelected($event)"
       style="display: none;"
-      [disabled]="isUploading()">
+      [disabled]="isUploading() || attachments().length >= 3">
 
     <div class="dropzone-content">
       @if (isUploading()) {
         <div class="spinner-small"></div>
-        <span>Загрузка файла на сервер...</span>
+        <span class="text-hint">Загрузка...</span>
       } @else {
-        <i class="material-icons cloud-icon">cloud_upload</i>
-        <span>Перетащите файл сюда или <span class="browse-link">выберите на диске</span></span>
+        <i class="material-icons upload-icon">attach_file</i>
+        <span class="text-hint">Вложение ({{ attachments().length }}/3)</span>
       }
     </div>
   </div>
 
   @if (attachments().length > 0) {
-    <div class="attachments-list">
+    <div class="attachments-horizontal-list">
       @for (file of attachments(); track file.id) {
-        <div class="attachment-card">
-          <div class="file-info-block">
-            <i class="material-icons file-icon">{{ getFileIcon(file.fileType, file.filename) }}</i>
-            <div class="meta">
-              <a [href]="file.filePath" target="_blank" class="file-name" title="Открыть файл">
-                {{ file.filename }}
-              </a>
-              <span class="file-size">{{ formatFileSize(file.fileSize) }}</span>
-            </div>
-          </div>
+        <div class="attachment-chip" title="{{ file.filename }} ({{ formatFileSize(file.fileSize) }})">
+          <i class="material-icons file-icon">{{ getFileIcon(file.fileType, file.filename) }}</i>
 
-          <button class="btn-delete-file" (click)="deleteAttachment(file.id, $event)" title="Удалить">
-            <i class="material-icons">delete_outline</i>
+          <a [href]="file.filePath" target="_blank" class="file-name">
+            {{ file.filename }}
+          </a>
+
+          <button class="btn-delete-chip" (click)="deleteAttachment(file.id, $event)" title="Удалить">
+            <i class="material-icons">close</i>
           </button>
         </div>
       }
     </div>
-  } @else if (!isUploading()) {
-    <p class="empty-text">К этой задаче ещё не прикреплено ни одного файла</p>
+  } @else {
+    <span class="empty-attachments-text">Нет прикрепленных файлов (до 1 МБ)</span>
   }
+
 </div>

@@ -16,7 +16,7 @@ export class AttachmentManager implements OnInit {
 
   private readonly taskService = inject(TaskService);
 
-  // Реактивное состояние через Angular Signals
+  // Реактивное состояние вложений и статусов
   attachments = signal<TaskAttachmentRO[]>([]);
   isDragging = signal(false);
   isUploading = signal(false);
@@ -27,62 +27,72 @@ export class AttachmentManager implements OnInit {
     }
   }
 
-  // Срабатывает при выборе файла через стандартный проводник
+  // Выбор через клик на скрепку/кнопку
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.uploadFile(input.files[0]);
+      this.validateAndUploadFile(input.files[0]);
     }
   }
 
   // Хэндлеры для Drag & Drop
   onDragOver(event: DragEvent): void {
     event.preventDefault();
-    event.stopPropagation();
-    this.isDragging.set(true);
+    if (this.attachments().length < 3) {
+      this.isDragging.set(true);
+    }
   }
 
   onDragLeave(event: DragEvent): void {
     event.preventDefault();
-    event.stopPropagation();
     this.isDragging.set(false);
   }
 
   onDrop(event: DragEvent): void {
     event.preventDefault();
-    event.stopPropagation();
     this.isDragging.set(false);
 
     if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
-      this.uploadFile(event.dataTransfer.files[0]);
+      this.validateAndUploadFile(event.dataTransfer.files[0]);
     }
   }
 
-  private uploadFile(file: File): void {
+  // Единый метод валидации и загрузки файла
+  private validateAndUploadFile(file: File): void {
+    // 1. Проверка лимита на количество (макс. 3)
+    if (this.attachments().length >= 3) {
+      alert('Превышен лимит: можно прикрепить не более 3-х файлов к одной задаче.');
+      return;
+    }
+
+    // 2. Проверка лимита на размер (макс. 1 МБ)
+    const maxSizeBytes = 1024 * 1024; // 1 MB
+    if (file.size > maxSizeBytes) {
+      alert(`Файл "${file.name}" слишком большой (${this.formatFileSize(file.size)}). Максимальный размер — 1 МБ.`);
+      return;
+    }
+
+    // Проверки пройдены — отправляем на бэкенд
     this.isUploading.set(true);
     this.taskService.uploadAttachment(this.taskId, file).subscribe({
       next: (newAttachment) => {
-        // Красиво обновляем сигнал — добавляем новый файл в массив
         this.attachments.update(current => [...current, newAttachment]);
         this.isUploading.set(false);
       },
       error: (err) => {
         console.error('Ошибка загрузки файла:', err);
+        alert('Не удалось загрузить файл на сервер.');
         this.isUploading.set(false);
-        alert('Не удалось загрузить файл. Попробуйте еще раз.');
       }
     });
   }
 
-  deleteAttachment(id: string, event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (!confirm('Вы уверены, что хотите удалить этот файл?')) return;
+  deleteAttachment(id: string, event: MouseEvent): void {
+    event.stopPropagation(); // Отменяем клик по родителю
+    if (!confirm('Вы уверены, что хотите удалить это вложение?')) return;
 
     this.taskService.deleteAttachment(id).subscribe({
       next: () => {
-        // Фильтруем массив в сигнале, удаляя элемент
         this.attachments.update(current => current.filter(a => a.id !== id));
       },
       error: (err) => {
@@ -92,26 +102,23 @@ export class AttachmentManager implements OnInit {
     });
   }
 
-  // Утилита для красивого отображения размера файла
   formatFileSize(bytes: number): string {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ['Bytes', 'KB', 'MB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   }
 
-  // Подбор иконки Material Icons в зависимости от расширения
   getFileIcon(fileType: string, filename: string): string {
     const type = fileType?.toLowerCase() || '';
     const name = filename.toLowerCase();
 
-    if (type.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp)$/.test(name)) return 'image';
+    if (type.startsWith('image/') || /\\.(jpg|jpeg|png|gif|webp)$/.test(name)) return 'image';
     if (type === 'application/pdf' || name.endsWith('.pdf')) return 'picture_as_pdf';
-    if (name.endsWith('.zip') || name.endsWith('.rar') || name.endsWith('.7z')) return 'folder_zip';
-    if (name.endsWith('.doc') || name.endsWith('.docx') || name.endsWith('.txt')) return 'description';
+    if (name.endsWith('.zip') || name.endsWith('.rar') || name.endsWith('.7z')) return 'archive';
+    if (name.endsWith('.doc') || name.endsWith('.docx')) return 'description';
     if (name.endsWith('.xls') || name.endsWith('.xlsx')) return 'table_chart';
-
-    return 'insert_drive_file'; // дефолтная иконка
+    return 'insert_drive_file';
   }
 }
