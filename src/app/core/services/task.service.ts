@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {TaskRO, TaskCreateRO, ITaskUpdateRO, TaskTreeRO} from '../models/task/task.model';
+import {TaskRO, TaskCreateRO, ITaskUpdateRO, TaskTreeRO, TaskAttachmentRO} from '../models/task/task.model';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
@@ -44,4 +44,16 @@ export class TaskService {
   deleteTask(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
+
+  uploadAttachment(taskId: string, file: File): Observable<TaskAttachmentRO> {
+    const formData = new FormData();
+    formData.append('file', file); // Ключ 'file' должен совпадать с бэкендом
+
+    return this.http.post<TaskAttachmentRO>(`${this.baseUrl}/${taskId}/attachments`, formData);
+  }
+
+  deleteAttachment(attachmentId: string): Observable<{ success: boolean }> {
+    return this.http.delete<{ success: boolean }>(`${this.baseUrl}/attachments/${attachmentId}`);
+  }
+
 }

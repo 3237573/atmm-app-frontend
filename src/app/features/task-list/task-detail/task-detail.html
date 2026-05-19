@@ -188,6 +188,10 @@
       </div>
     }
 
+    <app-task-attachment-manager
+      [taskId]="task.id"
+      [initialAttachments]="task.attachments" />
+
     <!-- Подзадачи -->
     <div class="subtasks-section">
       <div class="section-header">
@@ -220,7 +224,7 @@
     @if (showAssigneeModal()) {
       <div class="modal-overlay" (click)="closeAssigneeModal()">
         <div (click)="$event.stopPropagation()">
-          <app-assignee-manager
+          <app-task-assignee-manager
             [task]="task"
             (assigneesUpdated)="onAssigneesUpdated()"
             (closed)="closeAssigneeModal()"

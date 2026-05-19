@@ -26,6 +26,7 @@ export interface TaskRO {
   updatedAt?: string;
   timeSpent?: number; // в часах
   estimatedHours?: number;
+  attachments: TaskAttachmentRO[]
 }
 
 export interface TaskCreateRO {
@@ -70,4 +71,13 @@ export interface TaskComment {
 export interface TaskTreeRO {
   task: TaskRO;
   subtasks: TaskTreeRO[];
+}
+
+export interface TaskAttachmentRO {
+  id: string;
+  filename: string;
+  fileSize: number;
+  fileType: string;
+  filePath: string;
+  createdAt: string;
 }

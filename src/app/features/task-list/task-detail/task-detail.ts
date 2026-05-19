@@ -5,7 +5,7 @@ import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {AuthService} from '../../../core/services/auth.service';
 import {TaskService} from '../../../core/services/task.service';
 import {MemberService} from '../../../core/services/member.service'; // Добавили импорт
-import {TaskPriority, TaskRO, TaskStatus, TaskTreeRO} from '../../../core/models/task/task.model';
+import {TaskAttachmentRO, TaskPriority, TaskRO, TaskStatus, TaskTreeRO} from '../../../core/models/task/task.model';
 import {TaskComments} from './task-comments/task-comments';
 import {AssigneeManager} from './assignee-manager/assignee-manager';
 import {SubtaskTreeComponent} from './subtask-tree';
@@ -14,12 +14,13 @@ import {NavigationService} from '../../../core/services/navigation.service';
 import {ProjectAffiliation} from '../../../core/models/project.model';
 import {DepartmentService} from '../../../core/services/departament.service';
 import {DepartmentAffiliation} from '../../../core/models/departament.model';
-import {MemberRO} from '../../../core/models/member.model'; // Добавили модель проектов
+import {MemberRO} from '../../../core/models/member.model';
+import {AttachmentManager} from './attachment-manager/attachment-manager'; // Добавили модель проектов
 
 @Component({
   selector: 'app-task-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, TaskComments, AssigneeManager, SubtaskTreeComponent, BackOnEscapeDirective],
+  imports: [CommonModule, FormsModule, RouterModule, TaskComments, AssigneeManager, SubtaskTreeComponent, BackOnEscapeDirective, AttachmentManager],
   templateUrl: './task-detail.html',
   styleUrl: './task-detail.scss'
 })
@@ -33,7 +34,6 @@ export class TaskDetail implements OnInit {
   private readonly taskService = inject(TaskService);
 
   currentUser = this.authService.currentUser;
-
   task = signal<TaskRO | null>(null);
   taskTree = signal<TaskTreeRO | null>(null);
   userDepartments = signal<DepartmentAffiliation[]>([]);

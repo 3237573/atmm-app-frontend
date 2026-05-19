@@ -9,7 +9,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { DepartmentService } from '../../../../core/services/departament.service';
 
 @Component({
-  selector: 'app-assignee-manager',
+  selector: 'app-task-assignee-manager',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './assignee-manager.html',
