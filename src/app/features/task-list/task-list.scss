@@ -31,7 +31,7 @@
     flex: 0 0 calc(50% - 0.75rem);
     width: calc(50% - 0.75rem);
     display: grid;
-    grid-template-columns: repeat(5, 1fr); // 5 колонок под карточки
+    grid-template-columns: repeat(6, 1fr); // 5 колонок под карточки
     gap: 0.4rem;
   }
 }
@@ -142,14 +142,11 @@
     width: 100%;
   }
 
-  &.pending .stat-value { color: var(--text-muted); }
+  &.pending .stat-value { color: var(--warning); }
   &.progress .stat-value { color: var(--accent); }
   &.completed .stat-value { color: var(--success); }
-  &.overdue {
-    background: rgba(239, 68, 68, 0.05);
-    border-color: rgba(239, 68, 68, 0.15);
-    .stat-value { color: var(--danger); }
-  }
+  &.overdue {background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.15); .stat-value { color: var(--danger); }}
+  &.archived .stat-value { color: var(--text-muted); }
 }
 
 /* ============================================================\
@@ -169,6 +166,7 @@
     font-size: 0.8rem;
     font-weight: 600;
     background: var(--bg-card);
+    color: var(--text-muted);
     transition: all 0.2s ease;
     width: 100%;
     height: 36px;
@@ -190,8 +188,8 @@
 
   // Стилизация по классам статусов
   &.status-pending {
-    .status-select-styled { background: rgba(148, 163, 184, 0.12); color: var(--text-muted); border-color: rgba(148, 163, 184, 0.2); }
-    .select-arrow { color: var(--text-muted); }
+    .status-select-styled { background: rgba(239, 68, 110, 0.12); color: var(--danger); border-color: rgba(239, 68, 110, 0.2); }
+    .select-arrow { color: var(--danger); }
   }
   &.status-progress {
     .status-select-styled { background: rgba(56, 189, 248, 0.12); color: var(--accent); border-color: rgba(56, 189, 248, 0.3); }
@@ -205,6 +203,11 @@
     .status-select-styled { background: rgba(74, 222, 128, 0.12); color: var(--success); border-color: rgba(74, 222, 128, 0.3); }
     .select-arrow { color: var(--success); }
   }
+  &.status-archived {
+    .status-select-styled { background: rgba(148, 163, 184, 0.12); color: var(--text-muted); border-color: rgba(148, 163, 184, 0.2); }
+    .select-arrow { color: var(--text-muted); }
+  }
+
 }
 
 .priority-select-wrapper {

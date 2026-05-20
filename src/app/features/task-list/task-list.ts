@@ -44,7 +44,7 @@ export class TaskList implements OnInit {
   // 2. Оптимальный расчет статистики за один проход O(N)
   stats = computed(() => {
     const tasks = this.flatTasks();
-    const currentStats = { total: tasks.length, pending: 0, inProgress: 0, review: 0, completed: 0, overdue: 0 };
+    const currentStats = { total: tasks.length, pending: 0, inProgress: 0, review: 0, completed: 0, overdue: 0, archived: 0 };
 
     const todayMidnight = new Date();
     todayMidnight.setHours(0, 0, 0, 0);
@@ -55,6 +55,7 @@ export class TaskList implements OnInit {
       else if (t.status === 'IN_PROGRESS') currentStats.inProgress++;
       else if (t.status === 'REVIEW') currentStats.review++;
       else if (t.status === 'COMPLETED') currentStats.completed++;
+      else if (t.status === 'ARCHIVED') currentStats.archived++;
 
       if (t.dueDate && t.status !== 'COMPLETED') {
         const d = new Date(t.dueDate);
@@ -253,7 +254,8 @@ export class TaskList implements OnInit {
       'PENDING': 'status-pending',
       'IN_PROGRESS': 'status-progress',
       'REVIEW': 'status-review',
-      'COMPLETED': 'status-completed'
+      'COMPLETED': 'status-completed',
+      'ARCHIVED': 'status-archived'
     };
     return classes[status] || '';
   }
@@ -267,7 +269,8 @@ export class TaskList implements OnInit {
       'PENDING': 'Ожидает',
       'IN_PROGRESS': 'В работе',
       'REVIEW': 'Проверка',
-      'COMPLETED': 'Готово'
+      'COMPLETED': 'Готово',
+      'ARCHIVED': 'Архив'
     };
     return labels[status] || status;
   }

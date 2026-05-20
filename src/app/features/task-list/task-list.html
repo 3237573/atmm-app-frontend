@@ -24,6 +24,7 @@
             <option value="IN_PROGRESS">В работе</option>
             <option value="REVIEW">Проверка</option>
             <option value="COMPLETED">Готово</option>
+            <option value="ARCHIVED">Архив</option>
           </select>
           <i class="material-icons select-arrow">expand_more</i>
         </div>
@@ -70,6 +71,10 @@
         <div class="stat-value">{{ stats().overdue }}</div>
         <div class="stat-label">Просрочено</div>
       </div>
+      <div class="stat-card archived">
+        <div class="stat-value">{{ stats().archived }}</div>
+        <div class="stat-label">Архив</div>
+      </div>
     </div>
   </div>
 
@@ -78,8 +83,8 @@
       <table class="tasks-table">
         <thead>
         <tr>
-          <th class="col-priority">Приоритет</th>
           <th class="col-status">Статус</th>
+          <th class="col-priority">Приоритет</th>
           <th class="col-date">Срок</th>
           <th class="col-icon" title="Подзадачи"><i class="material-icons">account_tree</i></th>
           <th class="col-icon" title="Комментарии"><i class="material-icons">chat_bubble_outline</i></th>
@@ -98,6 +103,7 @@
                     <option value="IN_PROGRESS">В работе</option>
                     <option value="REVIEW">Проверка</option>
                     <option value="COMPLETED">Готово</option>
+                    <option value="ARCHIVED">Архив</option>
                   </select>
                 </div>
               </td>
@@ -136,7 +142,7 @@
 
   @if (viewMode() === 'board') {
     <div class="kanban-board">
-      @for (status of ['PENDING', 'IN_PROGRESS', 'REVIEW', 'COMPLETED']; track status) {
+      @for (status of ['PENDING', 'IN_PROGRESS', 'REVIEW', 'COMPLETED', 'ARCHIVED']; track status) {
         <div class="kanban-column">
           <div class="column-header"><h3>{{ getStatusLabel(status) }}</h3></div>
           <div class="column-tasks">

@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -11,6 +11,8 @@ import { DepartmentAffiliation } from '../../../core/models/departament.model';
 import { ProjectAffiliation } from '../../../core/models/project.model';
 import { DepartmentService } from '../../../core/services/departament.service';
 import { BackOnEscapeDirective } from '../../../core/directives/back-on-escape.directive';
+import { ComponentDeactivateService } from '../../../core/services/component-deactivate.service';
+import { CanComponentDeactivate } from '../../../core/interfaces/can-deactivate.interface';
 
 @Component({
   selector: 'app-task-create',
@@ -19,11 +21,12 @@ import { BackOnEscapeDirective } from '../../../core/directives/back-on-escape.d
   templateUrl: './task-create.html',
   styleUrl: './task-create.scss'
 })
-export class TaskCreate implements OnInit {
+export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
+  private readonly authService = inject(AuthService);
+  private readonly deactivateService = inject(ComponentDeactivateService);
   private readonly departmentService = inject(DepartmentService);
   private readonly taskService = inject(TaskService);
   private readonly memberService = inject(MemberService);
-  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -58,7 +61,7 @@ export class TaskCreate implements OnInit {
   });
 
   // ========== Данные для отслеживания несохранённых изменений ==========
-  private initialData = signal({
+  private readonly initialData = signal({
     title: '',
     description: '',
     priority: 'MEDIUM' as TaskPriority,
@@ -70,9 +73,9 @@ export class TaskCreate implements OnInit {
 
   // ========== Lifecycle ==========
   ngOnInit(): void {
+    this.deactivateService.register(this);
     this.loadCurrentUser();
 
-    // Чтение query-параметров (родительская задача, предзаполненные поля)
     this.route.queryParams.subscribe(params => {
       if (params['parentId']) this.parentTaskId = params['parentId'];
       if (params['assigneeId']) this.assigneeMembershipIds.set([params['assigneeId']]);
@@ -80,7 +83,6 @@ export class TaskCreate implements OnInit {
       this.saveInitialData();
     });
 
-    // Эффект: при смене отдела подгружаем сотрудников и сбрасываем выбранных исполнителей
     effect(() => {
       const deptId = this.selectedDepartmentId();
       if (deptId && this.currentUser()) {
@@ -92,7 +94,11 @@ export class TaskCreate implements OnInit {
     });
   }
 
-  // ========== Загрузка текущего пользователя и его данных ==========
+  ngOnDestroy(): void {
+    this.deactivateService.unregister();
+  }
+
+  // ========== Загрузка текущего пользователя ==========
   loadCurrentUser(): void {
     this.loadingUser.set(true);
     const currentUserId = this.authService.currentUser()?.id;
@@ -135,7 +141,6 @@ export class TaskCreate implements OnInit {
     this.departmentService.getDepartmentEmployees(departmentId).subscribe({
       next: (members) => {
         this.departmentMembers.set(members);
-        // Оставляем только тех исполнителей, которые есть в новом отделе
         const validIds = this.assigneeMembershipIds().filter(id =>
           members.some(m => m.id === id)
         );
@@ -150,7 +155,7 @@ export class TaskCreate implements OnInit {
     });
   }
 
-  // ========== Сохранение начального состояния формы (для проверки несохранённых изменений) ==========
+  // ========== Сохранение начального состояния ==========
   saveInitialData(): void {
     this.initialData.set({
       title: this.title(),
@@ -177,7 +182,7 @@ export class TaskCreate implements OnInit {
       this.dueDate() !== initial.dueDate;
   }
 
-  // ========== Guard для маршрутизатора ==========
+  // ========== Guard для маршрутизатора и Esc ==========
   canDeactivate(): boolean {
     if (this.hasUnsavedChanges()) {
       return confirm('Есть несохранённые изменения. Вы уверены, что хотите уйти?');
@@ -236,10 +241,8 @@ export class TaskCreate implements OnInit {
 
   onDepartmentChange(departmentId: string): void {
     this.selectedDepartmentId.set(departmentId);
-    // Сброс исполнителей произойдёт в effect
   }
 
-  // ========== Вспомогательные функции ==========
   getRoleBadgeClass(roleName: string): string {
     switch (roleName) {
       case 'OWNER': return 'owner';
