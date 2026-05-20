@@ -129,6 +129,30 @@ export class MembersAdmin implements OnInit, OnDestroy {
     return filtered;
   }
 
+  // ========== Классы для стилизации селектов (аналог task-list) ==========
+  getRoleFilterClass(): string {
+    const role = this.selectedRole();
+    if (!role) return '';
+    switch (role) {
+      case 'OWNER': return 'role-owner';
+      case 'ADMIN': return 'role-admin';
+      case 'MEMBER': return 'role-member';
+      case 'GUEST': return 'role-guest';
+      default: return '';
+    }
+  }
+
+  getStatusFilterClass(): string {
+    const status = this.selectedStatus();
+    if (!status) return '';
+    switch (status) {
+      case 'ACTIVE': return 'status-active';
+      case 'PENDING': return 'status-pending';
+      case 'DELETED': return 'status-deleted';
+      default: return '';
+    }
+  }
+
   paginatedMembers(): MemberRO[] {
     const filtered = this.filteredMembers();
     const start = (this.currentPage() - 1) * this.itemsPerPage();
