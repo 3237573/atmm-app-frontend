@@ -34,9 +34,9 @@ export class Sidebar implements OnInit {
   }
 
   private readonly allMenuItems: MenuItem[] = [
-    { path: '/departments', icon: 'account_tree', label: 'Structure', permission: 'department:read' },
-    { path: '/projects', icon: 'folder_copy', label: 'Projects', permission: 'project:read' },
-    { path: '/members', icon: 'groups', label: 'Members', permission: 'member:read' },
+    // { path: '/departments', icon: 'account_tree', label: 'Structure', permission: 'department:read' },
+    // { path: '/projects', icon: 'folder_copy', label: 'Projects', permission: 'project:read' },
+    // { path: '/members', icon: 'groups', label: 'Members', permission: 'member:read' },
     { path: '/tasks', icon: 'task', label: 'Tasks', permission: 'task:read' },
     { path: '/tracker', icon: 'schedule', label: 'Tracker', permission: 'tracker:read' },
     { path: '/admin', icon: 'settings', label: 'Admin', permission: 'owner:owner' },

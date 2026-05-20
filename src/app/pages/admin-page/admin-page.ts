@@ -6,8 +6,10 @@ import {MembersAdmin} from '../../features/admin/members-admin/members-admin';
 import {CompanyProfile} from '../../features/admin/company-profile/company-profile';
 import {TrackerAdmin} from '../../features/admin/tracker-admin/tracker-admin';
 import {BackOnEscapeDirective} from '../../core/directives/back-on-escape.directive';
+import {DepartmentList} from '../../features/department-list/department-list';
+import {ProjectList} from '../../features/project-list/project-list';
 
-type TabId = 'profile' | 'members' | 'roles' | 'permissions' | 'tracker';
+type TabId = 'profile' | 'departments' | 'projects' | 'members' | 'roles' | 'permissions' | 'tracker';
 
 interface ITab {
   id: TabId;
@@ -18,7 +20,7 @@ interface ITab {
 @Component({
   selector: 'app-admin-page',
   standalone: true,
-  imports: [CommonModule, PermissionManager, RoleManager, MembersAdmin, CompanyProfile, TrackerAdmin, BackOnEscapeDirective],
+  imports: [CommonModule, PermissionManager, RoleManager, MembersAdmin, CompanyProfile, TrackerAdmin, BackOnEscapeDirective, DepartmentList, ProjectList],
   templateUrl: './admin-page.html',
   styleUrls: ['./admin-page.scss']
 })
@@ -27,6 +29,8 @@ export class AdminPage implements OnInit {
 
   tabs: ITab[] = [  // 👈 указываем тип массива
     { id: 'profile', label: 'Profile', icon: 'business' },
+    { id: 'departments', label: 'Departments', icon: 'account_tree' },
+    { id: 'projects', label: 'Projects', icon: 'folder_copy' },
     { id: 'members', label: 'Members', icon: 'people' },
     { id: 'roles', label: 'Roles', icon: 'badge' },
     { id: 'permissions', label: 'Permissions', icon: 'security' },
