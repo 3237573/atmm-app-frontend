@@ -1,16 +1,16 @@
-import {Component, effect, inject, OnInit, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {ActivatedRoute, Router, RouterModule} from '@angular/router';
-import {TaskService} from '../../../core/services/task.service';
-import {MemberService} from '../../../core/services/member.service';
-import {AuthService} from '../../../core/services/auth.service';
-import {MemberRO} from '../../../core/models/member.model';
-import {TaskCreateRO, TaskPriority} from '../../../core/models/task/task.model';
-import {DepartmentAffiliation} from '../../../core/models/departament.model';
-import {ProjectAffiliation} from '../../../core/models/project.model';
-import {DepartmentService} from '../../../core/services/departament.service';
-import {BackOnEscapeDirective} from '../../../core/directives/back-on-escape.directive';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { TaskService } from '../../../core/services/task.service';
+import { MemberService } from '../../../core/services/member.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { MemberRO } from '../../../core/models/member.model';
+import { TaskCreateRO, TaskPriority } from '../../../core/models/task/task.model';
+import { DepartmentAffiliation } from '../../../core/models/departament.model';
+import { ProjectAffiliation } from '../../../core/models/project.model';
+import { DepartmentService } from '../../../core/services/departament.service';
+import { BackOnEscapeDirective } from '../../../core/directives/back-on-escape.directive';
 
 @Component({
   selector: 'app-task-create',
@@ -27,11 +27,11 @@ export class TaskCreate implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
+  // ========== Состояния ==========
   currentUser = signal<MemberRO | null>(null);
   userDepartments = signal<DepartmentAffiliation[]>([]);
   userProjects = signal<ProjectAffiliation[]>([]);
   departmentMembers = signal<MemberRO[]>([]);
-  selectedDepartmentId = signal<string>('');   // ← теперь это основной источник departmentId
 
   loadingUser = signal(false);
   loadingMembers = signal(false);
@@ -40,38 +40,59 @@ export class TaskCreate implements OnInit {
   parentTaskId: string | undefined;
   minDate = new Date().toISOString().split('T')[0];
 
-  taskData = {
+  // ========== Поля формы (сигналы) ==========
+  title = signal('');
+  description = signal('');
+  priority = signal<TaskPriority>('MEDIUM');
+  selectedDepartmentId = signal<string>('');
+  projectId = signal<string>('');
+  assigneeMembershipIds = signal<string[]>([]);
+  dueDate = signal('');
+
+  // ========== Валидация (computed) ==========
+  isFormValid = computed(() => {
+    const hasTitle = this.title().trim().length > 0;
+    const hasDepartment = this.selectedDepartmentId() !== '';
+    const hasAssignees = this.assigneeMembershipIds().length > 0;
+    return hasTitle && hasDepartment && hasAssignees;
+  });
+
+  // ========== Данные для отслеживания несохранённых изменений ==========
+  private initialData = signal({
     title: '',
     description: '',
     priority: 'MEDIUM' as TaskPriority,
+    departmentId: '',
     projectId: '',
     assigneeMembershipIds: [] as string[],
     dueDate: ''
-  };
+  });
 
-  private initialData = {...this.taskData, departmentId: ''};
-
+  // ========== Lifecycle ==========
   ngOnInit(): void {
     this.loadCurrentUser();
 
+    // Чтение query-параметров (родительская задача, предзаполненные поля)
     this.route.queryParams.subscribe(params => {
       if (params['parentId']) this.parentTaskId = params['parentId'];
-      if (params['assigneeId']) this.taskData.assigneeMembershipIds = [params['assigneeId']];
-      if (params['title']) this.taskData.title = params['title'];
+      if (params['assigneeId']) this.assigneeMembershipIds.set([params['assigneeId']]);
+      if (params['title']) this.title.set(params['title']);
       this.saveInitialData();
     });
 
+    // Эффект: при смене отдела подгружаем сотрудников и сбрасываем выбранных исполнителей
     effect(() => {
       const deptId = this.selectedDepartmentId();
       if (deptId && this.currentUser()) {
         this.loadDepartmentMembers(deptId);
       } else {
         this.departmentMembers.set([]);
-        this.taskData.assigneeMembershipIds = [];
+        this.assigneeMembershipIds.set([]);
       }
     });
   }
 
+  // ========== Загрузка текущего пользователя и его данных ==========
   loadCurrentUser(): void {
     this.loadingUser.set(true);
     const currentUserId = this.authService.currentUser()?.id;
@@ -108,15 +129,17 @@ export class TaskCreate implements OnInit {
     });
   }
 
+  // ========== Загрузка сотрудников отдела ==========
   loadDepartmentMembers(departmentId: string): void {
     this.loadingMembers.set(true);
     this.departmentService.getDepartmentEmployees(departmentId).subscribe({
       next: (members) => {
         this.departmentMembers.set(members);
-        const validIds = this.taskData.assigneeMembershipIds.filter(id =>
+        // Оставляем только тех исполнителей, которые есть в новом отделе
+        const validIds = this.assigneeMembershipIds().filter(id =>
           members.some(m => m.id === id)
         );
-        this.taskData.assigneeMembershipIds = validIds;
+        this.assigneeMembershipIds.set(validIds);
         this.loadingMembers.set(false);
       },
       error: (err) => {
@@ -127,30 +150,34 @@ export class TaskCreate implements OnInit {
     });
   }
 
+  // ========== Сохранение начального состояния формы (для проверки несохранённых изменений) ==========
   saveInitialData(): void {
-    this.initialData = {
-      title: this.taskData.title,
-      description: this.taskData.description,
-      priority: this.taskData.priority,
-      projectId: this.taskData.projectId,
-      assigneeMembershipIds: [...this.taskData.assigneeMembershipIds],
-      dueDate: this.taskData.dueDate,
-      departmentId: this.selectedDepartmentId()   // сохраняем отдел из сигнала
-    };
+    this.initialData.set({
+      title: this.title(),
+      description: this.description(),
+      priority: this.priority(),
+      departmentId: this.selectedDepartmentId(),
+      projectId: this.projectId(),
+      assigneeMembershipIds: [...this.assigneeMembershipIds()],
+      dueDate: this.dueDate()
+    });
   }
 
+  // ========== Проверка наличия несохранённых изменений ==========
   hasUnsavedChanges(): boolean {
-    const currentAssignees = JSON.stringify([...this.taskData.assigneeMembershipIds].sort());
-    const initialAssignees = JSON.stringify([...this.initialData.assigneeMembershipIds].sort());
-    return this.taskData.title !== this.initialData.title ||
-      this.taskData.description !== this.initialData.description ||
-      this.taskData.priority !== this.initialData.priority ||
-      this.selectedDepartmentId() !== this.initialData.departmentId ||
-      this.taskData.projectId !== this.initialData.projectId ||
-      currentAssignees !== initialAssignees ||
-      this.taskData.dueDate !== this.initialData.dueDate;
+    const initial = this.initialData();
+    const currentAssignees = [...this.assigneeMembershipIds()].sort();
+    const initialAssignees = [...initial.assigneeMembershipIds].sort();
+    return this.title() !== initial.title ||
+      this.description() !== initial.description ||
+      this.priority() !== initial.priority ||
+      this.selectedDepartmentId() !== initial.departmentId ||
+      this.projectId() !== initial.projectId ||
+      JSON.stringify(currentAssignees) !== JSON.stringify(initialAssignees) ||
+      this.dueDate() !== initial.dueDate;
   }
 
+  // ========== Guard для маршрутизатора ==========
   canDeactivate(): boolean {
     if (this.hasUnsavedChanges()) {
       return confirm('Есть несохранённые изменения. Вы уверены, что хотите уйти?');
@@ -158,37 +185,29 @@ export class TaskCreate implements OnInit {
     return true;
   }
 
+  // ========== Отправка формы ==========
   onSubmit(): void {
-    if (!this.taskData.title.trim()) return;
-    const departmentId = this.selectedDepartmentId();
-    if (!departmentId) {
-      alert('Пожалуйста, выберите отдел для задачи');
-      return;
-    }
+    if (!this.isFormValid()) return;
 
-    const validMembershipIds = this.taskData.assigneeMembershipIds.filter(id =>
+    const departmentId = this.selectedDepartmentId();
+    const validMembershipIds = this.assigneeMembershipIds().filter(id =>
       this.departmentMembers().some(m => m.id === id)
     );
 
-    if (validMembershipIds.length === 0) {
-      alert('Выберите хотя бы одного исполнителя');
-      return;
-    }
-
     this.submitting.set(true);
     const request: TaskCreateRO & { projectId?: string } = {
-      title: this.taskData.title.trim(),
-      description: this.taskData.description?.trim() || undefined,
-      priority: this.taskData.priority,
-      departmentId: departmentId,                  // ← используем сигнал
-      projectId: this.taskData.projectId || undefined,
+      title: this.title().trim(),
+      description: this.description().trim() || undefined,
+      priority: this.priority(),
+      departmentId: departmentId,
+      projectId: this.projectId() || undefined,
       assigneeIds: validMembershipIds,
-      dueDate: this.taskData.dueDate || undefined,
+      dueDate: this.dueDate() || undefined,
       parentTaskId: this.parentTaskId
     };
 
     this.taskService.createTask(request).subscribe({
-      next: (res) => {
+      next: () => {
         this.submitting.set(false);
         this.saveInitialData();
         this.router.navigate(['/tasks']);
@@ -201,29 +220,26 @@ export class TaskCreate implements OnInit {
     });
   }
 
+  // ========== Управление исполнителями ==========
   toggleAssignee(membershipId: string): void {
-    const index = this.taskData.assigneeMembershipIds.indexOf(membershipId);
-    if (index === -1) {
-      this.taskData.assigneeMembershipIds.push(membershipId);
+    const current = this.assigneeMembershipIds();
+    if (current.includes(membershipId)) {
+      this.assigneeMembershipIds.set(current.filter(id => id !== membershipId));
     } else {
-      this.taskData.assigneeMembershipIds.splice(index, 1);
+      this.assigneeMembershipIds.set([...current, membershipId]);
     }
   }
 
   isSelected(membershipId: string): boolean {
-    return this.taskData.assigneeMembershipIds.includes(membershipId);
+    return this.assigneeMembershipIds().includes(membershipId);
   }
 
   onDepartmentChange(departmentId: string): void {
     this.selectedDepartmentId.set(departmentId);
-    if (departmentId) {
-      this.loadDepartmentMembers(departmentId);
-    } else {
-      this.departmentMembers.set([]);
-      this.taskData.assigneeMembershipIds = [];
-    }
+    // Сброс исполнителей произойдёт в effect
   }
 
+  // ========== Вспомогательные функции ==========
   getRoleBadgeClass(roleName: string): string {
     switch (roleName) {
       case 'OWNER': return 'owner';

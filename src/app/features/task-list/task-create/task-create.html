@@ -11,35 +11,44 @@
   </div>
 
   <div class="form-container">
+    <!-- Название -->
     <div class="form-group">
       <label>Название задачи *</label>
       <input
         type="text"
-        [(ngModel)]="taskData.title"
+        [ngModel]="title()"
+        (ngModelChange)="title.set($event)"
         placeholder="Введите название задачи"
         class="form-control"
-        [class.invalid]="!taskData.title.trim() && taskData.title.length > 0"
+        [class.invalid]="!title().trim() && title().length > 0"
       >
-      @if (!taskData.title.trim() && taskData.title.length > 0) {
+      @if (!title().trim() && title().length > 0) {
         <small class="error-text">Название задачи обязательно</small>
       }
     </div>
 
+    <!-- Описание -->
     <div class="form-group">
       <label>Описание</label>
       <textarea
-        [(ngModel)]="taskData.description"
+        [ngModel]="description()"
+        (ngModelChange)="description.set($event)"
         placeholder="Подробное описание задачи..."
-        rows="5"
+        rows="2"
         class="form-control"
       ></textarea>
     </div>
 
+    <!-- Отдел и проект -->
     <div class="form-row" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
       <div class="form-group" style="flex: 1; margin-bottom: 0;">
         <label>Отдел задачи *</label>
-        <select [ngModel]="selectedDepartmentId()" (ngModelChange)="onDepartmentChange($event)"
-                class="form-control" style="width: 100%;">
+        <select
+          [ngModel]="selectedDepartmentId()"
+          (ngModelChange)="onDepartmentChange($event)"
+          class="form-control"
+          style="width: 100%;"
+        >
           <option value="" disabled>-- Выберите отдел --</option>
           @for (dept of userDepartments(); track dept.departmentId) {
             <option [value]="dept.departmentId">🏢 {{ dept.departmentName }}</option>
@@ -49,7 +58,12 @@
 
       <div class="form-group" style="flex: 1; margin-bottom: 0;">
         <label>Проект</label>
-        <select [(ngModel)]="taskData.projectId" class="form-control" style="width: 100%;">
+        <select
+          [ngModel]="projectId()"
+          (ngModelChange)="projectId.set($event)"
+          class="form-control"
+          style="width: 100%;"
+        >
           <option value="">Без проекта (Общая задача)</option>
           @for (project of userProjects(); track project.projectId) {
             <option [value]="project.projectId">📁 {{ project.projectTitle }}</option>
@@ -58,10 +72,15 @@
       </div>
     </div>
 
+    <!-- Приоритет и срок -->
     <div class="form-row">
       <div class="form-group">
         <label>Приоритет</label>
-        <select [(ngModel)]="taskData.priority" class="form-control">
+        <select
+          [ngModel]="priority()"
+          (ngModelChange)="priority.set($event)"
+          class="form-control"
+        >
           <option value="LOW">🟢 Низкий</option>
           <option value="MEDIUM">🟡 Средний</option>
           <option value="HIGH">🔴 Высокий</option>
@@ -73,13 +92,15 @@
         <label>Срок выполнения</label>
         <input
           type="date"
-          [(ngModel)]="taskData.dueDate"
+          [ngModel]="dueDate()"
+          (ngModelChange)="dueDate.set($event)"
           class="form-control"
           [min]="minDate"
         >
       </div>
     </div>
 
+    <!-- Исполнители -->
     <div class="form-group">
       <label>Исполнители *</label>
       <div class="members-list">
@@ -103,19 +124,22 @@
           }
         }
       </div>
-      @if (taskData.assigneeMembershipIds.length === 0 && !loadingMembers()) {
+      @if (assigneeMembershipIds().length === 0 && !loadingMembers()) {
         <small class="hint-text">Выберите хотя бы одного исполнителя</small>
       }
     </div>
 
+    <!-- Кнопки действий -->
     <div class="form-actions">
       <button class="btn-secondary" routerLink="/tasks">
         <i class="material-icons">close</i>
         Отмена
       </button>
       <button
-        class="btn-primary"
-        [disabled]="submitting() || !taskData.title.trim() || taskData.assigneeMembershipIds.length === 0"
+        class="btn"
+        [class.btn-primary]="isFormValid()"
+        [class.btn-disabled]="!isFormValid()"
+        [disabled]="submitting() || !isFormValid()"
         (click)="onSubmit()"
       >
         @if (submitting()) {

@@ -9,6 +9,7 @@ import {ActivityDetail} from './activity-detail/activity-detail';
 import {TrackerAnalytics} from './tracker-analytics/tracker-analytics';
 import {TranslocoPipe} from '@ngneat/transloco';
 import {BackOnEscapeDirective} from '../../core/directives/back-on-escape.directive';
+import {MemberTokenPanel} from '../../features/admin/tracker-admin/member-token-panel/member-token-panel';
 
 export interface UserActivityReportV2 {
   userId: string;
@@ -22,7 +23,7 @@ export interface UserActivityReportV2 {
 @Component({
   selector: 'app-tracker',
   standalone: true,
-  imports: [CommonModule, ActivityDetail, TrackerAnalytics, TranslocoPipe, BackOnEscapeDirective],
+  imports: [CommonModule, ActivityDetail, TrackerAnalytics, TranslocoPipe, BackOnEscapeDirective, MemberTokenPanel],
   templateUrl: './tracker.html',
   styleUrl: './tracker.scss'
 })

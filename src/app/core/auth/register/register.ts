@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import {email} from '@angular/forms/signals';
 
 @Component({
   selector: 'app-register',
@@ -20,8 +21,8 @@ export class Register {
   error = signal<string | null>(null);
 
   regForm = this.fb.group({
-    fullName: ['', Validators.required],           // Глобальное имя (users.full_name)
-    displayName: ['', Validators.required],        // Имя в компании (memberships.display_name)
+    fullName: ['', Validators.required],
+    displayName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     companyName: ['', Validators.required],
     password: ['', [Validators.required, Validators.minLength(6)]],
@@ -43,8 +44,16 @@ export class Register {
       password: formValue.password
     }).subscribe({
       next: (res) => {
-        console.log('Успех!', res);
-        this.router.navigate(['/members']);
+        this.authService.login(this.regForm.value as any).subscribe({
+          next: (res) => {
+            this.loading.set(false);
+          },
+          error: (err) => {
+            this.loading.set(false);
+            this.error.set(err.error?.message || err.error?.error || 'Неверный email или пароль');
+          }
+        });
+        this.router.navigate(['/tasks']);
       },
       error: (err) => {
         this.loading.set(false);

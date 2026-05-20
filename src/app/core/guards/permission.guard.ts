@@ -15,5 +15,5 @@ export const permissionGuard: CanActivateFn = (route, state) => {
   }
 
   // Если прав нет — редиректим на главную или страницу "403 No Access"
-  return router.parseUrl('/tracker');
+  return router.parseUrl('/tasks');
 };
