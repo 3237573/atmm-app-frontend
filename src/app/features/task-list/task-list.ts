@@ -8,7 +8,6 @@ import { AuthService } from '../../core/services/auth.service';
 import { BackOnEscapeDirective } from '../../core/directives/back-on-escape.directive';
 import { ReplaceMePipe } from '../../core/pipes/replace-me.pipe';
 
-// Тип для отображаемой задачи с дополнительными полями
 type RenderTask = TaskRO & {
   level: number;
   dateClass: 'overdue' | 'today' | 'soon' | 'future' | '';
@@ -39,7 +38,6 @@ export class TaskList implements OnInit {
   sortColumn = signal<string>('title');
   sortDirection = signal<'asc' | 'desc'>('asc');
 
-  // 1. Чистый плоский список
   flatTasks = computed(() => {
     const flatten = (trees: TaskTreeRO[]): TaskRO[] => {
       let tasks: TaskRO[] = [];
@@ -52,7 +50,6 @@ export class TaskList implements OnInit {
     return flatten(this.taskTrees());
   });
 
-  // 2. Статистика
   stats = computed(() => {
     const tasks = this.flatTasks();
     const currentStats = { total: tasks.length, pending: 0, inProgress: 0, review: 0, completed: 0, overdue: 0, archived: 0 };
@@ -76,7 +73,6 @@ export class TaskList implements OnInit {
     return currentStats;
   });
 
-  // 3. Фильтрация ID
   filteredTaskIds = computed(() => {
     const tasks = this.flatTasks();
     const query = this.searchQuery().trim().toLowerCase();
@@ -105,7 +101,6 @@ export class TaskList implements OnInit {
     return map;
   });
 
-  // 4. Раскрытие веток при фильтрации
   private updateExpandedFromFilter() {
     const query = this.searchQuery().trim();
     const status = this.selectedStatus();
@@ -145,7 +140,7 @@ export class TaskList implements OnInit {
     });
   }
 
-  // 5. Построение видимого дерева с датами
+  // Построение видимого дерева
   visibleTasks = computed(() => {
     const filteredIds = this.filteredTaskIds();
     const expanded = this.expandedNodes();
@@ -199,56 +194,78 @@ export class TaskList implements OnInit {
     };
 
     traverse(this.taskTrees(), 0);
-    return this.sortTasks(result);
+    return this.sortHierarchy(result);
   });
 
-  // Сортировка видимых задач
-  private sortTasks(tasks: RenderTask[]): RenderTask[] {
-    const column = this.sortColumn();
-    const direction = this.sortDirection();
-    return [...tasks].sort((a, b) => {
-      let aValue: any, bValue: any;
-      switch (column) {
+  /**
+   * Рекурсивная сортировка, сохраняющая иерархию
+   */
+  private sortHierarchy(tasks: RenderTask[]): RenderTask[] {
+    const childrenMap = new Map<string | null, RenderTask[]>();
+    for (const task of tasks) {
+      const parentId = task.parentTaskId ?? null;
+      if (!childrenMap.has(parentId)) childrenMap.set(parentId, []);
+      childrenMap.get(parentId)!.push(task);
+    }
+
+    const compare = (a: RenderTask, b: RenderTask): number => {
+      let aVal: any, bVal: any;
+      const col = this.sortColumn();
+      const dir = this.sortDirection();
+      switch (col) {
         case 'title':
-          aValue = a.title.toLowerCase();
-          bValue = b.title.toLowerCase();
+          aVal = a.title.toLowerCase();
+          bVal = b.title.toLowerCase();
           break;
         case 'departmentName':
-          aValue = (a.departmentName || '').toLowerCase();
-          bValue = (b.departmentName || '').toLowerCase();
+          aVal = (a.departmentName || '').toLowerCase();
+          bVal = (b.departmentName || '').toLowerCase();
           break;
         case 'projectName':
-          aValue = (a.projectName || '').toLowerCase();
-          bValue = (b.projectName || '').toLowerCase();
+          aVal = (a.projectName || '').toLowerCase();
+          bVal = (b.projectName || '').toLowerCase();
           break;
         case 'creatorName':
-          aValue = (a.creatorName || '').toLowerCase();
-          bValue = (b.creatorName || '').toLowerCase();
+          aVal = (a.creatorName || '').toLowerCase();
+          bVal = (b.creatorName || '').toLowerCase();
           break;
         case 'assigneeNames':
-          aValue = (a.assigneeNames?.[0] || '').toLowerCase();
-          bValue = (b.assigneeNames?.[0] || '').toLowerCase();
+          aVal = (a.assigneeNames?.[0] || '').toLowerCase();
+          bVal = (b.assigneeNames?.[0] || '').toLowerCase();
           break;
         case 'status':
-          aValue = a.status;
-          bValue = b.status;
+          aVal = a.status;
+          bVal = b.status;
           break;
         case 'priority':
-          aValue = a.priority;
-          bValue = b.priority;
+          aVal = a.priority;
+          bVal = b.priority;
           break;
         case 'dueDate':
-          aValue = a.dueDate ? new Date(a.dueDate).getTime() : 0;
-          bValue = b.dueDate ? new Date(b.dueDate).getTime() : 0;
+          aVal = a.dueDate ? new Date(a.dueDate).getTime() : 0;
+          bVal = b.dueDate ? new Date(b.dueDate).getTime() : 0;
           break;
         default:
-          aValue = a.title.toLowerCase();
-          bValue = b.title.toLowerCase();
+          aVal = a.title.toLowerCase();
+          bVal = b.title.toLowerCase();
       }
-      if (aValue < bValue) return direction === 'asc' ? -1 : 1;
-      if (aValue > bValue) return direction === 'asc' ? 1 : -1;
+      if (aVal < bVal) return dir === 'asc' ? -1 : 1;
+      if (aVal > bVal) return dir === 'asc' ? 1 : -1;
       return 0;
-    });
+    };
+
+    const sortAndFlatten = (parentId: string | null): RenderTask[] => {
+      const children = childrenMap.get(parentId) || [];
+      const sorted = [...children].sort(compare);
+      const out: RenderTask[] = [];
+      for (const child of sorted) {
+        out.push(child);
+        out.push(...sortAndFlatten(child.id));
+      }
+      return out;
+    };
+
+    return sortAndFlatten(null);
   }
 
   sortBy(column: string): void {
@@ -265,7 +282,6 @@ export class TaskList implements OnInit {
     return this.sortDirection() === 'asc' ? 'expand_less' : 'expand_more';
   }
 
-  // Отфильтрованные плоские задачи для Канбана
   filteredFlatTasks = computed(() => {
     const tasks = this.flatTasks();
     const filteredIds = this.filteredTaskIds();

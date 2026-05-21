@@ -1,13 +1,9 @@
-// task-list.scss
-@use "sass:color";
-
 .task-list {
   padding: 1.5rem;
   min-height: 100vh;
   color: var(--text-main);
 }
 
-/* ========== СТРОКА ФИЛЬТРОВ + СТАТИСТИКА ========== */
 .filters-stats-row {
   display: flex;
   align-items: center;
@@ -137,7 +133,6 @@
   &.archived .stat-value { color: var(--text-muted); }
 }
 
-/* ========== СЕЛЕКТОРЫ СТАТУСОВ И ПРИОРИТЕТОВ ========== */
 .status-select-wrapper, .priority-select-wrapper {
   position: relative;
   display: inline-block;
@@ -187,7 +182,6 @@
   &[data-priority="HIGH"] .priority-select-styled { background: rgba(239, 68, 68, 0.12); color: var(--danger); border-color: rgba(239, 68, 68, 0.2); }
 }
 
-/* ========== ТАБЛИЦА ========== */
 .table-container {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -200,7 +194,7 @@
   border-collapse: collapse;
   text-align: left;
   font-size: 0.9rem;
-  min-width: 1000px; /* чтобы не ломалось на маленьких экранах, скролл */
+  min-width: 1200px;
 
   th, td {
     padding: 0.75rem 1rem;
@@ -237,9 +231,7 @@
     &:hover { background: rgba(var(--accent-rgb), 0.02); }
   }
 
-  /* Ширина колонок */
-  .col-status { width: 90px; }
-  .col-priority { width: 90px; }
+  .col-status, .col-priority { width: 90px; }
   .col-date { width: 110px; }
   .col-icon { width: 50px; text-align: center; i { font-size: 1.2rem; color: var(--text-muted); } }
   .col-task { min-width: 200px; }
@@ -304,7 +296,10 @@
   &.muted { color: var(--border); font-weight: normal; }
 }
 
-.assignee-cell .assignee, .department-name, .project-name, .creator-name {
+.assignee-cell .assignee,
+.department-name,
+.project-name,
+.creator-name {
   font-size: 0.85rem;
   color: var(--text-main);
   font-weight: 500;
@@ -318,7 +313,6 @@
 .arrow { color: var(--border); font-size: 1.2rem; transition: transform 0.2s; }
 .task-row:hover .arrow { color: var(--accent); transform: translateX(2px); }
 
-/* ========== КАНБАН ========== */
 .kanban-board {
   display: flex;
   gap: 1rem;
@@ -334,7 +328,6 @@
   border: 1px solid var(--border);
   border-radius: 1rem;
   padding: 1rem;
-
   .column-header { margin-bottom: 1rem; h3 { margin: 0; font-size: 1rem; color: var(--text-main); } }
 }
 
@@ -368,11 +361,8 @@
   }
 }
 
-/* ========== АДАПТИВНОСТЬ ========== */
 @media (max-width: 1400px) {
-  .tasks-table {
-    .col-department, .col-project, .col-creator, .col-assignee { width: 120px; }
-  }
+  .tasks-table .col-department, .tasks-table .col-project { width: 120px; }
 }
 
 @media (max-width: 1200px) {
@@ -384,21 +374,15 @@
     .stats-grid { gap: 0.5rem; }
     .stat-card { height: 40px; .stat-value { font-size: 1rem; } }
   }
-  .tasks-table {
-    .col-department, .col-project { display: none; } /* скрываем отдел и проект на средних экранах */
-  }
+  .tasks-table .col-department, .tasks-table .col-project { display: none; }
 }
 
 @media (max-width: 900px) {
-  .tasks-table {
-    .col-creator { display: none; } /* скрываем постановщика */
-  }
+  .tasks-table .col-creator { display: none; }
 }
 
 @media (max-width: 768px) {
   .task-list { padding: 1rem; }
-  .tasks-table {
-    .col-assignee { display: none; } /* скрываем исполнителя (уже есть в подписи) */
-  }
+  .tasks-table .col-assignee { display: none; }
   .kanban-board { flex-direction: column; }
 }
