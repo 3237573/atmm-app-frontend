@@ -133,14 +133,21 @@
               [min]="minDate">
           }
         </div>
-        <!-- Родительская задача (если есть) -->
-        @if (task.parentTaskTitle) {
-          <div class="meta-item">
-            <i class="material-icons">subdirectory_arrow_right</i>
-            <span>Родительская задача:</span>
-            <strong>{{ task.parentTaskTitle }}</strong>
-          </div>
-        }
+        <!-- Родительская задача (в режиме просмотра – текст, в режиме редактирования – селект) -->
+        <div class="meta-item">
+          <i class="material-icons">subdirectory_arrow_right</i>
+          <span>Родительская задача:</span>
+          @if (!editing()) {
+            <strong>{{ parentTaskTitleDisplay() || '— (корневая) —' }}</strong>
+          } @else {
+            <select [(ngModel)]="editData.parentTaskId" class="inline-select">
+              <option [value]="null">— Без родителя (корневая) —</option>
+              @for (parent of availableParentTasks(); track parent.id) {
+                <option [value]="parent.id">{{ parent.title }}</option>
+              }
+            </select>
+          }
+        </div>
       </div>
 
       <!-- Описание -->

@@ -1,7 +1,8 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import {Component, inject, OnInit, OnDestroy, signal, computed} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { of, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { TaskService } from '../../../core/services/task.service';
 import { MemberService } from '../../../core/services/member.service';
@@ -21,7 +22,8 @@ import { CanComponentDeactivate } from '../../../core/interfaces/can-deactivate.
 @Component({
   selector: 'app-task-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, TaskComments, AssigneeManager, SubtaskTreeComponent, BackOnEscapeDirective, AttachmentManager, ReplaceMePipe, HasPermissionDirective],
+  imports: [CommonModule, FormsModule, RouterModule, TaskComments, AssigneeManager,
+    SubtaskTreeComponent, BackOnEscapeDirective, AttachmentManager, ReplaceMePipe, HasPermissionDirective],
   templateUrl: './task-detail.html',
   styleUrl: './task-detail.scss'
 })
@@ -46,8 +48,28 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
   showAssigneeModal = signal(false);
   reloadComments = signal(0);
 
-  private originalData = { title: '', description: '', priority: '' as TaskPriority, status: '' as TaskStatus, dueDate: '', projectId: '' };
-  editData = { title: '', description: '', priority: '' as TaskPriority, status: '' as TaskStatus, dueDate: '', projectId: '' };
+  // Список доступных родительских задач (для переноса)
+  availableParentTasks = signal<{ id: string; title: string }[]>([]);
+
+  // Данные формы редактирования
+  private originalData = {
+    title: '',
+    description: '',
+    priority: '' as TaskPriority,
+    status: '' as TaskStatus,
+    dueDate: '',
+    projectId: '',
+    parentTaskId: null as string | null
+  };
+  editData = {
+    title: '',
+    description: '',
+    priority: '' as TaskPriority,
+    status: '' as TaskStatus,
+    dueDate: '',
+    projectId: '',
+    parentTaskId: null as string | null
+  };
   minDate: string = new Date().toISOString().split('T')[0];
 
   ngOnInit(): void {
@@ -73,6 +95,8 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
         this.taskTree.set(tree);
         this.task.set(tree.task);
         this.loading.set(false);
+        // Загружаем список возможных родителей для переноса
+        this.loadAvailableParents();
       },
       error: (err) => {
         console.error('Ошибка загрузки задачи', err);
@@ -81,6 +105,63 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
       }
     });
   }
+
+  /** Загружает все задачи пользователя и формирует список кандидатов в родители (исключая текущую и её потомков) */
+  loadAvailableParents(): void {
+    const currentTask = this.task();
+    if (!currentTask) return;
+
+    this.taskService.getMyTaskTree().subscribe({
+      next: (trees) => {
+        const allTasks = this.flattenTaskTree(trees);
+        // Получаем всех потомков текущей задачи (включая подзадачи всех уровней)
+        const descendantIds = this.getAllDescendantIds(this.taskTree()?.subtasks || []);
+        const excludeIds = new Set([currentTask.id, ...descendantIds]);
+
+        const available = allTasks
+          .filter(t => !excludeIds.has(t.id))
+          .map(t => ({ id: t.id, title: t.title }));
+
+        this.availableParentTasks.set(available);
+      },
+      error: (err) => console.error('Ошибка загрузки списка задач для переноса', err)
+    });
+  }
+
+  private flattenTaskTree(trees: TaskTreeRO[]): TaskRO[] {
+    const result: TaskRO[] = [];
+    const traverse = (nodes: TaskTreeRO[]) => {
+      for (const node of nodes) {
+        result.push(node.task);
+        if (node.subtasks?.length) traverse(node.subtasks);
+      }
+    };
+    traverse(trees);
+    return result;
+  }
+
+  private getAllDescendantIds(subtasks: TaskTreeRO[]): string[] {
+    const ids: string[] = [];
+    const collect = (nodes: TaskTreeRO[]) => {
+      for (const node of nodes) {
+        ids.push(node.task.id);
+        if (node.subtasks?.length) collect(node.subtasks);
+      }
+    };
+    collect(subtasks);
+    return ids;
+  }
+
+  parentTaskTitleDisplay = computed(() => {
+    const task = this.task();
+    if (!task) return null;
+    if (!task.parentTaskId) return null;
+    // Если бэкенд вернул title – используем его
+    if (task.parentTaskTitle) return task.parentTaskTitle;
+    // Иначе ищем в загруженном списке доступных родителей
+    const found = this.availableParentTasks().find(p => p.id === task.parentTaskId);
+    return found ? found.title : 'Загрузка...';
+  });
 
   createSubtask() {
     this.editing.set(false);
@@ -101,10 +182,12 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
         priority: task.priority,
         status: task.status,
         dueDate: task.dueDate?.split('T')[0] || '',
-        projectId: (task as any).projectId || ''
+        projectId: (task as any).projectId || '',
+        parentTaskId: task.parentTaskId || null
       };
       this.editData = { ...this.originalData };
 
+      // Загружаем проекты пользователя, если ещё не загружены
       if (this.userProjects().length === 0) {
         this.memberService.getMembers().subscribe(data => {
           const me = data.find(m => m.id === this.currentUser()?.id);
@@ -112,6 +195,11 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
             this.userProjects.set(me.projects || []);
           }
         });
+      }
+
+      // Если список родителей пуст, загружаем его (актуально при первом редактировании)
+      if (this.availableParentTasks().length === 0) {
+        this.loadAvailableParents();
       }
 
       this.editing.set(true);
@@ -128,6 +216,8 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
     if (!task) return;
 
     this.saving.set(true);
+
+    // Сначала обновляем основные поля задачи
     this.taskService.updateTask(task.id, {
       title: this.editData.title,
       description: this.editData.description,
@@ -135,7 +225,15 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
       status: this.editData.status,
       dueDate: this.editData.dueDate || undefined,
       projectId: this.editData.projectId || null
-    } as any).subscribe({
+    } as any).pipe(
+      switchMap(() => {
+        // Если изменился родитель – перемещаем задачу
+        if (this.editData.parentTaskId !== this.originalData.parentTaskId) {
+          return this.taskService.moveTask(task.id, this.editData.parentTaskId);
+        }
+        return of(null);
+      })
+    ).subscribe({
       next: () => {
         this.saving.set(false);
         this.loadTaskData(task.id);
@@ -190,7 +288,8 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
       this.editData.priority !== this.originalData.priority ||
       this.editData.status !== this.originalData.status ||
       this.editData.dueDate !== this.originalData.dueDate ||
-      this.editData.projectId !== this.originalData.projectId
+      this.editData.projectId !== this.originalData.projectId ||
+      this.editData.parentTaskId !== this.originalData.parentTaskId
     );
   }
 

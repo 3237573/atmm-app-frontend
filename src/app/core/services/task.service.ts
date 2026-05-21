@@ -33,6 +33,10 @@ export class TaskService {
     return this.http.post<{ id: string }>(this.baseUrl, request);
   }
 
+  moveTask(taskId: string, newParentId: string | null): Observable<void> {
+    return this.http.patch<void>(`${this.baseUrl}/${taskId}/move`, { newParentId });
+  }
+
   updateTask(id: string, request: ITaskUpdateRO): Observable<void> {
     return this.http.put<void>(`${this.baseUrl}/${id}`, request);
   }
