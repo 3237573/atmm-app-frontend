@@ -16,7 +16,6 @@
           <i class="material-icons">search</i>
           <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Поиск по названию и описанию...">
         </div>
-
         <div class="status-select-wrapper" [class]="getStatusClass(selectedStatus())">
           <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)" class="status-select-styled">
             <option value="">Все статусы</option>
@@ -28,7 +27,6 @@
           </select>
           <i class="material-icons select-arrow">expand_more</i>
         </div>
-
         <div class="priority-select-wrapper" [attr.data-priority]="selectedPriority()">
           <select [ngModel]="selectedPriority()" (ngModelChange)="selectedPriority.set($event)" class="priority-select-styled">
             <option value="">Все приоритеты</option>
@@ -38,43 +36,19 @@
           </select>
           <i class="material-icons select-arrow">expand_more</i>
         </div>
-
         <div class="view-toggle">
-          <button class="toggle-btn" [class.active]="viewMode() === 'list'" (click)="setViewMode('list')">
-            <i class="material-icons">view_list</i>
-          </button>
-          <button class="toggle-btn" [class.active]="viewMode() === 'board'" (click)="setViewMode('board')">
-            <i class="material-icons">view_kanban</i>
-          </button>
+          <button class="toggle-btn" [class.active]="viewMode() === 'list'" (click)="setViewMode('list')"><i class="material-icons">view_list</i></button>
+          <button class="toggle-btn" [class.active]="viewMode() === 'board'" (click)="setViewMode('board')"><i class="material-icons">view_kanban</i></button>
         </div>
       </div>
     </div>
-
     <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-value">{{ stats().total }}</div>
-        <div class="stat-label">Всего</div>
-      </div>
-      <div class="stat-card pending">
-        <div class="stat-value">{{ stats().pending }}</div>
-        <div class="stat-label">Ожидают</div>
-      </div>
-      <div class="stat-card progress">
-        <div class="stat-value">{{ stats().inProgress }}</div>
-        <div class="stat-label">В работе</div>
-      </div>
-      <div class="stat-card completed">
-        <div class="stat-value">{{ stats().completed }}</div>
-        <div class="stat-label">Готово</div>
-      </div>
-      <div class="stat-card overdue">
-        <div class="stat-value">{{ stats().overdue }}</div>
-        <div class="stat-label">Просрочено</div>
-      </div>
-      <div class="stat-card archived">
-        <div class="stat-value">{{ stats().archived }}</div>
-        <div class="stat-label">Архив</div>
-      </div>
+      <div class="stat-card"><div class="stat-value">{{ stats().total }}</div><div class="stat-label">Всего</div></div>
+      <div class="stat-card pending"><div class="stat-value">{{ stats().pending }}</div><div class="stat-label">Ожидают</div></div>
+      <div class="stat-card progress"><div class="stat-value">{{ stats().inProgress }}</div><div class="stat-label">В работе</div></div>
+      <div class="stat-card completed"><div class="stat-value">{{ stats().completed }}</div><div class="stat-label">Готово</div></div>
+      <div class="stat-card overdue"><div class="stat-value">{{ stats().overdue }}</div><div class="stat-label">Просрочено</div></div>
+      <div class="stat-card archived"><div class="stat-value">{{ stats().archived }}</div><div class="stat-label">Архив</div></div>
     </div>
   </div>
 
@@ -83,20 +57,23 @@
       <table class="tasks-table">
         <thead>
         <tr>
-          <th class="col-status">Статус</th>
-          <th class="col-priority">Приоритет</th>
-          <th class="col-date">Срок</th>
+          <th class="col-status sortable" (click)="sortBy('status')">Статус <i class="material-icons sort-icon">{{ getSortIcon('status') }}</i></th>
+          <th class="col-priority sortable" (click)="sortBy('priority')">Приоритет <i class="material-icons sort-icon">{{ getSortIcon('priority') }}</i></th>
+          <th class="col-date sortable" (click)="sortBy('dueDate')">Срок <i class="material-icons sort-icon">{{ getSortIcon('dueDate') }}</i></th>
           <th class="col-icon" title="Подзадачи"><i class="material-icons">account_tree</i></th>
           <th class="col-icon" title="Комментарии"><i class="material-icons">chat_bubble_outline</i></th>
-          <th class="col-task">Задача</th>
-          <th class="col-assignee">Исполнитель</th>
+          <th class="col-task sortable" (click)="sortBy('title')">Задача <i class="material-icons sort-icon">{{ getSortIcon('title') }}</i></th>
+          <th class="col-department sortable" (click)="sortBy('departmentName')">Отдел <i class="material-icons sort-icon">{{ getSortIcon('departmentName') }}</i></th>
+          <th class="col-project sortable" (click)="sortBy('projectName')">Проект <i class="material-icons sort-icon">{{ getSortIcon('projectName') }}</i></th>
+          <th class="col-creator sortable" (click)="sortBy('creatorName')">Постановщик <i class="material-icons sort-icon">{{ getSortIcon('creatorName') }}</i></th>
+          <th class="col-assignee sortable" (click)="sortBy('assigneeNames')">Исполнитель <i class="material-icons sort-icon">{{ getSortIcon('assigneeNames') }}</i></th>
           <th></th>
         </tr>
         </thead>
         <tbody>
           @for (task of visibleTasks(); track task.id) {
             <tr [routerLink]="['/tasks', 'edit', task.id]" class="task-row">
-              <td>
+              <td class="col-status">
                 <div class="status-select-wrapper" [class]="getStatusClass(task.status)">
                   <select [value]="task.status" (click)="$event.stopPropagation()" (change)="updateStatus(task, $any($event.target).value)" class="status-select-styled">
                     <option value="PENDING">Ожидает</option>
@@ -107,19 +84,11 @@
                   </select>
                 </div>
               </td>
-              <td><span class="priority-badge" [class]="getPriorityColor(task.priority)">{{ task.priority }}</span></td>
-              <td>
-                @if (task.dueDate) {
-                  <span class="due-date" [class]="task.dateClass">{{ task.formattedDate }}</span>
-                }
-              </td>
-              <td class="text-center">
-                @if ((task.subtasksCount || 0) > 0) { <span class="count-text">{{ task.subtasksCount }}</span> } @else { <span class="count-text muted">—</span> }
-              </td>
-              <td class="text-center">
-                @if ((task.commentsCount || 0) > 0) { <span class="count-text">{{ task.commentsCount }}</span> } @else { <span class="count-text muted">—</span> }
-              </td>
-              <td>
+              <td class="col-priority"><span class="priority-badge" [class]="getPriorityColor(task.priority)">{{ task.priority }}</span></td>
+              <td class="col-date">@if (task.dueDate) { <span class="due-date" [class]="task.dateClass">{{ task.formattedDate }}</span> }</td>
+              <td class="col-icon text-center">@if ((task.subtasksCount || 0) > 0) { <span class="count-text">{{ task.subtasksCount }}</span> } @else { <span class="count-text muted">—</span> }</td>
+              <td class="col-icon text-center">@if ((task.commentsCount || 0) > 0) { <span class="count-text">{{ task.commentsCount }}</span> } @else { <span class="count-text muted">—</span> }</td>
+              <td class="col-task">
                 <div class="title-wrapper" [style.paddingLeft.px]="task.level * 20">
                   @if ((task.subtasksCount || 0) > 0) {
                     <i class="material-icons node-toggle" [class.open]="expandedNodes().has(task.id)" (click)="toggleNode(task.id, $event)">chevron_right</i>
@@ -129,9 +98,10 @@
                   <span class="task-title">{{ task.title }}</span>
                 </div>
               </td>
-              <td class="assignee-cell">
-                <div class="assignee"><span>{{ task.assigneeNames | replaceMe }}</span></div>
-              </td>
+              <td class="col-department"><span class="department-name">{{ task.departmentName || '—' }}</span></td>
+              <td class="col-project"><span class="project-name">{{ task.projectName || '—' }}</span></td>
+              <td class="col-creator"><span class="creator-name">{{ task.creatorName | replaceMe }}</span></td>
+              <td class="col-assignee"><div class="assignee"><span>{{ task.assigneeNames | replaceMe }}</span></div></td>
               <td class="text-right"><i class="material-icons arrow">chevron_right</i></td>
             </tr>
           }

@@ -6,7 +6,14 @@ import { TaskService } from '../../core/services/task.service';
 import { TaskRO, TaskTreeRO } from '../../core/models/task/task.model';
 import { AuthService } from '../../core/services/auth.service';
 import { BackOnEscapeDirective } from '../../core/directives/back-on-escape.directive';
-import {ReplaceMePipe} from '../../core/pipes/replace-me.pipe';
+import { ReplaceMePipe } from '../../core/pipes/replace-me.pipe';
+
+// Тип для отображаемой задачи с дополнительными полями
+type RenderTask = TaskRO & {
+  level: number;
+  dateClass: 'overdue' | 'today' | 'soon' | 'future' | '';
+  formattedDate: string;
+};
 
 @Component({
   selector: 'app-task-list',
@@ -28,7 +35,11 @@ export class TaskList implements OnInit {
   selectedPriority = signal<string>('');
   expandedNodes = signal<Set<string>>(new Set());
 
-  // 1. Чистый плоский список (базовый слой без фильтрации для статистики и карт связей)
+  // Сортировка
+  sortColumn = signal<string>('title');
+  sortDirection = signal<'asc' | 'desc'>('asc');
+
+  // 1. Чистый плоский список
   flatTasks = computed(() => {
     const flatten = (trees: TaskTreeRO[]): TaskRO[] => {
       let tasks: TaskRO[] = [];
@@ -41,11 +52,10 @@ export class TaskList implements OnInit {
     return flatten(this.taskTrees());
   });
 
-  // 2. Оптимальный расчет статистики за один проход O(N)
+  // 2. Статистика
   stats = computed(() => {
     const tasks = this.flatTasks();
     const currentStats = { total: tasks.length, pending: 0, inProgress: 0, review: 0, completed: 0, overdue: 0, archived: 0 };
-
     const todayMidnight = new Date();
     todayMidnight.setHours(0, 0, 0, 0);
     const todayTime = todayMidnight.getTime();
@@ -66,26 +76,22 @@ export class TaskList implements OnInit {
     return currentStats;
   });
 
-  // 3. Фильтрация ID (поиск по названию И по описанию задачи)
+  // 3. Фильтрация ID
   filteredTaskIds = computed(() => {
     const tasks = this.flatTasks();
     const query = this.searchQuery().trim().toLowerCase();
     const status = this.selectedStatus();
     const priority = this.selectedPriority();
-
     const ids = new Set<string>();
 
     for (const task of tasks) {
       if (status && task.status !== status) continue;
       if (priority && task.priority !== priority) continue;
-
       if (query) {
         const titleMatch = task.title.toLowerCase().includes(query);
-        // Защита от null/undefined в описании задачи
         const descMatch = (task.description || '').toLowerCase().includes(query);
         if (!titleMatch && !descMatch) continue;
       }
-
       ids.add(task.id);
     }
     return ids;
@@ -99,30 +105,26 @@ export class TaskList implements OnInit {
     return map;
   });
 
-  // 4. Логика автоматического раскрытия веток при поиске и схлопывания при заходе
+  // 4. Раскрытие веток при фильтрации
   private updateExpandedFromFilter() {
     const query = this.searchQuery().trim();
     const status = this.selectedStatus();
     const priority = this.selectedPriority();
-
-    // Задачи изначально СВЁРНУТЫ при первом заходе или сбросе строки поиска
     if (!query && !status && !priority) {
       this.expandedNodes.set(new Set());
       return;
     }
-
     const filteredIds = this.filteredTaskIds();
     if (filteredIds.size === 0) {
       this.expandedNodes.set(new Set());
       return;
     }
-
     const ancestors = new Set<string>();
     const parentMap = this.parentMap();
     for (const id of filteredIds) {
       let current: string | null = id;
       while (current) {
-        const parent: any = parentMap.get(current) ?? null;
+        const parent: string | null | undefined = parentMap.get(current) ?? null;
         if (parent) ancestors.add(parent);
         current = parent;
       }
@@ -143,16 +145,10 @@ export class TaskList implements OnInit {
     });
   }
 
-  // 5. Построение видимого дерева. Расчет дат перенесен сюда (HTML теперь не тормозит)
+  // 5. Построение видимого дерева с датами
   visibleTasks = computed(() => {
     const filteredIds = this.filteredTaskIds();
     const expanded = this.expandedNodes();
-
-    type RenderTask = TaskRO & {
-      level: number;
-      dateClass: 'overdue' | 'today' | 'soon' | 'future' | '';
-      formattedDate: string;
-    };
     const result: RenderTask[] = [];
 
     const todayMidnight = new Date();
@@ -161,16 +157,12 @@ export class TaskList implements OnInit {
 
     const parseDateInfo = (dateStr: string | undefined) => {
       if (!dateStr) return { dateClass: '' as const, formattedDate: '—' };
-
       const d = new Date(dateStr);
       const formattedDate = d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
       d.setHours(0, 0, 0, 0);
       const dateTime = d.getTime();
-
       if (dateTime < todayTime) return { dateClass: 'overdue' as const, formattedDate };
       if (dateTime === todayTime) return { dateClass: 'today' as const, formattedDate };
-
       const diffDays = Math.ceil((dateTime - todayTime) / (1000 * 60 * 60 * 24));
       if (diffDays > 0 && diffDays <= 3) return { dateClass: 'soon' as const, formattedDate };
       return { dateClass: 'future' as const, formattedDate };
@@ -193,7 +185,6 @@ export class TaskList implements OnInit {
         if (!matches && !hasDescendantMatch) continue;
 
         const dateInfo = parseDateInfo(task.dueDate);
-
         result.push({
           ...task,
           level,
@@ -208,10 +199,73 @@ export class TaskList implements OnInit {
     };
 
     traverse(this.taskTrees(), 0);
-    return result;
+    return this.sortTasks(result);
   });
 
-  // Отфильтрованные плоские задачи для Канбан-доски
+  // Сортировка видимых задач
+  private sortTasks(tasks: RenderTask[]): RenderTask[] {
+    const column = this.sortColumn();
+    const direction = this.sortDirection();
+    return [...tasks].sort((a, b) => {
+      let aValue: any, bValue: any;
+      switch (column) {
+        case 'title':
+          aValue = a.title.toLowerCase();
+          bValue = b.title.toLowerCase();
+          break;
+        case 'departmentName':
+          aValue = (a.departmentName || '').toLowerCase();
+          bValue = (b.departmentName || '').toLowerCase();
+          break;
+        case 'projectName':
+          aValue = (a.projectName || '').toLowerCase();
+          bValue = (b.projectName || '').toLowerCase();
+          break;
+        case 'creatorName':
+          aValue = (a.creatorName || '').toLowerCase();
+          bValue = (b.creatorName || '').toLowerCase();
+          break;
+        case 'assigneeNames':
+          aValue = (a.assigneeNames?.[0] || '').toLowerCase();
+          bValue = (b.assigneeNames?.[0] || '').toLowerCase();
+          break;
+        case 'status':
+          aValue = a.status;
+          bValue = b.status;
+          break;
+        case 'priority':
+          aValue = a.priority;
+          bValue = b.priority;
+          break;
+        case 'dueDate':
+          aValue = a.dueDate ? new Date(a.dueDate).getTime() : 0;
+          bValue = b.dueDate ? new Date(b.dueDate).getTime() : 0;
+          break;
+        default:
+          aValue = a.title.toLowerCase();
+          bValue = b.title.toLowerCase();
+      }
+      if (aValue < bValue) return direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  sortBy(column: string): void {
+    if (this.sortColumn() === column) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
+    }
+  }
+
+  getSortIcon(column: string): string {
+    if (this.sortColumn() !== column) return 'unfold_more';
+    return this.sortDirection() === 'asc' ? 'expand_less' : 'expand_more';
+  }
+
+  // Отфильтрованные плоские задачи для Канбана
   filteredFlatTasks = computed(() => {
     const tasks = this.flatTasks();
     const filteredIds = this.filteredTaskIds();
