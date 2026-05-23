@@ -1,33 +1,40 @@
 <div class="tracker-container" appBackOnEscape>
-  <header class="tracker-header">
-    <div class="header-left">
-      <div class="title-wrap">
-        <h2 class="page-title">
-          {{ (targetUserId() ? 'tracker.title.employeeReport' : 'tracker.title.myActivity') | transloco }}
-        </h2>
-        @if (targetUserId()) {
-          <button class="btn-reset" (click)="resetToMe()">
-            <i class="material-icons">person_search</i> Мой профиль
-          </button>
-        }
-      </div>
+  <div class="page-header">
+    <div class="header-info">
+      <h1>
+        <i class="material-icons">history_toggle_off</i>
+        {{ (targetUserId() ? 'tracker.title.employeeReport' : 'tracker.title.myActivity') | transloco }}
+      </h1>
       <div class="status-badge" [class.live]="isToday()">
         <span class="pulse-dot"></span>
         {{ (isToday() ? 'tracker.period.onTheAir' : 'tracker.period.dataArchive') | transloco }}
       </div>
     </div>
 
-    <div class="date-navigator">
-      <button class="nav-btn" (click)="changeDay(-1)">←</button>
-      <div class="datepicker-box">
-        <input type="date" [value]="selectedDate()" (change)="onDateChange($event)" [max]="selectedDate()">
-        <span class="date-label">
-          {{ isToday() ? ('tracker.title.today' | transloco) : (selectedDate() | date:'dd MMMM') }}
-        </span>
+    <div class="header-actions">
+      @if (targetUserId()) {
+        <button class="btn-secondary" (click)="resetToMe()">
+          <i class="material-icons">person_search</i> Мой профиль
+        </button>
+      }
+
+      <div class="date-navigator">
+        <button class="nav-btn" (click)="changeDay(-1)">
+          <i class="material-icons">chevron_left</i>
+        </button>
+        <div class="datepicker-box">
+          <input type="date" [value]="selectedDate()" (change)="onDateChange($event)" [max]="selectedDate()">
+          <span class="date-label">
+            {{ isToday() ? ('tracker.title.today' | transloco) : (selectedDate() | date:'dd MMMM') }}
+          </span>
+          <i class="material-icons select-arrow">expand_more</i>
+        </div>
+        <button class="nav-btn" (click)="changeDay(1)" [disabled]="isToday()">
+          <i class="material-icons">chevron_right</i>
+        </button>
       </div>
-      <button class="nav-btn" (click)="changeDay(1)" [disabled]="isToday()">→</button>
     </div>
-  </header>
+  </div>
 
   @if (loading()) {
     <div class="loading-overlay">
@@ -84,5 +91,4 @@
   </div>
 
   <app-member-token-panel/>
-
 </div>
