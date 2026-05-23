@@ -11,6 +11,7 @@ import {Tracker} from './pages/tracker/tracker';
 import {TaskList} from './features/task-list/task-list';
 import {TaskDetail} from './features/task-list/task-detail/task-detail';
 import {TaskCreate} from './features/task-list/task-create/task-create';
+import {MembersList} from './features/members-list/members-list';
 
 export const routes: Routes = [
   { path: 'login', component: Login, title: 'Вход' },
@@ -21,7 +22,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: 'tracker', component: Tracker, title: 'Трекер' },
-
+      { path: 'members', component: MembersList, title: 'Участники' },
       // PROJECT: Добавляем проверку прав на чтение
       {
         path: 'projects',
