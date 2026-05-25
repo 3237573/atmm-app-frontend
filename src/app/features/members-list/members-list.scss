@@ -16,6 +16,7 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      color: var(--accent);
 
       i {
         color: var(--accent);
@@ -108,7 +109,21 @@
 .members-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 600px;
+
+  // Сжатие колонок под минимальную ширину контента для прижатия влево
+  .col-user {
+    width: 350px; // Задаем комфортную ширину для блока с именем/email
+  }
+
+  .col-role {
+    width: 1%;
+    white-space: nowrap;
+  }
+
+  .col-actions {
+    width: 1%;
+    white-space: nowrap;
+  }
 
   th {
     text-align: left;
@@ -117,7 +132,7 @@
     text-transform: uppercase;
     color: var(--text-subtle);
     font-weight: 600;
-    background: var(--bg-soft);
+    background: var(--bg-main);
     border-bottom: 1px solid var(--border-subtle);
   }
 
@@ -138,6 +153,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  white-space: nowrap;
 }
 
 .user-avatar {
@@ -149,11 +165,12 @@
   justify-content: center;
   font-weight: 600;
   font-size: 0.9rem;
+  flex-shrink: 0;
 
-  &.owner { background: var(--role-owner-bg); color: var(--role-owner-color); }
-  &.admin { background: var(--role-admin-bg); color: var(--role-admin-color); }
-  &.member { background: var(--role-member-bg); color: var(--role-member-color); }
-  &.guest { background: var(--role-guest-bg); color: var(--role-guest-color); }
+  &.owner { background: var(--bg-main); color: var(--role-owner-color); }
+  &.admin { background: var(--bg-main); color: var(--role-admin-color); }
+  &.member { background: var(--bg-main); color: var(--role-member-color); }
+  &.guest { background: var(--bg-main); color: var(--role-guest-color); }
 }
 
 .user-info {
@@ -175,7 +192,7 @@
 
   .user-email {
     font-size: 0.7rem;
-    color: var(--text-subtle);
+    color: var(--accent);
   }
 }
 
@@ -185,11 +202,12 @@
   font-weight: 500;
   padding: 0.15rem 0.6rem;
   border-radius: 2rem;
+  display: inline-block;
 
-  &.owner { background: var(--role-owner-bg); color: var(--role-owner-color); }
-  &.admin { background: var(--role-admin-bg); color: var(--role-admin-color); }
-  &.member { background: var(--role-member-bg); color: var(--role-member-color); }
-  &.guest { background: var(--role-guest-bg); color: var(--role-guest-color); }
+  &.owner { background: var(--bg-main); color: var(--role-owner-color); }
+  &.admin { background: var(--bg-main); color: var(--role-admin-color); }
+  &.member { background: var(--bg-main); color: var(--role-member-color); }
+  &.guest { background: var(--bg-main); color: var(--role-guest-color); }
 }
 
 /* === Actions === */
@@ -231,5 +249,32 @@
     background: rgba(var(--success-rgb), 0.15);
     color: var(--success);
     border-color: var(--success);
+  }
+}
+
+/* === Loader & Empty States === */
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+  color: var(--text-subtle);
+}
+
+.empty-state {
+  text-align: center !important;
+  padding: 3rem !important;
+  color: var(--text-subtle);
+
+  i {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
   }
 }

@@ -1,5 +1,4 @@
 <div class="members-list">
-  <!-- Header -->
   <div class="list-header">
     <div class="header-text">
       <h1>
@@ -10,7 +9,6 @@
     </div>
   </div>
 
-  <!-- Filters -->
   <div class="filters-bar">
     <div class="search-box">
       <i class="material-icons">search</i>
@@ -34,15 +32,15 @@
     </select>
   </div>
 
-  <!-- Members Table -->
   @if (!loading()) {
     <div class="table-container">
       <table class="members-table">
         <thead>
         <tr>
-          <th>Участник</th>
-          <th>Роль</th>
-          <th>Действия</th>
+          <th class="col-user">Участник</th>
+          <th class="col-role">Роль</th>
+          <th class="col-actions">Действия</th>
+          <th></th>
         </tr>
         </thead>
         <tbody>
@@ -71,36 +69,32 @@
               </td>
               <td class="actions-cell">
                 @if (currentUser()?.id !== member.id) {
-                  <!-- Задачи - первая -->
                   <button class="action-btn task" (click)="assignTask(member)" title="Назначить задачу">
                     <i class="material-icons">assignment_add</i>
                   </button>
 
-                  <!-- Чат - вторая -->
                   <button class="action-btn chat" (click)="sendMessage(member)" title="Написать сообщение">
                     <i class="material-icons">chat_bubble</i>
                   </button>
                 } @else {
-                  <!-- Себе тоже можно поставить задачу -->
                   <button class="action-btn task" (click)="assignTask(member)" title="Поставить задачу себе">
                     <i class="material-icons">assignment_add</i>
                   </button>
 
-                  <!-- Себе писать сообщение не нужно, но можно -->
                   <button class="action-btn chat" (click)="sendMessage(member)" title="Написать себе" style="opacity: 0.5;">
                     <i class="material-icons">chat_bubble</i>
                   </button>
                 }
 
-                <!-- Профиль у всех одинаково -->
                 <button class="action-btn profile" (click)="viewProfile(member)" title="Просмотр профиля">
                   <i class="material-icons">visibility</i>
                 </button>
               </td>
+              <td></td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="3" class="empty-state">
+              <td colspan="4" class="empty-state">
                 <i class="material-icons">people_outline</i>
                 <p>Участники не найдены</p>
               </td>

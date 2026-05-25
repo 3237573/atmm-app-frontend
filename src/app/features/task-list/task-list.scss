@@ -178,8 +178,9 @@
   .priority-select-styled { color: var(--text-main); }
   .select-arrow { color: var(--text-muted); }
   &[data-priority="LOW"] .priority-select-styled { background: rgba(74, 222, 128, 0.1); color: var(--success); border-color: rgba(74, 222, 128, 0.2); }
-  &[data-priority="MEDIUM"] .priority-select-styled { background: rgba(245, 158, 11, 0.1); color: var(--warning); border-color: rgba(245, 158, 11, 0.2); }
-  &[data-priority="HIGH"] .priority-select-styled { background: rgba(239, 68, 68, 0.12); color: var(--danger); border-color: rgba(239, 68, 68, 0.2); }
+  &[data-priority="MEDIUM"] .priority-select-styled { background: rgba(245, 158, 11, 0.1); color: var(--accent); border-color: rgba(245, 158, 11, 0.2); }
+  &[data-priority="HIGH"] .priority-select-styled { background: rgba(239, 68, 68, 0.12); color: var(--warning); border-color: rgba(239, 68, 68, 0.2); }
+  &[data-priority="CRITICAL"] .priority-select-styled { background: rgba(239, 68, 68, 0.12); color: var(--danger); border-color: rgba(239, 68, 68, 0.2); }
 }
 
 .table-container {
@@ -273,8 +274,9 @@
   width: 100%;
   box-sizing: border-box;
   &.low { background: rgba(74, 222, 128, 0.12); color: var(--success); }
-  &.medium { background: rgba(245, 158, 11, 0.12); color: var(--warning); }
-  &.high { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+  &.medium { background: rgba(245, 158, 11, 0.12); color: var(--accent); }
+  &.high { background: rgba(239, 68, 68, 0.15); color: var(--warning); }
+  &.critical { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
 }
 
 .due-date {

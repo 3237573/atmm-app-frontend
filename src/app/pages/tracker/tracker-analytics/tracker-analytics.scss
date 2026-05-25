@@ -75,7 +75,7 @@
     display: block;
     width: 100%;
     transition: all 0.3s $ease;
-    &.main { font-size: 1.8rem; font-weight: 800; color: white; }
+    &.main { font-size: 1.8rem; font-weight: 800; color: $text-main; }
     &.sub { font-size: 0.85rem; font-weight: 600; color: $text-muted; margin-top: 2px; }
   }
 }
