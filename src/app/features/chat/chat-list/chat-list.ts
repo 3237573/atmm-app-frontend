@@ -15,7 +15,7 @@ import { BackOnEscapeDirective } from '@core/directives/back-on-escape.directive
   templateUrl: './chat-list.html',
   styleUrls: ['./chat-list.scss']
 })
-export class ChatListComponent implements OnInit, OnDestroy {
+export class ChatList implements OnInit, OnDestroy {
   private readonly chatService = inject(ChatService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);

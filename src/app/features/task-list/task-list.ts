@@ -1,12 +1,12 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { TaskService } from '../../core/services/task.service';
-import { TaskRO, TaskTreeRO } from '../../core/models/task/task.model';
-import { AuthService } from '../../core/services/auth.service';
-import { BackOnEscapeDirective } from '../../core/directives/back-on-escape.directive';
-import { ReplaceMePipe } from '../../core/pipes/replace-me.pipe';
+import {Component, computed, effect, inject, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {RouterModule} from '@angular/router';
+import {TaskService} from '../../core/services/task.service';
+import {TaskRO, TaskTreeRO} from '../../core/models/task/task.model';
+import {AuthService} from '../../core/services/auth.service';
+import {BackOnEscapeDirective} from '../../core/directives/back-on-escape.directive';
+import {ReplaceMePipe} from '../../core/pipes/replace-me.pipe';
 
 type RenderTask = TaskRO & {
   level: number;

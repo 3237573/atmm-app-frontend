@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewChecked } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChatService } from '@core/services/chat.service';
 import { AuthService } from '@core/services/auth.service';
@@ -6,7 +6,7 @@ import { ChatMessage, SendMessageRequest } from '@core/models/chat.model';
 import { Subscription } from 'rxjs';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
+import { BackOnEscapeDirective } from '@core/directives/back-on-escape.directive';
 
 @Component({
   selector: 'app-chat-window',
@@ -15,7 +15,7 @@ import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
   templateUrl: './chat-window.html',
   styleUrls: ['./chat-window.scss']
 })
-export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class ChatWindow implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly chatService = inject(ChatService);
@@ -31,19 +31,26 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
   typingUsers: string[] = [];
 
   private typingTimeout: any;
-  private seenTimeout: any;
+  private isTypingSignalSent = false; // Флаг, чтобы не спамить бэкенд при вводе текста
   private wsSubscription?: Subscription;
   private routeSubscription?: Subscription;
 
   ngOnInit(): void {
     this.myMembershipId = this.auth.currentMembership()?.id || '';
     this.chatService.connect();
-    this.wsSubscription = this.chatService.messages$.subscribe(res => this.handleWebSocketResponse(res));
-    this.startSeenInterval();
 
-    // Подписываемся на смену URL, чтобы окно перезагружалось при клике на разные чаты в списке
+    this.wsSubscription = this.chatService.messages$.subscribe(res => {
+      this.handleWebSocketResponse(res);
+    });
+
     this.routeSubscription = this.route.paramMap.subscribe(params => {
-      const newRoomId = params.get('roomId')!;
+      const newRoomId = params.get('roomId') ?? params.get('id');
+      if (!newRoomId) {
+        this.roomId = '';
+        this.messages = [];
+        return;
+      }
+
       if (this.roomId !== newRoomId) {
         this.roomId = newRoomId;
         this.messages = [];
@@ -52,19 +59,22 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
         this.loadMessages();
       }
     });
+
+    // Обработка возвращения пользователя на вкладку (чтобы дочитать сообщения)
+    window.addEventListener('focus', this.onWindowFocus);
   }
 
   ngOnDestroy(): void {
     if (this.typingTimeout) clearTimeout(this.typingTimeout);
-    if (this.seenTimeout) clearInterval(this.seenTimeout);
     this.wsSubscription?.unsubscribe();
     this.routeSubscription?.unsubscribe();
+    window.removeEventListener('focus', this.onWindowFocus);
     this.chatService.disconnect();
   }
 
-  ngAfterViewChecked(): void {
-    this.scrollToBottom();
-  }
+  private onWindowFocus = (): void => {
+    this.markMessagesSeen();
+  };
 
   loadRoomInfo(): void {
     this.chatService.getRoomById(this.roomId).subscribe(room => {
@@ -74,10 +84,13 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   loadMessages(): void {
+    if (!this.roomId) return;
     this.chatService.getMessages(this.roomId).subscribe(msgs => {
-      this.messages = msgs.reverse(); // В зависимости от того, как отдает бэкенд (новые снизу)
+      // Если бэк отдает новые сверху — раскомментируй .reverse(), но убирай дубликат строки!
+      this.messages = msgs;
+
       this.markMessagesSeen();
-      setTimeout(() => this.scrollToBottom(), 100);
+      this.scrollToBottom();
     });
   }
 
@@ -93,6 +106,12 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
     try {
       this.chatService.sendMessage({ type: 'send_message', message: req });
       this.newMessage = '';
+
+      // Сразу после отправки гасим статус «печатает», не дожидаясь таймера
+      if (this.isTypingSignalSent) {
+        this.chatService.sendMessage({ type: 'typing', roomId: this.roomId, isTyping: false });
+        this.isTypingSignalSent = false;
+      }
     } catch (err) {
       console.error('Failed to send message:', err);
     }
@@ -105,8 +124,13 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
     input.value = '';
   }
 
-  getFileName(url: string): string { return url.split('/').pop() || 'file'; }
-  openMedia(url: string): void { if (url) window.open(url, '_blank'); }
+  getFileName(url: string): string {
+    return url.split('/').pop() || 'file';
+  }
+
+  openMedia(url: string): void {
+    if (url) window.open(url, '_blank');
+  }
 
   getInterlocutorName(): string {
     const otherMessage = this.messages.find(m => m.senderMembershipId !== this.myMembershipId);
@@ -130,7 +154,11 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
       case 'new_message':
         if (res.message.roomId === this.roomId) {
           this.messages = [...this.messages, res.message];
-          this.markMessagesSeen();
+
+          if (document.hasFocus()) {
+            this.markMessagesSeen();
+          }
+          this.scrollToBottom();
         }
         break;
       case 'typing_indicator':
@@ -148,29 +176,43 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   onTyping(): void {
-    this.chatService.sendMessage({ type: 'typing', roomId: this.roomId, isTyping: true });
+    // Отправляем сигнал на бэк только один раз при старте ввода, а не на каждую клавишу
+    if (!this.isTypingSignalSent) {
+      this.chatService.sendMessage({ type: 'typing', roomId: this.roomId, isTyping: true });
+      this.isTypingSignalSent = true;
+    }
+
     if (this.typingTimeout) clearTimeout(this.typingTimeout);
+
     this.typingTimeout = setTimeout(() => {
       this.chatService.sendMessage({ type: 'typing', roomId: this.roomId, isTyping: false });
-    }, 1000);
+      this.isTypingSignalSent = false;
+    }, 1500); // 1.5 секунды тишины — значит пользователь закончил вводить текст
   }
 
   private markMessagesSeen(): void {
+    if (!this.messages.length) return;
+
     const lastMessage = this.messages[this.messages.length - 1];
     if (lastMessage && lastMessage.senderMembershipId !== this.myMembershipId) {
       this.chatService.sendMessage({ type: 'mark_seen', messageId: lastMessage.id });
     }
   }
 
-  private startSeenInterval(): void {
-    this.seenTimeout = setInterval(() => this.markMessagesSeen(), 5000);
-  }
-
   private scrollToBottom(): void {
-    try {
-      this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
-    } catch (err) { }
+    // Используем setTimeout, чтобы Angular успел отрендерить новые элементы в DOM
+    setTimeout(() => {
+      try {
+        if (this.scrollContainer?.nativeElement) {
+          this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
+        }
+      } catch (err) {
+        console.warn('Scroll failed:', err);
+      }
+    }, 50);
   }
 
-  goBack(): void { this.router.navigate(['/chat']); }
+  goBack(): void {
+    this.router.navigate(['/chat']);
+  }
 }

@@ -12,8 +12,9 @@ import {TaskList} from './features/task-list/task-list';
 import {TaskDetail} from './features/task-list/task-detail/task-detail';
 import {TaskCreate} from './features/task-list/task-create/task-create';
 import {MembersList} from './features/members-list/members-list';
-import {ChatListComponent} from './features/chat/chat-list/chat-list';
-import {ChatWindowComponent} from './features/chat/chat-window/chat-window';
+import {ChatList} from './features/chat/chat-list/chat-list';
+import {ChatWindow} from './features/chat/chat-window/chat-window';
+import {ChatLayoutComponent} from './features/chat/chat-layout';
 
 export const routes: Routes = [
   { path: 'login', component: Login, title: 'Вход' },
@@ -25,8 +26,18 @@ export const routes: Routes = [
     children: [
       { path: 'tracker', component: Tracker, title: 'Трекер' },
       { path: 'members', component: MembersList, title: 'Участники' },
-      { path: 'chat', component: ChatListComponent, title: 'Чат' },
-      { path: 'chat/:roomId', component: ChatWindowComponent, title: 'Комната' },
+      // { path: 'chat', component: ChatListComponent, title: 'Чат' },
+      // { path: 'chat/:roomId', component: ChatWindowComponent, title: 'Комната' },
+      {
+        path: 'chat',
+        component: ChatLayoutComponent, // Обертка рендерится всегда
+        children: [
+          {
+            path: ':roomId', // При переходе в /chat/123 внутри outlet отрендерится окно
+            component: ChatWindow
+          }
+        ]
+      },
 
       // PROJECT: Добавляем проверку прав на чтение
       {
