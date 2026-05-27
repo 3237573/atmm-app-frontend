@@ -1,6 +1,6 @@
 <div class="chat-window" appBackOnEscape>
   <div class="chat-header">
-<!--    <button class="back-btn" (click)="goBack()">←</button>-->
+    <button class="back-btn" (click)="goBack()">←</button>
     <div class="room-info">
       <span class="room-name">{{ memberCount === 2 ? getInterlocutorName() : roomName }}</span>
       <span class="member-count">{{ memberCount }} участников</span>
@@ -9,7 +9,7 @@
 
   <div class="messages-container" #scrollMe>
     @for (msg of messages; track msg.id) {
-      <div class="message" [class.own]="msg.senderMembershipId === myMembershipId">
+      <div class="message" [class.own]="isOwnMessage(msg)">
         <div class="message-sender">{{ msg.senderName }}</div>
         <div class="message-content">
           @if (msg.type === 'TEXT') {

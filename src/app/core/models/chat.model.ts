@@ -7,6 +7,7 @@ export interface ChatRoom {
   departmentId: string | null;
   memberCount: number;
   lastMessage?: ChatMessage;
+  unreadCount: number;
   status: string;
   createdBy: string;
   createdAt: string;
@@ -35,7 +36,7 @@ export interface CreateChatRoomRequest {
   type: string;
   projectId?: string;
   departmentId?: string;
-  memberIds: string[];   // membership IDs
+  memberIds: string[];
 }
 
 export interface AddMembersRequest {
@@ -53,9 +54,10 @@ export interface SendMessageRequest {
 
 // WebSocket message types
 export type WebSocketMessage =
+  | { type: 'read_room'; roomId: string; untilTimestamp: string }
   | { type: 'send_message'; message: SendMessageRequest }
   | { type: 'typing'; roomId: string; isTyping: boolean }
-  | { type: 'mark_seen'; messageId: string }
+  | { type: 'mark_seen'; messageId: string; roomId?: string }
   | { type: 'call_offer'; roomId: string; sdp: string; callType: string }
   | { type: 'call_answer'; roomId: string; sdp: string }
   | { type: 'call_ice'; roomId: string; candidate: string }
@@ -63,6 +65,7 @@ export type WebSocketMessage =
   | { type: 'ping' };
 
 export type WebSocketResponse =
+  | { type: 'room_read'; message: ChatMessage }
   | { type: 'new_message'; message: ChatMessage }
   | { type: 'message_seen'; messageId: string; membershipId: string }
   | { type: 'typing_indicator'; roomId: string; membershipId: string; isTyping: boolean }

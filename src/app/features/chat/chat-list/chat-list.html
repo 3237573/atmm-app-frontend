@@ -1,44 +1,60 @@
-<div class="chat-list-container" appBackOnEscape>
-  <div class="header">
-    <h2>Чаты</h2>
-    <button class="new-chat-btn" (click)="openNewChatDialog()">
-      <i class="material-icons">add</i>
-    </button>
+<div class="chat-list-container">
+  <div class="search-block">
+    <div class="search-wrapper">
+      <i class="material-icons">search</i>
+      <input
+        type="text"
+        [placeholder]="'Поиск чата...'"
+        [(ngModel)]="searchQuery"
+        (input)="onSearchChange()">
+    </div>
   </div>
 
-  <div class="rooms-list">
-    @for (room of rooms; track room.id) {
-      <div class="room-item" [class.active]="selectedRoomId === room.id" (click)="selectRoom(room.id)">
+  <div class="rooms-scroll-area">
+    @for (room of filteredRooms; track room.id) {
+      <div
+        class="room-item"
+        [class.active]="room.id === activeRoomId"
+        (click)="selectRoom(room.id)">
 
-        <div class="avatar" [attr.data-letter]="getAvatarText(room)">
-          {{ getAvatarText(room) }}
+        <div class="room-avatar">
+          <i class="material-icons">
+            {{ room.memberCount === 2 ? 'person' : 'group' }}
+          </i>
         </div>
 
-        <div class="room-body">
-          <div class="room-row">
-            <span class="room-name">{{ getDisplayName(room) }}</span>
-            <span class="time">{{ room.lastMessage?.timestamp | date:'HH:mm' }}</span>
+        <div class="room-details">
+          <div class="room-main-info">
+            <div class="room-meta">
+      <span class="room-name">
+        {{ room.memberCount === 2 ? getDisplayRoomName(room) : room.name }}
+      </span>
+            </div>
+            <p class="last-message-preview" [class.has-unread]="room.unreadCount > 0">
+              {{ room.lastMessage?.content || 'Нет сообщений' }}
+            </p>
           </div>
 
-          <div class="room-row sub-row">
-            <span class="last-message">
-              @if (room.lastMessage) {
-                <span class="msg-author">{{ room.lastMessage.senderName }}:</span>
-                <span class="msg-text">{{ room.lastMessage.content }}</span>
-              } @else {
-                <span class="no-messages">Нет сообщений</span>
-              }
-            </span>
-
-            @if (unreadCount[room.id]) {
-              <span class="unread-badge">{{ unreadCount[room.id] }}</span>
+          <div class="room-meta-right">
+            @if (room.lastMessage?.timestamp) {
+              <span class="last-msg-time">
+        {{ room.lastMessage?.timestamp | date:'HH:mm' }}
+      </span>
+            }
+            @if (room.unreadCount > 0) {
+              <span class="unread-badge">
+        {{ room.unreadCount > 99 ? '99+' : room.unreadCount }}
+      </span>
             }
           </div>
         </div>
 
+        @if (room.unreadCount > 0) {
+          <div class="unread-badge">{{ room.unreadCount }}</div>
+        }
       </div>
     } @empty {
-      <div class="empty-state">У вас пока нет чатов</div>
+      <div class="empty-rooms">Чаты не найдены</div>
     }
   </div>
 </div>

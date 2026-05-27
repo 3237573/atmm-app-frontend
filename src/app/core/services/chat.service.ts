@@ -1,29 +1,35 @@
 // core/services/chat.service.ts
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subject, BehaviorSubject } from 'rxjs';
+import { Observable, Subject, BehaviorSubject, interval, Subscription } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { AuthService } from './auth.service';
-import { ChatMessage, ChatRoom, CreateChatRoomRequest, WebSocketMessage, WebSocketResponse } from '../models/chat.model';
+import { ChatMessage, ChatRoom, CreateChatRoomRequest, WebSocketMessage, WebSocketResponse } from '@core/models/chat.model';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
   private readonly baseUrl = '/v1/chat';
+
   private socket$: WebSocketSubject<any> | null = null;
+  private pingSubscription: Subscription | null = null;
+
   private readonly messageSubject = new Subject<WebSocketResponse>();
   private readonly connectionStatus = new BehaviorSubject<boolean>(false);
+  private readonly roomsSubject = new BehaviorSubject<ChatRoom[]>([]);
+  private readonly typingUsersSubject = new BehaviorSubject<Record<string, string[]>>({});
+
   private pendingMessages: WebSocketMessage[] = [];
   private connecting = false;
 
   public messages$ = this.messageSubject.asObservable();
   public isConnected$ = this.connectionStatus.asObservable();
+  public rooms$ = this.roomsSubject.asObservable();
+  public typingUsers$ = this.typingUsersSubject.asObservable();
 
   connect(): void {
-    if (this.connectionStatus.value) return;
-    if (this.connecting) return;
-
+    if (this.connectionStatus.value || this.connecting) return;
     this.connecting = true;
 
     const getCookie = (name: string): string => {
@@ -34,14 +40,9 @@ export class ChatService {
     };
 
     const token = getCookie('auth_token');
-
-    // Если токен удалось прочитать из куки — передаем его,
-    // если нет (кука HttpOnly) — строим URL без параметра, браузер прикрепит куку сам
     const wsUrl = token
       ? `ws://${window.location.host}/v1/chat/ws?token=${token}`
       : `ws://${window.location.host}/v1/chat/ws`;
-
-    console.log('Connecting to WebSocket via proxy:', wsUrl);
 
     if (this.socket$) {
       this.socket$.complete();
@@ -52,22 +53,20 @@ export class ChatService {
       url: wsUrl,
       deserializer: e => JSON.parse(e.data),
       serializer: v => JSON.stringify(v),
-      // Важно: withCredentials в WebSocket не существует.
-      // Cookie будут переданы, потому что запрос на тот же origin (4200),
-      // а прокси перенаправляет на бэкенд, но cookie для 9083 не отправятся,
-      // если они не установлены с Domain=.localhost и Path=/.
-      // Поэтому лучший способ – передавать sessionId в URL или в заголовке Sec-WebSocket-Protocol.
       openObserver: {
         next: () => {
           console.log('✅ WebSocket connected');
           this.connectionStatus.next(true);
           this.connecting = false;
+          this.startPing();
           this.flushPendingMessages();
+          this.loadUserRooms();
         }
       },
       closeObserver: {
         next: (event) => {
           console.warn('❌ WebSocket disconnected', event);
+          this.stopPing();
           this.connectionStatus.next(false);
           this.connecting = false;
           this.socket$ = null;
@@ -77,22 +76,69 @@ export class ChatService {
 
     this.socket$.subscribe({
       next: (msg: any) => {
-        console.log('📨 WebSocket received:', msg);
-        this.messageSubject.next(msg as WebSocketResponse);
+        const response = msg as WebSocketResponse;
+        this.messageSubject.next(response);
+        this.handleIncomingSocketMessage(response);
       },
       error: (err) => {
-        console.error('WebSocket error', err);
+        console.error('WebSocket error:', err);
+        this.stopPing();
         this.connectionStatus.next(false);
         this.connecting = false;
         this.socket$ = null;
       },
       complete: () => {
-        console.log('WebSocket complete');
+        this.stopPing();
         this.connectionStatus.next(false);
         this.connecting = false;
         this.socket$ = null;
       }
     });
+  }
+
+  public loadUserRooms(): void {
+    this.getUserRooms().subscribe(rooms => this.roomsSubject.next(rooms));
+  }
+
+  private handleIncomingSocketMessage(res: WebSocketResponse): void {
+    if (!res) return;
+
+    switch (res.type) {
+      case 'typing_indicator': {
+        const currentMap = { ...this.typingUsersSubject.value };
+        const roomUsers = currentMap[res.roomId] || [];
+
+        if (res.isTyping) {
+          if (!roomUsers.includes(res.membershipId)) {
+            currentMap[res.roomId] = [...roomUsers, res.membershipId];
+          }
+        } else {
+          currentMap[res.roomId] = roomUsers.filter(id => id !== res.membershipId);
+        }
+
+        this.typingUsersSubject.next(currentMap);
+        break;
+      }
+
+      case 'new_message':
+      case 'room_read':
+        this.loadUserRooms();
+        break;
+    }
+  }
+
+  private startPing(): void {
+    this.stopPing();
+    this.pingSubscription = interval(30000).subscribe(() => {
+      this.sendMessage({ type: 'ping' });
+    });
+  }
+
+  private stopPing(): void {
+    if (this.pingSubscription) {
+      this.pingSubscription.unsubscribe();
+      this.pingSubscription = null;
+    }
   }
 
   private flushPendingMessages(): void {
@@ -103,16 +149,17 @@ export class ChatService {
   }
 
   disconnect(): void {
+    this.stopPing();
     this.socket$?.complete();
     this.connectionStatus.next(false);
     this.pendingMessages = [];
     this.socket$ = null;
     this.connecting = false;
+    this.typingUsersSubject.next({});
   }
 
   sendMessage(msg: WebSocketMessage): void {
     if (!this.connectionStatus.value) {
-      console.warn('⚠️ WebSocket not ready, queueing message:', msg);
       this.pendingMessages.push(msg);
       if (!this.connecting) this.connect();
       return;
@@ -121,11 +168,9 @@ export class ChatService {
   }
 
   private sendMessageImmediate(msg: WebSocketMessage): void {
-    console.log('📤 Sending WebSocket message:', msg);
     this.socket$?.next(msg);
   }
 
-  // REST API (без изменений)
   getUserRooms(): Observable<ChatRoom[]> {
     return this.http.get<ChatRoom[]>(`${this.baseUrl}/rooms`);
   }

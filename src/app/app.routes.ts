@@ -1,20 +1,19 @@
-import {AdminPage} from './pages/admin-page/admin-page';
-import {permissionGuard} from './core/guards/permission.guard';
-import {ProjectForm} from './features/project-list/project-form/project-form';
-import {ProjectList} from './features/project-list/project-list';
 import {Routes} from '@angular/router';
-import {Register} from './core/auth/register/register';
-import {Login} from './core/auth/login/login';
-import {MainLayout} from './core/layout/main-layout/main-layout';
-import {authGuard} from './core/guards/auth.guard';
+import {Login} from '@core/auth/login/login';
+import {Register} from '@core/auth/register/register';
+import {MainLayout} from '@core/layout/main-layout/main-layout';
+import {authGuard} from '@core/guards/auth.guard';
 import {Tracker} from './pages/tracker/tracker';
-import {TaskList} from './features/task-list/task-list';
-import {TaskDetail} from './features/task-list/task-detail/task-detail';
-import {TaskCreate} from './features/task-list/task-create/task-create';
-import {MembersList} from './features/members-list/members-list';
-import {ChatList} from './features/chat/chat-list/chat-list';
-import {ChatWindow} from './features/chat/chat-window/chat-window';
-import {ChatLayoutComponent} from './features/chat/chat-layout';
+import {MembersList} from '@features/members-list/members-list';
+import {ChatLayout} from '@features/chat/chat-layout';
+import {ChatWindow} from '@features/chat/chat-window/chat-window';
+import {permissionGuard} from '@core/guards/permission.guard';
+import {ProjectList} from '@features/project-list/project-list';
+import {ProjectForm} from '@features/project-list/project-form/project-form';
+import {TaskList} from '@features/task-list/task-list';
+import {TaskCreate} from '@features/task-list/task-create/task-create';
+import {TaskDetail} from '@features/task-list/task-detail/task-detail';
+import {AdminPage} from './pages/admin-page/admin-page';
 
 export const routes: Routes = [
   { path: 'login', component: Login, title: 'Вход' },
@@ -30,7 +29,7 @@ export const routes: Routes = [
       // { path: 'chat/:roomId', component: ChatWindowComponent, title: 'Комната' },
       {
         path: 'chat',
-        component: ChatLayoutComponent, // Обертка рендерится всегда
+        component: ChatLayout, // Обертка рендерится всегда
         children: [
           {
             path: ':roomId', // При переходе в /chat/123 внутри outlet отрендерится окно
