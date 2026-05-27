@@ -10,5 +10,18 @@
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
+  },
+  "/v1/chat/ws": {
+    "target": "ws://localhost:9083",
+    "ws": true,
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/v1": {
+    "target": "http://localhost:9083",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
   }
 }

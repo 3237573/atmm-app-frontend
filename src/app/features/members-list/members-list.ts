@@ -1,10 +1,12 @@
 import {Component, computed, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {MemberService} from '../../core/services/member.service';
-import {MemberRO} from '../../core/models/member.model';
+import {MemberService} from '@core/services';
+import {MemberRO} from '@core/models/member.model';
 import {Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
-import {AuthService} from '../../core/services/auth.service';
+import {AuthService} from '@core/services/auth.service';
+import {ChatService} from '@core/services/chat.service';
+import {firstValueFrom} from 'rxjs';
 
 @Component({
   selector: 'app-members-list',
@@ -15,6 +17,9 @@ import {AuthService} from '../../core/services/auth.service';
 })
 export class MembersList implements OnInit {
   private readonly authService = inject(AuthService);
+  private readonly chatService = inject(ChatService);
+  private readonly memberService = inject(MemberService);
+  private readonly router = inject(Router);
 
   members = signal<MemberRO[]>([]);
   loading = signal(true);
@@ -23,11 +28,6 @@ export class MembersList implements OnInit {
   selectedDepartment = signal('');
 
   currentUser = computed(() => this.authService.currentUser());
-
-  constructor(
-    private readonly memberService: MemberService,
-    private readonly router: Router
-  ) {}
 
   ngOnInit(): void {
     this.loadMembers();
@@ -59,6 +59,8 @@ export class MembersList implements OnInit {
     });
   }
 
+
+
   private sortMembersByRole(members: MemberRO[]): MemberRO[] {
     const rolePriority: { [key: string]: number } = {
       'OWNER': 1,
@@ -79,9 +81,25 @@ export class MembersList implements OnInit {
   }
 
   // Действия с пользователем
-  sendMessage(member: MemberRO): void {
-    // TODO: открыть чат
-    console.log('Send message to', member.displayName);
+  async sendMessage(member: MemberRO): Promise<void> {
+    const myMembershipId = this.authService.currentMembership()?.id;
+    const targetMembershipId = member.id;
+    if (!myMembershipId || !targetMembershipId) return;
+
+    const rooms = await firstValueFrom(this.chatService.getUserRooms());
+    let directRoom = rooms.find(r => r.type === 'DIRECT' && r.memberCount === 2);
+
+    if (!directRoom) {
+      directRoom = await firstValueFrom(this.chatService.createRoom({
+        type: 'DIRECT',
+        memberIds: [myMembershipId, targetMembershipId]
+        // name не передаём (оно необязательное)
+      }));
+    }
+
+    if (directRoom) {
+      this.router.navigate(['/chat', directRoom.id]);
+    }
   }
 
   assignTask(member: MemberRO): void {
