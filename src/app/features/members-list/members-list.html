@@ -1,15 +1,16 @@
-<div class="members-list">
-  <div class="list-header">
-    <div class="header-text">
+<div class="members-container">
+
+  <div class="page-header">
+    <div class="header-info">
       <h1>
-        <i class="material-icons">people</i>
-        Участники пространства
+        <i class="material-icons">groups</i>
+        <span>Участники пространства</span>
       </h1>
-      <p>{{ members().length }} человек в команде</p>
+      <p>Список пользователей, управление доступом и задачами</p>
     </div>
   </div>
 
-  <div class="filters-bar">
+  <div class="filters-panel">
     <div class="search-box">
       <i class="material-icons">search</i>
       <input
@@ -17,96 +18,55 @@
         [ngModel]="searchQuery()"
         (ngModelChange)="searchQuery.set($event)"
         placeholder="Поиск по имени или email..."
-      >
-      @if (searchQuery()) {
-        <i class="material-icons clear" (click)="searchQuery.set('')">close</i>
-      }
+      />
     </div>
-
-    <select [ngModel]="selectedRole()" (ngModelChange)="selectedRole.set($event)" class="filter-select">
-      <option value="">Все роли</option>
-      <option value="OWNER">Владелец</option>
-      <option value="ADMIN">Администратор</option>
-      <option value="MEMBER">Участник</option>
-      <option value="GUEST">Гость</option>
-    </select>
   </div>
 
-  @if (!loading()) {
-    <div class="table-container">
-      <table class="members-table">
-        <thead>
-        <tr>
-          <th class="col-user">Участник</th>
-          <th class="col-role">Роль</th>
-          <th class="col-actions">Действия</th>
-          <th></th>
-        </tr>
-        </thead>
-        <tbody>
-          @for (member of filteredMembers(); track member.id) {
-            <tr>
-              <td>
-                <div class="user-cell">
-                  <div class="user-avatar" [class]="getRoleBadgeClass(member.roleName)">
-                    {{ (member.displayName || member.email).charAt(0).toUpperCase() }}
-                  </div>
-                  <div class="user-info">
-                    <div class="user-name">
-                      {{ member.displayName }}
-                      @if (currentUser()?.id === member.id) {
-                        <span class="you-badge">Вы</span>
-                      }
-                    </div>
-                    <div class="user-email">{{ member.email }}</div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <span class="role-badge" [class]="getRoleBadgeClass(member.roleName)">
-                  {{ member.roleName }}
-                </span>
-              </td>
-              <td class="actions-cell">
-                @if (currentUser()?.id !== member.id) {
-                  <button class="action-btn task" (click)="assignTask(member)" title="Назначить задачу">
-                    <i class="material-icons">assignment_add</i>
-                  </button>
-
-                  <button class="action-btn chat" (click)="sendMessage(member)" title="Написать сообщение">
-                    <i class="material-icons">chat_bubble</i>
-                  </button>
-                } @else {
-                  <button class="action-btn task" (click)="assignTask(member)" title="Поставить задачу себе">
-                    <i class="material-icons">assignment_add</i>
-                  </button>
-
-                  <button class="action-btn chat" (click)="sendMessage(member)" title="Написать себе" style="opacity: 0.5;">
-                    <i class="material-icons">chat_bubble</i>
-                  </button>
-                }
-
-                <button class="action-btn profile" (click)="viewProfile(member)" title="Просмотр профиля">
-                  <i class="material-icons">visibility</i>
-                </button>
-              </td>
-              <td></td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="4" class="empty-state">
-                <i class="material-icons">people_outline</i>
-                <p>Участники не найдены</p>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+  @if (loading()) {
+    <div class="page-loader">
+      <span class="spinner"></span>
+      <p>Загрузка списка участников...</p>
     </div>
   } @else {
-    <div class="loader-container">
-      <div class="spinner"></div>
-      <span>Загрузка команды...</span>
+    <div class="members-list">
+      @for (member of filteredMembers(); track member.id) {
+        <div class="member-row-card">
+
+          <div class="member-profile" (click)="viewProfile(member)">
+            <div class="avatar-circle" [ngClass]="getRoleBadgeClass(member.roleName)">
+              {{ member.displayName.charAt(0) || member.email.charAt(0) | uppercase }}
+            </div>
+            <div class="member-info">
+              <span class="member-name">{{ member.displayName || 'Пользователь без имени' }}</span>
+              <span class="member-email">{{ member.email }}</span>
+            </div>
+          </div>
+
+          <div class="member-meta">
+            <span class="badge-role" [ngClass]="getRoleBadgeClass(member.roleName)">
+              {{ member.roleName }}
+            </span>
+          </div>
+
+          <div class="member-actions">
+            <button class="btn-icon-action" (click)="sendMessage(member)" title="Написать сообщение">
+              <i class="material-icons">chat</i>
+            </button>
+            <button class="btn-icon-action" (click)="assignTask(member)" title="Назначить задачу">
+              <i class="material-icons">assignment_add</i>
+            </button>
+            <button class="btn-icon-action" (click)="viewProfile(member)" title="Посмотреть профиль">
+              <i class="material-icons">visibility</i>
+            </button>
+          </div>
+
+        </div>
+      } @empty {
+        <div class="empty-state">
+          <i class="material-icons">person_search</i>
+          <p>Участники не найдены</p>
+        </div>
+      }
     </div>
   }
 </div>

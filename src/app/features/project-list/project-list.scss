@@ -1,27 +1,29 @@
-/* ============================================================
-   PROJECT TREE — THEME AWARE (Light/Dark Support)
-   ============================================================ */
-
-.project-container {padding: 1.5rem 2rem;  width: 100%;}
-
-.loader {margin-top: 2rem;  color: var(--text-subtle); font-size: 0.9rem;}
+.projects-container {
+  padding: 1.5rem 2rem;
+  width: 100%;
+  color: var(--text-main);
+}
 
 .tree-root {
-  margin-top: 1rem;
-  padding-left: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
 }
 
 .tree-branch {
   list-style: none;
-  //padding-left: 1.25rem;
-  border-left: 1px solid var(--border-subtle);
-  margin-left: 0.5rem;
-  /* Плавное появление дочерних элементов */
-  animation: fadeSlide 0.25s ease;
+  padding: 0;
+  margin: 0 0 0 0.75rem;
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .tree-node {
-  margin: 0.4rem 0;
+  margin: 0.25rem 0;
+  padding-left: 0.75rem;
   position: relative;
 }
 
@@ -29,117 +31,101 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0.75rem;
+  padding: 0.6rem 0.8rem;
   border-radius: 8px;
   background: var(--bg-card);
-  border: 1px solid var(--border);
-  transition: all 0.2s ease;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-soft, 0 2px 8px rgba(0,0,0,0.04));
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
 
   &:hover {
-    background: var(--bg-elevated);
     border-color: var(--accent);
-    transform: translateX(4px);
-
-    // Показываем экшены при наведении
-    .node-actions {
-      opacity: 1;
-    }
-  }
-
-  .node-main {
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium, 0 4px 12px rgba(0,0,0,0.08));
   }
 }
 
-.node-spacer {
-  width: 20px;
-  height: 20px;
-  display: inline-block;
+.node-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
 }
 
 .node-toggle {
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-subtle);
+  color: var(--text-muted);
   cursor: pointer;
-  transition: transform 0.2s ease, color 0.2s ease;
+  transition: transform 0.2s ease;
   user-select: none;
-
-  &:hover {
-    color: var(--accent);
-  }
-
-  &.open {
-    transform: rotate(90deg);
-  }
+  font-size: 1.3rem;
+  &.open { transform: rotate(90deg); color: var(--accent); }
 }
 
-.node-icon {
-  color: var(--accent);
-  font-size: 1.2rem;
-  opacity: 0.9;
-}
+.node-spacer { width: 24px; }
+.node-icon { color: var(--accent); font-size: 1.25rem; }
 
 .node-info {
   display: flex;
   flex-direction: column;
-  line-height: 1.3;
+  gap: 2px;
 
-  .node-name {
+  .node-title-row {
+    display: flex;
+    align-items: center;
+    color: var(--accent);
+  }
+
+  /* Красивый синий бейдж, внутри которого код и название */
+  .project-code {
     color: var(--text-main);
     font-weight: 600;
     font-size: 0.95rem;
+    background: rgba(var(--accent-rgb), 0.1);
+    padding: 3px 10px;
+    border-radius: 6px;
   }
 
   .node-meta {
     font-size: 0.8rem;
     color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
+    padding-left: 4px;
   }
 }
 
-/* Скрытые действия по умолчанию */
-.node-actions {
+.node-side-meta {
   display: flex;
   align-items: center;
-  opacity: 0;
-  transition: opacity 0.2s;
+  padding-left: 1rem;
+}
 
-  .icon-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s, color 0.2s;
+/* Стилизация статусов */
+.status-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 
-    &:hover {
-      color: var(--accent);
-      background: var(--bg-soft);
-    }
+  &.active, &.planning {
+    background: rgba(var(--success-rgb), 0.15);
+    color: rgb(var(--success-rgb));
+  }
+  &.completed {
+    background: rgba(var(--accent-rgb), 0.15);
+    color: var(--accent);
+  }
+  &.frozen {
+    background: rgba(var(--danger-rgb), 0.15);
+    color: rgb(var(--danger-rgb));
   }
 }
 
-/* Анимация для раскрытия дерева */
-@keyframes fadeSlide {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.page-loader, .empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+  i { font-size: 2.5rem; color: var(--border); margin-bottom: 0.5rem; }
 }

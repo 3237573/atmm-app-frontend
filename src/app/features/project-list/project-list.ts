@@ -15,7 +15,7 @@ import {BackOnEscapeDirective} from '../../core/directives/back-on-escape.direct
 export class ProjectList implements OnInit {
   private readonly projectService = inject(ProjectService);
 
-  private readonly rawProjects = signal<ProjectRO[]>([]);
+  readonly rawProjects = signal<ProjectRO[]>([]); // Изменили с private на readonly, чтобы шаблон имел доступ, если нужно
 
   loading = signal(true);
   expandedNodes = signal<Set<string>>(new Set());
@@ -24,15 +24,12 @@ export class ProjectList implements OnInit {
     const list = this.rawProjects();
     const map = new Map<string | null, ProjectRO[]>();
 
-    // Группируем проекты по их родителю
     list.forEach(project => {
       const pId = project.parentProjectId || null;
       if (!map.has(pId)) map.set(pId, []);
-      // Важно: инициализируем пустой массив для дочерних элементов
       map.get(pId)!.push({ ...project, subProjects: [] as ProjectRO[] });
     });
 
-    // Рекурсивно собираем структуру
     const build = (parentProjectId: string | null): ProjectRO[] => {
       const children = map.get(parentProjectId) || [];
       return children.map(child => ({
@@ -64,4 +61,18 @@ export class ProjectList implements OnInit {
     this.expandedNodes.set(newSet);
   }
 
+  // ДОБАВЛЕННЫЕ ХЕЛПЕРЫ ДЛЯ ШАБЛОНА:
+  getStatusLabel(status: string): string {
+    switch (status?.toUpperCase()) {
+      case 'ACTIVE': return 'Активен';
+      case 'PLANNING': return 'Планирование';
+      case 'COMPLETED': return 'Завершен';
+      default: return status || 'В работе';
+    }
+  }
+
+  isOverdue(deadlineStr: string | Date | undefined): boolean {
+    if (!deadlineStr) return false;
+    return new Date(deadlineStr).getTime() < new Date().getTime();
+  }
 }

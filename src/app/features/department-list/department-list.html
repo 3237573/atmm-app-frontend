@@ -43,12 +43,18 @@
             </i>
 
             <div class="node-info">
-              <span class="node-name">{{ node.name }} <span class="badge-count">{{ node.employeeCount || 0 }}</span></span>
-              @if (node.headMemberId) {
-                <span class="node-meta">Руководитель назначен</span>
-              } @else {
-                <span class="node-meta muted">Нет руководителя</span>
-              }
+              <div class="node-title-row">
+                [&nbsp;
+                <span class="node-name">{{ node.name }}</span>
+                &nbsp;]
+                <span class="badge-count">&nbsp;:&nbsp;{{ node.employeeCount || 0 }}</span>
+                @if (node.headMemberId) {
+                  <span class="node-meta">&nbsp;Руководитель назначен</span>
+                } @else {
+                  <span class="node-meta muted">&nbsp;Нет руководителя</span>
+                }
+              </div>
+
             </div>
           </div>
 

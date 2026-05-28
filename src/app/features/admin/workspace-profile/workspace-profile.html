@@ -1,82 +1,104 @@
-<div class="workspace-profile" appBackOnEscape>
-  <div class="settings-card">
-    <div class="card-header">
-      <div class="card-title">Основная информация</div>
-      @if (canEdit()) {
-        <button class="btn-icon" (click)="editing = !editing" [class.active]="editing">
-          <i class="material-icons">{{ editing ? 'close' : 'edit' }}</i>
-          {{ editing ? 'Отмена' : 'Редактировать' }}
-        </button>
-      }
+<div class="workspace-container" appBackOnEscape>
+
+  <div class="page-header">
+    <div class="header-info">
+      <h1>
+        <i class="material-icons">business</i>
+        <span>Профиль пространства</span>
+      </h1>
+      <p>Основная информация и настройки управления</p>
     </div>
 
-    @if (errorMessage) { <div class="alert error">{{ errorMessage }}</div> }
-    @if (successMessage) { <div class="alert success">{{ successMessage }}</div> }
-
-    <div class="settings-row">
-      <div class="settings-field half">
-        <label>Название пространства</label>
-        <div class="field-value">
-          @if (editing) {
-            <input type="text" [(ngModel)]="workspace.name" placeholder="Название"/>
-          } @else {
-            <span class="readonly">{{ workspace.name || '—' }}</span>
-          }
-        </div>
-      </div>
-
-      <div class="settings-field half">
-        <label>Код пространства</label>
-        <div class="field-value code-container">
-          @if (editing) {
-            <input type="text" [(ngModel)]="workspace.code" placeholder="Код"/>
-          } @else {
-            <code>{{ workspace.code }}</code>
-            <button
-              class="copy-btn"
-              [cdkCopyToClipboard]="workspace.code"
-              (click)="onCopy()"
-              [class.success]="copySuccess"
-              type="button">
-              <i class="material-icons">{{ copySuccess ? 'done' : 'content_copy' }}</i>
-              @if (copySuccess) {
-                <span class="copy-tooltip">Скопировано!</span>
-              }
-            </button>
-          }
-        </div>
-      </div>
-
-      <div class="settings-field half">
-        <label>Владелец</label>
-        <div class="field-value">
-          <div class="owner-info">
-            <span class="owner-name">{{ workspace.owner.displayName || workspace.owner.email }}</span>
-            <span class="owner-email">{{ workspace.owner.email }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="settings-field half">
-        <label>Статус</label>
-        <div class="field-value">
-          <div class="status-wrapper">
-            <span class="status-dot" [class.active]="workspace.status === 'ACTIVE'"></span>
-            <span>{{ workspace.status === 'ACTIVE' ? 'Активна' : 'Архивирована' }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    @if (editing) {
-      <div class="form-actions">
-        <button class="btn-primary" (click)="saveChanges()" [disabled]="saving">
-          @if (saving) { <span class="spinner-small"></span> }
-          @else { <i class="material-icons">save</i> }
-          {{ saving ? 'Сохранение...' : 'Сохранить' }}
-        </button>
-        <button class="btn-secondary" (click)="cancelEditing()" [disabled]="saving">Отмена</button>
-      </div>
+    @if (canEdit()) {
+      <button class="btn-icon-toggle" [class.active]="editing" (click)="editing = !editing">
+        <i class="material-icons">{{ editing ? 'close' : 'edit' }}</i>
+        <span>{{ editing ? 'Отмена' : 'Редактировать' }}</span>
+      </button>
     }
   </div>
+
+  @if (errorMessage) { <div class="alert error">{{ errorMessage }}</div> }
+  @if (successMessage) { <div class="alert success">{{ successMessage }}</div> }
+
+  <div class="profile-grid">
+
+    <div class="profile-card-field">
+      <div class="field-icon">
+        <i class="material-icons">badge</i>
+      </div>
+      <div class="field-body">
+        <label>Название пространства</label>
+        <div class="field-input-wrapper">
+          @if (editing) {
+            <input type="text" [(ngModel)]="workspace.name" placeholder="Введите название"/>
+          } @else {
+            <span class="readonly-text">{{ workspace.name || '—' }}</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-card-field">
+      <div class="field-icon">
+        <i class="material-icons">code</i>
+      </div>
+      <div class="field-body">
+        <label>Код пространства</label>
+        <div class="field-input-wrapper code-layout">
+          @if (editing) {
+            <input type="text" [(ngModel)]="workspace.code" placeholder="Введите код"/>
+          } @else {
+            <code class="styled-code">{{ workspace.code || '—' }}</code>
+            @if (workspace.code) {
+              <button class="copy-btn" [cdkCopyToClipboard]="workspace.code" (cdkCopyToClipboardCopied)="onCopy()">
+                <i class="material-icons">{{ copySuccess ? 'done' : 'content_copy' }}</i>
+                @if (copySuccess) { <span class="copy-tooltip">Скопировано!</span> }
+              </button>
+            }
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-card-field readonly-node">
+      <div class="field-icon">
+        <i class="material-icons">admin_panel_settings</i>
+      </div>
+      <div class="field-body">
+        <label>Владелец</label>
+        <div class="owner-info">
+          <span class="owner-name">{{ workspace.owner.displayName || workspace.owner.email }}</span>
+          <span class="owner-email">{{ workspace.owner.email }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-card-field readonly-node">
+      <div class="field-icon">
+        <i class="material-icons">info</i>
+      </div>
+      <div class="field-body">
+        <label>Статус</label>
+        <div class="status-wrapper">
+          <span class="status-dot" [class.active]="workspace.status === 'ACTIVE'"></span>
+          <span class="status-text">{{ workspace.status === 'ACTIVE' ? 'Активно' : 'Архивировано' }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  @if (editing) {
+    <div class="form-actions">
+      <button class="btn-primary" (click)="saveChanges()" [disabled]="saving">
+        @if (saving) {
+          <span class="spinner-small"></span>
+          <span>Сохранение...</span>
+        } @else {
+          <i class="material-icons">save</i>
+          <span>Сохранить изменения</span>
+        }
+      </button>
+    </div>
+  }
 </div>
