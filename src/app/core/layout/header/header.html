@@ -1,15 +1,30 @@
 <div class="header-inner" *transloco="let t">
-  <div class="page-title">
-    @if (currentUserEmail()) {
-      <span class="user-email-display">{{ currentUserEmail() }}</span>
-    }
-    @if (currentWorkspaceName()) {
-      <span class="user-email-display">{{ currentWorkspaceName() }}</span>
-    }
+
+  <div class="header-left-side">
+
+    <div class="brand-section" [class.collapsed]="sidebarService.isCollapsed()">
+      @if (currentUserEmail() && !(isAuthPage$ | async)) {
+        <button class="sidebar-trigger"
+                (click)="sidebarService.toggle()"
+                [class.open]="!sidebarService.isCollapsed()"
+                title="Управление меню">
+          <i class="material-icons">menu</i>
+        </button>
+      }
+<!--      <div class="logo">ATMM</div>-->
+    </div>
+
+    <div class="page-title">
+      @if (currentWorkspaceName()) {
+        <span class="workspace-badge">{{ currentWorkspaceName() }}</span>
+      }
+      @if (currentUserEmail()) {
+        <span class="user-email-display">{{ currentUserEmail() }}</span>
+      }
+    </div>
   </div>
 
   <div class="user-actions">
-
     <button class="lang-btn" (click)="toggleLanguage()" type="button">
       <i class="material-icons">language</i>
       <span>{{ activeLang | uppercase }}</span>
@@ -23,12 +38,20 @@
 
     @if (currentUserEmail() && !(isAuthPage$ | async)) {
       <div class="user-profile" [title]="t('btn.edit')">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
       </div>
 
       <button class="logout-btn" (click)="onLogout()" [title]="t('btn.exit')" type="button">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" x2="9" y1="12" y2="12"/>
+        </svg>
       </button>
     }
   </div>
+
 </div>

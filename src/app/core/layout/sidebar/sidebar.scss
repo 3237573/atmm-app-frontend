@@ -3,11 +3,13 @@
 :host {
   display: block;
   height: 100%;
-  width: 260px;
-  transition: width 0.3s var(--ease);
+  width: 170px;
+  transition: width 0.3s var(--ease, ease-in-out);
+  flex-shrink: 0;
 
+  // КОГДА СВЕРНУТ: хост сайдбара сжимается ровно до 48px
   &.collapsed {
-    width: 70px;
+    width: 48px;
   }
 }
 
@@ -15,65 +17,29 @@ nav {
   background: var(--bg-card);
   height: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; // Элементы выстраиваются вертикально
   border-right: 1px solid var(--border);
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
+
+  // Запрещаем выделение текста при быстром двойном клике,
+  // чтобы интерфейс не синел, как старый сайт
+  user-select: none;
 }
 
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.25rem;
-  min-height: 64px;
-  border-bottom: 1px solid var(--border);
-}
-
-.logo {
-  font-size: 1.25rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #fff, var(--accent));
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  white-space: nowrap;
-}
-
-.toggle-btn {
-  background: var(--border);
-  border: none;
-  cursor: pointer;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-
-  svg {
-    stroke: white;
-    transition: transform 0.3s ease;
-  }
-
-  &:hover {
-    background: #475569;
-
-    svg {
-      stroke: var(--accent);
-    }
-  }
-}
-
-svg.rotated {
-  transform: rotate(180deg);
+.sidebar-empty-space {
+  flex: 1;
+  width: 100%;
+  cursor: pointer; // Даем понять пользователю, что зона кликабельна
 }
 
 ul {
   list-style: none;
-  padding: 0.75rem;
+  padding: 0.75rem; // Базовый отступ для развёрнутого вида
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  transition: padding 0.3s var(--ease, ease-in-out);
 }
 
 li {
@@ -108,48 +74,51 @@ a {
   justify-content: center;
   width: 24px;
   height: 24px;
-  color: var(--text-muted);
-  transition: color 0.2s;
-
-  i.material-icons {
-    font-size: 20px;
-  }
+  flex-shrink: 0;
 }
 
-.text {
-  transition: opacity 0.2s;
-}
+// ПОВЕДЕНИЕ КОМПОНЕНТОВ В СВЕРНУТОМ СОСТОЯНИИ (48px)
+:host.collapsed {
 
-nav.collapsed {
-  .text {
-    opacity: 0;
-    visibility: hidden;
-    width: 0;
+  // 1. Схлопываем боковые отступы у самого списка, чтобы не зажимать иконку
+  ul {
+    padding: 0.75rem 0px; // Оставляем только верхний и нижний отступы
   }
 
+  li {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  // 2. Делаем ссылку квадратной/круглой по центру, убирая внутренний padding
   a {
     justify-content: center;
-    padding: 0.75rem;
+    width: 40px;  // Оставляем 40px под размер кнопки (чтобы оставался зазор 4px до краев сайдбара)
+    height: 40px;
+    padding: 0;   // Сбрасываем внутренние отступы, так как размеры теперь фиксированные
+    border-radius: 50px; // Если хотите круглый эффект при наведении, ставим 50px (или оставляем 0.5rem для квадрата)
   }
 
-  .icon {
-    margin: 0;
-  }
-
-  .sidebar-header {
-    justify-content: center;
+  // 3. Скрываем текст полностью
+  .text {
+    display: none;
   }
 }
 
-nav::-webkit-scrollbar {
-  width: 4px;
-}
+// Адаптивное скрытие на планшетах/мобилках
+@media (max-width: 768px) {
+  :host {
+    position: fixed;
+    top: 64px; // Встает встык ровно ПОД хедером
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    box-shadow: 10px 20px 30px rgba(0, 0, 0, 0.3);
 
-nav::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-nav::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
+    &.collapsed {
+      width: 0 !important;
+      * { display: none !important; }
+    }
+  }
 }

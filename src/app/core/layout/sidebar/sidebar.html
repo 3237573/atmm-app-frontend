@@ -1,27 +1,19 @@
-<nav [class.collapsed]="isCollapsed">
-  <div class="sidebar-header">
-    @if (!isCollapsed) {
-      <span class="logo">{{ "" }}</span>
-    }
-    <button class="toggle-btn" (click)="toggleSidebar()">
-      <svg [class.rotated]="isCollapsed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="m15 18-6-6 6-6"/>
-      </svg>
-    </button>
-  </div>
+<nav [class.collapsed]="sidebarService.isCollapsed()" (dblclick)="onSidebarDblClick($event)">
 
-  <ul>
+  <ul class="nav-list">
     @for (item of menuItems(); track item.path) {
       <li>
-        <a [routerLink]="item.path" routerLinkActive="active" [title]="isCollapsed ? item.label : ''">
+        <a [routerLink]="item.path"
+           routerLinkActive="active"
+           [title]="sidebarService.isCollapsed() ? item.label : ''">
           <span class="icon">
             <i class="material-icons">{{ item.icon }}</i>
           </span>
-          @if (!isCollapsed) {
-            <span class="text">{{ item.label }}</span>
-          }
+          <span class="text">{{ item.label }}</span>
         </a>
       </li>
     }
   </ul>
+
+  <div class="sidebar-empty-space"></div>
 </nav>

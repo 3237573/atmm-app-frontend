@@ -1,9 +1,5 @@
 <div class="admin-page" appBackOnEscape>
   <header class="page-header">
-    <div class="header-info">
-      <h2>Workspace</h2>
-    </div>
-
     <nav class="admin-tabs">
       @for (tab of tabs; track tab.id) {
         <button
@@ -14,6 +10,9 @@
         </button>
       }
     </nav>
+    <div class="header-info">
+      <h2>Workspace</h2>
+    </div>
   </header>
 
   <section class="admin-content">

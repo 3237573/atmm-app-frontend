@@ -1,10 +1,11 @@
-import {Component, computed, inject} from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { SidebarService } from '../../services/sidebar.service'; // Проверьте путь к вашему сервису!
+import { ThemeService } from '../../services/theme.service';
+import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 import { filter, map, startWith } from 'rxjs';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
-import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
-import {ThemeService} from '../../services/theme.service';
 
 @Component({
   selector: 'app-header',
@@ -16,12 +17,13 @@ import {ThemeService} from '../../services/theme.service';
 export class Header {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  protected themeService = inject(ThemeService);
+  protected readonly themeService = inject(ThemeService);
+  protected readonly sidebarService = inject(SidebarService); // Сервис для отслеживания линии
   private readonly translocoService = inject(TranslocoService);
 
   readonly currentUserEmail = computed(() => this.authService.currentUser()?.email ?? '');
+  // Если у вас возвращается имя воркспейса из другого сигнала/сервиса, используйте его:
   readonly currentWorkspaceName = computed(() => this.authService.currentWorkspace()?.name ?? '');
-
 
   readonly isAuthPage$ = this.router.events.pipe(
     filter(event => event instanceof NavigationEnd),
@@ -39,11 +41,8 @@ export class Header {
   }
 
   onLogout() {
-    this.authService.logout().subscribe({
-      next: () => {
-        localStorage.removeItem('token');
-        this.router.navigate(['/login']);
-      }
+    this.authService.logout().subscribe(() => {
+      this.router.navigate(['/login']);
     });
   }
 }
