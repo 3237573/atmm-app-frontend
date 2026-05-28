@@ -15,13 +15,11 @@ export class AuthService {
   // Состояние
   readonly currentMember = signal<IMember | null>(null);
   readonly currentWorkspace = signal<WorkspaceInfo | null>(null);
+  readonly currentUser = computed(() => this.currentMember());
   readonly permissions = signal<string[]>([]);
   readonly isAuthenticated = signal<boolean>(false);
   readonly availableWorkspaces = signal<WorkspaceInfo[]>([]);
   readonly authStep = signal<'login' | 'select-workspace'>('login');
-
-  // Computed для обратной совместимости
-  readonly currentUser = computed(() => this.currentMember());
 
   readonly hasMultipleWorkspaces = computed(() => this.availableWorkspaces().length > 1);
   readonly displayName = computed(() => {

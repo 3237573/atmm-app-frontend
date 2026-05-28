@@ -1,34 +1,77 @@
 /* ============================================================
-   1. ИМПОРТЫ
+   1. ИМПОРТЫ И ШРИФТЫ
    ============================================================ */
-// Используем относительный путь с точкой!
 @use './ui-components';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* ============================================================
-   2. CSS ПЕРЕМЕННЫЕ (THEMING)
+   2. МИКСИНЫДЛЯ ТЕМЫ (Объявляем строго ДО вызова!)
    ============================================================ */
-:root {
-  /* LIGHT MODE (Default) */
-  --bg-main: #f1f5f9;
-  --bg-card: #ffffff;
-  --bg-elevated: #e2e8f0;
-  --bg-soft: #f8fafc;
+@mixin dark-theme-variables {
+  --bg-main: #0b0f17;       /* Глубокий благородный темный (с каплей синего пигмента) */
+  --bg-card: #151b26;       /* Контрастная карточка */
+  --bg-elevated: #1f2635;   /* Всплывающие элементы/меню */
+  --bg-soft: #1a202c;
+
+  --border: #222938;
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-strong: 0 24px 36px rgba(0, 0, 0, 0.45);
+
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+
+  --accent: #60a5fa;        /* Чуть более светлый синий для лучшей читаемости в темноте */
+  --accent-rgb: 96, 165, 250;
+  --success: #34d399;
+  --success-rgb: 52, 211, 153;
+  --danger: #f87171;
+  --danger-rgb: 248, 113, 113;
+
+  /* Роли в темной теме (Глубокие неоновые оттенки, не бьющие по глазам) */
+  --role-owner-bg: rgba(249, 115, 22, 0.12);
+  --role-owner-color: #f97316;
+  --role-admin-bg: rgba(59, 130, 246, 0.12);
+  --role-admin-color: #60a5fa;
+  --role-member-bg: rgba(34, 197, 94, 0.12);
+  --role-member-color: #4ade80;
+  --role-guest-bg: rgba(148, 163, 184, 0.12);
+  --role-guest-color: #94a3b8;
+}
+
+/* ============================================================
+   3. СИСТЕМНЫЕ ТОКЕНЫ И ТЕМЫ (THEMING)
+   ============================================================ */
+
+/* Базовые стили для СВЕТЛОЙ темы (применяются по умолчанию и через класс) */
+:root, body.light-theme {
+  /* Свежие, чистые фоны */
+  --bg-main: #f8fafc;       /* Воздушный прохладный фон, не бьет по глазам */
+  --bg-card: #ffffff;       /* Белоснежные карточки "всплывают" над фоном */
+  --bg-elevated: #ffffff;
+  --bg-soft: #f1f5f9;
+
+  /* Границы и тени */
   --border: #e2e8f0;
-  --border-subtle: rgba(0, 0, 0, 0.05);
-  --text-main: #334155;
-  --text-muted: #64748b;
-  --accent: #4f46e5;
-  --accent-rgb: 79, 70, 229;
-  --success: #22c55e;
+  --border-subtle: rgba(15, 23, 42, 0.04);
+  --shadow-soft: 0 2px 8px -1px rgba(15, 23, 42, 0.04), 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+  --shadow-strong: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
+
+  /* Шрифты (Цвета из палитры Slate/Zinc для снижения контрастности) */
+  --text-main: #1e293b;     /* Глубокий slate вместо угольно-черного */
+  --text-muted: #64748b;    /* Комфортный серый для второстепенного текста */
+
+  /* Системные цвета */
+  --accent: #3b82f6;        /* Яркий, современный синий */
+  --accent-rgb: 59, 130, 246;
+  --success: #10b981;
+  --success-rgb: 16, 185, 129;
   --warning: #f59e0b;
-  --danger: #ef4a44;
-  /* RGB версии для прозрачности */
-  --danger-rgb: 244, 67, 54;
-  --success-rgb: 76, 175, 80;
+  --warning-rgb: 245, 158, 11;
+  --danger: #ef4444;
+  --danger-rgb: 239, 68, 68;
 
-  --shadow-soft: 0 2px 12px -2px rgba(51, 65, 85, 0.08);
-  --shadow-strong: 0 20px 25px -5px rgba(51, 65, 85, 0.1);
-
+  /* Цвета ролей (Мягкие пастельные плашки для светлой темы) */
   --role-owner-bg: #fef3c7;
   --role-owner-color: #b45309;
   --role-admin-bg: #e0e7ff;
@@ -37,75 +80,61 @@
   --role-member-color: #15803d;
   --role-guest-bg: #f1f5f9;
   --role-guest-color: #475569;
+
+  /* Системная кривая для анимаций */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Автоматическая темная тема по системным настройкам ИЛИ через принудительный класс */
 @media (prefers-color-scheme: dark) {
   :root {
-    /* DARK MODE */
-    --bg-main: #0f1117;
-    --bg-card: #1a1d25;
-    --bg-elevated: #222632;
-    --bg-soft: #1c1f27;
-    --border: #2a2f3a;
-    --border-subtle: rgba(255, 255, 255, 0.06);
-    --text-main: #f3f4f6;
-    --text-muted: #9ca3af;
-    --accent: #60a5fa;
-    --role-owner-bg: #2a1e12;
-    --role-owner-color: #f97316;
-    --role-admin-bg: #11223b;
-    --role-admin-color: #3b82f6;
-    --role-member-bg: #102a1c;
-    --role-member-color: #22c55e;
-    --role-guest-bg: #2a2a30;
-    --role-guest-color: #a1a1aa;
+    @include dark-theme-variables;
   }
 }
-
 body.dark-theme {
-  --bg-main: #0f1218;
-  --bg-card: #161b22;
-  --bg-elevated: #1c2128; /* Чуть светлее чем card */
-  --text-main: #ffffff;
-  --text-muted: #8b949e;
-  --border: #30363d;
-  --accent: #4a90e2;
-  --accent-rgb: 74, 144, 226;
-  --success-rgb: 46, 204, 113;
-  --danger-rgb: 231, 76, 60;
-  --shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-}
-
-body.light-theme {
-  --bg-main: #f8f9fa;
-  --bg-card: #ffffff;
-  --bg-elevated: #ffffff;
-  --text-main: #1f2328;
-  --text-muted: #656d76;
-  --border: #d0d7de;
-  --accent: #4a90e2;
-  --accent-rgb: 74, 144, 226;
-  --success-rgb: 39, 174, 96;
-  --danger-rgb: 192, 57, 43;
-  --shadow: 0 8px 30px rgba(149, 157, 165, 0.2);
+  @include dark-theme-variables;
 }
 
 /* ============================================================
-   3. ГЛОБАЛЬНЫЙ СБРОС (Был продублирован в app.scss)
+   4. ГЛОБАЛЬНЫЙ СБРОС СТИЛЕЙ
    ============================================================ */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-html, body { height: 100%; width: 100%; }
+html, body {
+  height: 100%;
+  width: 100%;
+}
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background: var(--bg-main);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-main);
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Плавный переход для смены темы */
+  transition:
+    background-color 0.25s var(--ease),
+    color 0.25s var(--ease),
+    border-color 0.25s var(--ease),
+    box-shadow 0.25s var(--ease);
 }
 
-.header-area, nav, .main-container, .content-area {
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+app-root {
+  display: block;
+  height: 100%;
+  width: 100%;
 }
-app-root { display: block; height: 100%; width: 100%; }
+
+/* Оптимизированный транзишн для ключевых контейнеров */
+.header-area, nav, .main-container, .content-area, .card, .auth-card {
+  transition:
+    background-color 0.25s var(--ease),
+    border-color 0.25s var(--ease),
+    color 0.25s var(--ease),
+    box-shadow 0.25s var(--ease);
+}

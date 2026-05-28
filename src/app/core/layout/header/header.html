@@ -3,6 +3,9 @@
     @if (currentUserEmail()) {
       <span class="user-email-display">{{ currentUserEmail() }}</span>
     }
+    @if (currentWorkspaceName()) {
+      <span class="user-email-display">{{ currentWorkspaceName() }}</span>
+    }
   </div>
 
   <div class="user-actions">

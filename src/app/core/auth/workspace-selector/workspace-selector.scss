@@ -1,16 +1,7 @@
 // workspace-selector.scss
-@use '../auth' as *;
-@use "../../../app.scss" as *;
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 :host {
   display: block;
-  font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  width: 100%;
 }
 
 .container {
@@ -18,16 +9,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 1.5rem;
+  background-color: var(--bg-main, #0f172a);
+  transition: background-color 0.3s var(--ease, ease);
 }
 
 .card {
-  background: #18181c;
+  background: var(--bg-card, #1e293b);
   border-radius: 1.5rem;
-  border: 1px solid #2a2a30;
+  border: 1px solid var(--border, #334155);
   width: 100%;
-  max-width: 720px;
+  max-width: 520px; /* Сузили карточку для лучшего UX */
   padding: 2rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.4s ease;
+  transition: all 0.3s var(--ease, ease);
 }
 
 .header {
@@ -36,21 +32,28 @@
   align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #2a2a30;
+  border-bottom: 1px solid var(--border, #334155);
 }
 
 .logo {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--text-main, #fff) 0%, var(--accent, #38bdf8) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
 }
 
 .user {
   font-size: 0.85rem;
-  color: #a1a1aa;
-  background: #24242a;
-  padding: 0.3rem 1rem;
+  color: var(--text-muted, #94a3b8);
+  background: color-mix(in srgb, var(--border, #334155) 50%, transparent);
+  padding: 0.35rem 1rem;
   border-radius: 2rem;
+  border: 1px solid var(--border, #334155);
 }
 
 .content {
@@ -60,34 +63,45 @@
 h2 {
   font-size: 1.5rem;
   font-weight: 600;
-  color: white;
+  color: var(--text-main, #ffffff);
   margin-bottom: 0.25rem;
 }
 
 .hint {
-  font-size: 0.85rem;
-  color: #a1a1aa;
+  font-size: 0.9rem;
+  color: var(--text-muted, #94a3b8);
   margin-bottom: 1.5rem;
 }
 
-.workspace {
+.workspace-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.workspace-btn {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 0.8rem;
-  margin-bottom: 0.5rem;
-  background: transparent;
-  border: 1px solid #2a2a30;
+  padding: 1rem;
+  background: var(--bg-main, #0f172a);
+  border: 1px solid var(--border, #334155);
   border-radius: 1rem;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s ease;
   text-align: left;
-}
 
-.workspace:hover {
-  background: #24242a;
-  border-color: #3a3a42;
+  &:hover:not(:disabled) {
+    border-color: var(--accent, #38bdf8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent, #38bdf8) 15%, transparent);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .workspace-left {
@@ -96,6 +110,7 @@ h2 {
   gap: 1rem;
 }
 
+/* Стилизация ролей с помощью CSS-переменных и color-mix */
 .avatar {
   width: 44px;
   height: 44px;
@@ -105,26 +120,23 @@ h2 {
   justify-content: center;
   font-weight: 600;
   font-size: 1.2rem;
-}
 
-.avatar.owner {
-  background: #2a1e12;
-  color: #f97316;
-}
-
-.avatar.admin {
-  background: #11223b;
-  color: #3b82f6;
-}
-
-.avatar.member {
-  background: #102a1c;
-  color: #22c55e;
-}
-
-.avatar.guest {
-  background: #2a2a30;
-  color: #a1a1aa;
+  &.owner {
+    background: color-mix(in srgb, #f97316 15%, transparent);
+    color: #f97316;
+  }
+  &.admin {
+    background: color-mix(in srgb, #3b82f6 15%, transparent);
+    color: #3b82f6;
+  }
+  &.member {
+    background: color-mix(in srgb, #22c55e 15%, transparent);
+    color: #22c55e;
+  }
+  &.guest {
+    background: color-mix(in srgb, var(--text-muted) 15%, transparent);
+    color: var(--text-muted);
+  }
 }
 
 .workspace-data {
@@ -133,62 +145,63 @@ h2 {
 }
 
 .workspace-name {
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: white;
-  margin-bottom: 0.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main, #ffffff);
+  margin-bottom: 0.15rem;
 }
 
 .workspace-code {
-  font-size: 0.7rem;
-  color: #a1a1aa;
+  font-size: 0.75rem;
+  color: var(--text-muted, #94a3b8);
   font-family: monospace;
 }
 
 .badge {
-  font-size: 0.7rem;
-  font-weight: 500;
-  padding: 0.25rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.8rem;
   border-radius: 2rem;
-  background: #24242a;
-  color: #a1a1aa;
-}
 
-.badge.owner {
-  background: #2a1e12;
-  color: #fb923c;
-}
-
-.badge.admin {
-  background: #11223b;
-  color: #60a5fa;
-}
-
-.badge.member {
-  background: #102a1c;
-  color: #4ade80;
-}
-
-.badge.guest {
-  background: #2a2a30;
-  color: #a1a1aa;
+  &.owner {
+    background: color-mix(in srgb, #f97316 15%, transparent);
+    color: #f97316;
+  }
+  &.admin {
+    background: color-mix(in srgb, #3b82f6 15%, transparent);
+    color: #3b82f6;
+  }
+  &.member {
+    background: color-mix(in srgb, #22c55e 15%, transparent);
+    color: #22c55e;
+  }
+  &.guest {
+    background: color-mix(in srgb, var(--text-muted) 15%, transparent);
+    color: var(--text-muted);
+  }
 }
 
 .footer {
-  border-top: 1px solid #2a2a30;
+  border-top: 1px solid var(--border, #334155);
   padding-top: 1.25rem;
+  text-align: center;
 }
 
 .back {
   background: none;
   border: none;
-  color: #a1a1aa;
-  font-size: 0.85rem;
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  padding: 0;
-  transition: color 0.15s;
+  transition: color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    color: var(--text-main, #ffffff);
+  }
 }
 
-.back:hover {
-  color: white;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

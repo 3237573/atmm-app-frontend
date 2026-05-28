@@ -30,7 +30,6 @@ export class RoleManager implements OnInit {
   }
 
   loadData() {
-    // Загружаем всё параллельно
     this.permissionService.getPermissions().subscribe(p => this.allPermissions = p);
     this.roleService.getWorkspaceRoles().subscribe(r => this.roles = r);
   }
@@ -51,10 +50,23 @@ export class RoleManager implements OnInit {
 
   saveRole() {
     if (!this.selectedRole) return;
+
     const ids = Array.from(this.selectedPermissionIds);
-    this.roleService.updateRolePermissions(this.selectedRole.id, ids).subscribe(() => {
-      alert('Права обновлены!');
-      this.loadData(); // Перезагружаем, чтобы обновить список ролей
+
+    // 🔥 Возвращаем боевой запрос к сервису
+    this.roleService.updateRolePermissions(this.selectedRole.id, ids).subscribe({
+      next: () => {
+        // Синхронизируем локальный объект, чтобы счётчик прав в UI обновился мгновенно
+        this.selectedRole!.permissionIds = ids;
+
+        // Перезагружаем общий список ролей с бэка
+        this.loadData();
+
+        console.log('Права роли успешно обновлены в базе!');
+      },
+      error: (err) => {
+        console.error('Произошла ошибка при сохранении прав:', err);
+      }
     });
   }
 }

@@ -1,5 +1,6 @@
 import {Component, computed, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router'; // ✨ Импортируем Router
 import {AuthService} from '../../services/auth.service';
 import {WorkspaceInfo} from '../../models/auth.model';
 
@@ -12,16 +13,17 @@ import {WorkspaceInfo} from '../../models/auth.model';
 })
 export class WorkspaceSelector {
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router); // ✨ Инжектим роутер
 
   loading = signal(false);
   workspaces = this.authService.availableWorkspaces;
 
   getRoleLabel(role: string): string {
     switch (role) {
-      case 'OWNER': return 'Owner';
-      case 'ADMIN': return 'Admin';
-      case 'MEMBER': return 'Member';
-      case 'GUEST': return 'Guest';
+      case 'OWNER': return 'Владелец';
+      case 'ADMIN': return 'Админ';
+      case 'MEMBER': return 'Участник';
+      case 'GUEST': return 'Гость';
       default: return role;
     }
   }
@@ -34,11 +36,13 @@ export class WorkspaceSelector {
 
     this.loading.set(true);
     this.authService.selectWorkspace(workspace.workspaceId, workspace.memberId).subscribe({
+      next: () => {
+        this.loading.set(false);
+        // ✨ Успешно выбрали пространство -> переходим в приложение!
+        this.router.navigate(['/tasks']);
+      },
       error: (err) => {
         console.error('Error selecting workspace', err);
-        this.loading.set(false);
-      },
-      complete: () => {
         this.loading.set(false);
       }
     });

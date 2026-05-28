@@ -1,36 +1,40 @@
 <div class="container">
   <div class="card">
     <div class="header">
-      <div class="logo">ATMM</div>
+<!--      <div class="logo">-->
+<!--        <span class="logo-icon">⚡</span> ATMM-->
+<!--      </div>-->
       <div class="user">{{ email() }}</div>
     </div>
 
     <div class="content">
-      <h2>Select workspace</h2>
-      <p class="hint">Choose a workspace to continue</p>
+      <h2>Выберите пространство</h2>
+      <p class="hint">Укажите рабочее пространство для продолжения</p>
 
-      @for (workspace of workspaces(); track workspace.workspaceId) {
-        <button class="workspace" (click)="selectWorkspace(workspace)">
-          <div class="workspace-left">
-            <!-- ✨ Используем глобальный класс avatar-role -->
-            <div class="avatar-role" [class]="workspace.role | lowercase">
-              {{ workspace.name.charAt(0) }}
+      <div class="workspace-list">
+        @for (workspace of workspaces(); track workspace.workspaceId) {
+          <button class="workspace-btn" (click)="selectWorkspace(workspace)" [disabled]="loading()">
+            <div class="workspace-left">
+              <div class="avatar" [class]="workspace.role | lowercase">
+                {{ workspace.name.charAt(0) | uppercase }}
+              </div>
+              <div class="workspace-data">
+                <div class="workspace-name">{{ workspace.name }}</div>
+                <div class="workspace-code">{{ workspace.code }}</div>
+              </div>
             </div>
-            <div class="workspace-data">
-              <div class="workspace-name">{{ workspace.name }}</div>
-              <div class="workspace-code">{{ workspace.code }}</div>
-            </div>
-          </div>
-          <!-- ✨ Используем глобальный класс badge-role -->
-          <span class="badge-role" [class]="workspace.role | lowercase">
-            {{ getRoleLabel(workspace.role) }}
-          </span>
-        </button>
-      }
+            <span class="badge" [class]="workspace.role | lowercase">
+              {{ getRoleLabel(workspace.role) }}
+            </span>
+          </button>
+        }
+      </div>
     </div>
 
     <div class="footer">
-      <button class="back" (click)="backToLogin()">← Switch account</button>
+      <button class="back" (click)="backToLogin()" [disabled]="loading()">
+        ← Сменить аккаунт
+      </button>
     </div>
   </div>
 </div>

@@ -20,6 +20,8 @@ export class Header {
   private readonly translocoService = inject(TranslocoService);
 
   readonly currentUserEmail = computed(() => this.authService.currentUser()?.email ?? '');
+  readonly currentWorkspaceName = computed(() => this.authService.currentWorkspace()?.name ?? '');
+
 
   readonly isAuthPage$ = this.router.events.pipe(
     filter(event => event instanceof NavigationEnd),

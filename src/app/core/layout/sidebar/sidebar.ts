@@ -1,5 +1,5 @@
 import {Component, HostBinding, OnInit, inject, signal, computed} from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {CommonModule} from '@angular/common';
 import {NavigationEnd, Router, RouterLink, RouterLinkActive} from '@angular/router';
 import {WorkspaceService} from '../../services/workspace.service';
 import {NavigationService} from '../../services/navigation.service';
@@ -22,12 +22,10 @@ interface MenuItem {
 })
 export class Sidebar implements OnInit {
   private readonly auth = inject(AuthService);
-  private readonly workspaceService = inject(WorkspaceService);
   private readonly navigationService = inject(NavigationService);
   private readonly router = inject(Router)
 
   isCollapsed = false;
-  workspaceName = signal<string>('ATMM');
 
   @HostBinding('class.collapsed') get collapsed() {
     return this.isCollapsed;
@@ -36,11 +34,11 @@ export class Sidebar implements OnInit {
   private readonly allMenuItems: MenuItem[] = [
     // { path: '/departments', icon: 'account_tree', label: 'Structure', permission: 'department:read' },
     // { path: '/projects', icon: 'folder_copy', label: 'Projects', permission: 'project:read' },
-    { path: '/members', icon: 'groups', label: 'Members', permission: 'user:read' },
-    { path: '/chat', icon: 'chat', label: 'Chat', permission: 'chat:read' },
-    { path: '/tasks', icon: 'task', label: 'Tasks', permission: 'task:read' },
-    { path: '/tracker', icon: 'schedule', label: 'Tracker', permission: 'tracker:read' },
-    { path: '/admin', icon: 'settings', label: 'Admin', permission: 'owner:owner' },
+    {path: '/members', icon: 'groups', label: 'Members', permission: 'user:read'},
+    {path: '/chat', icon: 'chat', label: 'Chat', permission: 'chat:read'},
+    {path: '/tasks', icon: 'task', label: 'Tasks', permission: 'task:read'},
+    {path: '/tracker', icon: 'schedule', label: 'Tracker', permission: 'tracker:read'},
+    {path: '/admin', icon: 'settings', label: 'Admin', permission: 'owner:owner'},
   ];
 
   menuItems = computed(() => {
@@ -58,26 +56,12 @@ export class Sidebar implements OnInit {
       this.isCollapsed = saved === 'true';
     }
 
-    this.loadWorkspaceName();
-
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
       const url = event.urlAfterRedirects;
       if (!url.includes('/login') && !url.includes('/select-workspace')) {
         this.navigationService.setLastRoute(url);
-      }
-    });
-  }
-
-  loadWorkspaceName() {
-    this.workspaceService.getWorkspace().subscribe({
-      next: (workspace) => {
-        this.workspaceName.set(workspace.name);
-      },
-      error: () => {
-        // Если не загрузилось, оставляем 'ATMM'
-        this.workspaceName.set('ATMM');
       }
     });
   }
