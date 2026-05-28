@@ -271,7 +271,7 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
 
   canManageAssignees(): boolean {
     const task = this.task();
-    return !!task && task.creatorMembershipId === this.currentUser()?.id;
+    return !!task && task.creatorMemberId === this.currentUser()?.id;
   }
 
   canEditTask(): boolean {

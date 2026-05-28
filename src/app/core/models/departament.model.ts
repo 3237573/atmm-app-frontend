@@ -1,8 +1,8 @@
 export interface DepartmentRO {
   id: string;
-  companyId: string;
+  workspaceId: string;
   parentDepartmentId: string | null;
-  headMembershipId: string | null;
+  headMemberId: string | null;
   name: string;
   status: string;
   // Можно добавить для удобства фронта
@@ -13,7 +13,7 @@ export interface DepartmentRO {
 export interface CreateDepartmentRequest {
   name: string;
   parentDepartmentId?: string | null;
-  headMembershipId?: string | null;
+  headMemberId?: string | null;
 }
 
 export interface UpdateDepartmentRequest {
@@ -21,11 +21,11 @@ export interface UpdateDepartmentRequest {
 }
 
 export interface SetDepartmentHeadRequest {
-  headMembershipId: string;
+  headMemberId: string;
 }
 
 export interface AssignEmployeeRequest {
-  membershipId: string;
+  memberId: string;
 }
 
 export interface DepartmentAffiliation {

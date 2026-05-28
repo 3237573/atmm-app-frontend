@@ -29,16 +29,16 @@ export class ProjectService {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
-  assignEmployee(projectId: string, membershipId: string, roleInProject: string): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/${projectId}/members`, {membershipId, roleInProject});
+  assignEmployee(projectId: string, memberId: string, roleInProject: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${projectId}/members`, {memberId, roleInProject});
   }
 
-  updateEmployeeRole(projectId: string, membershipId: string, role: string) {
-    return this.http.patch(`/v1/departments/${projectId}/members/${membershipId}`, { role });
+  updateEmployeeRole(projectId: string, memberId: string, role: string) {
+    return this.http.patch(`/v1/departments/${projectId}/members/${memberId}`, { role });
   }
 
 
-  removeEmployee(projectId: string, membershipId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${projectId}/members/${membershipId}`);
+  removeEmployee(projectId: string, memberId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${projectId}/members/${memberId}`);
   }
 }

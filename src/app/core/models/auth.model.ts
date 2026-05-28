@@ -7,8 +7,8 @@ export interface IUser {
   displayName?: string;
 }
 
-export interface IMembership {
-  id: string;           // membershipId - основной идентификатор в компании
+export interface IMember {
+  id: string;           // memberId - основной идентификатор в пространства
   userId: string;       // глобальный userId (для справки)
   email: string;
   fullName?: string;
@@ -16,26 +16,26 @@ export interface IMembership {
   role: string;
 }
 
-export interface CompanyInfo {
-  companyId: string;
+export interface WorkspaceInfo {
+  workspaceId: string;
   name: string;
   code: string;
   role: string;
   displayName: string;
-  membershipId: string;
+  memberId: string;
 }
 
 export interface AuthMeResponse {
-  membership: IMembership;
-  company: CompanyInfo;
+  member: IMember;
+  workspace: WorkspaceInfo;
   permissions: string[];
 }
 
-export interface UserCompaniesResponse {
+export interface UserWorkspacesResponse {
   userId: string;
   email: string;
   fullName?: string;
-  companies: CompanyInfo[];
+  workspaces: WorkspaceInfo[];
 }
 
-export interface IUser extends IMembership {}
+export interface IUser extends IMember {}

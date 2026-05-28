@@ -20,7 +20,7 @@ export interface ChatMessage {
   encrypted: boolean;
   timestamp: string;
   senderName: string;
-  senderMembershipId: string;
+  senderMemberId: string;
   type: 'TEXT' | 'IMAGE' | 'FILE' | 'VOICE' | 'VIDEO' | 'SYSTEM';
   roomId: string;
   replyToMessageId?: string;
@@ -67,8 +67,8 @@ export type WebSocketMessage =
 export type WebSocketResponse =
   | { type: 'room_read'; message: ChatMessage }
   | { type: 'new_message'; message: ChatMessage }
-  | { type: 'message_seen'; messageId: string; membershipId: string }
-  | { type: 'typing_indicator'; roomId: string; membershipId: string; isTyping: boolean }
+  | { type: 'message_seen'; messageId: string; memberId: string }
+  | { type: 'typing_indicator'; roomId: string; memberId: string; isTyping: boolean }
   | { type: 'call_offer'; fromId: string; sdp: string; callType: string }
   | { type: 'call_answer'; fromId: string; sdp: string }
   | { type: 'call_ice'; fromId: string; candidate: string }

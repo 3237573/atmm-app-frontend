@@ -1,6 +1,6 @@
 export interface Category {
   id?: string;
-  companyId?: string | null;
+  workspaceId?: string | null;
   name: string;
   slug: string;
   color?: string;

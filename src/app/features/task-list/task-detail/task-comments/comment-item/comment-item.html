@@ -16,7 +16,7 @@
       <!-- Одна строка: автор время : текст + кнопки справа -->
       <div class="comment-header-row">
         <div class="comment-line">
-          <span class="comment-author">{{ (currentMembership()?.id === comment.authorId) ? 'Я' : comment.authorName }}</span>
+          <span class="comment-author">{{ (currentMember()?.id === comment.authorId) ? 'Я' : comment.authorName }}</span>
           <span class="comment-date">{{ formatDate(comment.createdAt) }}</span>
           @if (comment.status === 'EDITED') {
             <span class="comment-edited">(изменено)</span>
@@ -45,7 +45,7 @@
     @if (showReplyForm()) {
       <div class="reply-form">
         <div class="reply-avatar">
-          {{ (currentMembership()?.fullName || currentMembership()?.email || 'U').charAt(0).toUpperCase() }}
+          {{ (currentMember()?.fullName || currentMember()?.email || 'U').charAt(0).toUpperCase() }}
         </div>
         <div class="reply-input-wrapper">
           <textarea

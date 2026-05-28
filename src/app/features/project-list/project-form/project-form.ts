@@ -115,20 +115,20 @@ export class ProjectForm implements OnInit {
     return this.allMembers().filter(m => !memberInProject.has(m.id));
   });
 
-  assignMember(data: { membershipId: string; role: string }) {
+  assignMember(data: { memberId: string; role: string }) {
     const projectId = this.currentId();
     if (!projectId) return;
 
-    this.projectService.assignEmployee(projectId, data.membershipId, data.role).subscribe(() => {
+    this.projectService.assignEmployee(projectId, data.memberId, data.role).subscribe(() => {
       this.loadProjectDetails(projectId); // Перезагружаем проект с новым списком участников
     });
   }
 
-  removeMember(membershipId: string) {
+  removeMember(memberId: string) {
     const projectId = this.currentId();
     if (!projectId || !confirm('Удалить участника из проекта?')) return;
 
-    this.projectService.removeEmployee(projectId, membershipId).subscribe(() => {
+    this.projectService.removeEmployee(projectId, memberId).subscribe(() => {
       this.loadProjectDetails(projectId);
     });
   }

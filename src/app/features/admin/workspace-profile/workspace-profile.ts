@@ -1,29 +1,29 @@
 import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ICompany } from '../../../core/models/company.model';
-import { CompanyService } from '../../../core/services/company.service';
+import { IWorkspace } from '../../../core/models/workspace.model';
+import { WorkspaceService } from '../../../core/services/workspace.service';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { BackOnEscapeDirective } from '../../../core/directives/back-on-escape.directive';
 
 @Component({
-  selector: 'app-company-profile',
+  selector: 'app-workspace-profile',
   standalone: true,
   imports: [CommonModule, FormsModule, ClipboardModule, BackOnEscapeDirective],
-  templateUrl: './company-profile.html',
-  styleUrls: ['./company-profile.scss'],
+  templateUrl: './workspace-profile.html',
+  styleUrls: ['./workspace-profile.scss'],
 })
-export class CompanyProfile implements OnInit, OnDestroy {
+export class WorkspaceProfile implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
-  private readonly companyService = inject(CompanyService);
+  private readonly workspaceService = inject(WorkspaceService);
   private readonly destroy$ = new Subject<void>();
 
   copySuccess = false;
-  canEdit = computed(() => this.authService.hasPermission('company:update'));
+  canEdit = computed(() => this.authService.hasPermission('workspace:update'));
 
-  company: ICompany = { name: '', code: '', owner: { email: '', displayName: '' }, status: 'ACTIVE' };
+  workspace: IWorkspace = { name: '', code: '', owner: { email: '', displayName: '' }, status: 'ACTIVE' };
   loading = true;
   saving = false;
   editing = false;
@@ -31,7 +31,7 @@ export class CompanyProfile implements OnInit, OnDestroy {
   successMessage = '';
 
   ngOnInit(): void {
-    this.loadCompany();
+    this.loadWorkspace();
   }
 
   ngOnDestroy(): void {
@@ -46,21 +46,21 @@ export class CompanyProfile implements OnInit, OnDestroy {
     }, 2000);
   }
 
-  loadCompany(): void {
+  loadWorkspace(): void {
     this.loading = true;
-    this.companyService.getCompany()
+    this.workspaceService.getWorkspace()
       .pipe(takeUntil(this.destroy$), finalize(() => this.loading = false))
       .subscribe({
-        next: data => this.company = data,
-        error: () => this.errorMessage = 'Не удалось загрузить данные компании'
+        next: data => this.workspace = data,
+        error: () => this.errorMessage = 'Не удалось загрузить данные пространства'
       });
   }
 
   saveChanges(): void {
     if (!this.canEdit()) return;
 
-    const name = this.company.name?.trim();
-    const code = this.company.code?.trim();
+    const name = this.workspace.name?.trim();
+    const code = this.workspace.code?.trim();
 
     if (!name || !code) {
       this.errorMessage = 'Все поля обязательны для заполнения';
@@ -69,11 +69,11 @@ export class CompanyProfile implements OnInit, OnDestroy {
 
     this.saving = true;
     this.errorMessage = '';
-    this.companyService.updateCompany({ name, code })
+    this.workspaceService.updateWorkspace({ name, code })
       .pipe(takeUntil(this.destroy$), finalize(() => this.saving = false))
       .subscribe({
         next: updated => {
-          this.company = { ...this.company, ...updated };
+          this.workspace = { ...this.workspace, ...updated };
           this.successMessage = 'Данные успешно обновлены';
           this.editing = false;
           setTimeout(() => this.successMessage = '', 3000);
@@ -84,6 +84,6 @@ export class CompanyProfile implements OnInit, OnDestroy {
 
   cancelEditing(): void {
     this.editing = false;
-    this.loadCompany();
+    this.loadWorkspace();
   }
 }

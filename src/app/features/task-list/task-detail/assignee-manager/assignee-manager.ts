@@ -27,12 +27,12 @@ export class AssigneeManager implements OnInit {
   private readonly taskService = inject(TaskService);
 
   departmentMembers = signal<MemberRO[]>([]);
-  selectedMembershipIds = signal<string[]>([]);
+  selectedMemberIds = signal<string[]>([]);
   loading = signal(true); // Используем ОДИН этот сигнал для контроля UI
   saving = signal(false);
   searchQuery = signal('');
 
-  currentMembershipId = this.authService.currentMembership()?.id;
+  currentMemberId = this.authService.currentMember()?.id;
 
   ngOnInit(): void {
     this.loadDepartmentMembers(this.task.departmentId);
@@ -46,7 +46,7 @@ export class AssigneeManager implements OnInit {
         this.task.assigneeIds = (this.task.assigneeIds || []).filter(id =>
           members.some(m => m.id === id)
         );
-        this.selectedMembershipIds.set(this.task.assigneeIds || []);
+        this.selectedMemberIds.set(this.task.assigneeIds || []);
         this.loading.set(false);
       },
       error: (err) => {
@@ -67,23 +67,23 @@ export class AssigneeManager implements OnInit {
     );
   }
 
-  isSelected(membershipId: string): boolean {
-    return this.selectedMembershipIds().includes(membershipId);
+  isSelected(memberId: string): boolean {
+    return this.selectedMemberIds().includes(memberId);
   }
 
-  toggleAssignee(membershipId: string): void {
-    const current = this.selectedMembershipIds();
-    if (current.includes(membershipId)) {
-      this.selectedMembershipIds.set(current.filter(id => id !== membershipId));
+  toggleAssignee(memberId: string): void {
+    const current = this.selectedMemberIds();
+    if (current.includes(memberId)) {
+      this.selectedMemberIds.set(current.filter(id => id !== memberId));
     } else {
-      this.selectedMembershipIds.set([...current, membershipId]);
+      this.selectedMemberIds.set([...current, memberId]);
     }
   }
 
   saveAssignees(): void {
     this.saving.set(true);
     this.taskService.updateTask(this.task.id, {
-      assigneeMembershipIds: this.selectedMembershipIds()
+      assigneeMemberIds: this.selectedMemberIds()
     }).subscribe({
       next: () => {
         this.saving.set(false);

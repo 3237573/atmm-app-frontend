@@ -3,7 +3,7 @@
 <div class="admin-container" *transloco="let t" appBackOnEscape>
   <header class="admin-header">
     <div class="header-left-group">
-      <h1>{{ t('company.menu.admin') }}</h1>
+      <h1>{{ t('workspace.menu.admin') }}</h1>
       <div class="header-actions">
         @if (canRecalculate()) {
           <button class="btn btn-amber" (click)="recalculate()" [disabled]="isRecalculating()">
@@ -31,12 +31,12 @@
       <h2 class="panel-title">{{ t('nav.allCategories') }}</h2>
       <div class="category-grid-list">
         @for (cat of categories(); track cat.id) {
-          <div class="category-grid-row" [class.readonly]="!cat.companyId" (click)="openCategoryModal(cat)">
+          <div class="category-grid-row" [class.readonly]="!cat.workspaceId" (click)="openCategoryModal(cat)">
             <div class="cell-dot"><span class="status-dot" [style.background-color]="cat.color"></span></div>
             <div class="cell-icon"><i class="material-icons">{{ cat.icon || 'folder' }}</i></div>
             <div class="cell-name">{{ cat.name }}</div>
             <div class="cell-slug">{{ cat.slug }}</div>
-            @if (cat.companyId && canDelete()) {
+            @if (cat.workspaceId && canDelete()) {
               <div class="cell-actions">
                 <button class="delete-cat-icon" (click)="deleteCategory(cat.id, $event)">
                   <i class="material-icons">delete_outline</i>

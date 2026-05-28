@@ -35,24 +35,24 @@ export class DepartmentService {
     return this.http.delete<{ success: boolean }>(`${this.baseUrl}/${id}`);
   }
 
-  assignEmployee(departmentId: string, membershipId: string, roleInDepartment: string): Observable<void> {
-    // На бэкенде: POST /v1/departments/{id}/employees с телом { membershipId }
-    return this.http.post<void>(`${this.baseUrl}/${departmentId}/employees`, {membershipId, roleInDepartment});
+  assignEmployee(departmentId: string, memberId: string, roleInDepartment: string): Observable<void> {
+    // На бэкенде: POST /v1/departments/{id}/employees с телом { memberId }
+    return this.http.post<void>(`${this.baseUrl}/${departmentId}/employees`, {memberId, roleInDepartment});
   }
 
-  updateEmployeeRole(departmentId: string, membershipId: string, role: string) {
-    return this.http.patch(`/v1/departments/${departmentId}/employees/${membershipId}`, { role });
+  updateEmployeeRole(departmentId: string, memberId: string, role: string) {
+    return this.http.patch(`/v1/departments/${departmentId}/employees/${memberId}`, { role });
   }
 
 
-  removeEmployee(departmentId: string, membershipId: string): Observable<void> {
-    // На бэкенде: DELETE /v1/departments/employees/{membershipId}
-    return this.http.delete<void>(`${this.baseUrl}/${departmentId}/employees/${membershipId}`);
+  removeEmployee(departmentId: string, memberId: string): Observable<void> {
+    // На бэкенде: DELETE /v1/departments/employees/{memberId}
+    return this.http.delete<void>(`${this.baseUrl}/${departmentId}/employees/${memberId}`);
   }
 
-  setHead(departmentId: string, headMembershipId: string): Observable<void> {
+  setHead(departmentId: string, headMemberId: string): Observable<void> {
     // На бэкенде: PUT /v1/departments/{id}/head
-    return this.http.patch<void>(`${this.baseUrl}/${departmentId}/head`, {headMembershipId});
+    return this.http.patch<void>(`${this.baseUrl}/${departmentId}/head`, {headMemberId});
   }
 
 }

@@ -1,15 +1,15 @@
 export interface ProjectMemberRO {
-  membershipId: string;
+  memberId: string;
   roleInProject?: string;
   joinedAt?: string;
 }
 
 export interface ProjectRO {
   id: string;
-  companyId: string;
+  workspaceId: string;
   title: string;
   description?: string;
-  creatorMembershipId?: string;
+  creatorMemberId?: string;
   status: 'ACTIVE' | 'ARCHIVED' | 'DRAFT';
   parentProjectId?: string | null;
   members: ProjectMemberRO[];

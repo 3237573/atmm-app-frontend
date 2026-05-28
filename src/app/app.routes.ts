@@ -89,7 +89,7 @@ export const routes: Routes = [
           {
             path: '',
             loadComponent: () => import('./features/department-list/department-list').then(m => m.DepartmentList),
-            title: 'Структура компании'
+            title: 'Структура пространства'
           },
           {
             path: 'create',

@@ -12,7 +12,7 @@
   <div class="page-header">
     <div class="header-text">
       <h2><i class="material-icons">admin_panel_settings</i> Управление пользователями</h2>
-      <p>Управление доступом, ролями и правами пользователей в вашей компании</p>
+      <p>Управление доступом, ролями и правами пользователей в вашей пространства</p>
     </div>
     @if (canCreate()) {
       <button class="btn-primary" (click)="toggleInviteForm()">
@@ -123,7 +123,7 @@
           }
         </div>
         <div class="input-group">
-          <label><i class="material-icons">badge</i> Имя в компании *</label>
+          <label><i class="material-icons">badge</i> Имя в пространства *</label>
           <input type="text" [(ngModel)]="inviteData.displayName" placeholder="Как будем называть?">
         </div>
         <div class="input-group">
@@ -236,7 +236,7 @@
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header"><h3>Редактировать сотрудника</h3><button class="close-btn" (click)="showEditModal.set(false)">×</button></div>
       <div class="modal-body">
-        <div class="input-group"><label>Имя в компании</label><input [(ngModel)]="editingMember()!.displayName" placeholder="Введите имя"></div>
+        <div class="input-group"><label>Имя в пространства</label><input [(ngModel)]="editingMember()!.displayName" placeholder="Введите имя"></div>
         <div class="input-group"><label>Роль</label><select [(ngModel)]="editingMember()!.roleName"><option value="OWNER">👑 Owner</option><option value="ADMIN">⚙️ Admin</option><option value="MEMBER">👥 Member</option><option value="GUEST">👤 Guest</option></select></div>
         <div class="info-box"><i class="material-icons">info</i><small>Email пользователя: {{ editingMember()!.email }}</small></div>
       </div>

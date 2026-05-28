@@ -49,14 +49,14 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
   priority = signal<TaskPriority>('MEDIUM');
   selectedDepartmentId = signal<string>('');
   projectId = signal<string>('');
-  assigneeMembershipIds = signal<string[]>([]);
+  assigneeMemberIds = signal<string[]>([]);
   dueDate = signal('');
 
   // ========== Валидация (computed) ==========
   isFormValid = computed(() => {
     const hasTitle = this.title().trim().length > 0;
     const hasDepartment = this.selectedDepartmentId() !== '';
-    const hasAssignees = this.assigneeMembershipIds().length > 0;
+    const hasAssignees = this.assigneeMemberIds().length > 0;
     return hasTitle && hasDepartment && hasAssignees;
   });
 
@@ -67,7 +67,7 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     priority: 'MEDIUM' as TaskPriority,
     departmentId: '',
     projectId: '',
-    assigneeMembershipIds: [] as string[],
+    assigneeMemberIds: [] as string[],
     dueDate: ''
   });
 
@@ -78,7 +78,7 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
 
     this.route.queryParams.subscribe(params => {
       if (params['parentId']) this.parentTaskId = params['parentId'];
-      if (params['assigneeId']) this.assigneeMembershipIds.set([params['assigneeId']]);
+      if (params['assigneeId']) this.assigneeMemberIds.set([params['assigneeId']]);
       if (params['title']) this.title.set(params['title']);
       this.saveInitialData();
     });
@@ -89,7 +89,7 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
         this.loadDepartmentMembers(deptId);
       } else {
         this.departmentMembers.set([]);
-        this.assigneeMembershipIds.set([]);
+        this.assigneeMemberIds.set([]);
       }
     });
   }
@@ -141,10 +141,10 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     this.departmentService.getDepartmentEmployees(departmentId).subscribe({
       next: (members) => {
         this.departmentMembers.set(members);
-        const validIds = this.assigneeMembershipIds().filter(id =>
+        const validIds = this.assigneeMemberIds().filter(id =>
           members.some(m => m.id === id)
         );
-        this.assigneeMembershipIds.set(validIds);
+        this.assigneeMemberIds.set(validIds);
         this.loadingMembers.set(false);
       },
       error: (err) => {
@@ -163,7 +163,7 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
       priority: this.priority(),
       departmentId: this.selectedDepartmentId(),
       projectId: this.projectId(),
-      assigneeMembershipIds: [...this.assigneeMembershipIds()],
+      assigneeMemberIds: [...this.assigneeMemberIds()],
       dueDate: this.dueDate()
     });
   }
@@ -171,8 +171,8 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
   // ========== Проверка наличия несохранённых изменений ==========
   hasUnsavedChanges(): boolean {
     const initial = this.initialData();
-    const currentAssignees = [...this.assigneeMembershipIds()].sort();
-    const initialAssignees = [...initial.assigneeMembershipIds].sort();
+    const currentAssignees = [...this.assigneeMemberIds()].sort();
+    const initialAssignees = [...initial.assigneeMemberIds].sort();
     return this.title() !== initial.title ||
       this.description() !== initial.description ||
       this.priority() !== initial.priority ||
@@ -195,7 +195,7 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     if (!this.isFormValid()) return;
 
     const departmentId = this.selectedDepartmentId();
-    const validMembershipIds = this.assigneeMembershipIds().filter(id =>
+    const validMemberIds = this.assigneeMemberIds().filter(id =>
       this.departmentMembers().some(m => m.id === id)
     );
 
@@ -206,7 +206,7 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
       priority: this.priority(),
       departmentId: departmentId,
       projectId: this.projectId() || undefined,
-      assigneeIds: validMembershipIds,
+      assigneeIds: validMemberIds,
       dueDate: this.dueDate() || undefined,
       parentTaskId: this.parentTaskId
     };
@@ -226,17 +226,17 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
   }
 
   // ========== Управление исполнителями ==========
-  toggleAssignee(membershipId: string): void {
-    const current = this.assigneeMembershipIds();
-    if (current.includes(membershipId)) {
-      this.assigneeMembershipIds.set(current.filter(id => id !== membershipId));
+  toggleAssignee(memberId: string): void {
+    const current = this.assigneeMemberIds();
+    if (current.includes(memberId)) {
+      this.assigneeMemberIds.set(current.filter(id => id !== memberId));
     } else {
-      this.assigneeMembershipIds.set([...current, membershipId]);
+      this.assigneeMemberIds.set([...current, memberId]);
     }
   }
 
-  isSelected(membershipId: string): boolean {
-    return this.assigneeMembershipIds().includes(membershipId);
+  isSelected(memberId: string): boolean {
+    return this.assigneeMemberIds().includes(memberId);
   }
 
   onDepartmentChange(departmentId: string): void {

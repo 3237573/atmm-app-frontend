@@ -24,7 +24,7 @@ export class Register {
     fullName: ['', Validators.required],
     displayName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
-    companyName: ['', Validators.required],
+    workspaceName: ['', Validators.required],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
@@ -40,7 +40,7 @@ export class Register {
       fullName: formValue.fullName,
       displayName: formValue.displayName,
       email: formValue.email,
-      companyName: formValue.companyName,
+      workspaceName: formValue.workspaceName,
       password: formValue.password
     }).subscribe({
       next: (res) => {

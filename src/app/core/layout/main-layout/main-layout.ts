@@ -19,7 +19,6 @@ import {AsyncPipe} from '@angular/common';
   styleUrl: './main-layout.scss',
 })
 export class MainLayout {
-  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
   // Проверяем, не на странице ли мы логина/регистрации

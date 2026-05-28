@@ -1,4 +1,4 @@
-<div class="company-profile" appBackOnEscape>
+<div class="workspace-profile" appBackOnEscape>
   <div class="settings-card">
     <div class="card-header">
       <div class="card-title">Основная информация</div>
@@ -15,26 +15,26 @@
 
     <div class="settings-row">
       <div class="settings-field half">
-        <label>Название компании</label>
+        <label>Название пространства</label>
         <div class="field-value">
           @if (editing) {
-            <input type="text" [(ngModel)]="company.name" placeholder="Название"/>
+            <input type="text" [(ngModel)]="workspace.name" placeholder="Название"/>
           } @else {
-            <span class="readonly">{{ company.name || '—' }}</span>
+            <span class="readonly">{{ workspace.name || '—' }}</span>
           }
         </div>
       </div>
 
       <div class="settings-field half">
-        <label>Код компании</label>
+        <label>Код пространства</label>
         <div class="field-value code-container">
           @if (editing) {
-            <input type="text" [(ngModel)]="company.code" placeholder="Код"/>
+            <input type="text" [(ngModel)]="workspace.code" placeholder="Код"/>
           } @else {
-            <code>{{ company.code }}</code>
+            <code>{{ workspace.code }}</code>
             <button
               class="copy-btn"
-              [cdkCopyToClipboard]="company.code"
+              [cdkCopyToClipboard]="workspace.code"
               (click)="onCopy()"
               [class.success]="copySuccess"
               type="button">
@@ -51,8 +51,8 @@
         <label>Владелец</label>
         <div class="field-value">
           <div class="owner-info">
-            <span class="owner-name">{{ company.owner.displayName || company.owner.email }}</span>
-            <span class="owner-email">{{ company.owner.email }}</span>
+            <span class="owner-name">{{ workspace.owner.displayName || workspace.owner.email }}</span>
+            <span class="owner-email">{{ workspace.owner.email }}</span>
           </div>
         </div>
       </div>
@@ -61,8 +61,8 @@
         <label>Статус</label>
         <div class="field-value">
           <div class="status-wrapper">
-            <span class="status-dot" [class.active]="company.status === 'ACTIVE'"></span>
-            <span>{{ company.status === 'ACTIVE' ? 'Активна' : 'Архивирована' }}</span>
+            <span class="status-dot" [class.active]="workspace.status === 'ACTIVE'"></span>
+            <span>{{ workspace.status === 'ACTIVE' ? 'Активна' : 'Архивирована' }}</span>
           </div>
         </div>
       </div>

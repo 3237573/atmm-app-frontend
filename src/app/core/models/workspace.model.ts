@@ -1,7 +1,7 @@
 import {IMemberVO} from './member.model';
 
-export interface ICompany {
-  companyId?: string;
+export interface IWorkspace {
+  workspaceId?: string;
   name: string;
   code: string;
   owner: IMemberVO;

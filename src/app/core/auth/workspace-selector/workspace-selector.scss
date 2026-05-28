@@ -1,4 +1,4 @@
-// company-selector.scss
+// workspace-selector.scss
 @use '../auth' as *;
 @use "../../../app.scss" as *;
 
@@ -70,7 +70,7 @@ h2 {
   margin-bottom: 1.5rem;
 }
 
-.company {
+.workspace {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -85,12 +85,12 @@ h2 {
   text-align: left;
 }
 
-.company:hover {
+.workspace:hover {
   background: #24242a;
   border-color: #3a3a42;
 }
 
-.company-left {
+.workspace-left {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -127,19 +127,19 @@ h2 {
   color: #a1a1aa;
 }
 
-.company-data {
+.workspace-data {
   display: flex;
   flex-direction: column;
 }
 
-.company-name {
+.workspace-name {
   font-size: 0.95rem;
   font-weight: 500;
   color: white;
   margin-bottom: 0.2rem;
 }
 
-.company-code {
+.workspace-code {
   font-size: 0.7rem;
   color: #a1a1aa;
   font-family: monospace;

@@ -18,7 +18,7 @@ export class NavigationService {
   }
 
   setLastRoute(route: string): void {
-    if (route && !route.includes('/login') && !route.includes('/select-company')) {
+    if (route && !route.includes('/login') && !route.includes('/select-workspace')) {
       localStorage.setItem(this.storageKey, route);
     }
   }

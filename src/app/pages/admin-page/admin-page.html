@@ -1,7 +1,7 @@
 <div class="admin-page" appBackOnEscape>
   <header class="page-header">
     <div class="header-info">
-      <h2>Company</h2>
+      <h2>Workspace</h2>
     </div>
 
     <nav class="admin-tabs">
@@ -19,7 +19,7 @@
   <section class="admin-content">
     @switch (activeTab) {
       @case ('profile') {
-        <app-company-profile></app-company-profile>
+        <app-workspace-profile></app-workspace-profile>
       }
       @case ('departments') {
         <app-department-list></app-department-list>

@@ -102,7 +102,7 @@ export class DepartmentDetail implements OnInit {
     const payload = {
       name: dept.name,
       parentDepartmentId: dept.parentDepartmentId || null,
-      headMembershipId: dept.headMembershipId || null
+      headMemberId: dept.headMemberId || null
     };
 
     const request$ = this.isNew()
@@ -124,16 +124,16 @@ export class DepartmentDetail implements OnInit {
     return affiliation ? affiliation.role : 'Участник';
   }
 
-  getMemberName(membershipId: string): string {
-    const member = this.allMembers().find(m => m.id === membershipId);
+  getMemberName(memberId: string): string {
+    const member = this.allMembers().find(m => m.id === memberId);
     return member ? member.displayName : 'Не найден';
   }
 
-  assignHead(membershipId: string) {
+  assignHead(memberId: string) {
     const deptId = this.department()?.id;
     if (!deptId) return;
 
-    this.deptService.setHead(deptId, membershipId).subscribe({
+    this.deptService.setHead(deptId, memberId).subscribe({
       next: () => {
         this.showHeadModal.set(false);
         this.loadData(deptId);
@@ -143,11 +143,11 @@ export class DepartmentDetail implements OnInit {
   }
 
 
-  assignMember(membershipId: string, roleInDepartment: string) {
+  assignMember(memberId: string, roleInDepartment: string) {
     const deptId = this.department()?.id;
     if (!deptId) return;
 
-    this.deptService.assignEmployee(deptId, membershipId, roleInDepartment).subscribe({
+    this.deptService.assignEmployee(deptId, memberId, roleInDepartment).subscribe({
       next: () => {
         this.showAddMemberModal.set(false);
         this.loadData(deptId);
@@ -155,10 +155,10 @@ export class DepartmentDetail implements OnInit {
     });
   }
 
-  removeFromDept(membershipId: string) {
+  removeFromDept(memberId: string) {
     const deptId = this.department()?.id;
     if (deptId && confirm('Убрать сотрудника из отдела?')) {
-      this.deptService.removeEmployee(deptId, membershipId).subscribe(() => {
+      this.deptService.removeEmployee(deptId, memberId).subscribe(() => {
         this.loadData(deptId);
       });
     }
@@ -168,11 +168,11 @@ export class DepartmentDetail implements OnInit {
     this.navService.back('/departments');
   }
 
-  updateRole(membershipId: string, newRole: string) {
+  updateRole(memberId: string, newRole: string) {
     const deptId = this.department()?.id;
     if (!deptId) return;
 
-    this.deptService.updateEmployeeRole(deptId, membershipId, newRole).subscribe({
+    this.deptService.updateEmployeeRole(deptId, memberId, newRole).subscribe({
       next: () => this.loadData(deptId)
     });
   }

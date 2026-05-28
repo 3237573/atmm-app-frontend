@@ -75,9 +75,9 @@
           <div class="form-group" style="margin-top: 1rem;">
             <label>Глава отдела</label>
 
-            @if (dept.headMembershipId) {
+            @if (dept.headMemberId) {
               <p class="current-head">
-                Текущий: {{ getMemberName(dept.headMembershipId) }}
+                Текущий: {{ getMemberName(dept.headMemberId) }}
               </p>
             } @else {
               <p class="current-head empty">Глава не назначен</p>

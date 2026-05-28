@@ -1,7 +1,7 @@
 export interface RoleResponse {
   id: string;
   name: string;
-  companyId: string;
+  workspaceId: string;
   permissions: string[];   // Имена: ['user:read', 'user:create']
   permissionIds: string[]; // UUID: ['...', '...']
 }

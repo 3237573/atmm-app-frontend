@@ -32,7 +32,7 @@ export class RoleManager implements OnInit {
   loadData() {
     // Загружаем всё параллельно
     this.permissionService.getPermissions().subscribe(p => this.allPermissions = p);
-    this.roleService.getCompanyRoles().subscribe(r => this.roles = r);
+    this.roleService.getWorkspaceRoles().subscribe(r => this.roles = r);
   }
 
   selectRole(role: RoleResponse) {

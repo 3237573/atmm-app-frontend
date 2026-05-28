@@ -286,7 +286,7 @@ export class MembersAdmin implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.loadMembers();
-            this.showToast('Сотрудник исключен из компании', 'success');
+            this.showToast('Сотрудник исключен из пространства', 'success');
           },
           error: (err) => this.showToast(err.error?.error || 'Ошибка удаления', 'error')
         });

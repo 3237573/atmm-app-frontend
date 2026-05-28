@@ -29,7 +29,7 @@ export class DepartmentCreate implements OnInit {
   formData: CreateDepartmentRequest = {
     name: '',
     parentDepartmentId: null,
-    headMembershipId: null
+    headMemberId: null
   };
 
   ngOnInit() {

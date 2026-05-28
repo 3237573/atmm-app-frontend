@@ -1,7 +1,7 @@
 import {Component, HostBinding, OnInit, inject, signal, computed} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {NavigationEnd, Router, RouterLink, RouterLinkActive} from '@angular/router';
-import {CompanyService} from '../../services/company.service';
+import {WorkspaceService} from '../../services/workspace.service';
 import {NavigationService} from '../../services/navigation.service';
 import {filter} from 'rxjs';
 import {AuthService} from '../../services/auth.service';
@@ -22,12 +22,12 @@ interface MenuItem {
 })
 export class Sidebar implements OnInit {
   private readonly auth = inject(AuthService);
-  private readonly companyService = inject(CompanyService);
+  private readonly workspaceService = inject(WorkspaceService);
   private readonly navigationService = inject(NavigationService);
   private readonly router = inject(Router)
 
   isCollapsed = false;
-  companyName = signal<string>('ATMM');
+  workspaceName = signal<string>('ATMM');
 
   @HostBinding('class.collapsed') get collapsed() {
     return this.isCollapsed;
@@ -58,26 +58,26 @@ export class Sidebar implements OnInit {
       this.isCollapsed = saved === 'true';
     }
 
-    this.loadCompanyName();
+    this.loadWorkspaceName();
 
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
       const url = event.urlAfterRedirects;
-      if (!url.includes('/login') && !url.includes('/select-company')) {
+      if (!url.includes('/login') && !url.includes('/select-workspace')) {
         this.navigationService.setLastRoute(url);
       }
     });
   }
 
-  loadCompanyName() {
-    this.companyService.getCompany().subscribe({
-      next: (company) => {
-        this.companyName.set(company.name);
+  loadWorkspaceName() {
+    this.workspaceService.getWorkspace().subscribe({
+      next: (workspace) => {
+        this.workspaceName.set(workspace.name);
       },
       error: () => {
         // Если не загрузилось, оставляем 'ATMM'
-        this.companyName.set('ATMM');
+        this.workspaceName.set('ATMM');
       }
     });
   }

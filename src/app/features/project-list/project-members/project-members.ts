@@ -17,7 +17,7 @@ export class ProjectMembersComponent {
   loading = input<boolean>(false);
 
   // События
-  onAdd = output<{ membershipId: string; role: string }>();
+  onAdd = output<{ memberId: string; role: string }>();
   onRemove = output<string>();
 
   showModal = signal(false);
@@ -26,7 +26,7 @@ export class ProjectMembersComponent {
   displayMembers = computed(() => {
     const all = this.allMembers();
     return this.projectMembers().map(pm => {
-      const details = all.find(m => m.id === pm.membershipId);
+      const details = all.find(m => m.id === pm.memberId);
       return {
         ...pm,
         name: details?.displayName || 'Загрузка...',
@@ -38,12 +38,12 @@ export class ProjectMembersComponent {
 
   // Список тех, кого еще можно добавить
   availableToAssign = computed(() => {
-    const currentIds = new Set(this.projectMembers().map(m => m.membershipId));
+    const currentIds = new Set(this.projectMembers().map(m => m.memberId));
     return this.allMembers().filter(m => !currentIds.has(m.id));
   });
 
-  add(membershipId: string, role: string) {
-    this.onAdd.emit({ membershipId, role });
+  add(memberId: string, role: string) {
+    this.onAdd.emit({ memberId, role });
     this.showModal.set(false);
   }
 }

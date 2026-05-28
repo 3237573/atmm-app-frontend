@@ -17,14 +17,14 @@
   </div>
 
   <div class="member-grid">
-    @for (m of displayMembers(); track m.membershipId) {
+    @for (m of displayMembers(); track m.memberId) {
       <div class="member-card">
         <div class="avatar">{{ m.initials }}</div>
         <div class="info">
           <span class="name">{{ m.name }}</span>
           <span class="role">{{ m.roleInProject || 'Участник' }}</span>
         </div>
-        <button type="button" class="btn-remove" (click)="onRemove.emit(m.membershipId)" [disabled]="loading()">
+        <button type="button" class="btn-remove" (click)="onRemove.emit(m.memberId)" [disabled]="loading()">
           <i class="material-icons">close</i>
         </button>
       </div>

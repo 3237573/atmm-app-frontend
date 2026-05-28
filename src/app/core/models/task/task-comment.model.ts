@@ -1,7 +1,7 @@
 export interface ITaskComment {
   id: string;
   taskId: string;
-  membershipId: string;
+  memberId: string;
   authorName: string;
   authorEmail: string;
   authorAvatar: string;

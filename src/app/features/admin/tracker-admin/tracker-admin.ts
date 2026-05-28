@@ -105,7 +105,7 @@ export class TrackerAdmin implements OnInit {
 
   // Открытие модалки
   openCategoryModal(category?: Category) {
-    if (category && !category.companyId) return;
+    if (category && !category.workspaceId) return;
 
     if (category?.id) {
       this.editingCategory.set(category);
@@ -130,7 +130,7 @@ export class TrackerAdmin implements OnInit {
     }
 
     const category = this.categories().find(c => c.id === id);
-    if (category && !category.companyId) {
+    if (category && !category.workspaceId) {
       alert('Системные категории нельзя удалять');
       return;
     }
@@ -167,7 +167,7 @@ export class TrackerAdmin implements OnInit {
   }
 
   importDefaultTemplates(): void {
-    if (!confirm('Импортировать стандартные категории и правила? Это действие создаст копии шаблонов для вашей компании.')) {
+    if (!confirm('Импортировать стандартные категории и правила? Это действие создаст копии шаблонов для вашей пространства.')) {
       return;
     }
     this.trackerAdminService.importDefaultTemplates().subscribe({

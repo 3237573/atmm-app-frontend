@@ -1,21 +1,20 @@
 import {Component, computed, inject, signal} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { AuthService } from '../../services/auth.service';
-import { CompanyInfo } from '../../models/auth.model';
-import {email} from '@angular/forms/signals';
+import {CommonModule} from '@angular/common';
+import {AuthService} from '../../services/auth.service';
+import {WorkspaceInfo} from '../../models/auth.model';
 
 @Component({
-  selector: 'app-company-selector',
+  selector: 'app-workspace-selector',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './company-selector.html',
-  styleUrls: ['./company-selector.scss']
+  templateUrl: './workspace-selector.html',
+  styleUrls: ['./workspace-selector.scss']
 })
-export class CompanySelector {
+export class WorkspaceSelector {
   private readonly authService = inject(AuthService);
 
   loading = signal(false);
-  companies = this.authService.availableCompanies;
+  workspaces = this.authService.availableWorkspaces;
 
   getRoleLabel(role: string): string {
     switch (role) {
@@ -27,16 +26,16 @@ export class CompanySelector {
     }
   }
 
-  selectCompany(company: CompanyInfo): void {
-    if (!company.membershipId) {
-      console.error('No membershipId for company', company);
+  selectWorkspace(workspace: WorkspaceInfo): void {
+    if (!workspace.memberId) {
+      console.error('No memberId for workspace', workspace);
       return;
     }
 
     this.loading.set(true);
-    this.authService.selectCompany(company.companyId, company.membershipId).subscribe({
+    this.authService.selectWorkspace(workspace.workspaceId, workspace.memberId).subscribe({
       error: (err) => {
-        console.error('Error selecting company', err);
+        console.error('Error selecting workspace', err);
         this.loading.set(false);
       },
       complete: () => {

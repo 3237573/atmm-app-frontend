@@ -3,7 +3,7 @@ import {Component, OnInit} from '@angular/core';
 import {PermissionManager} from '../../features/admin/permission-manager/permission-manager';
 import {RoleManager} from '../../features/admin/role-manager/role-manager';
 import {MembersAdmin} from '../../features/admin/members-admin/members-admin';
-import {CompanyProfile} from '../../features/admin/company-profile/company-profile';
+import {WorkspaceProfile} from '../../features/admin/workspace-profile/workspace-profile';
 import {TrackerAdmin} from '../../features/admin/tracker-admin/tracker-admin';
 import {BackOnEscapeDirective} from '../../core/directives/back-on-escape.directive';
 import {DepartmentList} from '../../features/department-list/department-list';
@@ -20,7 +20,7 @@ interface ITab {
 @Component({
   selector: 'app-admin-page',
   standalone: true,
-  imports: [CommonModule, PermissionManager, RoleManager, MembersAdmin, CompanyProfile, TrackerAdmin, BackOnEscapeDirective, DepartmentList, ProjectList],
+  imports: [CommonModule, PermissionManager, RoleManager, MembersAdmin, WorkspaceProfile, TrackerAdmin, BackOnEscapeDirective, DepartmentList, ProjectList],
   templateUrl: './admin-page.html',
   styleUrls: ['./admin-page.scss']
 })

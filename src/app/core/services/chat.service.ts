@@ -109,11 +109,11 @@ export class ChatService {
         const roomUsers = currentMap[res.roomId] || [];
 
         if (res.isTyping) {
-          if (!roomUsers.includes(res.membershipId)) {
-            currentMap[res.roomId] = [...roomUsers, res.membershipId];
+          if (!roomUsers.includes(res.memberId)) {
+            currentMap[res.roomId] = [...roomUsers, res.memberId];
           }
         } else {
-          currentMap[res.roomId] = roomUsers.filter(id => id !== res.membershipId);
+          currentMap[res.roomId] = roomUsers.filter(id => id !== res.memberId);
         }
 
         this.typingUsersSubject.next(currentMap);
@@ -187,8 +187,8 @@ export class ChatService {
     return this.http.post<void>(`${this.baseUrl}/rooms/${roomId}/members`, { memberIds });
   }
 
-  removeMember(roomId: string, membershipId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/rooms/${roomId}/members/${membershipId}`);
+  removeMember(roomId: string, memberId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/rooms/${roomId}/members/${memberId}`);
   }
 
   getMessages(roomId: string, limit = 50, offset = 0): Observable<ChatMessage[]> {

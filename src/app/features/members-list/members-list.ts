@@ -82,9 +82,9 @@ export class MembersList implements OnInit {
 
   // Действия с пользователем
   async sendMessage(member: MemberRO): Promise<void> {
-    const myMembershipId = this.authService.currentMembership()?.id;
-    const targetMembershipId = member.id;
-    if (!myMembershipId || !targetMembershipId) return;
+    const myMemberId = this.authService.currentMember()?.id;
+    const targetMemberId = member.id;
+    if (!myMemberId || !targetMemberId) return;
 
     const rooms = await firstValueFrom(this.chatService.getUserRooms());
     let directRoom = rooms.find(r => r.type === 'DIRECT' && r.memberCount === 2);
@@ -92,7 +92,7 @@ export class MembersList implements OnInit {
     if (!directRoom) {
       directRoom = await firstValueFrom(this.chatService.createRoom({
         type: 'DIRECT',
-        memberIds: [myMembershipId, targetMembershipId]
+        memberIds: [myMemberId, targetMemberId]
         // name не передаём (оно необязательное)
       }));
     }

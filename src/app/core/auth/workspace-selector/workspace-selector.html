@@ -1,0 +1,36 @@
+<div class="container">
+  <div class="card">
+    <div class="header">
+      <div class="logo">ATMM</div>
+      <div class="user">{{ email() }}</div>
+    </div>
+
+    <div class="content">
+      <h2>Select workspace</h2>
+      <p class="hint">Choose a workspace to continue</p>
+
+      @for (workspace of workspaces(); track workspace.workspaceId) {
+        <button class="workspace" (click)="selectWorkspace(workspace)">
+          <div class="workspace-left">
+            <!-- ✨ Используем глобальный класс avatar-role -->
+            <div class="avatar-role" [class]="workspace.role | lowercase">
+              {{ workspace.name.charAt(0) }}
+            </div>
+            <div class="workspace-data">
+              <div class="workspace-name">{{ workspace.name }}</div>
+              <div class="workspace-code">{{ workspace.code }}</div>
+            </div>
+          </div>
+          <!-- ✨ Используем глобальный класс badge-role -->
+          <span class="badge-role" [class]="workspace.role | lowercase">
+            {{ getRoleLabel(workspace.role) }}
+          </span>
+        </button>
+      }
+    </div>
+
+    <div class="footer">
+      <button class="back" (click)="backToLogin()">← Switch account</button>
+    </div>
+  </div>
+</div>

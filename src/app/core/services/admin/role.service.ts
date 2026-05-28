@@ -5,7 +5,7 @@ import {Observable} from 'rxjs';
 export interface RoleResponse {
   id: string;
   name: string;
-  companyId: string;
+  workspaceId: string;
   permissions: string[];   // Массив имен: ['user:read', 'task.edit']
   permissionIds: string[]; // Массив UUID: ['uuid-1', 'uuid-2']
 }
@@ -20,14 +20,14 @@ export class RoleService {
   constructor(private readonly http: HttpClient) {}
 
   /**
-   * Получить все роли текущей компании пользователя
+   * Получить все роли текущей пространства пользователя
    */
-  getCompanyRoles(): Observable<RoleResponse[]> {
+  getWorkspaceRoles(): Observable<RoleResponse[]> {
     return this.http.get<RoleResponse[]>(this.baseUrl);
   }
 
   /**
-   * Создать новую роль в компании
+   * Создать новую роль в пространства
    * @param name Название роли (например, 'Manager')
    */
   createRole(name: string): Observable<RoleResponse> {

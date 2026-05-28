@@ -1,7 +1,7 @@
 <div class="department-container" appBackOnEscape>
   <div class="page-header">
     <div class="header-info">
-      <h1><i class="material-icons">account_tree</i> Структура компании</h1>
+      <h1><i class="material-icons">account_tree</i> Структура пространства</h1>
       <p>Отделы и подраздедления</p>
     </div>
 
@@ -44,7 +44,7 @@
 
             <div class="node-info">
               <span class="node-name">{{ node.name }} <span class="badge-count">{{ node.employeeCount || 0 }}</span></span>
-              @if (node.headMembershipId) {
+              @if (node.headMemberId) {
                 <span class="node-meta">Руководитель назначен</span>
               } @else {
                 <span class="node-meta muted">Нет руководителя</span>

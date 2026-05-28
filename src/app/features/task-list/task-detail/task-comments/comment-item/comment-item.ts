@@ -19,7 +19,7 @@ export class CommentItem {
   private readonly authService = inject(AuthService);
   private readonly commentService = inject(TaskCommentService);
 
-  currentMembership = this.authService.currentMembership;
+  currentMember = this.authService.currentMember;
   editing = signal(false);
   editingContent = signal('');
   showReplyForm = signal(false);
@@ -33,9 +33,9 @@ export class CommentItem {
   }
 
   canEdit(): boolean {
-    const currentId = this.currentMembership()?.id;
-    const commentMembershipId = this.comment.membershipId;
-    return currentId === commentMembershipId;
+    const currentId = this.currentMember()?.id;
+    const commentMemberId = this.comment.memberId;
+    return currentId === commentMemberId;
   }
 
   startEdit(): void {

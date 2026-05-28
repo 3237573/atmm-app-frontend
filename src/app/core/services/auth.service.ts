@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { AuthMeResponse, CompanyInfo, IMembership, UserCompaniesResponse } from '../models/auth.model';
+import { AuthMeResponse, WorkspaceInfo, IMember, UserWorkspacesResponse } from '../models/auth.model';
 import { NavigationService } from './navigation.service';
 
 @Injectable({ providedIn: 'root' })
@@ -13,21 +13,21 @@ export class AuthService {
   private readonly navigationService = inject(NavigationService);
 
   // Состояние
-  readonly currentMembership = signal<IMembership | null>(null);
-  readonly currentCompany = signal<CompanyInfo | null>(null);
+  readonly currentMember = signal<IMember | null>(null);
+  readonly currentWorkspace = signal<WorkspaceInfo | null>(null);
   readonly permissions = signal<string[]>([]);
   readonly isAuthenticated = signal<boolean>(false);
-  readonly availableCompanies = signal<CompanyInfo[]>([]);
-  readonly authStep = signal<'login' | 'select-company'>('login');
+  readonly availableWorkspaces = signal<WorkspaceInfo[]>([]);
+  readonly authStep = signal<'login' | 'select-workspace'>('login');
 
   // Computed для обратной совместимости
-  readonly currentUser = computed(() => this.currentMembership());
+  readonly currentUser = computed(() => this.currentMember());
 
-  readonly hasMultipleCompanies = computed(() => this.availableCompanies().length > 1);
+  readonly hasMultipleWorkspaces = computed(() => this.availableWorkspaces().length > 1);
   readonly displayName = computed(() => {
-    const company = this.currentCompany();
-    const membership = this.currentMembership();
-    return company?.displayName || membership?.displayName || membership?.fullName || membership?.email?.split('@')[0] || 'User';
+    const workspace = this.currentWorkspace();
+    const member = this.currentMember();
+    return workspace?.displayName || member?.displayName || member?.fullName || member?.email?.split('@')[0] || 'User';
   });
 
   hasPermission(permission: string): boolean {
@@ -40,8 +40,8 @@ export class AuthService {
 
   private handleAuthResponse(res: AuthMeResponse | null): void {
     if (res) {
-      this.currentMembership.set(res.membership);
-      this.currentCompany.set(res.company);
+      this.currentMember.set(res.member);
+      this.currentWorkspace.set(res.workspace);
       this.permissions.set(res.permissions);
       this.isAuthenticated.set(true);
       this.authStep.set('login');
@@ -51,11 +51,11 @@ export class AuthService {
   }
 
   clearAuth(): void {
-    this.currentMembership.set(null);
-    this.currentCompany.set(null);
+    this.currentMember.set(null);
+    this.currentWorkspace.set(null);
     this.permissions.set([]);
     this.isAuthenticated.set(false);
-    this.availableCompanies.set([]);
+    this.availableWorkspaces.set([]);
     this.authStep.set('login');
   }
 
@@ -69,24 +69,24 @@ export class AuthService {
     );
   }
 
-  /** Шаг 1: Проверка пароля и получение списка компаний */
-  authenticate(credentials: { email: string; password: string }): Observable<UserCompaniesResponse> {
+  /** Шаг 1: Проверка пароля и получение списка пространств */
+  authenticate(credentials: { email: string; password: string }): Observable<UserWorkspacesResponse> {
     this.clearAuth();
 
-    return this.http.post<UserCompaniesResponse>('/auth/authenticate', credentials).pipe(
+    return this.http.post<UserWorkspacesResponse>('/auth/authenticate', credentials).pipe(
       tap((res) => {
         // Сохраняем email для отображения (но не userId)
-        this.availableCompanies.set(res.companies);
-        this.authStep.set('select-company');
+        this.availableWorkspaces.set(res.workspaces);
+        this.authStep.set('select-workspace');
       })
     );
   }
 
-  /** Шаг 2: Выбор компании и получение токена */
-  selectCompany(companyId: string, membershipId: string): Observable<AuthMeResponse> {
-    return this.http.post<AuthMeResponse>('/auth/select-company', {
-      companyId: companyId,
-      membershipId: membershipId
+  /** Шаг 2: Выбор пространства и получение токена */
+  selectWorkspace(workspaceId: string, memberId: string): Observable<AuthMeResponse> {
+    return this.http.post<AuthMeResponse>('/auth/select-workspace', {
+      workspaceId: workspaceId,
+      memberId: memberId
     }, { withCredentials: true }).pipe(
       tap((res) => {
         this.handleAuthResponse(res);
@@ -96,7 +96,7 @@ export class AuthService {
     );
   }
 
-  login(credentials: { email: string; password: string }): Observable<UserCompaniesResponse> {
+  login(credentials: { email: string; password: string }): Observable<UserWorkspacesResponse> {
     return this.authenticate(credentials);
   }
 
@@ -121,6 +121,6 @@ export class AuthService {
 
   resetToLogin(): void {
     this.authStep.set('login');
-    this.availableCompanies.set([]);
+    this.availableWorkspaces.set([]);
   }
 }

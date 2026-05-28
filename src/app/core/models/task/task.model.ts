@@ -8,7 +8,7 @@ export interface TaskRO {
   subtasksCount?: number;
   creatorId?: string;
   creatorName?: string
-  creatorMembershipId?: string;
+  creatorMemberId?: string;
   description: string;
   status: TaskStatus;
   priority: TaskPriority;
@@ -47,7 +47,7 @@ export interface ITaskUpdateRO {
   priority?: TaskPriority;
   departmentId?: string;
   projectId?: string;
-  assigneeMembershipIds?: string[];
+  assigneeMemberIds?: string[];
   dueDate?: string;
   parentTaskId?: string;
 }
@@ -55,7 +55,7 @@ export interface ITaskUpdateRO {
 export interface TaskComment {
   id: string;
   taskId: string;
-  membershipId: string;
+  memberId: string;
   authorId: string;
   authorName: string;
   authorEmail: string;

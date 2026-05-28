@@ -33,14 +33,14 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
   messages: ChatMessage[] = [];
   newMessage = '';
   typingUsers: string[] = [];
-  myMembershipId = '';
+  myMemberId = '';
 
   private typingTimeout: any;
   private isTypingSignalSent = false;
   private shouldScrollToBottom = false;
 
   ngOnInit(): void {
-    this.myMembershipId = this.auth.currentUser()?.id || '';
+    this.myMemberId = this.auth.currentUser()?.id || '';
 
     // Декларативная цепочка изменения URL -> запрос по HTTP -> сокет
     this.route.params.pipe(
@@ -99,7 +99,7 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
       map(typingMap => typingMap[this.roomId] || []),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(usersInRoom => {
-      this.typingUsers = usersInRoom.filter(id => id !== this.myMembershipId);
+      this.typingUsers = usersInRoom.filter(id => id !== this.myMemberId);
     });
   }
 
@@ -111,7 +111,7 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   isOwnMessage(msg: ChatMessage): boolean {
-    return msg?.senderMembershipId === this.myMembershipId;
+    return msg?.senderMemberId === this.myMemberId;
   }
 
   private clearRoomState(): void {
@@ -169,7 +169,7 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
     const lastMessage = this.messages[this.messages.length - 1];
 
     // Соответствует схеме бэкенда (передается только messageId)
-    if (lastMessage && lastMessage.senderMembershipId !== this.myMembershipId) {
+    if (lastMessage && lastMessage.senderMemberId !== this.myMemberId) {
       this.chatService.sendMessage({
         type: 'mark_seen',
         messageId: lastMessage.id
