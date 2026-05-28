@@ -17,10 +17,8 @@
         [class.active]="room.id === activeRoomId"
         (click)="selectRoom(room.id)">
 
-        <div class="room-avatar">
-          <i class="material-icons">
-            {{ room.memberCount === 2 ? 'person' : 'group' }}
-          </i>
+        <div class="room-avatar" [style.background-color]="getAvatarColor(room.id)">
+          <span class="avatar-initials">{{ getAvatarInitials(room) }}</span>
         </div>
 
         <div class="room-details">

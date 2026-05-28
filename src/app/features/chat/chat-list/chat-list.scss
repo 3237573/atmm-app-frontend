@@ -157,6 +157,24 @@
   line-height: 1;
 }
 
+.room-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #ffffff; /* Белые буквы на цветном фоне */
+
+  .avatar-initials {
+    font-weight: bold;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    user-select: none;
+  }
+}
+
 // Опционально: можно сделать текст превью последнего сообщения чуть ярче, если оно не прочитано
 .last-message-preview.has-unread {
   color: var(--text-main);
@@ -166,4 +184,22 @@
 @keyframes popIn {
   0% { transform: scale(0); }
   100% { transform: scale(1); }
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .chat-list-container {
+    .search-block {
+      display: none; /* Скрываем поиск, так как инпут сожмется */
+    }
+
+    .room-item {
+      padding: 0.75rem 0;
+      justify-content: center; /* Центрируем аватарку */
+    }
+
+    .room-details,
+    .room-meta-right {
+      display: none !important; /* Начисто скрываем весь текст и счетчики */
+    }
+  }
 }

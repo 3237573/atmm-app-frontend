@@ -71,4 +71,29 @@ export class ChatList implements OnInit {
     }
     return 'Приватный чат';
   }
+
+  // Получить первую букву для аватара
+  getAvatarInitials(room: ChatRoom): string {
+    const name = room.memberCount === 2 ? this.getDisplayRoomName(room) : room.name;
+    return name ? name.trim().charAt(0).toUpperCase() : '✏️';
+  }
+
+// Сгенерировать стабильный цвет на основе строки (например, id комнаты)
+  getAvatarColor(roomId: string): string {
+    const colors = [
+      '#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5',
+      '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50',
+      '#8bc34a', '#ff9800', '#ff5722', '#795548'
+    ];
+
+    // Хэшируем строку, чтобы для одной и той же комнаты всегда был один цвет
+    let hash = 0;
+    for (let i = 0; i < roomId.length; i++) {
+      hash = roomId.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    const index = Math.abs(hash) % colors.length;
+    return colors[index];
+  }
+
 }

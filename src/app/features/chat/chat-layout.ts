@@ -39,16 +39,14 @@ import { ChatList } from 'src/app/features/chat/chat-list/chat-list';
       height: 100%;
       max-height: 100%;
       background: var(--bg-main);
-      overflow: hidden;
     }
 
     .sidebar {
-      width: 350px;
-      min-width: 300px;
-      border-right: 1px solid var(--border-subtle);
+      width: 320px;
+      min-width: 320px;
       height: 100%;
       background: var(--bg-elevated);
-      transition: transform 0.25s ease-in-out;
+      transition: width 0.3s ease, min-width 0.3s ease;
     }
 
     .main-content {
@@ -82,23 +80,39 @@ import { ChatList } from 'src/app/features/chat/chat-list/chat-list';
       p { font-size: 1.1rem; margin: 0; }
     }
 
+    /* 💻 ЭТАП 1: Сужение списка (Подписи исчезают, логотипы остаются) */
+    @media (max-width: 1024px) and (min-width: 769px) {
+      .sidebar {
+        width: 76px;
+        min-width: 76px;
+      }
+    }
+
+    /* 📱 ЭТАП 2: Мобильные устройства (Полный уход списка) */
     @media (max-width: 768px) {
       .sidebar {
         width: 100% !important;
         min-width: 100% !important;
         position: absolute;
         z-index: 2;
+        height: 100%;
       }
 
       .main-content {
-        width: 100%;
+        width: 100% !important;
         position: absolute;
         z-index: 1;
+        height: 100%;
       }
 
+      /* Когда комната открыта, прячем сайдбар влево */
       .chat-layout.room-opened {
-        .sidebar { transform: translateX(-100%); }
-        .main-content { z-index: 3; }
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .main-content {
+          z-index: 3;
+        }
       }
     }
   `]
