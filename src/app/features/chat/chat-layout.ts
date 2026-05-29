@@ -1,5 +1,5 @@
-// chat-layout.component.ts
-import { Component, inject } from '@angular/core';
+// src/app/features/chat/chat-layout.ts
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { ChatList } from 'src/app/features/chat/chat-list/chat-list';
 
@@ -9,7 +9,7 @@ import { ChatList } from 'src/app/features/chat/chat-list/chat-list';
   imports: [ChatList, RouterOutlet],
   template: `
     <div class="chat-layout" [class.room-opened]="isRoomOpened()">
-      <aside class="sidebar">
+      <aside class="sidebar" [class.collapsed]="isCollapsed()" (dblclick)="onSidebarDblClick($event)">
         <app-chat-list></app-chat-list>
       </aside>
 
@@ -45,27 +45,19 @@ import { ChatList } from 'src/app/features/chat/chat-list/chat-list';
       width: 320px;
       min-width: 320px;
       height: 100%;
-      background: var(--bg-elevated);
-      transition: width 0.3s ease, min-width 0.3s ease;
+      border-right: 1px solid var(--border);
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      transition: width 0.25s ease, min-width 0.25s ease;
+      user-select: none; /* Предотвращает случайное выделение текста при dblclick */
     }
 
     .main-content {
       flex: 1;
       height: 100%;
-      max-height: 100%;
-      display: flex;
-      flex-direction: column;
       position: relative;
-      overflow: hidden;
-
-      ::ng-deep app-chat-window {
-        display: flex !important;
-        flex-direction: column !important;
-        flex: 1 !important;
-        height: 100% !important;
-        max-height: 100% !important;
-        overflow: hidden !important;
-      }
+      background: var(--bg-main);
     }
 
     .empty-chat-state {
@@ -75,52 +67,107 @@ import { ChatList } from 'src/app/features/chat/chat-list/chat-list';
       justify-content: center;
       height: 100%;
       color: var(--text-muted);
-      background: var(--bg-main);
       i { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
       p { font-size: 1.1rem; margin: 0; }
     }
 
-    /* 💻 ЭТАП 1: Сужение списка (Подписи исчезают, логотипы остаются) */
+    /* ============================================================
+       💻 ЭФФЕКТ СХЛОПЫВАНИЯ: По двойному клику ИЛИ на планшетах
+       ============================================================ */
+    .sidebar.collapsed {
+      width: 76px !important;
+      min-width: 76px !important;
+    }
     @media (max-width: 1024px) and (min-width: 769px) {
       .sidebar {
-        width: 76px;
-        min-width: 76px;
+        width: 76px !important;
+        min-width: 76px !important;
+      }
+
+      ::ng-deep {
+        app-chat-list {
+          .search-block {
+            padding: 0.75rem 0.5rem !important;
+
+            input {
+              display: none !important;
+            }
+            .search-wrapper {
+              background: transparent !important;
+              border: none !important;
+              justify-content: center !important;
+              padding: 0 !important;
+              i { margin: 0 !important; font-size: 1.4rem; color: var(--text-muted); }
+            }
+          }
+
+          .room-item {
+            justify-content: center !important;
+            padding: 0.8rem 0 !important;
+            margin: 0.25rem 0.5rem !important;
+            border-radius: 12px !important;
+          }
+
+          .room-avatar {
+            margin: 0 !important;
+          }
+
+          .room-details {
+            display: none !important;
+          }
+        }
       }
     }
 
-    /* 📱 ЭТАП 2: Мобильные устройства (Полный уход списка) */
+    /* ============================================================
+       📱 МОБИЛЬНЫЕ СТИЛИ
+       ============================================================ */
     @media (max-width: 768px) {
       .sidebar {
         width: 100% !important;
         min-width: 100% !important;
-        position: absolute;
-        z-index: 2;
-        height: 100%;
+        border-right: none;
       }
 
       .main-content {
         width: 100% !important;
         position: absolute;
-        z-index: 1;
+        top: 0;
+        left: 0;
+        z-index: 10;
         height: 100%;
       }
 
-      /* Когда комната открыта, прячем сайдбар влево */
+      .chat-layout:not(.room-opened) {
+        .sidebar { display: flex !important; }
+        .main-content { display: none !important; }
+      }
+
       .chat-layout.room-opened {
-        .sidebar {
-          transform: translateX(-100%);
-        }
-        .main-content {
-          z-index: 3;
-        }
+        .sidebar { display: none !important; }
+        .main-content { display: block !important; }
       }
     }
   `]
 })
 export class ChatLayout {
   protected readonly router = inject(Router);
+  // Сигнал для контроля свернутого состояния списка чатов
+  protected readonly isCollapsed = signal(false);
 
   isRoomOpened(): boolean {
     return this.router.url !== '/chat';
+  }
+
+  onSidebarDblClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+
+    // Защита: если кликнули внутрь текстового поля поиска, не сворачиваем панель
+    if (target.tagName === 'INPUT') {
+      return;
+    }
+
+    // Переключаем состояние
+    this.isCollapsed.update(state => !state);
   }
 }

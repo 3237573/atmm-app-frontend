@@ -1,4 +1,4 @@
-<nav [class.collapsed]="sidebarService.isCollapsed()" (dblclick)="onSidebarDblClick($event)">
+<nav (dblclick)="onSidebarDblClick($event)">
 
   <ul class="nav-list">
     @for (item of menuItems(); track item.path) {

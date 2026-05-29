@@ -1,27 +1,47 @@
 <div class="chat-window" appBackOnEscape>
   <div class="chat-header">
-    <button class="back-btn" (click)="goBack()">←</button>
+    <button class="back-btn" (click)="goBack()" aria-label="Назад">←</button>
     <div class="room-info">
-      <span class="room-name">{{ memberCount === 2 ? getInterlocutorName() : roomName }}</span>
-      <span class="member-count">{{ memberCount }} участников</span>
+      <span class="room-name">{{ roomName() }}</span>
+      @if (memberCount() > 0) {
+        <span class="member-count"> {{ memberCount() }} участников</span>
+      }
     </div>
   </div>
 
   <div class="messages-container" #scrollMe>
-    @for (msg of messages; track msg.id) {
+    @for (msg of messages(); track msg.id) {
       <div class="message" [class.own]="isOwnMessage(msg)">
-        <div class="message-sender">{{ msg.senderName }}</div>
+        @if (!isOwnMessage(msg)) {
+          <div class="message-sender">{{ msg.senderName }}</div>
+        }
         <div class="message-content">
-          @if (msg.type === 'TEXT') {
-            <span>{{ msg.content }}</span>
-          } @else if (msg.type === 'IMAGE' && msg.mediaUrl) {
-            <img [src]="msg.mediaUrl" class="media-image" (click)="openMedia(msg.mediaUrl)">
-          } @else if (msg.type === 'VIDEO' && msg.mediaUrl) {
-            <video [src]="msg.mediaUrl" controls class="media-video"></video>
-          } @else if (msg.type === 'VOICE' && msg.mediaUrl) {
-            <audio [src]="msg.mediaUrl" controls></audio>
-          } @else if (msg.type === 'FILE' && msg.mediaUrl) {
-            <a [href]="msg.mediaUrl" download>{{ getFileName(msg.mediaUrl) }}</a>
+          @switch (msg.type) {
+            @case ('TEXT') {
+              <span>{{ msg.content }}</span>
+            }
+            @case ('IMAGE') {
+              @if (msg.mediaUrl) {
+                <img [src]="msg.mediaUrl" class="media-image" (click)="openMedia(msg.mediaUrl)" alt="Изображение">
+              }
+            }
+            @case ('VIDEO') {
+              @if (msg.mediaUrl) {
+                <video [src]="msg.mediaUrl" controls class="media-video"></video>
+              }
+            }
+            @case ('VOICE') {
+              @if (msg.mediaUrl) {
+                <audio [src]="msg.mediaUrl" controls class="media-audio"></audio>
+              }
+            }
+            @case ('FILE') {
+              @if (msg.mediaUrl) {
+                <a [href]="msg.mediaUrl" download class="file-link">
+                  📄 {{ getFileName(msg.mediaUrl) }}
+                </a>
+              }
+            }
           }
           <div class="message-time">{{ msg.timestamp | date:'HH:mm' }}</div>
         </div>
@@ -31,7 +51,7 @@
     }
   </div>
 
-  @if (typingUsers.length) {
+  @if (typingUsers().length > 0) {
     <div class="typing-indicator-container">
       <div class="typing-bubble">
         <div class="dots-animation">
@@ -43,16 +63,21 @@
   }
 
   <div class="input-area">
-    <label class="file-btn">
+    <label class="file-btn" title="Прикрепить файл">
       <input type="file" (change)="uploadFile($event)" hidden>
       📎
     </label>
+
     <textarea
       [(ngModel)]="newMessage"
-      (keydown.enter)="sendMessage($event)"
+      (keydown)="onKeyPress($event)"
       (input)="onTyping()"
       placeholder="Введите сообщение..."
+      rows="1"
     ></textarea>
-    <button (click)="sendMessage()">➤</button>
+
+    <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()" title="Отправить">
+      ➤
+    </button>
   </div>
 </div>

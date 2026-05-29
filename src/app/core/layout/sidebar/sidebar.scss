@@ -6,64 +6,63 @@
   width: 170px;
   transition: width 0.3s var(--ease, ease-in-out);
   flex-shrink: 0;
+  z-index: 100; /* Гарантирует, что при открытии он будет поверх */
 
-  // КОГДА СВЕРНУТ: хост сайдбара сжимается ровно до 48px
+  // КОГДА СВЕРНУТ НА ДЕСКТОПЕ: хост сайдбара сжимается ровно до 48px
   &.collapsed {
     width: 48px;
   }
 }
 
 nav {
-  background: var(--bg-card);
+  background: var(--bg-card, #ffffff);
   height: 100%;
   display: flex;
-  flex-direction: column; // Элементы выстраиваются вертикально
-  border-right: 1px solid var(--border);
+  flex-direction: column;
+  border-right: 1px solid var(--border, #dee2e6);
   overflow: hidden;
-
-  // Запрещаем выделение текста при быстром двойном клике,
-  // чтобы интерфейс не синел, как старый сайт
-  user-select: none;
+  user-select: none; /* Запрещаем выделение текста при двойном клике */
 }
 
 .sidebar-empty-space {
   flex: 1;
   width: 100%;
-  cursor: pointer; // Даем понять пользователю, что зона кликабельна
+  cursor: pointer;
 }
 
-ul {
+ul.nav-list {
   list-style: none;
-  padding: 0.75rem; // Базовый отступ для развёрнутого вида
+  padding: 0.75rem;
   margin: 0;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  transition: padding 0.3s var(--ease, ease-in-out);
 }
 
 li {
-  margin-bottom: 0.25rem;
+  width: 100%;
 }
 
 a {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.625rem 0.75rem;
-  border-radius: 0.5rem;
-  color: var(--text-muted);
+  padding: 0.6rem 0.75rem;
+  color: var(--text-muted, #6c757d);
   text-decoration: none;
-  transition: all 0.2s;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
   white-space: nowrap;
 
   &:hover,
   &.active {
-    background: var(--border);
-    color: var(--text-main);
+    background: var(--border, #f1f3f5);
+    color: var(--text-main, #212529);
 
     .icon {
-      color: var(--accent);
+      color: var(--accent, #007bff);
     }
   }
 }
@@ -77,48 +76,74 @@ a {
   flex-shrink: 0;
 }
 
-// ПОВЕДЕНИЕ КОМПОНЕНТОВ В СВЕРНУТОМ СОСТОЯНИИ (48px)
+/* ==========================================================================
+   🖥️ ПОВЕДЕНИЕ КОМПОНЕНТОВ В СВЕРНУТОМ СОСТОЯНИИ НА ДЕСКТОПЕ (48px)
+   ========================================================================== */
 :host.collapsed {
-
-  // 1. Схлопываем боковые отступы у самого списка, чтобы не зажимать иконку
-  ul {
-    padding: 0.75rem 0px; // Оставляем только верхний и нижний отступы
+  ul.nav-list {
+    padding: 0.75rem 0; /* Убираем боковые отступы, чтобы не зажимать иконку */
   }
 
   li {
     display: flex;
     justify-content: center;
-    width: 100%;
   }
 
-  // 2. Делаем ссылку квадратной/круглой по центру, убирая внутренний padding
   a {
     justify-content: center;
-    width: 40px;  // Оставляем 40px под размер кнопки (чтобы оставался зазор 4px до краев сайдбара)
+    width: 40px; /* Квадратная кнопка по центру */
     height: 40px;
-    padding: 0;   // Сбрасываем внутренние отступы, так как размеры теперь фиксированные
-    border-radius: 50px; // Если хотите круглый эффект при наведении, ставим 50px (или оставляем 0.5rem для квадрата)
-  }
+    padding: 0;
+    border-radius: 50%; /* Сделаем круглыми при ховере в свернутом виде (очень современно) */
 
-  // 3. Скрываем текст полностью
-  .text {
-    display: none;
+    .text {
+      display: none; /* Прячем текст в свернутом состоянии */
+    }
   }
 }
 
-// Адаптивное скрытие на планшетах/мобилках
+/* ==========================================================================
+   📱 МОБИЛЬНАЯ АДАПТАЦИЯ (Полное исчезновение без прозрачных окон)
+   ========================================================================== */
 @media (max-width: 768px) {
   :host {
+    /* На мобилке сайдбар либо открыт на всю ширину (выезжает как шторка),
+       либо ПОЛНОСТЬЮ уничтожается через display: none, чтобы не оставлять прозрачных следов */
     position: fixed;
-    top: 64px; // Встает встык ровно ПОД хедером
+    top: 0;
     left: 0;
-    bottom: 0;
-    width: 260px;
-    box-shadow: 10px 20px 30px rgba(0, 0, 0, 0.3);
+    height: 100vh;
+    width: 240px !important; /* Фиксированная ширина шторки */
+    transition: transform 0.3s ease-in-out;
 
+    // Если в сервисе выставлен collapsed (скрыт), на мобилке мы его полностью убираем с экрана
     &.collapsed {
+      display: none !important;
       width: 0 !important;
-      * { display: none !important; }
+      transform: translateX(-100%);
     }
+
+    // Когда он НЕ collapsed (то есть открыт по бургеру)
+    &:not(.collapsed) {
+      display: block !important;
+      transform: translateX(0);
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  nav {
+    border-right: none;
+  }
+
+  // На мобилках всегда показываем текст рядом с иконкой внутри шторки
+  :host.collapsed a .text, a .text {
+    display: block !important;
+  }
+
+  :host.collapsed a {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    padding: 0.6rem 0.75rem !important;
+    border-radius: 8px !important;
   }
 }

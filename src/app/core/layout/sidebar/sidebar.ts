@@ -24,10 +24,9 @@ export class Sidebar implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly navigationService = inject(NavigationService);
   private readonly router = inject(Router);
-  protected readonly sidebarService = inject(SidebarService); // Наш единый источник истины
+  protected readonly sidebarService = inject(SidebarService);
 
-  // 1. ИСПРАВЛЕНО: Привязываем класс к хосту. Чтобы избежать дублирования имён,
-  // переименуем геттер в "isHostCollapsed". Он просто возвращает значение сигнала.
+  // Привязываем класс .collapsed к хосту компонента на основе сигнала из сервиса
   @HostBinding('class.collapsed') get isHostCollapsed() {
     return this.sidebarService.isCollapsed();
   }
@@ -37,7 +36,7 @@ export class Sidebar implements OnInit {
     { path: '/chat', icon: 'chat', label: 'Chat', permission: 'chat:read' },
     { path: '/tasks', icon: 'task', label: 'Tasks', permission: 'task:read' },
     { path: '/tracker', icon: 'schedule', label: 'Tracker', permission: 'tracker:read' },
-    { path: '/admin', icon: 'settings', label: 'Admin', permission: 'owner:owner' },
+    { path: '/admin', icon: 'settings', label: 'Admin', permission: 'owner:owner' }
   ];
 
   menuItems = computed(() => {
@@ -55,24 +54,28 @@ export class Sidebar implements OnInit {
       if (!url.includes('/login') && !url.includes('/select-workspace')) {
         this.navigationService.setLastRoute(url);
       }
-      // Автоматически закрываем сайдбар на мобилке при смене роута
+
+      // БЕЗОПАСНО: На мобилке закрываем сайдбар (ставим collapsed = true) при смене экрана
       if (window.innerWidth <= 768) {
-        this.sidebarService.close(); // Предполагается, что в сервисе есть метод close или toggle(true)
+        // Вызываем метод закрытия из вашего SidebarService
+        // Если метода close() нет, можно использовать: this.sidebarService.isCollapsed.set(true);
+        if (typeof this.sidebarService.close === 'function') {
+          this.sidebarService.close();
+        } else {
+          // Фолбек, если в сервисе просто открытый сигнал:
+          (this.sidebarService.isCollapsed as any).set(true);
+        }
       }
     });
   }
 
-  // 2. ИСПРАВЛЕНО: Двойной клик теперь дёргает СИГНАЛ в сервисе
+  // Двойной клик по пустому месту переключает состояние
   onSidebarDblClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-
-    // Если кликнули по пустому месту, nav-списку или самому фону
-    if (
-      target.tagName === 'NAV' ||
-      target.classList.contains('sidebar-empty-space') ||
-      target.classList.contains('nav-list')
-    ) {
-      this.sidebarService.toggle(); // Переключаем глобальный сигнал!
+    if (target.closest('a') || target.closest('button')) {
+      return;
     }
+    // Вызов метода toggle из вашего сервиса
+    this.sidebarService.toggle();
   }
 }

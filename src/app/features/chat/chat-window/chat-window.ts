@@ -1,53 +1,74 @@
 // chat-window.component.ts
-import { Component, inject, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewChecked, DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+  DestroyRef,
+  signal,
+  computed
+} from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChatService } from '@core/services/chat.service';
 import { AuthService } from '@core/services/auth.service';
 import { ChatMessage, ChatRoom, WebSocketResponse } from '@core/models/chat.model';
-import {switchMap, filter, map, tap, of} from 'rxjs';
-import { DatePipe } from '@angular/common';
+import { switchMap, filter, map, tap, of, catchError } from 'rxjs';
+import { DatePipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BackOnEscapeDirective } from '@core/directives/back-on-escape.directive';
-import {catchError} from 'rxjs/operators';
 
 @Component({
   selector: 'app-chat-window',
   standalone: true,
-  imports: [FormsModule, DatePipe, BackOnEscapeDirective],
+  imports: [CommonModule, FormsModule, DatePipe, BackOnEscapeDirective],
   templateUrl: './chat-window.html',
   styleUrls: ['./chat-window.scss']
 })
-export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
+export class ChatWindow implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly chatService = inject(ChatService);
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
 
-  @ViewChild('scrollMe') private readonly scrollContainer!: ElementRef;
+  @ViewChild('scrollMe') private readonly scrollContainer!: ElementRef<HTMLDivElement>;
 
-  roomId = '';
-  roomName = 'Загрузка...';
-  memberCount = 0;
-  messages: ChatMessage[] = [];
+  readonly roomId = signal<string>('');
+  readonly messages = signal<ChatMessage[]>([]);
+  readonly typingUsers = signal<string[]>([]);
+
   newMessage = '';
-  typingUsers: string[] = [];
   myMemberId = '';
 
   private typingTimeout: any;
   private isTypingSignalSent = false;
-  private shouldScrollToBottom = false;
+
+  private readonly rooms = toSignal(this.chatService.rooms$, { initialValue: [] });
+
+  readonly currentRoom = computed(() => {
+    const id = this.roomId();
+    return this.rooms().find((r: ChatRoom) => r.id === id);
+  });
+
+  readonly roomName = computed(() => {
+    const room = this.currentRoom();
+    if (!room) return 'Загрузка...';
+    return room.name || room.lastMessage?.senderName || 'Приватный чат';
+  });
+
+  readonly memberCount = computed(() => this.currentRoom()?.memberCount || 0);
 
   ngOnInit(): void {
     this.myMemberId = this.auth.currentUser()?.id || '';
 
-    // Декларативная цепочка изменения URL -> запрос по HTTP -> сокет
     this.route.params.pipe(
       map(params => params['roomId'] as string),
       filter(Boolean),
       tap(id => {
-        this.roomId = id;
+        this.roomId.set(id);
         this.clearRoomState();
 
         this.chatService.sendMessage({
@@ -55,59 +76,37 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
           roomId: id,
           untilTimestamp: new Date().toISOString()
         });
-
-        this.syncRoomMetadata();
       }),
-      // 👇 ИЗМЕНЕНИЯ ЗДЕСЬ: Оборачиваем getMessages в pipe и ловим ошибку
       switchMap(id => this.chatService.getMessages(id).pipe(
         catchError(err => {
           console.error('❌ Ошибка HTTP при загрузке сообщений:', err);
-          // Возвращаем пустой массив, чтобы поток роутера остался ЖИВ
           return of([]);
         })
       )),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
-      next: (historyMessages) => {
-        this.messages = historyMessages;
-        this.shouldScrollToBottom = true;
-        this.markMessagesSeen();
-      }
-      // error: () => ... отсюда обработчик ошибки можно убрать, он больше не сработает
-    });
-
-    // Реактивное обновление метаданных при обновлении комнат
-    this.chatService.rooms$.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(() => {
-      this.syncRoomMetadata();
-    });
-
-    // Получение живых сообщений из сокета
-    this.chatService.messages$.pipe(
-      filter((res): res is WebSocketResponse & { type: 'new_message' } => res?.type === 'new_message'),
-      filter(res => res.message?.roomId === this.roomId),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(response => {
-      this.messages = [...this.messages, response.message];
-      this.shouldScrollToBottom = true;
+    ).subscribe(historyMessages => {
+      this.messages.set(historyMessages);
+      this.scrollToBottomOnNextTick();
       this.markMessagesSeen();
     });
 
-    // Подписка на индикатор набора текста для текущей комнаты
-    this.chatService.typingUsers$.pipe(
-      map(typingMap => typingMap[this.roomId] || []),
+    this.chatService.messages$.pipe(
+      filter((res): res is WebSocketResponse & { type: 'new_message' } => res?.type === 'new_message'),
+      filter(res => res.message?.roomId === this.roomId()),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(usersInRoom => {
-      this.typingUsers = usersInRoom.filter(id => id !== this.myMemberId);
+    ).subscribe(response => {
+      this.messages.update(prev => [...prev, response.message]);
+      this.scrollToBottomOnNextTick();
+      this.markMessagesSeen();
     });
-  }
 
-  ngAfterViewChecked(): void {
-    if (this.shouldScrollToBottom) {
-      this.scrollToBottom();
-      this.shouldScrollToBottom = false;
-    }
+    this.chatService.typingUsers$.pipe(
+      map(typingMap => typingMap[this.roomId()] || []),
+      map(usersInRoom => usersInRoom.filter(id => id !== this.myMemberId)),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(activeTypingIds => {
+      this.typingUsers.set(activeTypingIds);
+    });
   }
 
   isOwnMessage(msg: ChatMessage): boolean {
@@ -115,60 +114,60 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private clearRoomState(): void {
-    this.messages = [];
-    this.roomName = 'Загрузка...';
-    this.memberCount = 0;
-    this.typingUsers = [];
+    this.messages.set([]);
+    this.typingUsers.set([]);
   }
 
-  private syncRoomMetadata(): void {
-    const rooms = (this.chatService.rooms$ as any).value || [];
-    const currentRoom = rooms.find((r: ChatRoom) => r.id === this.roomId);
-    if (currentRoom) {
-      this.memberCount = currentRoom.memberCount;
-      this.roomName = currentRoom.name || currentRoom.lastMessage?.senderName || 'Приватный чат';
+  sendMessage(event?: KeyboardEvent | Event): void {
+    if (event) {
+      event.preventDefault();
     }
-  }
 
-  sendMessage(event?: Event): void {
-    if (event) event.preventDefault();
-    if (!this.newMessage.trim()) return;
+    const trimmedMessage = this.newMessage.trim();
+    if (!trimmedMessage) return;
 
     this.chatService.sendMessage({
       type: 'send_message',
       message: {
-        roomId: this.roomId,
-        content: this.newMessage.trim()
+        roomId: this.roomId(),
+        content: trimmedMessage
       }
     });
 
     this.newMessage = '';
-    this.shouldScrollToBottom = true;
+    this.scrollToBottomOnNextTick();
 
     if (this.typingTimeout) clearTimeout(this.typingTimeout);
-    this.chatService.sendMessage({ type: 'typing', roomId: this.roomId, isTyping: false });
+    this.chatService.sendMessage({ type: 'typing', roomId: this.roomId(), isTyping: false });
     this.isTypingSignalSent = false;
+  }
+
+  onKeyPress(event: Event): void {
+    const keyboardEvent = event as KeyboardEvent;
+    if (keyboardEvent.key === 'Enter' && !keyboardEvent.shiftKey) {
+      this.sendMessage(keyboardEvent);
+    }
   }
 
   onTyping(): void {
     if (!this.isTypingSignalSent) {
-      this.chatService.sendMessage({ type: 'typing', roomId: this.roomId, isTyping: true });
+      this.chatService.sendMessage({ type: 'typing', roomId: this.roomId(), isTyping: true });
       this.isTypingSignalSent = true;
     }
 
     if (this.typingTimeout) clearTimeout(this.typingTimeout);
 
     this.typingTimeout = setTimeout(() => {
-      this.chatService.sendMessage({ type: 'typing', roomId: this.roomId, isTyping: false });
+      this.chatService.sendMessage({ type: 'typing', roomId: this.roomId(), isTyping: false });
       this.isTypingSignalSent = false;
     }, 1500);
   }
 
   private markMessagesSeen(): void {
-    if (!this.messages.length || !this.roomId) return;
-    const lastMessage = this.messages[this.messages.length - 1];
+    const currentMessages = this.messages();
+    if (!currentMessages.length) return;
 
-    // Соответствует схеме бэкенда (передается только messageId)
+    const lastMessage = currentMessages[currentMessages.length - 1];
     if (lastMessage && lastMessage.senderMemberId !== this.myMemberId) {
       this.chatService.sendMessage({
         type: 'mark_seen',
@@ -177,10 +176,15 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
+  private scrollToBottomOnNextTick(): void {
+    setTimeout(() => this.scrollToBottom(), 50);
+  }
+
   scrollToBottom(): void {
     try {
-      if (this.scrollContainer?.nativeElement) {
-        this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
+      const container = this.scrollContainer?.nativeElement;
+      if (container) {
+        container.scrollTop = container.scrollHeight;
       }
     } catch (err) {}
   }
@@ -193,17 +197,15 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
     return 'Печатает...';
   }
 
-  getInterlocutorName(): string {
-    return this.roomName;
-  }
-
   uploadFile(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.chatService.uploadMedia(this.roomId, input.files[0]).subscribe({
+      this.chatService.uploadMedia(this.roomId(), input.files[0]).pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
         next: (msg) => {
-          this.messages = [...this.messages, msg];
-          this.shouldScrollToBottom = true;
+          this.messages.update(prev => [...prev, msg]);
+          this.scrollToBottomOnNextTick();
         },
         error: (err) => console.error('Ошибка загрузки файла:', err)
       });
@@ -211,7 +213,7 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   openMedia(url: string): void {
-    window.open(url, '_blank');
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   getFileName(url: string): string {
