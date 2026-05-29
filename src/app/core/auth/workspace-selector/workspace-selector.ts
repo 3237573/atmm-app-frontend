@@ -3,6 +3,7 @@ import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router'; // ✨ Импортируем Router
 import {AuthService} from '../../services/auth.service';
 import {WorkspaceInfo} from '../../models/auth.model';
+import {NavigationService} from '@core/services/navigation.service';
 
 @Component({
   selector: 'app-workspace-selector',
@@ -13,6 +14,7 @@ import {WorkspaceInfo} from '../../models/auth.model';
 })
 export class WorkspaceSelector {
   private readonly authService = inject(AuthService);
+  private readonly navService = inject(NavigationService);
   private readonly router = inject(Router); // ✨ Инжектим роутер
 
   loading = signal(false);
@@ -39,7 +41,7 @@ export class WorkspaceSelector {
       next: () => {
         this.loading.set(false);
         // ✨ Успешно выбрали пространство -> переходим в приложение!
-        this.router.navigate(['/tasks']);
+        this.router.navigate([this.navService.getLastRoute() ?? '/tasks']);
       },
       error: (err) => {
         console.error('Error selecting workspace', err);

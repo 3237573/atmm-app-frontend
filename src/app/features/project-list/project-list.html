@@ -26,7 +26,6 @@
 
         <div class="node-content" [routerLink]="['/projects', project.id]">
           <div class="node-main">
-
             @if (project.subProjects && project.subProjects.length > 0) {
               <i class="material-icons node-toggle"
                  [class.open]="expandedNodes().has(project.id)"
@@ -41,11 +40,7 @@
 
             <div class="node-info">
               <div class="node-title-row">
-                [
-                <span class="project-code">
-                  {{ project.code }} &nbsp;{{ project.name || project.title }}
-                </span>
-                ]
+                [<span class="project-title">{{project.title}}</span>]
                 @if (project.description) {
                   <span class="node-meta description">{{ project.description }}</span>
                 }

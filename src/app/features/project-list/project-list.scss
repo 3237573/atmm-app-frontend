@@ -68,7 +68,7 @@
 .node-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0.15rem;
 
   .node-title-row {
     display: flex;
@@ -76,12 +76,10 @@
     color: var(--accent);
   }
 
-  /* Красивый синий бейдж, внутри которого код и название */
-  .project-code {
+  .project-title {
     color: var(--text-main);
     font-weight: 600;
     font-size: 0.95rem;
-    background: rgba(var(--accent-rgb), 0.1);
     padding: 3px 10px;
     border-radius: 6px;
   }

@@ -4,23 +4,23 @@
 .members-admin { padding: 1.5rem; width: 100%; min-height: 100vh; }
 
 // ========== HEADER ==========
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-
-  .header-text h2 {
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.25rem;
-  }
-  p { margin: 0.25rem 0 0 0; color: $text-muted; font-size: 0.85rem; }
-}
+//.page-header {
+//  display: flex;
+//  justify-content: space-between;
+//  align-items: center;
+//  margin-bottom: 1.5rem;
+//  flex-wrap: wrap;
+//  gap: 1rem;
+//
+//  .header-text h2 {
+//    margin: 0;
+//    display: flex;
+//    align-items: center;
+//    gap: 0.5rem;
+//    font-size: 1.25rem;
+//  }
+//  p { margin: 0.25rem 0 0 0; color: $text-muted; font-size: 0.85rem; }
+//}
 
 // ========== INVITE PANEL ==========
 .invite-panel {

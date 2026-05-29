@@ -7,27 +7,27 @@
   min-height: 100vh;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-
-  h1 {
-    margin: 0;
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    i {
-      color: $accent;
-      font-size: 1.75rem;
-    }
-  }
-}
+//.page-header {
+//  display: flex;
+//  justify-content: space-between;
+//  align-items: center;
+//  margin-bottom: 2rem;
+//  flex-wrap: wrap;
+//  gap: 1rem;
+//
+//  h1 {
+//    margin: 0;
+//    font-size: 1.5rem;
+//    display: flex;
+//    align-items: center;
+//    gap: 0.5rem;
+//
+//    i {
+//      color: $accent;
+//      font-size: 1.75rem;
+//    }
+//  }
+//}
 
 .form-container {
   background: $bg-card;

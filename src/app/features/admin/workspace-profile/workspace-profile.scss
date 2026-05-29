@@ -12,41 +12,41 @@
 }
 
 // Импортируем общую стилистику шапки из дизайн-системы
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  padding-bottom: 1.25rem;
-  border-bottom: 1px solid var(--border);
-
-  .header-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-
-    h1 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--text-main);
-
-      i {
-        color: var(--accent);
-        font-size: 1.6rem;
-      }
-    }
-
-    p {
-      font-size: 0.875rem;
-      color: var(--text-muted);
-      margin: 0;
-    }
-  }
-}
+//.page-header {
+//  display: flex;
+//  justify-content: space-between;
+//  align-items: center;
+//  gap: 1rem;
+//  padding-bottom: 1.25rem;
+//  border-bottom: 1px solid var(--border);
+//
+//  .header-info {
+//    display: flex;
+//    flex-direction: column;
+//    gap: 0.25rem;
+//
+//    h1 {
+//      font-size: 1.4rem;
+//      font-weight: 700;
+//      margin: 0;
+//      display: flex;
+//      align-items: center;
+//      gap: 0.5rem;
+//      color: var(--text-main);
+//
+//      i {
+//        color: var(--accent);
+//        font-size: 1.6rem;
+//      }
+//    }
+//
+//    p {
+//      font-size: 0.875rem;
+//      color: var(--text-muted);
+//      margin: 0;
+//    }
+//  }
+//}
 
 // Кнопка переключения режима редактирования
 .btn-icon-toggle {
