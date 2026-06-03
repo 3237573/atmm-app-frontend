@@ -37,7 +37,7 @@ export class Sidebar implements OnInit {
   private readonly allMenuItems: MenuItem[] = [
     { path: '/members', icon: 'groups', label: 'Members', permission: 'user:read' },
     { path: '/chat', icon: 'chat', label: 'Chat', permission: 'chat:read' },
-    { path: '/tasks', icon: 'task', label: 'Tasks', permission: 'task:read' },
+    { path: '/tasks', icon: 'account_tree', label: 'Tasks', permission: 'task:read' },
     { path: '/tracker', icon: 'schedule', label: 'Tracker', permission: 'tracker:read' },
     { path: '/admin', icon: 'settings', label: 'Admin', permission: 'owner:owner' }
   ];
