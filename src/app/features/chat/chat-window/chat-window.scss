@@ -1,11 +1,32 @@
+// ==========================================================================
+// МИКСИНЫ И ПЕРЕМЕННЫЕ (Для гибкости и чистоты кода)
+// ==========================================================================
+$max-content-width: 1000px;
+$transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin glass-effect($bg: rgba(0, 0, 0, 0.6), $blur: 12px) {
+  background: $bg;
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+}
+
+// ==========================================================================
+// ОСНОВНОЙ КОНТЕЙНЕР angular-компонента
+// ==========================================================================
 :host {
-  display: flex !important;
-  flex-direction: column !important;
-  flex: 1 !important;
-  height: 100% !important;
-  max-height: 100% !important;
-  width: 100% !important;
-  overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  max-height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 
 .chat-window {
@@ -17,12 +38,15 @@
   background: var(--bg-main, #f5f7fb);
   overflow: hidden;
   align-items: center;
+  position: relative;
 }
 
-/* Шапка чата */
+// ==========================================================================
+// ШАПКА ЧАТА (Chat Header)
+// ==========================================================================
 .chat-header {
   width: 100%;
-  max-width: 1000px;
+  max-width: $max-content-width;
   padding: 0.75rem 1.25rem;
   border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.05));
   display: flex;
@@ -30,17 +54,18 @@
   gap: 1rem;
   background: var(--bg-elevated, #ffffff);
   flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 
   .back-btn {
     background: none;
     border: none;
     font-size: 1.25rem;
-    color: var(--text-muted, #6c757d);
+    color: var(--text-muted, #64748b);
     cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    transition: background 0.2s;
+    padding: 0.35rem 0.6rem;
+    border-radius: 8px;
+    transition: $transition-smooth;
+    @include flex-center;
 
     &:hover {
       background: var(--bg-main, #f5f7fb);
@@ -54,47 +79,92 @@
 
     .room-name {
       font-weight: 600;
-      color: var(--text-main, #212529);
+      color: var(--text-main, #0f172a);
       font-size: 0.95rem;
     }
 
     .member-count {
       font-size: 0.75rem;
-      color: var(--text-muted, #6c757d);
+      color: var(--text-muted, #64748b);
       margin-top: 0.1rem;
+    }
+  }
+
+  // Контейнер кнопок звонков
+  .chat-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 0.5rem;
+
+    .icon-btn {
+      background: none;
+      border: none;
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      @include flex-center;
+      transition: $transition-smooth;
+
+      .material-icons {
+        font-size: 22px;
+        color: var(--text-muted, #64748b);
+        transition: color 0.2s;
+      }
+
+      &:hover {
+        background-color: var(--bg-hover, rgba(0, 0, 0, 0.04));
+        .material-icons {
+          color: var(--text-main, #0f172a);
+        }
+      }
     }
   }
 }
 
-/* Контейнер сообщений */
+// ==========================================================================
+// ЛЕНТА СООБЩЕНИЙ (Messages List)
+// ==========================================================================
 .messages-container {
   flex: 1;
   width: 100%;
-  max-width: 1000px;
-  padding: 1rem 1.25rem;
+  max-width: $max-content-width;
+  padding: 1.25rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem; /* Оптимально сближает сообщения */
+  gap: 0.4rem;
   scroll-behavior: smooth;
 
   &::-webkit-scrollbar {
     width: 5px;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.12);
+    border-radius: 10px;
+  }
+
+  .empty-messages {
+    margin: auto;
+    color: var(--text-muted, #64748b);
+    font-size: 0.9rem;
+    background: var(--bg-elevated, #ffffff);
+    padding: 0.6rem 1.2rem;
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.03));
   }
 }
 
-/* Бабблы сообщений (Современный стиль) */
+// ==========================================================================
+// БАББЛЫ СООБЩЕНИЙ (Message Bubbles)
+// ==========================================================================
 .message {
   display: flex;
   flex-direction: column;
-  max-width: 75%;
+  max-width: 70%;
   width: fit-content;
   position: relative;
-  animation: fadeIn 0.15s ease-out;
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   .message-sender {
     font-size: 0.75rem;
@@ -105,80 +175,89 @@
   }
 
   .message-content {
-    padding: 0.55rem 0.85rem;
+    padding: 0.6rem 0.95rem;
     font-size: 0.9rem;
-    line-height: 1.4;
+    line-height: 1.45;
     word-break: break-word;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.35rem;
 
     img.media-image {
       max-width: 100%;
-      max-height: 300px;
-      border-radius: 8px;
+      max-height: 320px;
+      border-radius: 10px;
       cursor: pointer;
       transition: opacity 0.2s;
-      &:hover { opacity: 0.95; }
+      &:hover { opacity: 0.92; }
     }
 
     video.media-video, audio {
       max-width: 100%;
-      border-radius: 8px;
+      border-radius: 10px;
+    }
+
+    .file-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      color: inherit;
+      font-weight: 500;
+      &:hover { text-decoration: underline; }
     }
   }
 
   .message-time {
     font-size: 0.68rem;
     align-self: flex-end;
-    margin-top: -0.1rem;
+    margin-top: 0.15rem;
     margin-left: 1.5rem;
     user-select: none;
-    opacity: 0.6;
+    opacity: 0.5;
   }
 
-  /* Чужие сообщения (Слева) */
+  /* Входящие (Чужие сообщения — Слева) */
   &:not(.own) {
     align-self: flex-start;
 
     .message-content {
       background: var(--bg-card, #ffffff);
-      color: var(--text-main, #212529);
-      /* Скругление: левый нижний угол почти прямой */
-      border-radius: 14px 14px 14px 4px;
+      color: var(--text-main, #0f172a);
+      border-radius: 16px 16px 16px 4px;
+      border: 1px solid rgba(0, 0, 0, 0.02);
     }
     .message-time {
-      color: var(--text-muted, #6c757d);
+      color: var(--text-muted, #64748b);
     }
   }
 
-  /* Свои сообщения (Справа) */
+  /* Исходящие (Свои сообщения — Справа) */
   &.own {
     align-self: flex-end;
 
-    /* Прячем имя автора для своих сообщений, так как оно избыточно */
     .message-sender {
-      display: none;
+      display: none; // Своё имя скрываем
     }
 
     .message-content {
-      /* Современный градиент вместо скучного сплошного цвета */
-      background: linear-gradient(135deg, var(--accent, #007bff) 0%, #0069d9 100%);
+      background: linear-gradient(135deg, var(--accent, #007bff) 0%, #0062cc 100%);
       color: #ffffff;
-      /* Скругление: правый нижний угол почти прямой */
-      border-radius: 14px 14px 4px 14px;
+      border-radius: 16px 16px 4px 16px;
     }
     .message-time {
-      color: rgba(255, 255, 255, 0.85);
+      color: rgba(255, 255, 255, 0.8);
     }
   }
 }
 
-/* Индикатор набора текста */
+// ==========================================================================
+// ИНДИКАТОР НАБОРА ТЕКСТА (Typing Indicator)
+// ==========================================================================
 .typing-indicator-container {
   width: 100%;
-  max-width: 1000px;
+  max-width: $max-content-width;
   padding: 0.25rem 1.25rem;
   display: flex;
   justify-content: flex-start;
@@ -188,13 +267,13 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(0, 0, 0, 0.04);
-    padding: 0.35rem 0.75rem;
-    border-radius: 12px;
+    background: var(--bg-hover, rgba(0, 0, 0, 0.03));
+    padding: 0.4rem 0.8rem;
+    border-radius: 14px;
 
     .typing-text {
       font-size: 0.75rem;
-      color: var(--text-muted, #6c757d);
+      color: var(--text-muted, #64748b);
     }
   }
 }
@@ -208,7 +287,7 @@
   span {
     width: 4px;
     height: 4px;
-    background: var(--text-muted, #6c757d);
+    background: var(--text-muted, #64748b);
     border-radius: 50%;
     animation: bounce 1.4s infinite ease-in-out both;
     &:nth-child(1) { animation-delay: -0.32s; }
@@ -216,7 +295,9 @@
   }
 }
 
-/* Поле ввода */
+// ==========================================================================
+// ПОЛЕ ВВОДА СООБЩЕНИЯ (Input Area)
+// ==========================================================================
 .input-area {
   display: flex;
   gap: 0.75rem;
@@ -225,119 +306,263 @@
   background: var(--bg-elevated, #ffffff);
   align-items: center;
   width: 100%;
-  max-width: 1000px;
+  max-width: $max-content-width;
   margin: 0 auto;
   flex-shrink: 0;
 
   .file-btn {
     background: var(--bg-main, #f5f7fb);
     border-radius: 50%;
-    width: 2.25rem;
-    height: 2.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    @include flex-center;
     cursor: pointer;
-    font-size: 1.1rem;
-    color: var(--accent, #007bff);
-    transition: all 0.2s;
+    transition: $transition-smooth;
     flex-shrink: 0;
+
+    .material-icons {
+      font-size: 20px;
+      color: var(--accent, #007bff);
+    }
+
     &:hover {
-      background: var(--border-subtle, rgba(0, 0, 0, 0.08));
+      background: var(--border-subtle, rgba(0, 0, 0, 0.06));
       transform: scale(1.05);
     }
   }
 
   textarea {
     flex: 1;
-    border: 1px solid var(--border, #dee2e6);
-    border-radius: 20px; /* Круглое современное поле */
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 22px;
     background: var(--bg-main, #f5f7fb);
-    color: var(--text-main, #212529);
-    padding: 0.55rem 1rem;
+    color: var(--text-main, #0f172a);
+    padding: 0.6rem 1.1rem;
     font-size: 0.9rem;
     resize: none;
-    line-height: 1.3;
+    line-height: 1.4;
     outline: none;
     max-height: 120px;
-    transition: border-color 0.2s;
+    transition: $transition-smooth;
 
     &:focus {
       border-color: var(--accent, #007bff);
       background: var(--bg-card, #ffffff);
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.08);
     }
   }
 
   .send-btn {
     background: var(--accent, #007bff);
-    color: white;
     border: none;
     border-radius: 50%;
-    width: 2.25rem;
-    height: 2.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    @include flex-center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: $transition-smooth;
     flex-shrink: 0;
-    padding-left: 3px; /* Центровка иконки самолетика */
+
+    .material-icons {
+      font-size: 18px;
+      color: white;
+      margin-left: 2px; // Оптическая центровка стрелочки самолета
+    }
 
     &:hover:not([disabled]) {
-      background: #0069d9;
+      background: #0062cc;
       transform: scale(1.05);
     }
 
     &[disabled] {
-      background: var(--border, #dee2e6);
-      color: var(--text-muted, #6c757d);
+      background: var(--border, #e2e8f0);
       cursor: not-allowed;
+      .material-icons {
+        color: var(--text-muted, #94a3b8);
+      }
     }
   }
 }
 
-.empty-messages {
-  margin: auto;
-  color: var(--text-muted, #6c757d);
-  font-size: 0.9rem;
-  background: var(--bg-elevated, #ffffff);
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+// ==========================================================================
+// ЗВОНКИ И ОВЕРЛЕИ (WebRTC Call Interfaces)
+// ==========================================================================
+.call-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+  @include flex-center;
+  color: white;
+  animation: fadeIn 0.25s ease;
+
+  // ЭКРАН ВХОДЯЩЕГО ВЫЗОВА
+  &.incoming-call {
+    @include glass-effect(rgba(15, 23, 42, 0.8));
+
+    .call-card {
+      background: #1e293b;
+      padding: 40px 30px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      max-width: 340px;
+      width: 90%;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+
+      .pulse-avatar {
+        width: 70px;
+        height: 70px;
+        background: var(--accent, #007bff);
+        border-radius: 50%;
+        margin: 0 auto 20px;
+        @include flex-center;
+        font-size: 28px;
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.5);
+        animation: pulse-ring 1.6s infinite;
+      }
+
+      h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      p {
+        font-size: 0.85rem;
+        color: #94a3b8;
+        margin-bottom: 30px;
+      }
+
+      .call-buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+      }
+
+      .call-btn {
+        padding: 12px 28px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: $transition-smooth;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+
+        &.accept {
+          background: #10b981;
+          color: white;
+          &:hover { background: #059669; transform: translateY(-1px); }
+        }
+
+        &.reject {
+          background: #ef4444;
+          color: white;
+          &:hover { background: #dc2626; transform: translateY(-1px); }
+        }
+      }
+    }
+  }
+
+  // ЭКРАН АКТИВНОГО РАЗГОВОРА / СТРИМА
+  &.active-call {
+    flex-direction: column;
+    @include glass-effect(rgba(0, 0, 0, 0.9));
+
+    .video-grid {
+      position: relative;
+      width: 92%;
+      height: 78%;
+      background: #0f172a;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+
+      .remote-video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      // Маленькое окошко вашей веб-камеры
+      .local-video {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        width: 160px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        z-index: 10;
+        transition: $transition-smooth;
+      }
+
+      .audio-avatar {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.05);
+        padding: 24px;
+        border-radius: 50%;
+        @include flex-center;
+
+        .material-icons {
+          font-size: 48px;
+          color: #94a3b8;
+        }
+      }
+    }
+
+    .call-controls {
+      margin-top: 24px;
+
+      .end-call-btn {
+        background: #ef4444;
+        color: white;
+        border: none;
+        padding: 12px 36px;
+        border-radius: 24px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: $transition-smooth;
+        display:flex;
+        align-items: center;
+        gap: 8px;
+
+        &:hover {
+          background: #dc2626;
+          transform: scale(1.03);
+          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+        }
+      }
+    }
+  }
 }
 
+// ==========================================================================
+// АНИМАЦИИ (Animations)
+// ==========================================================================
 @keyframes bounce {
   0%, 80%, 100% { transform: scale(0); }
   40% { transform: scale(1.0); }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.call-overlay {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.85); z-index: 999; display: flex; align-items: center; justify-content: center; color: white;
-
-  &.incoming-call {
-    .call-card {
-      background: #222; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-      .call-buttons { display: flex; gap: 16px; margin-top: 20px; justify-content: center; }
-      .call-btn { padding: 10px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-      .accept { background: #4caf50; color: white; }
-      .reject { background: #f44336; color: white; }
-    }
-  }
-
-  &.active-call {
-    flex-direction: column;
-    .video-grid {
-      position: relative; width: 90%; height: 80%; background: #000; border-radius: 8px; overflow: hidden;
-      .remote-video { width: 100%; height: 100%; object-fit: cover; }
-      .local-video { position: absolute; bottom: 20px; right: 20px; width: 180px; height: 135px; object-fit: cover; border-radius: 6px; border: 2px solid white; z-index: 10; }
-      .audio-avatar { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; }
-    }
-    .call-controls { margin-top: 20px; .end-call-btn { background: #f44336; color: white; border: none; padding: 12px 30px; border-radius: 20px; font-weight: bold; cursor: pointer; } }
-  }
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.6); }
+  70% { box-shadow: 0 0 0 15px rgba(0, 123, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
 }

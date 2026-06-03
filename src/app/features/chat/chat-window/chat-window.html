@@ -6,9 +6,13 @@
       <span class="member-count"> {{ memberCount }} участников</span>
     </div>
 
-    <div class="chat-actions" style="margin-left: auto; display: flex; gap: 12px;">
-      <button class="icon-btn" (click)="initiateCall('AUDIO')" title="Аудиозвонок" style="background: none; border: none; font-size: 20px; cursor: pointer;">📞</button>
-      <button class="icon-btn" (click)="initiateCall('VIDEO')" title="Видеозвонок" style="background: none; border: none; font-size: 20px; cursor: pointer;">📹</button>
+    <div class="chat-actions">
+      <button class="icon-btn" (click)="initiateCall('AUDIO')" title="Аудиозвонок">
+        <i class="material-icons">call</i>
+      </button>
+      <button class="icon-btn" (click)="initiateCall('VIDEO')" title="Видеозвонок">
+        <i class="material-icons">videocam</i>
+      </button>
     </div>
   </div>
 
@@ -57,19 +61,30 @@
     }
   </div>
 
+  @if (typingUsers().length > 0) {
+    <div class="typing-indicator-container">
+      <div class="typing-bubble">
+        <div class="dots-animation">
+          <span></span><span></span><span></span>
+        </div>
+        <span class="typing-text">{{ getTypingText() }}</span>
+      </div>
+    </div>
+  }
+
   <div class="input-area">
     <label class="file-btn" title="Прикрепить файл">
       <input type="file" (change)="uploadFile($event)" hidden>
       📎
     </label>
 
-    <input
-      type="text"
+    <textarea
       class="message-input"
       [(ngModel)]="newMessage"
       (keyup.enter)="sendMessage()"
       placeholder="Введите сообщение..."
-    />
+      rows="1">
+    </textarea>
 
     <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()">
       Отправить
