@@ -1,4 +1,4 @@
-<nav>
+<nav (dblclick)="onNavbarDblClick($event)">
   <ul class="nav-list">
     @for (item of menuItems(); track item.path) {
       <li>
@@ -10,6 +10,15 @@
           </span>
           <span class="text">{{ item.label }}</span>
         </a>
+      </li>
+    }
+    <li></li>
+    @if (!sidebarService.isCollapsed()) {
+      <li>
+        {{ currentUserName() }}
+      </li>
+      <li>
+        {{ currentUserEmail() }}
       </li>
     }
   </ul>

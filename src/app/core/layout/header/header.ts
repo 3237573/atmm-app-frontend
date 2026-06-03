@@ -21,7 +21,7 @@ export class Header {
   protected readonly sidebarService = inject(SidebarService); // Сервис для отслеживания линии
   private readonly translocoService = inject(TranslocoService);
 
-  readonly currentUserEmail = computed(() => this.authService.currentUser()?.email ?? '');
+
   // Если у вас возвращается имя воркспейса из другого сигнала/сервиса, используйте его:
   readonly currentWorkspaceName = computed(() => this.authService.currentWorkspace()?.name ?? '');
 

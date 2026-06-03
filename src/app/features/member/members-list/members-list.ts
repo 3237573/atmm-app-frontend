@@ -7,11 +7,12 @@ import {FormsModule} from '@angular/forms';
 import {AuthService} from '@core/services/auth.service';
 import {ChatService} from '@core/services/chat.service';
 import {firstValueFrom} from 'rxjs';
+import {TranslocoPipe} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-members-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslocoPipe],
   templateUrl: './members-list.html',
   styleUrl: './members-list.scss'
 })
@@ -27,7 +28,10 @@ export class MembersList implements OnInit {
   selectedRole = signal('');
   selectedDepartment = signal('');
 
-  currentUser = computed(() => this.authService.currentUser());
+  isCurrentUser(email: string): boolean {
+    return email === this.authService.currentUser()?.email;
+  }
+
 
   ngOnInit(): void {
     this.loadMembers();

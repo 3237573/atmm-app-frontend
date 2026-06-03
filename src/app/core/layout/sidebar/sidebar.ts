@@ -22,10 +22,13 @@ interface MenuItem {
   styleUrl: './sidebar.scss'
 })
 export class Sidebar implements OnInit {
-  private readonly auth = inject(AuthService);
+  private readonly authService = inject(AuthService);
   private readonly navigationService = inject(NavigationService);
   private readonly router = inject(Router);
   protected readonly sidebarService = inject(SidebarService);
+
+  readonly currentUserEmail = computed(() => this.authService.currentUser()?.email ?? 'none');
+  readonly currentUserName = computed(() => this.authService.currentUser()?.displayName ?? 'none');
 
   @HostBinding('class.collapsed') get isHostCollapsed() {
     return this.sidebarService.isCollapsed();
@@ -40,9 +43,9 @@ export class Sidebar implements OnInit {
   ];
 
   menuItems = computed(() => {
-    if (!this.auth.isAuthenticated()) return [];
+    if (!this.authService.isAuthenticated()) return [];
     return this.allMenuItems.filter(item =>
-      !item.permission || this.auth.hasPermission(item.permission)
+      !item.permission || this.authService.hasPermission(item.permission)
     );
   });
 
@@ -65,9 +68,20 @@ export class Sidebar implements OnInit {
     });
   }
 
-  // Новый чистый метод клика по стрелочке
+  // Method of handling double clicking on the panel
+  onNavbarDblClick(event: MouseEvent): void {
+    // Ignoring double clicks on mobile phones (the sidebar works as an overlay there)
+    if (window.innerWidth <= 768) return;
+
+    const collapsedSignal = this.sidebarService.isCollapsed as any;
+    if (collapsedSignal && typeof collapsedSignal.set === 'function') {
+      collapsedSignal.set(!this.sidebarService.isCollapsed());
+    }
+  }
+
+  // Pure method of clicking on the arrow (leave it as is)
   toggleSidebar(event: MouseEvent): void {
-    event.stopPropagation(); // Чтобы клик не улетал дальше
+    event.stopPropagation();
     const collapsedSignal = this.sidebarService.isCollapsed as any;
     if (collapsedSignal && typeof collapsedSignal.set === 'function') {
       collapsedSignal.set(!this.sidebarService.isCollapsed());

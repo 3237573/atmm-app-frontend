@@ -4,9 +4,8 @@
     <div class="header-info">
       <h1>
         <i class="material-icons">groups</i>
-        <span>Участники пространства</span>
+        <span>Участники</span>
       </h1>
-      <p>Список пользователей, управление доступом и задачами</p>
     </div>
   </div>
 
@@ -36,10 +35,16 @@
             <div class="avatar-circle" [ngClass]="getRoleBadgeClass(member.roleName)">
               {{ member.displayName.charAt(0) || member.email.charAt(0) | uppercase }}
             </div>
-            <div class="member-info" >
+            <div class="member-info">
               <span class="member-name">{{ member.displayName || 'Пользователь без имени' }}</span>
               <span class="member-email">{{ member.email }}</span>
             </div>
+            @if (isCurrentUser(member.email)) {
+              <span class="status-badge" [class.live]=true>
+                  <span class="pulse-dot"></span>
+                {{ ('tracker.period.onTheAir') | transloco }}
+                </span>
+            }
           </div>
 
           <div class="member-meta" style="width: 5%">

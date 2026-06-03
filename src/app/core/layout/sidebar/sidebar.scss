@@ -177,11 +177,12 @@ a {
 @media (max-width: 768px) {
   :host {
     position: fixed;
-    top: 0;
+    top: 56px;
     left: 0;
-    height: 100vh;
+    height: calc(100vh - 56px);
     width: 240px !important;
     transition: transform 0.3s ease-in-out;
+    z-index: 100;
 
     &.collapsed {
       display: none !important;

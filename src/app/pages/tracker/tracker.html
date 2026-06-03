@@ -5,11 +5,11 @@
         <i class="material-icons">history_toggle_off</i>
         {{ (targetUserId() ? 'tracker.title.employeeReport' : 'tracker.title.myActivity') | transloco }}
       </h1>
-      <div class="status-badge" [class.live]="isToday()">
-        <span class="pulse-dot"></span>
-        {{ (isToday() ? 'tracker.period.onTheAir' : 'tracker.period.dataArchive') | transloco }}
-      </div>
     </div>
+    <span class="status-badge" [class.live]="isToday()">
+        <span class="pulse-dot"></span>
+      {{ (isToday() ? 'tracker.period.onTheAir' : 'tracker.period.dataArchive') | transloco }}
+      </span>
 
     <div class="header-actions">
       @if (targetUserId()) {
