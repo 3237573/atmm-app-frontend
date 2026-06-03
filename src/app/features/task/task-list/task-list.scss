@@ -232,14 +232,14 @@
     &:hover { background: rgba(var(--accent-rgb), 0.02); }
   }
 
-  .col-status, .col-priority { width: 90px; }
-  .col-date { width: 110px; }
+  .col-status, .col-priority { width: 80px; }
+  .col-date { width: 50px; }
   .col-icon { width: 50px; text-align: center; i { font-size: 1.2rem; color: var(--text-muted); } }
   .col-task { min-width: 250px; }
   .col-department { width: 140px; }
-  .col-project { width: 140px; }
-  .col-creator { width: 140px; }
-  .col-assignee { min-width: 100px; }
+  .col-project { width: 50px; }
+  .col-creator { width: 50px; }
+  .col-assignee { width: 50px; }
 
   .text-center { text-align: center; }
   .text-right { text-align: right; }

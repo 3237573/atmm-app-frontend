@@ -58,11 +58,11 @@
       <table class="tasks-table">
         <thead>
         <tr>
-          <th class="col-status sortable" (click)="sortBy('status')">Статус <i class="material-icons sort-icon">{{ getSortIcon('status') }}</i></th>
-          <th class="col-priority sortable" (click)="sortBy('priority')">Приоритет <i class="material-icons sort-icon">{{ getSortIcon('priority') }}</i></th>
+          <th class="col-task sortable" (click)="sortBy('title')">Задача <i class="material-icons sort-icon">{{ getSortIcon('title') }}</i></th>
           <th class="col-icon" title="Подзадачи"><i class="material-icons">account_tree</i></th>
           <th class="col-icon" title="Комментарии"><i class="material-icons">chat_bubble_outline</i></th>
-          <th class="col-task sortable" (click)="sortBy('title')">Задача <i class="material-icons sort-icon">{{ getSortIcon('title') }}</i></th>
+          <th class="col-status sortable" (click)="sortBy('status')">Статус <i class="material-icons sort-icon">{{ getSortIcon('status') }}</i></th>
+          <th class="col-priority sortable" (click)="sortBy('priority')">Приоритет <i class="material-icons sort-icon">{{ getSortIcon('priority') }}</i></th>
           <th class="col-department sortable" (click)="sortBy('departmentName')">Отдел <i class="material-icons sort-icon">{{ getSortIcon('departmentName') }}</i></th>
           <th class="col-project sortable" (click)="sortBy('projectName')">Проект <i class="material-icons sort-icon">{{ getSortIcon('projectName') }}</i></th>
           <th class="col-date sortable" (click)="sortBy('dueDate')">Срок <i class="material-icons sort-icon">{{ getSortIcon('dueDate') }}</i></th>
@@ -74,6 +74,18 @@
         <tbody>
           @for (task of visibleTasks(); track task.id) {
             <tr [routerLink]="['/tasks', 'edit', task.id]" class="task-row">
+              <td class="col-task">
+                <div class="title-wrapper" [style.paddingLeft.px]="task.level * 20">
+                  @if ((task.subtasksCount || 0) > 0) {
+                    <i class="material-icons node-toggle" [class.open]="expandedNodes().has(task.id)" (click)="toggleNode(task.id, $event)">chevron_right</i>
+                  } @else {
+                    <span class="node-spacer"></span>
+                  }
+                  <span class="task-title">{{ task.title }}</span>
+                </div>
+              </td>
+              <td class="col-icon text-center">@if ((task.subtasksCount || 0) > 0) { <span class="count-text">{{ task.subtasksCount }}</span> } @else { <span class="count-text muted">—</span> }</td>
+              <td class="col-icon text-center">@if ((task.commentsCount || 0) > 0) { <span class="count-text">{{ task.commentsCount }}</span> } @else { <span class="count-text muted">—</span> }</td>
               <td class="col-status">
                 <div class="status-select-wrapper" [class]="getStatusClass(task.status)">
                   <select [value]="task.status" (click)="$event.stopPropagation()" (change)="updateStatus(task, $any($event.target).value)" class="status-select-styled">
@@ -86,18 +98,6 @@
                 </div>
               </td>
               <td class="col-priority"><span class="priority-badge" [class]="getPriorityColor(task.priority)">{{ task.priority }}</span></td>
-              <td class="col-icon text-center">@if ((task.subtasksCount || 0) > 0) { <span class="count-text">{{ task.subtasksCount }}</span> } @else { <span class="count-text muted">—</span> }</td>
-              <td class="col-icon text-center">@if ((task.commentsCount || 0) > 0) { <span class="count-text">{{ task.commentsCount }}</span> } @else { <span class="count-text muted">—</span> }</td>
-              <td class="col-task">
-                <div class="title-wrapper" [style.paddingLeft.px]="task.level * 20">
-                  @if ((task.subtasksCount || 0) > 0) {
-                    <i class="material-icons node-toggle" [class.open]="expandedNodes().has(task.id)" (click)="toggleNode(task.id, $event)">chevron_right</i>
-                  } @else {
-                    <span class="node-spacer"></span>
-                  }
-                  <span class="task-title">{{ task.title }}</span>
-                </div>
-              </td>
               <td class="col-department"><span class="department-name">{{ task.departmentName || '—' }}</span></td>
               <td class="col-project"><span class="project-name">{{ task.projectName || '—' }}</span></td>
               <td class="col-date">@if (task.dueDate) { <span class="due-date" [class]="task.dateClass">{{ task.formattedDate }}</span> }</td>
