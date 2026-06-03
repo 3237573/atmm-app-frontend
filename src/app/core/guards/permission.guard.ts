@@ -1,12 +1,12 @@
-import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import {inject} from '@angular/core';
+import {CanActivateChildFn, Router} from '@angular/router';
 import {AuthService} from '../services/auth.service';
 
-export const permissionGuard: CanActivateFn = (route, state) => {
+export const permissionGuard: CanActivateChildFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Извлекаем требуемое право из данных роута
+  // Теперь здесь будет актуальный snapshot дочернего роута при переходах во внутренние разделы
   const requiredPermission = route.data['permission'] as string;
 
   // Если право не указано или оно есть у пользователя — пускаем
@@ -14,6 +14,6 @@ export const permissionGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  // Если прав нет — редиректим на главную или страницу "403 No Access"
-  return router.parseUrl('/tasks');
+  // Безопасный редирект на трекер (доступный всем), чтобы избежать бесконечного цикла
+  return router.parseUrl('/tracker');
 };

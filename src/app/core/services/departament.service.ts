@@ -3,7 +3,6 @@ import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {CreateDepartmentRequest, DepartmentRO, UpdateDepartmentRequest} from '../models/departament.model';
 import {MemberRO} from '../models/member.model';
-import {MemberService} from './member.service';
 
 
 @Injectable({providedIn: 'root'})

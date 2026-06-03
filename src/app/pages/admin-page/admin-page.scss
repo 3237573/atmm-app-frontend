@@ -1,24 +1,6 @@
 @use "../../app.scss" as *;
 
-.admin-page {
-  padding: 2rem;
-
-  //.page-header {
-  //  display: flex;
-  //  // justify-content: space-between; <-- УДАЛЯЕМ
-  //  justify-content: flex-start;  // ПРИЖИМАЕМ КЛЕВО
-  //  align-items: flex-end;
-  //  gap: 4rem; // РАССТОЯНИЕ между заголовком и табами
-  //  margin-bottom: 2rem;
-  //  border-bottom: 1px solid $border;
-  //  padding-bottom: 1rem;
-  //
-  //  .header-info {
-  //    h2 { color: $accent; margin: 0; }
-  //    p { color: $text-muted; font-size: 0.9rem; margin: 5px 0 0; }
-  //  }
-  //}
-}
+.admin-page { padding: 2rem; }
 
 .admin-tabs {
   display: flex;
@@ -41,7 +23,7 @@
 
     i { font-size: 18px; }
 
-    &:hover { color: white; background: rgba($accent, 0.05); }
+    &:hover { color: var(--accent); background: rgba($accent, 0.05); }
 
     &.active {
       color: $accent;

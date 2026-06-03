@@ -1,5 +1,4 @@
-<nav (dblclick)="onSidebarDblClick($event)">
-
+<nav>
   <ul class="nav-list">
     @for (item of menuItems(); track item.path) {
       <li>
@@ -17,3 +16,14 @@
 
   <div class="sidebar-empty-space"></div>
 </nav>
+
+<div
+  class="sidebar-toggle-handle"
+  (click)="toggleSidebar($event)"
+  [title]="sidebarService.isCollapsed() ? 'Развернуть сайдбар' : 'Свернуть сайдбар'">
+  <div class="toggle-circle">
+    <i class="material-icons">
+      {{ sidebarService.isCollapsed() ? 'chevron_right' : 'chevron_left' }}
+    </i>
+  </div>
+</div>

@@ -6,8 +6,8 @@ import {MembersAdmin} from '../../features/admin/members-admin/members-admin';
 import {WorkspaceProfile} from '../../features/admin/workspace-profile/workspace-profile';
 import {TrackerAdmin} from '../../features/admin/tracker-admin/tracker-admin';
 import {BackOnEscapeDirective} from '../../core/directives/back-on-escape.directive';
-import {DepartmentList} from '../../features/department-list/department-list';
-import {ProjectList} from '../../features/project-list/project-list';
+import {DepartmentList} from '@features/department/department-list/department-list';
+import {ProjectList} from '@features/project/project-list/project-list';
 
 type TabId = 'profile' | 'departments' | 'projects' | 'members' | 'roles' | 'permissions' | 'tracker';
 

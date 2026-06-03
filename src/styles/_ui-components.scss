@@ -1,25 +1,8 @@
 // src/styles/_ui-components.scss
 
-//.page-header {
-//  display: flex;
-//  //justify-content: space-between;
-//  align-items: center;
-//  margin-bottom: 1.5rem;
-//  border-bottom: 1px solid var(--border-subtle);
-//  padding-bottom: 1rem;
-//
-//  .header-info, .header-text {
-//    h1, h2 {
-//      display: flex; align-items: center; gap: 10px; margin: 0;
-//      font-size: 1.5rem; color: var(--accent);
-//      i { font-size: 1.8rem; }
-//    }
-//    p { color: var(--text-muted); margin: 4px 0 0; font-size: 0.9rem; }
-//  }
-//}
-
 .page-header {
   display: flex;
+  color: var(--accent);
   justify-content: flex-start;
   align-items: center;
   padding-bottom: 1.25rem;

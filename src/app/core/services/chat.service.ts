@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, Subject, BehaviorSubject, interval, Subscription } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { AuthService } from './auth.service';
-import { ChatMessage, ChatRoom, CreateChatRoomRequest, WebSocketMessage, WebSocketResponse } from '@core/models/chat.model';
+import { ChatMessage, ChatRoomRO, CreateChatRoomRequest, WebSocketMessage, WebSocketResponse } from '@core/models/chat.model';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
@@ -14,14 +14,16 @@ export class ChatService {
 
   private socket$: WebSocketSubject<any> | null = null;
   private pingSubscription: Subscription | null = null;
+  private reconnectTimeout: any = null;
 
   private readonly messageSubject = new Subject<WebSocketResponse>();
   private readonly connectionStatus = new BehaviorSubject<boolean>(false);
-  private readonly roomsSubject = new BehaviorSubject<ChatRoom[]>([]);
+  private readonly roomsSubject = new BehaviorSubject<ChatRoomRO[]>([]);
   private readonly typingUsersSubject = new BehaviorSubject<Record<string, string[]>>({});
 
   private pendingMessages: WebSocketMessage[] = [];
   private connecting = false;
+  private loadingRooms = false;
 
   public messages$ = this.messageSubject.asObservable();
   public isConnected$ = this.connectionStatus.asObservable();
@@ -58,18 +60,16 @@ export class ChatService {
           console.log('✅ WebSocket connected');
           this.connectionStatus.next(true);
           this.connecting = false;
+          this.clearReconnect();
           this.startPing();
           this.flushPendingMessages();
-          this.loadUserRooms();
+          this.loadUserRooms(true);
         }
       },
       closeObserver: {
         next: (event) => {
           console.warn('❌ WebSocket disconnected', event);
-          this.stopPing();
-          this.connectionStatus.next(false);
-          this.connecting = false;
-          this.socket$ = null;
+          this.handleDisconnect();
         }
       }
     });
@@ -82,22 +82,52 @@ export class ChatService {
       },
       error: (err) => {
         console.error('WebSocket error:', err);
-        this.stopPing();
-        this.connectionStatus.next(false);
-        this.connecting = false;
-        this.socket$ = null;
+        this.handleDisconnect();
       },
       complete: () => {
-        this.stopPing();
-        this.connectionStatus.next(false);
-        this.connecting = false;
-        this.socket$ = null;
+        this.handleDisconnect();
       }
     });
   }
 
-  public loadUserRooms(): void {
-    this.getUserRooms().subscribe(rooms => this.roomsSubject.next(rooms));
+  private handleDisconnect(): void {
+    this.stopPing();
+    this.connectionStatus.next(false);
+    this.connecting = false;
+    this.socket$ = null;
+
+    // Автоматический реконнект через 4 секунды
+    if (!this.reconnectTimeout) {
+      this.reconnectTimeout = setTimeout(() => {
+        this.reconnectTimeout = null;
+        console.log('🔄 Reconnecting WebSocket...');
+        this.connect();
+      }, 4000);
+    }
+  }
+
+  private clearReconnect(): void {
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+  }
+
+  public loadUserRooms(force = false): void {
+    if (!force && this.roomsSubject.value && this.roomsSubject.value.length > 0) {
+      return;
+    }
+    if (this.loadingRooms) return;
+    this.loadingRooms = true;
+    this.getUserRooms().subscribe({
+      next: rooms => {
+        this.roomsSubject.next(rooms || []);
+        this.loadingRooms = false;
+      },
+      error: () => {
+        this.loadingRooms = false;
+      }
+    });
   }
 
   private handleIncomingSocketMessage(res: WebSocketResponse): void {
@@ -120,9 +150,31 @@ export class ChatService {
         break;
       }
 
-      case 'new_message':
+      case 'new_message': {
+        // Реактивно обновляем список комнат локально (без лишних HTTP-запросов)
+        const currentRooms = [...this.roomsSubject.value];
+        const index = currentRooms.findIndex(r => r.id === res.message.roomId);
+
+        if (index !== -1) {
+          const updatedRoom = { ...currentRooms[index] };
+          updatedRoom.lastMessage = res.message;
+
+          if (res.message.senderMemberId !== this.auth.currentUser()?.id) {
+            updatedRoom.unreadCount += 1;
+          }
+
+          // Перемещаем обновленную комнату наверх списка
+          currentRooms.splice(index, 1);
+          currentRooms.unshift(updatedRoom);
+          this.roomsSubject.next(currentRooms);
+        } else {
+          this.loadUserRooms(true);
+        }
+        break;
+      }
+
       case 'room_read':
-        this.loadUserRooms();
+        this.loadUserRooms(true);
         break;
     }
   }
@@ -149,6 +201,7 @@ export class ChatService {
   }
 
   disconnect(): void {
+    this.clearReconnect();
     this.stopPing();
     this.socket$?.complete();
     this.connectionStatus.next(false);
@@ -171,16 +224,16 @@ export class ChatService {
     this.socket$?.next(msg);
   }
 
-  getUserRooms(): Observable<ChatRoom[]> {
-    return this.http.get<ChatRoom[]>(`${this.baseUrl}/rooms`);
+  getUserRooms(): Observable<ChatRoomRO[]> {
+    return this.http.get<ChatRoomRO[]>(`${this.baseUrl}/rooms`);
   }
 
-  getRoomById(roomId: string): Observable<ChatRoom> {
-    return this.http.get<ChatRoom>(`${this.baseUrl}/rooms/${roomId}`);
+  getRoomById(roomId: string): Observable<ChatRoomRO> {
+    return this.http.get<ChatRoomRO>(`${this.baseUrl}/rooms/${roomId}`);
   }
 
-  createRoom(request: CreateChatRoomRequest): Observable<ChatRoom> {
-    return this.http.post<ChatRoom>(`${this.baseUrl}/rooms`, request);
+  createRoom(request: CreateChatRoomRequest): Observable<ChatRoomRO> {
+    return this.http.post<ChatRoomRO>(`${this.baseUrl}/rooms`, request);
   }
 
   addMembers(roomId: string, memberIds: string[]): Observable<void> {

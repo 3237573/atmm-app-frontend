@@ -1,18 +1,17 @@
 // chat-list.component.ts
-import { Component, inject, OnInit } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ChatService } from '@core/services/chat.service';
-import { ChatRoom } from '@core/models/chat.model';
-import { filter, startWith } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
-import { DestroyRef } from '@angular/core';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {NavigationEnd, Router} from '@angular/router';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {ChatService} from '@core/services/chat.service';
+import {ChatRoomBaseRO, ChatRoomRO} from '@core/models/chat.model';
+import {filter, startWith} from 'rxjs';
+import {FormsModule} from '@angular/forms';
+import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
 
 @Component({
   selector: 'app-chat-list',
   standalone: true,
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, BackOnEscapeDirective],
   templateUrl: './chat-list.html',
   styleUrls: ['./chat-list.scss']
 })
@@ -21,8 +20,8 @@ export class ChatList implements OnInit {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  rooms: ChatRoom[] = [];
-  filteredRooms: ChatRoom[] = [];
+  rooms: ChatRoomBaseRO[] = [];
+  filteredRooms: ChatRoomBaseRO[] = [];
   searchQuery = '';
   activeRoomId = '';
 
@@ -48,23 +47,24 @@ export class ChatList implements OnInit {
   }
 
   onSearchChange(): void {
+    const safeRooms = this.rooms || []; // Защита от null с бэкенда
     if (!this.searchQuery.trim()) {
-      this.filteredRooms = [...this.rooms];
+      this.filteredRooms = [...safeRooms];
       return;
     }
 
     const query = this.searchQuery.toLowerCase();
     this.filteredRooms = this.rooms.filter(room => {
-      const roomName = room.name || room.lastMessage?.senderName || 'Чат';
+      const roomName = room.name || 'Чат';
       return roomName.toLowerCase().includes(query);
     });
   }
 
   selectRoom(roomId: string): void {
-    this.router.navigate(['/chat', roomId]);
+    void this.router.navigate(['/chat', roomId]);
   }
 
-  getDisplayRoomName(room: ChatRoom): string {
+  getDisplayRoomName(room: ChatRoomRO): string {
     if (room.name) return room.name;
     if (room.type === 'DIRECT' && room.lastMessage) {
       return room.lastMessage.senderName;
@@ -73,8 +73,8 @@ export class ChatList implements OnInit {
   }
 
   // Получить первую букву для аватара
-  getAvatarInitials(room: ChatRoom): string {
-    const name = room.memberCount === 2 ? this.getDisplayRoomName(room) : room.name;
+  getAvatarInitials(room: ChatRoomBaseRO): string {
+    const name = room.name;
     return name ? name.trim().charAt(0).toUpperCase() : '✏️';
   }
 

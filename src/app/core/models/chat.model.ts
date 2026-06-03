@@ -1,11 +1,17 @@
 // core/models/chat.model.ts
-export interface ChatRoom {
+export interface ChatRoomBaseRO {
+  id: string;
+  name: string | null;
+  unreadCount: number;
+}
+
+export interface ChatRoomRO {
   id: string;
   name: string | null;
   type: 'DIRECT' | 'GROUP' | 'PROJECT';
   projectId: string | null;
   departmentId: string | null;
-  memberCount: number;
+  memberIds: string[];
   lastMessage?: ChatMessage;
   unreadCount: number;
   status: string;

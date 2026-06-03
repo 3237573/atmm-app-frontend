@@ -1,4 +1,4 @@
-<div class="chat-list-container">
+<div class="chat-list-container" appBackOnEscape>
   <div class="search-block">
     <div class="search-wrapper">
       <i class="material-icons">search</i>
@@ -25,18 +25,18 @@
           <div class="room-main-info">
             <div class="room-meta">
       <span class="room-name">
-        {{ room.memberCount === 2 ? getDisplayRoomName(room) : room.name }}
+        {{ room.name }}
       </span>
             </div>
             <p class="last-message-preview" [class.has-unread]="room.unreadCount > 0">
-              {{ room.lastMessage?.content || 'Нет сообщений' }}
+              {{ room.unreadCount || 'Нет сообщений' }}
             </p>
           </div>
 
           <div class="room-meta-right">
-            @if (room.lastMessage?.timestamp) {
+            @if (room.unreadCount) {
               <span class="last-msg-time">
-        {{ room.lastMessage?.timestamp | date:'HH:mm' }}
+        {{ room.unreadCount }}
       </span>
             }
             @if (room.unreadCount > 0) {

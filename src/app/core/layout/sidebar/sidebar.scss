@@ -6,9 +6,9 @@
   width: 170px;
   transition: width 0.3s var(--ease, ease-in-out);
   flex-shrink: 0;
-  z-index: 100; /* Гарантирует, что при открытии он будет поверх */
+  z-index: 100;
+  position: relative; /* Важно для хендла */
 
-  // КОГДА СВЕРНУТ НА ДЕСКТОПЕ: хост сайдбара сжимается ровно до 48px
   &.collapsed {
     width: 48px;
   }
@@ -21,7 +21,7 @@ nav {
   flex-direction: column;
   border-right: 1px solid var(--border, #dee2e6);
   overflow: hidden;
-  user-select: none; /* Запрещаем выделение текста при двойном клике */
+  user-select: none;
 }
 
 .sidebar-empty-space {
@@ -76,12 +76,10 @@ a {
   flex-shrink: 0;
 }
 
-/* ==========================================================================
-   🖥️ ПОВЕДЕНИЕ КОМПОНЕНТОВ В СВЕРНУТОМ СОСТОЯНИИ НА ДЕСКТОПЕ (48px)
-   ========================================================================== */
+/* Свернутое состояние */
 :host.collapsed {
   ul.nav-list {
-    padding: 0.75rem 0; /* Убираем боковые отступы, чтобы не зажимать иконку */
+    padding: 0.75rem 0;
   }
 
   li {
@@ -91,39 +89,106 @@ a {
 
   a {
     justify-content: center;
-    width: 40px; /* Квадратная кнопка по центру */
+    width: 40px;
     height: 40px;
     padding: 0;
-    border-radius: 50%; /* Сделаем круглыми при ховере в свернутом виде (очень современно) */
+    border-radius: 50%;
 
     .text {
-      display: none; /* Прячем текст в свернутом состоянии */
+      display: none;
     }
   }
 }
 
 /* ==========================================================================
-   📱 МОБИЛЬНАЯ АДАПТАЦИЯ (Полное исчезновение без прозрачных окон)
+   ↔️ ИНТЕРАКТИВНЫЙ ХЕНДЛ (КНОПКА РАСКРЫТИЯ/СКРЫТИЯ НА ГРАНИЦЕ)
+   ========================================================================== */
+.sidebar-toggle-handle {
+  position: absolute;
+  top: 0;
+  right: -6px; /* Накладывается прямо на правую границу */
+  width: 12px;
+  height: 100%;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Тонкая невидимая вертикальная линия-индикатор */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 5px;
+    width: 2px;
+    height: 100%;
+    background-color: var(--primary, #007bff);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  /* Круглая плашка со стрелочкой внутри */
+  .toggle-circle {
+    width: 20px;
+    height: 20px;
+    background: var(--bg-card, #ffffff);
+    border: 1px solid var(--border, #dee2e6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.15s;
+
+    i {
+      font-size: 14px;
+      color: var(--text-muted, #6c757d);
+      font-weight: bold;
+      user-select: none;
+    }
+  }
+
+  /* Эффект при наведении на область границы */
+  &:hover {
+    &::before {
+      opacity: 0.4;
+    }
+    .toggle-circle {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Эффект при клике по кнопке */
+  .toggle-circle:hover {
+    background: var(--bg-hover, #f8f9fa);
+    i {
+      color: var(--primary, #007bff);
+    }
+  }
+}
+
+/* ==========================================================================
+   📱 МОБИЛЬНАЯ АДАПТАЦИЯ
    ========================================================================== */
 @media (max-width: 768px) {
   :host {
-    /* На мобилке сайдбар либо открыт на всю ширину (выезжает как шторка),
-       либо ПОЛНОСТЬЮ уничтожается через display: none, чтобы не оставлять прозрачных следов */
     position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
-    width: 240px !important; /* Фиксированная ширина шторки */
+    width: 240px !important;
     transition: transform 0.3s ease-in-out;
 
-    // Если в сервисе выставлен collapsed (скрыт), на мобилке мы его полностью убираем с экрана
     &.collapsed {
       display: none !important;
       width: 0 !important;
       transform: translateX(-100%);
     }
 
-    // Когда он НЕ collapsed (то есть открыт по бургеру)
     &:not(.collapsed) {
       display: block !important;
       transform: translateX(0);
@@ -135,7 +200,10 @@ a {
     border-right: none;
   }
 
-  // На мобилках всегда показываем текст рядом с иконкой внутри шторки
+  .sidebar-toggle-handle {
+    display: none !important; /* Убираем кнопку управления мышью на мобилках */
+  }
+
   :host.collapsed a .text, a .text {
     display: block !important;
   }

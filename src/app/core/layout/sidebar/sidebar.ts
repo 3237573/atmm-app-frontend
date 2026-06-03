@@ -1,3 +1,4 @@
+// src/app/core/layout/sidebar/sidebar.ts
 import { Component, HostBinding, OnInit, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -26,7 +27,6 @@ export class Sidebar implements OnInit {
   private readonly router = inject(Router);
   protected readonly sidebarService = inject(SidebarService);
 
-  // Привязываем класс .collapsed к хосту компонента на основе сигнала из сервиса
   @HostBinding('class.collapsed') get isHostCollapsed() {
     return this.sidebarService.isCollapsed();
   }
@@ -55,27 +55,22 @@ export class Sidebar implements OnInit {
         this.navigationService.setLastRoute(url);
       }
 
-      // БЕЗОПАСНО: На мобилке закрываем сайдбар (ставим collapsed = true) при смене экрана
       if (window.innerWidth <= 768) {
-        // Вызываем метод закрытия из вашего SidebarService
-        // Если метода close() нет, можно использовать: this.sidebarService.isCollapsed.set(true);
         if (typeof this.sidebarService.close === 'function') {
           this.sidebarService.close();
         } else {
-          // Фолбек, если в сервисе просто открытый сигнал:
           (this.sidebarService.isCollapsed as any).set(true);
         }
       }
     });
   }
 
-  // Двойной клик по пустому месту переключает состояние
-  onSidebarDblClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (target.closest('a') || target.closest('button')) {
-      return;
+  // Новый чистый метод клика по стрелочке
+  toggleSidebar(event: MouseEvent): void {
+    event.stopPropagation(); // Чтобы клик не улетал дальше
+    const collapsedSignal = this.sidebarService.isCollapsed as any;
+    if (collapsedSignal && typeof collapsedSignal.set === 'function') {
+      collapsedSignal.set(!this.sidebarService.isCollapsed());
     }
-    // Вызов метода toggle из вашего сервиса
-    this.sidebarService.toggle();
   }
 }
