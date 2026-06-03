@@ -59,8 +59,6 @@ export class MembersList implements OnInit {
     });
   }
 
-
-
   private sortMembersByRole(members: MemberRO[]): MemberRO[] {
     const rolePriority: { [key: string]: number } = {
       'OWNER': 1,
@@ -101,7 +99,7 @@ export class MembersList implements OnInit {
     }
 
     if (directRoom) {
-      this.router.navigate(['/chat', directRoom.id]);
+      void this.router.navigate(['/chat', directRoom.id]);
     }
   }
 
@@ -113,7 +111,7 @@ export class MembersList implements OnInit {
   }
 
   viewProfile(member: MemberRO): void {
-    this.router.navigate(['/profile', member.id]);
+    void this.router.navigate(['/profile', member.id]);
   }
 
   getRoleBadgeClass(roleName: string): string {
