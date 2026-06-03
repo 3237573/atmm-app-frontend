@@ -255,4 +255,43 @@ export class ChatService {
     formData.append('file', file);
     return this.http.post<ChatMessage>(`${this.baseUrl}/upload/${roomId}`, formData);
   }
+
+  // ==========================================
+  // WEBRTC SIGNALING METHODS
+  // ==========================================
+
+  sendCallOffer(roomId: string, sdp: string, callType: 'VIDEO' | 'AUDIO'): void {
+    this.socket$?.next({
+      type: 'call_offer',
+      roomId: roomId,
+      sdp: sdp,
+      callType: callType
+    });
+  }
+
+  sendCallAnswer(roomId: string, sdp: string): void {
+    this.socket$?.next({
+      type: 'call_answer',
+      roomId: roomId,
+      sdp: sdp
+    });
+  }
+
+  sendCallIce(roomId: string, candidate: string): void {
+    this.socket$?.next({
+      type: 'call_ice',
+      roomId: roomId,
+      candidate: candidate
+    });
+  }
+
+  sendCallEnd(roomId: string): void {
+    this.socket$?.next({
+      type: 'call_end',
+      roomId: roomId
+    });
+  }
+
+
+
 }

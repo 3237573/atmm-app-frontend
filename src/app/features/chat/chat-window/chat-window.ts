@@ -25,12 +25,30 @@ export class ChatWindow implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild('scrollMe') private readonly scrollContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild('localVideo') private localVideoRef!: ElementRef<HTMLVideoElement>;
+  @ViewChild('remoteVideo') private remoteVideoRef!: ElementRef<HTMLVideoElement>;
 
   // Простые сигналы для данных
   readonly roomId = signal<string>('');
   readonly currentRoom = signal<ChatRoomRO | null>(null);
   readonly messages = signal<ChatMessage[]>([]);
   readonly typingUsers = signal<string[]>([]);
+
+  // 2. ДОБАВИТЬ: Сигналы управления звонком
+  readonly isCallActive = signal<boolean>(false);
+  readonly isIncomingCall = signal<boolean>(false);
+  readonly callType = signal<'VIDEO' | 'AUDIO'>('VIDEO');
+
+  // 3. ДОБАВИТЬ: Внутренние WebRTC объекты
+  private peerConnection: RTCPeerConnection | null = null;
+  private localStream: MediaStream | null = null;
+  private pendingIceCandidates: RTCIceCandidateInit[] = [];
+  private readonly rtcConfig: RTCConfiguration = {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' }
+    ]
+  };
 
   newMessage = '';
   myMemberId = '';
@@ -71,6 +89,13 @@ export class ChatWindow implements OnInit, OnDestroy {
       const ids = typingMap[this.roomId()] || [];
       // Исключаем себя
       this.typingUsers.set(ids.filter(id => id !== this.myMemberId));
+    });
+
+    // 4. ДОБАВИТЬ: Подписка на входящие сигналы WebRTC из шины сокета
+    this.chatService.messages$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((response: any) => {
+      this.handleCallSignaling(response);
     });
   }
 
@@ -237,7 +262,165 @@ export class ChatWindow implements OnInit, OnDestroy {
   getFileName(url: string): string { return url ? url.split('/').pop() || 'Файл' : 'Файл'; }
 
   ngOnDestroy(): void {
+    this.cleanupWebRTC();
     if (this.typingTimer) clearTimeout(this.typingTimer);
     if (this.markSeenTimer) clearTimeout(this.markSeenTimer);
+  }
+
+  // ==========================================
+  // ЛОГИКА СИГНАЛИНГА И РАБОТЫ С WEBRTC
+  // ==========================================
+
+  // Маппинг входящих сообщений от Ktor-сервера (классы WebSocketResponse на бэкенде)
+  private async handleCallSignaling(msg: any): Promise<void> {
+    switch (msg.type) {
+      case 'call_offer':
+        // Нам звонят. Если мы уже в звонке — игнорируем, если нет — показываем модалку
+        if (this.isCallActive()) return;
+        this.isIncomingCall.set(true);
+        this.callType.set(msg.callType);
+        // Сохраняем SDP офер во внутреннее свойство, чтобы применить при нажатии "Ответить"
+        (this as any).cachedOfferSdp = msg.sdp;
+        break;
+
+      case 'call_answer':
+        if (this.peerConnection) {
+          await this.peerConnection.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: msg.sdp }));
+          this.processPendingIceCandidates();
+        }
+        break;
+
+      case 'call_ice':
+        const candidateInit: RTCIceCandidateInit = { candidate: msg.candidate, sdpMid: '0', sdpMLineIndex: 0 };
+        if (this.peerConnection && this.peerConnection.remoteDescription) {
+          await this.peerConnection.addIceCandidate(new RTCIceCandidate(candidateInit));
+        } else {
+          this.pendingIceCandidates.push(candidateInit);
+        }
+        break;
+
+      case 'call_ended':
+        this.cleanupWebRTC();
+        break;
+    }
+  }
+
+  // Действие 1: Нажали кнопку "Позвонить" (Мы - Инициатор)
+  async initiateCall(type: 'VIDEO' | 'AUDIO'): Promise<void> {
+    this.callType.set(type);
+    this.isCallActive.set(true);
+
+    try {
+      this.localStream = await navigator.mediaDevices.getUserMedia({
+        video: type === 'VIDEO',
+        audio: true
+      });
+
+      this.setupPeerConnection();
+
+      // Показываем локальное превью
+      if (type === 'VIDEO' && this.localVideoRef) {
+        this.localVideoRef.nativeElement.srcObject = this.localStream;
+      }
+
+      // Создаем Offer
+      const offer = await this.peerConnection!.createOffer();
+      await this.peerConnection!.setLocalDescription(offer);
+
+      // Отправляем офер на бэк
+      this.chatService.sendCallOffer(this.roomId(), offer.sdp!, type);
+    } catch (err) {
+      console.error('Ошибка доступа к медиа-устройствам:', err);
+      this.cleanupWebRTC();
+    }
+  }
+
+  // Действие 2: Нажали кнопку "Ответить" (Мы - Получатель)
+  async acceptCall(): Promise<void> {
+    const offerSdp = (this as any).cachedOfferSdp;
+    this.isIncomingCall.set(false);
+    this.isCallActive.set(true);
+
+    try {
+      this.localStream = await navigator.mediaDevices.getUserMedia({
+        video: this.callType() === 'VIDEO',
+        audio: true
+      });
+
+      this.setupPeerConnection();
+
+      if (this.callType() === 'VIDEO' && this.localVideoRef) {
+        this.localVideoRef.nativeElement.srcObject = this.localStream;
+      }
+
+      // Применяем удаленный Offer от инициатора
+      await this.peerConnection!.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: offerSdp }));
+      this.processPendingIceCandidates();
+
+      // Генерируем Answer
+      const answer = await this.peerConnection!.createAnswer();
+      await this.peerConnection!.setLocalDescription(answer);
+
+      // Отправляем ответ назад
+      this.chatService.sendCallAnswer(this.roomId(), answer.sdp!);
+    } catch (err) {
+      console.error('Не удалось принять звонок:', err);
+      this.cleanupWebRTC();
+    }
+  }
+
+  // Инициализация объекта соединения WebRTC
+  private setupPeerConnection(): void {
+    this.peerConnection = new RTCPeerConnection(this.rtcConfig);
+
+    // Добавляем локальные треки в канал связи
+    this.localStream?.getTracks().forEach(track => {
+      this.peerConnection!.addTrack(track, this.localStream!);
+    });
+
+    // Генерация ICE кандидатов и отправка их партнеру через сокет
+    this.peerConnection.onicecandidate = (event) => {
+      if (event.candidate) {
+        this.chatService.sendCallIce(this.roomId(), event.candidate.candidate);
+      }
+    };
+
+    // Ловим входящий видео/аудио поток от собеседника
+    this.peerConnection.ontrack = (event) => {
+      if (this.remoteVideoRef && event.streams[0]) {
+        this.remoteVideoRef.nativeElement.srcObject = event.streams[0];
+      }
+    };
+  }
+
+  // Нажатие кнопки сброса/отклонения
+  rejectOrEndCall(): void {
+    this.chatService.sendCallEnd(this.roomId());
+    this.cleanupWebRTC();
+  }
+
+  private processPendingIceCandidates(): void {
+    if (!this.peerConnection) return;
+    this.pendingIceCandidates.forEach(candidate => {
+      this.peerConnection!.addIceCandidate(new RTCIceCandidate(candidate)).catch(e => console.error(e));
+    });
+    this.pendingIceCandidates = [];
+  }
+
+  // Сброс состояния, гашение камеры и закрытие портов соединений
+  private cleanupWebRTC(): void {
+    this.isCallActive.set(false);
+    this.isIncomingCall.set(false);
+
+    if (this.localStream) {
+      this.localStream.getTracks().forEach(track => track.stop());
+      this.localStream = null;
+    }
+    if (this.peerConnection) {
+      this.peerConnection.close();
+      this.peerConnection = null;
+    }
+    this.pendingIceCandidates = [];
+    (this as any).cachedOfferSdp = null;
   }
 }
