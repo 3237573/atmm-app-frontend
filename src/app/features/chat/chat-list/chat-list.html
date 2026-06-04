@@ -24,32 +24,15 @@
         <div class="room-details">
           <div class="room-main-info">
             <div class="room-meta">
-      <span class="room-name">
-        {{ room.name }}
-      </span>
+              <span class="room-name">
+                {{ room.name }}
+              </span>
             </div>
-            <p class="last-message-preview" [class.has-unread]="room.unreadCount > 0">
-              {{ room.unreadCount || 'Нет сообщений' }}
-            </p>
           </div>
-
-          <div class="room-meta-right">
-            @if (room.unreadCount) {
-              <span class="last-msg-time">
-        {{ room.unreadCount }}
-      </span>
-            }
-            @if (room.unreadCount > 0) {
-              <span class="unread-badge">
-        {{ room.unreadCount > 99 ? '99+' : room.unreadCount }}
-      </span>
-            }
-          </div>
+          @if (room.unreadCount > 0) {
+            <div class="unread-badge">{{ room.unreadCount }}</div>
+          }
         </div>
-
-        @if (room.unreadCount > 0) {
-          <div class="unread-badge">{{ room.unreadCount }}</div>
-        }
       </div>
     } @empty {
       <div class="empty-rooms">Чаты не найдены</div>

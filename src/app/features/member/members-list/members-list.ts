@@ -8,6 +8,7 @@ import {AuthService} from '@core/services/auth.service';
 import {ChatService} from '@core/services/chat.service';
 import {firstValueFrom} from 'rxjs';
 import {TranslocoPipe} from '@ngneat/transloco';
+import {disabled} from '@angular/forms/signals';
 
 @Component({
   selector: 'app-members-list',
@@ -129,5 +130,5 @@ export class MembersList implements OnInit {
   }
 
 
-
+  protected readonly disabled = disabled;
 }

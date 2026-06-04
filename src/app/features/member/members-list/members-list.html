@@ -54,7 +54,9 @@
           </div>
 
           <div class="member-actions">
-            <button class="btn-icon-action" (click)="sendMessage(member)" title="Написать сообщение">
+            <button class="btn-icon-action" (click)="sendMessage(member)"
+                    [disabled]="isCurrentUser(member.email)"
+                    title="Написать сообщение">
               <i class="material-icons">chat</i>
             </button>
             <button class="btn-icon-action" (click)="assignTask(member)" title="Назначить задачу">
