@@ -5,8 +5,8 @@
 <!--      <h1>ATMM</h1>-->
 <!--    </div>-->
 
-    <h2>Создать аккаунт</h2>
-    <p class="subtitle">Начните работу в своем пространстве</p>
+    <h2>{{'auth.register.title' | transloco}}</h2>
+    <p class="subtitle">{{'auth.register.welcome' | transloco}}</p>
 
     @if (error()) {
       <div class="error-message">{{ error() }}</div>
@@ -16,27 +16,27 @@
       <div class="input-group">
         <div class="input-wrapper">
           <input formControlName="fullName" type="text" placeholder=" " />
-          <label>Ваше имя в системе (Как вас зовут?)</label>
+          <label>{{'auth.register.userName' | transloco}}</label>
         </div>
 
         <div class="input-wrapper">
           <input formControlName="displayName" type="text" placeholder=" " />
-          <label>Имя в пространстве (Как к вам обращаться?)</label>
+          <label>{{'auth.register.memberName' | transloco}}</label>
         </div>
 
         <div class="input-wrapper">
           <input formControlName="email" type="email" placeholder=" " />
-          <label>Электронная почта</label>
+          <label>{{'auth.login.email' | transloco}}</label>
         </div>
 
         <div class="input-wrapper">
           <input formControlName="workspaceName" type="text" placeholder=" " />
-          <label>Название вашего пространства</label>
+          <label>{{'auth.register.workspaceName' | transloco}}</label>
         </div>
 
         <div class="input-wrapper">
           <input formControlName="password" type="password" placeholder=" " />
-          <label>Придумайте пароль (минимум 6 символов)</label>
+          <label>{{'auth.register.password' | transloco}}</label>
         </div>
       </div>
 
@@ -44,11 +44,11 @@
         @if (loading()) {
           <span class="spinner"></span>
         }
-        {{ loading() ? 'Регистрация...' : 'Зарегистрироваться' }}
+        {{ (loading() ? 'auth.register.registering' : 'auth.register.register') | transloco }}
       </button>
 
       <p class="switch-auth">
-        Уже есть аккаунт? <a routerLink="/login">Войти</a>
+        {{'auth.register.hasAccount' | transloco}} <a routerLink="/login">{{'auth.register.enter' | transloco}}</a>
       </p>
     </form>
   </div>

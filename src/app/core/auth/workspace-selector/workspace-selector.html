@@ -8,8 +8,8 @@
     </div>
 
     <div class="content">
-      <h2>Выберите пространство</h2>
-      <p class="hint">Укажите рабочее пространство для продолжения</p>
+      <h2>{{'auth.space.title'| transloco}}</h2>
+      <p class="hint">{{'auth.space.subtitle'| transloco}}</p>
 
       <div class="workspace-list">
         @for (workspace of workspaces(); track workspace.workspaceId) {
@@ -33,7 +33,7 @@
 
     <div class="footer">
       <button class="back" (click)="backToLogin()" [disabled]="loading()">
-        ← Сменить аккаунт
+        ← {{'auth.space.changeAccount'| transloco}}
       </button>
     </div>
   </div>

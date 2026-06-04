@@ -1,4 +1,39 @@
 {
+  "auth": {
+    "login": {
+      "check": "Checking...",
+      "email": "Email",
+      "enter" : "Continue",
+      "noAccount": "Don't have an account?",
+      "password": "Password",
+      "register": "Register",
+      "title" : "Enter to the system",
+      "welcome" : "Welcome"
+    },
+    "register": {
+      "enter": "Login",
+      "hasAccount": "Already have an account?",
+      "memberName": "Name in space (How do I address you?)",
+      "password": "Create a password (minimum 6 characters)",
+      "register": "Register",
+      "registering": "Registration",
+      "title": "Create an account",
+      "userName": "Your name in the system (What is your name?)",
+      "welcome" : "Get started in your space",
+      "workspaceName": "Name of your space"
+    },
+    "role": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "member" : "Member",
+      "guest" : "Guest"
+    },
+    "space": {
+      "changeAccount": "Change your account?",
+      "title": "Choose a space",
+      "subtitle" : "Specify the workspace to continue with"
+    }
+  },
   "btn": {
     "add": "Add",
     "apply": "Apply to History",
