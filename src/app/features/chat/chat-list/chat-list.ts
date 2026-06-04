@@ -3,7 +3,7 @@ import {Component, DestroyRef, inject, OnInit} from '@angular/core';
 import {NavigationEnd, Router} from '@angular/router';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ChatService} from '@core/services/chat.service';
-import {ChatRoomBaseRO, ChatRoomRO} from '@core/models/chat.model';
+import {ChatRoomBaseRO} from '@core/models/chat.model';
 import {filter, startWith} from 'rxjs';
 import {FormsModule} from '@angular/forms';
 import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
@@ -62,14 +62,6 @@ export class ChatList implements OnInit {
 
   selectRoom(roomId: string): void {
     void this.router.navigate(['/chat', roomId]);
-  }
-
-  getDisplayRoomName(room: ChatRoomRO): string {
-    if (room.name) return room.name;
-    if (room.type === 'DIRECT' && room.lastMessage) {
-      return room.lastMessage.senderName;
-    }
-    return 'Приватный чат';
   }
 
   // Получить первую букву для аватара

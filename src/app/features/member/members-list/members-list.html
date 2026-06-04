@@ -45,20 +45,20 @@
                 {{ ('tracker.period.onTheAir') | transloco }}
                 </span>
             }
+            <div class="member-meta" style="width: 5%">
+              <span class="badge-role" [ngClass]="getRoleBadgeClass(member.roleName)">
+                {{ member.roleName }}
+              </span>
+            </div>
           </div>
 
-          <div class="member-meta" style="width: 5%">
-            <span class="badge-role" [ngClass]="getRoleBadgeClass(member.roleName)">
-              {{ member.roleName }}
-            </span>
-          </div>
 
           <div class="member-actions">
-            <button class="btn-icon-action" (click)="sendMessage(member)"
-                    [disabled]="isCurrentUser(member.email)"
-                    title="Написать сообщение">
-              <i class="material-icons">chat</i>
-            </button>
+            @if (!isCurrentUser(member.email)) {
+              <button class="btn-icon-action" (click)="sendMessage(member)" title="Написать сообщение">
+                <i class="material-icons">chat</i>
+              </button>
+            }
             <button class="btn-icon-action" (click)="assignTask(member)" title="Назначить задачу">
               <i class="material-icons">assignment_add</i>
             </button>

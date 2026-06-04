@@ -1,14 +1,14 @@
 // chat-window.component.ts
-import { Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ChatService } from '@core/services/chat.service';
-import { AuthService } from '@core/services/auth.service';
-import { ChatMessage, ChatRoomRO, WebSocketResponse } from '@core/models/chat.model';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { BackOnEscapeDirective } from '@core/directives/back-on-escape.directive';
-import { filter } from 'rxjs';
+import {Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {ActivatedRoute, Router} from '@angular/router';
+import {ChatService} from '@core/services/chat.service';
+import {AuthService} from '@core/services/auth.service';
+import {ChatMessage, ChatRoomRO, WebSocketResponse} from '@core/models/chat.model';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
+import {filter} from 'rxjs';
 
 @Component({
   selector: 'app-chat-window',
@@ -45,8 +45,8 @@ export class ChatWindow implements OnInit, OnDestroy {
   private pendingIceCandidates: RTCIceCandidateInit[] = [];
   private readonly rtcConfig: RTCConfiguration = {
     iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' }
+      {urls: 'stun:stun.l.google.com:19302'},
+      {urls: 'stun:stun1.l.google.com:19302'}
     ]
   };
 
@@ -66,20 +66,19 @@ export class ChatWindow implements OnInit, OnDestroy {
       const id = params['roomId'];
       if (id) {
         this.roomId.set(id);
+        this.chatService.setActiveRoomId(id)
         this.loadChatData(id); // Вызываем простой метод загрузки
       }
     });
 
-    // 2. WebSocket: новые сообщения (тут filter оставим, чтобы не ловить чужие сообщения)
+    // 2. WebSocket: новые сообщения
     this.chatService.messages$.pipe(
-      filter((res): res is WebSocketResponse & { type: 'new_message' } =>
-        !!res && res.type === 'new_message' && res.message?.roomId === this.roomId()
-      ),
+      filter((res): res is WebSocketResponse &
+        { type: 'new_message' } => this.isCurrentRoomMessage(res)),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(response => {
-      this.messages.update(prev => [...prev, response.message]);
+    ).subscribe(({message}) => {
+      this.messages.update(prev => [...prev, message]);
       this.scrollToBottomOnNextTick();
-      this.scheduleMarkSeen();
     });
 
     // 3. WebSocket: кто печатает
@@ -95,7 +94,7 @@ export class ChatWindow implements OnInit, OnDestroy {
     this.chatService.messages$.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((response: any) => {
-      this.handleCallSignaling(response);
+      void this.handleCallSignaling(response);
     });
   }
 
@@ -146,23 +145,9 @@ export class ChatWindow implements OnInit, OnDestroy {
     const trimmedMessage = this.newMessage.trim();
     if (!trimmedMessage) return;
 
-    const optimistic: ChatMessage = {
-      id: `tmp-${Date.now()}`,
-      roomId: this.roomId(),
-      content: trimmedMessage,
-      senderMemberId: this.myMemberId,
-      timestamp: new Date().toISOString(),
-      encrypted: false,
-      senderName: this.auth.currentUser()?.displayName || '',
-      type: 'TEXT'
-    };
-
-    this.messages.update(prev => [...prev, optimistic]);
-    this.scrollToBottomOnNextTick();
-
     this.chatService.sendMessage({
       type: 'send_message',
-      message: { roomId: this.roomId(), content: trimmedMessage }
+      message: {roomId: this.roomId(), content: trimmedMessage}
     });
 
     this.newMessage = '';
@@ -179,7 +164,7 @@ export class ChatWindow implements OnInit, OnDestroy {
 
   onTyping(): void {
     if (!this.isTypingSignalSent) {
-      this.chatService.sendMessage({ type: 'typing', roomId: this.roomId(), isTyping: true });
+      this.chatService.sendMessage({type: 'typing', roomId: this.roomId(), isTyping: true});
       this.isTypingSignalSent = true;
     }
     this.resetTypingTimeout();
@@ -192,7 +177,7 @@ export class ChatWindow implements OnInit, OnDestroy {
 
   private sendTypingFalseImmediate(): void {
     if (this.isTypingSignalSent) {
-      this.chatService.sendMessage({ type: 'typing', roomId: this.roomId(), isTyping: false });
+      this.chatService.sendMessage({type: 'typing', roomId: this.roomId(), isTyping: false});
       this.isTypingSignalSent = false;
     }
     if (this.typingTimer) {
@@ -214,7 +199,7 @@ export class ChatWindow implements OnInit, OnDestroy {
     if (!currentMessages.length) return;
     const lastMessage = currentMessages[currentMessages.length - 1];
     if (lastMessage && lastMessage.senderMemberId !== this.myMemberId) {
-      this.chatService.sendMessage({ type: 'mark_seen', messageId: lastMessage.id });
+      this.chatService.sendMessage({type: 'mark_seen', messageId: lastMessage.id});
     }
   }
 
@@ -235,13 +220,25 @@ export class ChatWindow implements OnInit, OnDestroy {
     try {
       const container = this.scrollContainer?.nativeElement;
       if (container) container.scrollTop = container.scrollHeight;
-    } catch (err) {}
+    } catch (err) {
+    }
   }
 
-  trackByMessageId(index: number, item: ChatMessage) { return item.id; }
-  isOwnMessage(msg: ChatMessage): boolean { return msg?.senderMemberId === this.myMemberId; }
-  goBack(): void { this.router.navigate(['/chat']); }
-  getTypingText(): string { return 'Печатает...'; }
+  trackByMessageId(index: number, item: ChatMessage) {
+    return item.id;
+  }
+
+  isOwnMessage(msg: ChatMessage): boolean {
+    return msg?.senderMemberId === this.myMemberId;
+  }
+
+  goBack(): void {
+    this.router.navigate(['/chat']);
+  }
+
+  getTypingText(): string {
+    return 'Печатает...';
+  }
 
   uploadFile(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -258,11 +255,17 @@ export class ChatWindow implements OnInit, OnDestroy {
     }
   }
 
-  openMedia(url: string): void { window.open(url, '_blank', 'noopener,noreferrer'); }
-  getFileName(url: string): string { return url ? url.split('/').pop() || 'Файл' : 'Файл'; }
+  openMedia(url: string): void {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
+  getFileName(url: string): string {
+    return url ? url.split('/').pop() || 'Файл' : 'Файл';
+  }
 
   ngOnDestroy(): void {
     this.cleanupWebRTC();
+    this.chatService.setActiveRoomId(null);
     if (this.typingTimer) clearTimeout(this.typingTimer);
     if (this.markSeenTimer) clearTimeout(this.markSeenTimer);
   }
@@ -285,13 +288,13 @@ export class ChatWindow implements OnInit, OnDestroy {
 
       case 'call_answer':
         if (this.peerConnection) {
-          await this.peerConnection.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: msg.sdp }));
+          await this.peerConnection.setRemoteDescription(new RTCSessionDescription({type: 'answer', sdp: msg.sdp}));
           this.processPendingIceCandidates();
         }
         break;
 
       case 'call_ice':
-        const candidateInit: RTCIceCandidateInit = { candidate: msg.candidate, sdpMid: '0', sdpMLineIndex: 0 };
+        const candidateInit: RTCIceCandidateInit = {candidate: msg.candidate, sdpMid: '0', sdpMLineIndex: 0};
         if (this.peerConnection && this.peerConnection.remoteDescription) {
           await this.peerConnection.addIceCandidate(new RTCIceCandidate(candidateInit));
         } else {
@@ -354,7 +357,7 @@ export class ChatWindow implements OnInit, OnDestroy {
       }
 
       // Применяем удаленный Offer от инициатора
-      await this.peerConnection!.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: offerSdp }));
+      await this.peerConnection!.setRemoteDescription(new RTCSessionDescription({type: 'offer', sdp: offerSdp}));
       this.processPendingIceCandidates();
 
       // Генерируем Answer
@@ -405,6 +408,10 @@ export class ChatWindow implements OnInit, OnDestroy {
       this.peerConnection!.addIceCandidate(new RTCIceCandidate(candidate)).catch(e => console.error(e));
     });
     this.pendingIceCandidates = [];
+  }
+
+  private isCurrentRoomMessage(res: any): res is WebSocketResponse & { type: 'new_message' } {
+    return res?.type === 'new_message' && res.message?.roomId === this.roomId();
   }
 
   // Сброс состояния, гашение камеры и закрытие портов соединений

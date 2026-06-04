@@ -11,6 +11,7 @@ export class ChatService {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
   private readonly baseUrl = '/v1/chat';
+  private activeRoomId: string | null = null;
 
   private socket$: WebSocketSubject<any> | null = null;
   private pingSubscription: Subscription | null = null;
@@ -87,6 +88,39 @@ export class ChatService {
       complete: () => {
         this.handleDisconnect();
       }
+    });
+  }
+
+  // 1. Метод для управления активной комнатой извне
+  setActiveRoomId(roomId: string | null): void {
+    this.activeRoomId = roomId;
+
+    // Если чат открыли, сразу обнуляем непрочитанные в глобальном стейте
+    if (roomId) {
+      const updatedRooms = this.roomsSubject.value.map(room =>
+        room.id === roomId ? { ...room, unreadCount: 0 } : room
+      );
+      this.roomsSubject.next(updatedRooms);
+
+      // (Опционально) Здесь же можно дёрнуть метод бэкенда для отправки статуса «прочитано»:
+      this.markRoomAsRead(roomId);
+    }
+  }
+
+  markRoomAsRead(roomId: string): void {
+    // 1. Мгновенно зануляем счётчик локально в BehaviorSubject
+    const currentRooms = this.roomsSubject.value;
+    if (currentRooms.length > 0) {
+      const updatedRooms = currentRooms.map(room =>
+        room.id === roomId ? { ...room, unreadCount: 0 } : room
+      );
+      this.roomsSubject.next(updatedRooms);
+    }
+
+    // 2. Отправляем событие чтения на бэкенд через WebSocket
+    this.socket$?.next({
+      type: 'read_room', // Укажите тип события, который вы обрабатываете на бэке (например, в Ktor)
+      roomId: roomId
     });
   }
 

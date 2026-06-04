@@ -73,7 +73,7 @@
   }
 
   <div class="input-area">
-    <label class="file-btn" title="Прикрепить файл">
+    <label class="send-btn" title="Прикрепить файл">
       <input type="file" (change)="uploadFile($event)" hidden>
       📎
     </label>
@@ -82,12 +82,13 @@
       class="message-input"
       [(ngModel)]="newMessage"
       (keyup.enter)="sendMessage()"
+      (input)="onTyping()"
       placeholder="Введите сообщение..."
       rows="1">
     </textarea>
 
     <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()">
-      Отправить
+      <i class="material-icons">{{ "send" }}</i>
     </button>
   </div>
 
