@@ -8,7 +8,7 @@
       "password": "Password",
       "register": "Register",
       "title" : "Enter to the system",
-      "welcome" : "Welcome"
+      "subtitle" : "Welcome"
     },
     "register": {
       "enter": "Login",
@@ -19,7 +19,7 @@
       "registering": "Registration",
       "title": "Create an account",
       "userName": "Your name in the system (What is your name?)",
-      "welcome" : "Get started in your space",
+      "subtitle" : "Get started in your space",
       "workspaceName": "Name of your space"
     },
     "role": {
@@ -44,6 +44,43 @@
     "save": "Save",
     "saveChanges": "Save Changes",
     "show": "Add Rule"
+  },
+  "chat": {
+    "accept": "Answer",
+    "audio": "AudioCall",
+    "fileAttach": "Attach a file",
+    "fileDownload": "Download file",
+    "image": "Image",
+    "inCall": "Incoming",
+    "inCallDesc": "Calling from the current room",
+    "inputMessage": "Enter your message...",
+    "hangUp": "Hang up",
+    "membersNum": "members",
+    "noMessage": "No posts",
+    "reject": "Reject",
+    "searchChat": "Search for a chat...",
+    "selectChat": "Select a chat to start a conversation",
+    "talk": "Conversation...",
+    "video": "VideoCall"
+  },
+  "menu": {
+    "admin": "Admin",
+    "chat": "Chat",
+    "members": "Members",
+    "menuManage": "Menu manage",
+    "tasks": "Tasks",
+    "tracker": "Tracker"
+  },
+  "member": {
+    "actions": {
+      "assignATask": "Assign a task",
+      "viewProfile": "View Profile",
+      "writeMessage": "Write a message"
+    },
+    "iAm": "I am",
+    "loadMembers": "Loading members...",
+    "members": "Members",
+    "searchPlaceholder": "Search by name or email..."
   },
   "nav": {
     "allCategories": "All Categories"

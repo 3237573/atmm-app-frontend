@@ -4,7 +4,7 @@
       <i class="material-icons">search</i>
       <input
         type="text"
-        [placeholder]="'Поиск чата...'"
+        [placeholder]="'chat.searchChat' | transloco"
         [(ngModel)]="searchQuery"
         (input)="onSearchChange()">
     </div>

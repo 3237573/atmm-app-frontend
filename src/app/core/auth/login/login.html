@@ -1,9 +1,9 @@
 @if (authStep() === 'login') {
-  <div class="auth-container">
+  <div class="auth-container" appBackOnEscape>
     <div class="auth-card">
 
       <h2>{{'auth.login.title' | transloco}}</h2>
-      <p class="subtitle">{{'auth.login.welcome' | transloco}}</p>
+      <p class="subtitle">{{'auth.login.subtitle' | transloco}}</p>
 
       @if (error()) {
         <div class="error-message">{{ error() }}</div>

@@ -1,12 +1,8 @@
-<div class="auth-container">
+<div class="auth-container" appBackOnEscape>
   <div class="auth-card">
-<!--    <div class="logo">-->
-<!--      <div class="logo-icon">⚡</div>-->
-<!--      <h1>ATMM</h1>-->
-<!--    </div>-->
 
     <h2>{{'auth.register.title' | transloco}}</h2>
-    <p class="subtitle">{{'auth.register.welcome' | transloco}}</p>
+    <p class="subtitle">{{'auth.register.subtitle' | transloco}}</p>
 
     @if (error()) {
       <div class="error-message">{{ error() }}</div>
