@@ -3,12 +3,12 @@
     "login": {
       "check": "Checking...",
       "email": "Email",
-      "enter" : "Continue",
+      "enter": "Continue",
       "noAccount": "Don't have an account?",
       "password": "Password",
       "register": "Register",
-      "title" : "Enter to the system",
-      "subtitle" : "Welcome"
+      "title": "Enter to the system",
+      "subtitle": "Welcome"
     },
     "register": {
       "enter": "Login",
@@ -19,19 +19,19 @@
       "registering": "Registration",
       "title": "Create an account",
       "userName": "Your name in the system (What is your name?)",
-      "subtitle" : "Get started in your space",
+      "subtitle": "Get started in your space",
       "workspaceName": "Name of your space"
     },
     "role": {
       "owner": "Owner",
       "admin": "Admin",
-      "member" : "Member",
-      "guest" : "Guest"
+      "member": "Member",
+      "guest": "Guest"
     },
     "space": {
       "changeAccount": "Change your account?",
       "title": "Choose a space",
-      "subtitle" : "Specify the workspace to continue with"
+      "subtitle": "Specify the workspace to continue with"
     }
   },
   "btn": {
@@ -123,6 +123,39 @@
       "assignee": "Assignee"
     }
   },
+  "taskDetail": {
+    "backToList": "Back to tasks",
+    "loading": "Loading task...",
+    "status": "Status:",
+    "subtasks": "Subtasks:",
+    "noSubtasks": "No subtasks yet",
+    "unsavedChanges": "You have unsaved changes. Leave without saving?",
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "addSubtask": "Add subtask",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "placeholders": {
+      "title": "Task title",
+      "description": "Enter task description..."
+    },
+    "fields": {
+      "creator": "Creator:",
+      "department": "Department:",
+      "departmentGeneral": "General",
+      "project": "Project:",
+      "noProject": "No project (General task)",
+      "created": "Created:",
+      "description": "Description",
+      "noDescription": "No description",
+      "assignees": "Assignees:",
+      "dueDate": "Due date:",
+      "parentTask": "Parent task:",
+      "rootTask": "— No parent (root) —"
+    }
+  },
   "tracker": {
     "activity": {
       "title": "Activity"
@@ -143,8 +176,8 @@
       "title": "Detail"
     },
     "period": {
-      "onTheAir" : "On the Air",
-      "dataArchive" : "Data archive"
+      "onTheAir": "On the Air",
+      "dataArchive": "Data archive"
     },
     "rule": {
       "new": "New rule",
@@ -152,9 +185,9 @@
       "rulePattern": "Pattern (part of a header or process)"
     },
     "title": {
-      "myActivity" : "My activity",
-      "employeeReport" : "Employee report",
-      "today" : "Today"
+      "myActivity": "My activity",
+      "employeeReport": "Employee report",
+      "today": "Today"
     }
   },
   "workspace": {

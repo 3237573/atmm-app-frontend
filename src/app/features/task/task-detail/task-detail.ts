@@ -1,40 +1,42 @@
-import {Component, inject, OnInit, OnDestroy, signal, computed} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { of, switchMap } from 'rxjs';
-import { AuthService } from '@core/services/auth.service';
-import { TaskService } from '@core/services/task.service';
-import { MemberService } from '@core/services/member.service';
-import { TaskPriority, TaskRO, TaskStatus, TaskTreeRO } from '@core/models/task/task.model';
-import { TaskComments } from '../task-comments/task-comments';
-import { AssigneeManager } from '@features/task/assignee-manager/assignee-manager';
-import { SubtaskTreeComponent } from './subtask-tree';
-import { BackOnEscapeDirective } from '@core/directives/back-on-escape.directive';
-import { NavigationService } from '@core/services/navigation.service';
-import { ProjectAffiliation } from '@core/models/project.model';
-import { AttachmentManager } from '@features/task/attachment-manager/attachment-manager';
-import { ReplaceMePipe } from '@core/pipes/replace-me.pipe';
-import { HasPermissionDirective } from '@core/directives/has-permission.directive';
-import { ComponentDeactivateService } from '@core/services/component-deactivate.service';
-import { CanComponentDeactivate } from '@core/interfaces/can-deactivate.interface';
+import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {of, switchMap} from 'rxjs';
+import {AuthService} from '@core/services/auth.service';
+import {TaskService} from '@core/services/task.service';
+import {MemberService} from '@core/services/member.service';
+import {TaskPriority, TaskRO, TaskStatus, TaskTreeRO} from '@core/models/task/task.model';
+import {TaskComments} from '../task-comments/task-comments';
+import {AssigneeManager} from '@features/task/assignee-manager/assignee-manager';
+import {SubtaskTreeComponent} from './subtask-tree';
+import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
+import {NavigationService} from '@core/services/navigation.service';
+import {ProjectAffiliation} from '@core/models/project.model';
+import {AttachmentManager} from '@features/task/attachment-manager/attachment-manager';
+import {ReplaceMePipe} from '@core/pipes/replace-me.pipe';
+import {HasPermissionDirective} from '@core/directives/has-permission.directive';
+import {ComponentDeactivateService} from '@core/services/component-deactivate.service';
+import {CanComponentDeactivate} from '@core/interfaces/can-deactivate.interface';
+import {TranslocoPipe, TranslocoService} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-task-detail',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, TaskComments, AssigneeManager,
-    SubtaskTreeComponent, BackOnEscapeDirective, AttachmentManager, ReplaceMePipe, HasPermissionDirective],
+    SubtaskTreeComponent, BackOnEscapeDirective, AttachmentManager, ReplaceMePipe, HasPermissionDirective, TranslocoPipe],
   templateUrl: './task-detail.html',
   styleUrl: './task-detail.scss'
 })
 export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
   private readonly authService = inject(AuthService);
+  private readonly deactivateService = inject(ComponentDeactivateService);
   private readonly memberService = inject(MemberService);
   private readonly navService = inject(NavigationService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
-  private readonly deactivateService = inject(ComponentDeactivateService);
+  private readonly translocoService = inject(TranslocoService);
 
   currentUser = this.authService.currentUser;
   task = signal<TaskRO | null>(null);
@@ -297,7 +299,8 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
     if (!this.editing() || !this.hasUnsavedChanges()) {
       return true;
     }
-    return confirm('У вас есть несохраненные изменения. Выйти без сохранения?');
+    // Было: confirm('У вас есть несохраненные изменения...')
+    return confirm(this.translocoService.translate('taskDetail.unsavedChanges'));
   }
 
   openAssigneeModal(): void { this.showAssigneeModal.set(true); }
