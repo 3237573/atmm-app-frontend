@@ -56,7 +56,7 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
     title: '',
     description: '',
     priority: '' as TaskPriority,
-    status: '' as TaskStatus,
+    taskStatus: '' as TaskStatus,
     dueDate: '',
     projectId: '',
     parentTaskId: null as string | null
@@ -65,7 +65,7 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
     title: '',
     description: '',
     priority: '' as TaskPriority,
-    status: '' as TaskStatus,
+    taskStatus: '' as TaskStatus,
     dueDate: '',
     projectId: '',
     parentTaskId: null as string | null
@@ -180,7 +180,7 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
         title: task.title,
         description: task.description || '',
         priority: task.priority,
-        status: task.status,
+        taskStatus: task.taskStatus,
         dueDate: task.dueDate?.split('T')[0] || '',
         projectId: (task as any).projectId || '',
         parentTaskId: task.parentTaskId || null
@@ -222,7 +222,7 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
       title: this.editData.title,
       description: this.editData.description,
       priority: this.editData.priority,
-      status: this.editData.status,
+      taskStatus: this.editData.taskStatus,
       dueDate: this.editData.dueDate || undefined,
       projectId: this.editData.projectId || null
     } as any).pipe(
@@ -286,7 +286,7 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
       this.editData.title !== this.originalData.title ||
       this.editData.description !== this.originalData.description ||
       this.editData.priority !== this.originalData.priority ||
-      this.editData.status !== this.originalData.status ||
+      this.editData.taskStatus !== this.originalData.taskStatus ||
       this.editData.dueDate !== this.originalData.dueDate ||
       this.editData.projectId !== this.originalData.projectId ||
       this.editData.parentTaskId !== this.originalData.parentTaskId
