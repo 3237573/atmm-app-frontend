@@ -1,11 +1,11 @@
 <div class="task-list" appBackOnEscape>
   <div class="page-header">
     <div class="header-info">
-      <h1><i class="material-icons">assignment</i> Задачи</h1>
-      <p>Управление задачами и иерархией</p>
+      <h1><i class="material-icons">assignment</i> {{ 'task.title' | transloco }}</h1>
+      <p>{{ 'task.subtitle' | transloco }}</p>
     </div>
     <button class="btn-primary" routerLink="/tasks/create">
-      <i class="material-icons">add</i> Создать
+      <i class="material-icons">add</i> {{ 'btn.create' | transloco }}
     </button>
   </div>
 
@@ -14,20 +14,20 @@
       <div class="filters-bar">
         <div class="search-box">
           <i class="material-icons">search</i>
-          <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Поиск по названию и описанию...">
+          <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="{{ 'task.searchPlaceholder' | transloco }}">
         </div>
         <div class="status-select-wrapper" [class]="getFilterStatusClass(selectedStatus())">
           <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)" class="status-select-styled">
-            <option value="">Все статусы</option>
+            <option value="">{{ 'task.allStatuses' | transloco }}</option>
             @for (status of TASK_STATUS_LIST; track status) {
-              <option [value]="status">{{ getStatusLabel(status) }}</option>
+              <option [value]="status">{{ 'task.status.' + status | transloco }}</option>
             }
           </select>
           <i class="material-icons select-arrow">expand_more</i>
         </div>
         <div class="priority-select-wrapper" [attr.data-priority]="selectedPriority()">
           <select [ngModel]="selectedPriority()" (ngModelChange)="selectedPriority.set($event)" class="priority-select-styled">
-            <option value="">Все приоритеты</option>
+            <option value="">{{ 'task.allPriorities' | transloco }}</option>
             <option value="LOW">LOW</option>
             <option value="MEDIUM">MEDIUM</option>
             <option value="HIGH">HIGH</option>
@@ -42,12 +42,12 @@
       </div>
     </div>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-value">{{ stats().total }}</div><div class="stat-label">Всего</div></div>
-      <div class="stat-card pending"><div class="stat-value">{{ stats().pending }}</div><div class="stat-label">Ожидают</div></div>
-      <div class="stat-card progress"><div class="stat-value">{{ stats().inProgress }}</div><div class="stat-label">В работе</div></div>
-      <div class="stat-card completed"><div class="stat-value">{{ stats().completed }}</div><div class="stat-label">Готово</div></div>
-      <div class="stat-card overdue"><div class="stat-value">{{ stats().overdue }}</div><div class="stat-label">Просрочено</div></div>
-      <div class="stat-card archived"><div class="stat-value">{{ stats().archived }}</div><div class="stat-label">Архив</div></div>
+      <div class="stat-card"><div class="stat-value">{{ stats().total }}</div><div class="stat-label">{{ 'task.stats.total' | transloco }}</div></div>
+      <div class="stat-card pending"><div class="stat-value">{{ stats().pending }}</div><div class="stat-label">{{ 'task.stats.pending' | transloco }}</div></div>
+      <div class="stat-card progress"><div class="stat-value">{{ stats().inProgress }}</div><div class="stat-label">{{ 'task.stats.inProgress' | transloco }}</div></div>
+      <div class="stat-card completed"><div class="stat-value">{{ stats().completed }}</div><div class="stat-label">{{ 'task.stats.completed' | transloco }}</div></div>
+      <div class="stat-card overdue"><div class="stat-value">{{ stats().overdue }}</div><div class="stat-label">{{ 'task.stats.overdue' | transloco }}</div></div>
+      <div class="stat-card archived"><div class="stat-value">{{ stats().archived }}</div><div class="stat-label">{{ 'task.stats.archived' | transloco }}</div></div>
     </div>
   </div>
 
@@ -56,16 +56,16 @@
       <table class="tasks-table">
         <thead>
         <tr>
-          <th class="col-task sortable" (click)="sortBy('title')">Задача <i class="material-icons sort-icon">{{ getSortIcon('title') }}</i></th>
-          <th class="col-icon" title="Подзадачи"><i class="material-icons">account_tree</i></th>
-          <th class="col-icon" title="Комментарии"><i class="material-icons">chat_bubble_outline</i></th>
-          <th class="col-status sortable" (click)="sortBy('taskStatus')">Статус <i class="material-icons sort-icon">{{ getSortIcon('taskStatus') }}</i></th>
-          <th class="col-priority sortable" (click)="sortBy('priority')">Приоритет <i class="material-icons sort-icon">{{ getSortIcon('priority') }}</i></th>
-          <th class="col-department sortable" (click)="sortBy('departmentName')">Отдел <i class="material-icons sort-icon">{{ getSortIcon('departmentName') }}</i></th>
-          <th class="col-project sortable" (click)="sortBy('projectName')">Проект <i class="material-icons sort-icon">{{ getSortIcon('projectName') }}</i></th>
-          <th class="col-date sortable" (click)="sortBy('dueDate')">Срок <i class="material-icons sort-icon">{{ getSortIcon('dueDate') }}</i></th>
-          <th class="col-creator sortable" (click)="sortBy('creatorName')">Постановщик <i class="material-icons sort-icon">{{ getSortIcon('creatorName') }}</i></th>
-          <th class="col-assignee sortable" (click)="sortBy('assigneeNames')">Исполнитель <i class="material-icons sort-icon">{{ getSortIcon('assigneeNames') }}</i></th>
+          <th class="col-task sortable" (click)="sortBy('title')">{{ 'task.table.task' | transloco }} <i class="material-icons sort-icon">{{ getSortIcon('title') }}</i></th>
+          <th class="col-icon" title="{{ 'task.table.subtasks' | transloco }}"><i class="material-icons">account_tree</i></th>
+          <th class="col-icon" title="{{ 'task.table.comments' | transloco }}"><i class="material-icons">chat_bubble_outline</i></th>
+          <th class="col-status sortable" (click)="sortBy('taskStatus')">{{ 'task.table.status' | transloco }} <i class="material-icons sort-icon">{{ getSortIcon('taskStatus') }}</i></th>
+          <th class="col-priority sortable" (click)="sortBy('priority')">{{ 'task.table.priority' | transloco }} <i class="material-icons sort-icon">{{ getSortIcon('priority') }}</i></th>
+          <th class="col-department sortable" (click)="sortBy('departmentName')">{{ 'task.table.department' | transloco }} <i class="material-icons sort-icon">{{ getSortIcon('departmentName') }}</i></th>
+          <th class="col-project sortable" (click)="sortBy('projectName')">{{ 'task.table.project' | transloco }} <i class="material-icons sort-icon">{{ getSortIcon('projectName') }}</i></th>
+          <th class="col-date sortable" (click)="sortBy('dueDate')">{{ 'task.table.dueDate' | transloco }} <i class="material-icons sort-icon">{{ getSortIcon('dueDate') }}</i></th>
+          <th class="col-creator sortable" (click)="sortBy('creatorName')">{{ 'task.table.creator' | transloco }} <i class="material-icons sort-icon">{{ getSortIcon('creatorName') }}</i></th>
+          <th class="col-assignee sortable" (click)="sortBy('assigneeNames')">{{ 'task.table.assignee' | transloco }} <i class="material-icons sort-icon">{{ getSortIcon('assigneeNames') }}</i></th>
           <th></th>
         </tr>
         </thead>
@@ -86,9 +86,9 @@
               <td class="col-icon text-center">@if ((task.commentsCount || 0) > 0) { <span class="count-text">{{ task.commentsCount }}</span> } @else { <span class="count-text muted">—</span> }</td>
               <td class="col-status">
                 <div class="status-select-wrapper" [class]="getStatusClass(task.taskStatus)">
-                  <select [ngModel]="task.taskStatus" (ngModelChange)="updateStatus(task, $event)" (click)="$event.stopPropagation()" class="status-select-styled">
+                  <select [value]="task.taskStatus" (click)="$event.stopPropagation()" (change)="updateStatus(task, $any($event.target).value)" class="status-select-styled">
                     @for (status of TASK_STATUS_LIST; track status) {
-                      <option [value]="status">{{ getStatusLabel(status) }}</option>
+                      <option [value]="status">{{ 'task.status.' + status | transloco }}</option>
                     }
                   </select>
                 </div>
@@ -111,7 +111,7 @@
     <div class="kanban-board">
       @for (status of TASK_STATUS_LIST; track status) {
         <div class="kanban-column">
-          <div class="column-header"><h3>{{ getStatusLabel(status) }}</h3></div>
+          <div class="column-header"><h3>{{ 'task.status.' + status | transloco }}</h3></div>
           <div class="column-tasks">
             @for (task of filteredFlatTasks(); track task.id) {
               @if (task.taskStatus === status) {

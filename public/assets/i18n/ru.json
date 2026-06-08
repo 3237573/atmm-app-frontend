@@ -38,6 +38,7 @@
     "add": "Добавить",
     "apply": "Применить к истории",
     "cancel": "Отмена",
+    "create": "Создать",
     "delete": "Удалить",
     "edit": "Редактировать",
     "exit": "Выход",
@@ -63,14 +64,6 @@
     "talk": "Разговор...",
     "video": "Видеозвонок"
   },
-  "menu": {
-    "admin": "Админ",
-    "chat": "Чат",
-    "members": "Участники",
-    "menuManage": "Настройки меню",
-    "tasks": "Задачи",
-    "tracker": "Трекер"
-  },
   "member": {
     "actions": {
       "assignATask": "Назначить задачу",
@@ -82,16 +75,53 @@
     "members": "Участники",
     "searchPlaceholder": "Поиск по имени или email..."
   },
+  "menu": {
+    "admin": "Админ",
+    "chat": "Чат",
+    "members": "Участники",
+    "menuManage": "Настройки меню",
+    "tasks": "Задачи",
+    "tracker": "Трекер"
+  },
   "nav": {
     "allCategories": "Все категории"
   },
-  "workspace": {
-    "menu": {
-      "admin": "Управление классификацией"
-    }
-  },
   "order": {
     "orderList": "Группы правил"
+  },
+  "task": {
+    "title": "Задачи",
+    "subtitle": "Управление задачами и иерархией",
+    "searchPlaceholder": "Поиск по названию и описанию...",
+    "allStatuses": "Все статусы",
+    "allPriorities": "Все приоритеты",
+    "status": {
+      "PENDING": "Ожидает",
+      "IN_PROGRESS": "В работе",
+      "REVIEW": "Проверка",
+      "COMPLETED": "Готово",
+      "ARCHIVED": "Архив"
+    },
+    "stats": {
+      "total": "Всего",
+      "pending": "Ожидают",
+      "inProgress": "В работе",
+      "completed": "Готово",
+      "overdue": "Просрочено",
+      "archived": "Архив"
+    },
+    "table": {
+      "task": "Задача",
+      "subtasks": "Подзадачи",
+      "comments": "Комментарии",
+      "status": "Статус",
+      "priority": "Приоритет",
+      "department": "Отдел",
+      "project": "Проект",
+      "dueDate": "Срок",
+      "creator": "Постановщик",
+      "assignee": "Исполнитель"
+    }
   },
   "tracker": {
     "activity": {
@@ -126,6 +156,10 @@
       "employeeReport" : "Отчет сотрудника",
       "today" : "Сегодня"
     }
-
+  },
+  "workspace": {
+    "menu": {
+      "admin": "Управление классификацией"
+    }
   }
 }

@@ -1,12 +1,13 @@
-import { Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { TaskService } from '@core/services/task.service';
-import { TASK_STATUS_CONFIG, TASK_STATUS_LIST, TaskRO, TaskStatus, TaskTreeRO } from '@core/models/task/task.model';
-import { AuthService } from '@core/services/auth.service';
-import { BackOnEscapeDirective } from '@core/directives/back-on-escape.directive';
-import { ReplaceMePipe } from '@core/pipes/replace-me.pipe';
+import {Component, computed, effect, inject, OnInit, signal, untracked} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {RouterModule} from '@angular/router';
+import {TaskService} from '@core/services/task.service';
+import {TASK_STATUS_CONFIG, TASK_STATUS_LIST, TaskRO, TaskStatus, TaskTreeRO} from '@core/models/task/task.model';
+import {AuthService} from '@core/services/auth.service';
+import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
+import {ReplaceMePipe} from '@core/pipes/replace-me.pipe';
+import {TranslocoPipe, TranslocoService} from '@ngneat/transloco'; // <-- Добавили импорты
 
 type RenderTask = TaskRO & {
   level: number;
@@ -27,13 +28,14 @@ interface TaskListState {
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, BackOnEscapeDirective, ReplaceMePipe],
+  imports: [CommonModule, FormsModule, RouterModule, BackOnEscapeDirective, ReplaceMePipe, TranslocoPipe], // <-- Добавили TranslocoPipe
   templateUrl: './task-list.html',
   styleUrl: './task-list.scss'
 })
 export class TaskList implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly taskService = inject(TaskService);
+  private readonly translocoService = inject(TranslocoService); // <-- Внедряем сервис для работы с языком
   private readonly STORAGE_KEY = 'task_list_state';
   protected readonly TASK_STATUS_LIST = TASK_STATUS_LIST;
 
@@ -42,20 +44,16 @@ export class TaskList implements OnInit {
   loading = signal(true);
   viewMode = signal<'list' | 'board'>('list');
 
-  // Флаг загрузки данных для предотвращения перезаписи пустого состояния в localStorage
   private readonly tasksInitialLoaded = signal(false);
 
-  // Фильтры
   searchQuery = signal('');
   selectedStatus = signal<TaskStatus | ''>('');
   selectedPriority = signal<string>('');
   expandedNodes = signal<Set<string>>(new Set());
 
-  // Сортировка
   sortColumn = signal<string>('title');
   sortDirection = signal<'asc' | 'desc'>('asc');
 
-  // Оптимизированное плоское дерево задач
   flatTasks = computed(() => {
     const tasks: TaskRO[] = [];
     const traverse = (trees: TaskTreeRO[]) => {
@@ -68,7 +66,6 @@ export class TaskList implements OnInit {
     return tasks;
   });
 
-  // Быстрая карта связей для подъема по иерархии дерева
   private readonly parentMap = computed(() => {
     const map = new Map<string, string | null>();
     for (const task of this.flatTasks()) {
@@ -77,10 +74,9 @@ export class TaskList implements OnInit {
     return map;
   });
 
-  // Вычисляемая статистика
   stats = computed(() => {
     const tasks = this.flatTasks();
-    const currentStats = { total: tasks.length, pending: 0, inProgress: 0, review: 0, completed: 0, overdue: 0, archived: 0 };
+    const currentStats = {total: tasks.length, pending: 0, inProgress: 0, review: 0, completed: 0, overdue: 0, archived: 0};
     const todayTime = new Date().setHours(0, 0, 0, 0);
 
     for (const t of tasks) {
@@ -98,7 +94,6 @@ export class TaskList implements OnInit {
     return currentStats;
   });
 
-  // Логика фильтрации идентификаторов задач
   filteredTaskSets = computed(() => {
     const tasks = this.flatTasks();
     const query = this.searchQuery().trim().toLowerCase();
@@ -128,36 +123,35 @@ export class TaskList implements OnInit {
       }
     }
 
-    return { matchedIds, visibleIds, isFiltered: !!(query || taskStatus || priority) };
+    return {matchedIds, visibleIds, isFiltered: !!(query || taskStatus || priority)};
   });
 
-  // Оптимизация: Функция вынесена из computed для предотвращения дублирования замыканий в памяти
-  private parseDateInfo(dateStr: string | undefined, todayTime: number) {
-    if (!dateStr) return { dateClass: '' as const, formattedDate: '—' };
-    const d = new Date(dateStr);
-    const formattedDate = d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    const dateTime = d.setHours(0, 0, 0, 0);
-
-    if (dateTime < todayTime) return { dateClass: 'overdue' as const, formattedDate };
-    if (dateTime === todayTime) return { dateClass: 'today' as const, formattedDate };
-    const diffDays = Math.ceil((dateTime - todayTime) / (1000 * 60 * 60 * 24));
-    if (diffDays > 0 && diffDays <= 3) return { dateClass: 'soon' as const, formattedDate };
-    return { dateClass: 'future' as const, formattedDate };
-  }
-
-  // Декларативное построение списка видимых задач
   visibleTasks = computed(() => {
-    const { visibleIds } = this.filteredTaskSets();
+    const {visibleIds} = this.filteredTaskSets();
     const expanded = this.expandedNodes();
     const result: RenderTask[] = [];
     const todayTime = new Date().setHours(0, 0, 0, 0);
+
+    const parseDateInfo = (dateStr: string | undefined) => {
+      if (!dateStr) return {dateClass: '' as const, formattedDate: '—'};
+      const d = new Date(dateStr);
+      // Используем текущий язык приложения из Transloco вместо хардкода 'ru-RU'
+      const formattedDate = d.toLocaleDateString(this.translocoService.getActiveLang(), {day: '2-digit', month: '2-digit', year: 'numeric'});
+      const dateTime = d.setHours(0, 0, 0, 0);
+
+      if (dateTime < todayTime) return {dateClass: 'overdue' as const, formattedDate};
+      if (dateTime === todayTime) return {dateClass: 'today' as const, formattedDate};
+      const diffDays = Math.ceil((dateTime - todayTime) / (1000 * 60 * 60 * 24));
+      if (diffDays > 0 && diffDays <= 3) return {dateClass: 'soon' as const, formattedDate};
+      return {dateClass: 'future' as const, formattedDate};
+    };
 
     const traverse = (trees: TaskTreeRO[], level: number) => {
       for (const node of trees) {
         const task = node.task;
         if (!visibleIds.has(task.id)) continue;
 
-        const dateInfo = this.parseDateInfo(task.dueDate, todayTime);
+        const dateInfo = parseDateInfo(task.dueDate);
         result.push({
           ...task,
           level,
@@ -176,16 +170,15 @@ export class TaskList implements OnInit {
   });
 
   filteredFlatTasks = computed(() => {
-    const { matchedIds } = this.filteredTaskSets();
+    const {matchedIds} = this.filteredTaskSets();
     return this.flatTasks().filter(t => matchedIds.has(t.id));
   });
 
   constructor() {
     this.restoreState();
 
-    // ЭФФЕКТ 1: Автоматическое раскрытие веток при поиске
     effect(() => {
-      const { visibleIds, isFiltered } = this.filteredTaskSets();
+      const {visibleIds, isFiltered} = this.filteredTaskSets();
 
       untracked(() => {
         if (!isFiltered || !this.tasksInitialLoaded()) return;
@@ -202,9 +195,8 @@ export class TaskList implements OnInit {
 
         if (changed) this.expandedNodes.set(currentExpanded);
       });
-    }, { allowSignalWrites: true });
+    }, {allowSignalWrites: true});
 
-    // ЭФФЕКТ 2: Сохранение состояния интерфейса
     effect(() => {
       if (!this.tasksInitialLoaded()) return;
 
@@ -220,7 +212,6 @@ export class TaskList implements OnInit {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
     });
 
-    // ЭФФЕКТ 3: Самоочистка неактуальных ID из памяти
     effect(() => {
       const tasks = this.flatTasks();
       const isLoaded = this.tasksInitialLoaded();
@@ -240,7 +231,7 @@ export class TaskList implements OnInit {
         }
         if (needUpdate) this.expandedNodes.set(expanded);
       });
-    }, { allowSignalWrites: true });
+    }, {allowSignalWrites: true});
   }
 
   ngOnInit() {
@@ -268,7 +259,7 @@ export class TaskList implements OnInit {
         this.expandedNodes.set(new Set(state.expandedNodeIds));
       }
     } catch (e) {
-      console.warn('Ошибка восстановления состояния файловой структуры', e);
+      console.warn('Ошибка восстановления состояния', e);
     }
   }
 
@@ -319,9 +310,8 @@ export class TaskList implements OnInit {
           bVal = (b[col as keyof RenderTask] as string || '').toLowerCase();
           break;
         case 'assigneeNames':
-          // ОПТИМИЗАЦИЯ И ИСПРАВЛЕНИЕ: Поле является строкой, убран неверный индекс [0]
-          aVal = (a.assigneeNames || '').toLowerCase();
-          bVal = (b.assigneeNames || '').toLowerCase();
+          aVal = (a.assigneeNames?.[0] || '').toLowerCase();
+          bVal = (b.assigneeNames?.[0] || '').toLowerCase();
           break;
         default:
           aVal = a.title.toLowerCase();
@@ -378,17 +368,12 @@ export class TaskList implements OnInit {
     return TASK_STATUS_CONFIG[status]?.class || '';
   }
 
-  getStatusLabel(status: TaskStatus): string {
-    return TASK_STATUS_CONFIG[status]?.label || status;
-  }
-
   getPriorityColor(priority: string): string {
     return priority ? priority.toLowerCase() : 'low';
   }
 
   updateStatus(task: TaskRO, newStatus: string): void {
     const status = newStatus as TaskStatus;
-
     const updateTaskInTree = (trees: TaskTreeRO[]): boolean => {
       for (const tree of trees) {
         if (tree.task.id === task.id) {
@@ -399,13 +384,12 @@ export class TaskList implements OnInit {
       }
       return false;
     };
-
     updateTaskInTree(this.taskTrees());
     this.taskTrees.set([...this.taskTrees()]);
 
     this.taskService.updateTaskStatus(task.id, status).subscribe({
       error: (err) => {
-        console.error('Ошибка обновления статуса задачи:', err);
+        console.error('Ошибка обновления', err);
         this.loadTasks();
       }
     });

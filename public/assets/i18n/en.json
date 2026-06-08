@@ -38,6 +38,7 @@
     "add": "Add",
     "apply": "Apply to History",
     "cancel": "Cancel",
+    "create": "Create",
     "delete": "Delete",
     "edit": "Edit",
     "exit": "Exit",
@@ -63,14 +64,6 @@
     "talk": "Conversation...",
     "video": "VideoCall"
   },
-  "menu": {
-    "admin": "Admin",
-    "chat": "Chat",
-    "members": "Members",
-    "menuManage": "Menu manage",
-    "tasks": "Tasks",
-    "tracker": "Tracker"
-  },
   "member": {
     "actions": {
       "assignATask": "Assign a task",
@@ -82,16 +75,53 @@
     "members": "Members",
     "searchPlaceholder": "Search by name or email..."
   },
+  "menu": {
+    "admin": "Admin",
+    "chat": "Chat",
+    "members": "Members",
+    "menuManage": "Menu manage",
+    "tasks": "Tasks",
+    "tracker": "Tracker"
+  },
   "nav": {
     "allCategories": "All Categories"
   },
-  "workspace": {
-    "menu": {
-      "admin": "Classification Management"
-    }
-  },
   "order": {
     "orderList": "Rule Groups"
+  },
+  "task": {
+    "title": "Tasks",
+    "subtitle": "Managing tasks and hierarchy",
+    "searchPlaceholder": "Search by title and description...",
+    "allStatuses": "All statuses",
+    "allPriorities": "All priorities",
+    "status": {
+      "PENDING": "Pending",
+      "IN_PROGRESS": "In Progress",
+      "REVIEW": "Review",
+      "COMPLETED": "Completed",
+      "ARCHIVED": "Archived"
+    },
+    "stats": {
+      "total": "Total",
+      "pending": "Pending",
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "overdue": "Overdue",
+      "archived": "Archive"
+    },
+    "table": {
+      "task": "Task",
+      "subtasks": "Subtasks",
+      "comments": "Comments",
+      "status": "Status",
+      "priority": "Priority",
+      "department": "Department",
+      "project": "Project",
+      "dueDate": "Due Date",
+      "creator": "Creator",
+      "assignee": "Assignee"
+    }
   },
   "tracker": {
     "activity": {
@@ -125,6 +155,11 @@
       "myActivity" : "My activity",
       "employeeReport" : "Employee report",
       "today" : "Today"
+    }
+  },
+  "workspace": {
+    "menu": {
+      "admin": "Classification Management"
     }
   }
 }
