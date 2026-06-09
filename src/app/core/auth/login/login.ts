@@ -4,11 +4,12 @@ import {RouterLink} from '@angular/router';
 import {CommonModule} from '@angular/common';
 import {WorkspaceSelector} from '@core/auth/workspace-selector/workspace-selector';
 import {AuthService} from '@core/services/auth.service';
+import {TranslocoPipe} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink, WorkspaceSelector],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, TranslocoPipe,WorkspaceSelector],
   templateUrl: './login.html',
   styleUrl: './login.scss'
 })

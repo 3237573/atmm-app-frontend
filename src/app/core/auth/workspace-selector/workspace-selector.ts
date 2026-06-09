@@ -4,29 +4,38 @@ import {Router} from '@angular/router'; // ✨ Импортируем Router
 import {AuthService} from '../../services/auth.service';
 import {WorkspaceInfo} from '../../models/auth.model';
 import {NavigationService} from '@core/services/navigation.service';
+import {TranslocoPipe, TranslocoService} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-workspace-selector',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslocoPipe],
   templateUrl: './workspace-selector.html',
   styleUrls: ['./workspace-selector.scss']
 })
 export class WorkspaceSelector {
   private readonly authService = inject(AuthService);
   private readonly navService = inject(NavigationService);
-  private readonly router = inject(Router); // ✨ Инжектим роутер
+  private readonly router = inject(Router);
+  private readonly translocoService = inject(TranslocoService);
 
   loading = signal(false);
   workspaces = this.authService.availableWorkspaces;
 
   getRoleLabel(role: string): string {
     switch (role) {
-      case 'OWNER': return 'Владелец';
-      case 'ADMIN': return 'Админ';
-      case 'MEMBER': return 'Участник';
-      case 'GUEST': return 'Гость';
-      default: return role;
+      case 'OWNER':
+        // Используем перевод по ключу 'auth.space.changeAccount'
+        return this.translocoService.translate('auth.role.owner');
+      case 'ADMIN':
+        // Тоже можно вынести в JSON-файл перевода, например 'roles.admin'
+        return this.translocoService.translate('auth.role.admin');
+      case 'MEMBER':
+        return this.translocoService.translate('auth.role.member');
+      case 'GUEST':
+        return this.translocoService.translate('auth.role.guest');
+      default:
+        return role; // или перевести ключ по умолчанию
     }
   }
 
@@ -41,7 +50,7 @@ export class WorkspaceSelector {
       next: () => {
         this.loading.set(false);
         // ✨ Успешно выбрали пространство -> переходим в приложение!
-        this.router.navigate([this.navService.getLastRoute() ?? '/tasks']);
+        void this.router.navigate([this.navService.getLastRoute() ?? '/tracker']);
       },
       error: (err) => {
         console.error('Error selecting workspace', err);

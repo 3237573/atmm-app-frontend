@@ -7,7 +7,8 @@
         <button class="sidebar-trigger"
                 (click)="sidebarService.toggle()"
                 [class.open]="!sidebarService.isCollapsed()"
-                title="Управление меню">
+                title="{{ 'menu.menuManage' | transloco }}"
+        >
           <i class="material-icons">menu</i>
         </button>
       }

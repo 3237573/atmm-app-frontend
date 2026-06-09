@@ -1,25 +1,25 @@
 {
   "/api": {
-    "target": "http://localhost:9083",
+    "target": "http://localhost:9084",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   },
   "/uploads": {
-    "target": "http://localhost:9083",
+    "target": "http://localhost:9084",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   },
   "/v1/chat/ws": {
-    "target": "ws://localhost:9083",
+    "target": "ws://localhost:9084",
     "ws": true,
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   },
   "/v1": {
-    "target": "http://localhost:9083",
+    "target": "http://localhost:9084",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"

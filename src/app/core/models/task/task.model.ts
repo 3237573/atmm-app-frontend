@@ -1,32 +1,45 @@
-export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'REVIEW' | 'COMPLETED' | 'ARCHIVED';
+export type SysStatus = 'ACTIVE' | 'DRAFT' | 'PENDING' | 'ARCHIVED' | 'REJECTED' | 'DELETED';
 export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'REVIEW' | 'COMPLETED' | 'ARCHIVED';
+
+export const TASK_STATUS_CONFIG: Record<TaskStatus, { label: string; class: string }> = {
+  PENDING: { label: 'Ожидает', class: 'status-pending' },
+  IN_PROGRESS: { label: 'В работе', class: 'status-progress' },
+  REVIEW: { label: 'Проверка', class: 'status-review' },
+  COMPLETED: { label: 'Готово', class: 'status-completed' },
+  ARCHIVED: { label: 'Архив', class: 'status-archived' }
+};
+
+export const TASK_STATUS_LIST = Object.keys(TASK_STATUS_CONFIG) as TaskStatus[];
+
 
 export interface TaskRO {
-  id: string;
-  title: string;
-  commentsCount?: number;
-  subtasksCount?: number;
-  creatorId?: string;
-  creatorName?: string
-  creatorMemberId?: string;
-  description: string;
-  status: TaskStatus;
-  priority: TaskPriority;
   assigneeId?: string;
   assigneeIds?: string[];
   assigneeNames: string;
-  departmentName: string;
+  attachments: TaskAttachmentRO[];
+  commentsCount?: number;
+  createdAt: string;
+  creatorId?: string;
+  creatorMemberId?: string;
+  creatorName?: string;
   departmentId: string;
-  projectName?: string;
-  projectId?: string;
+  departmentName: string;
+  description: string;
   dueDate?: string;
+  estimatedHours?: number;
+  id: string;
   parentTaskId?: string;
   parentTaskTitle?: string;
-  createdAt: string;
-  updatedAt?: string;
+  priority: TaskPriority;
+  projectId?: string;
+  projectName?: string;
+  status: SysStatus;
+  taskStatus: TaskStatus;
+  subtasksCount?: number;
   timeSpent?: number; // в часах
-  estimatedHours?: number;
-  attachments: TaskAttachmentRO[]
+  title: string;
+  updatedAt?: string;
 }
 
 export interface TaskCreateRO {

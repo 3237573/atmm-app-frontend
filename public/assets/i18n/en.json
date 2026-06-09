@@ -1,8 +1,44 @@
 {
+  "auth": {
+    "login": {
+      "check": "Checking...",
+      "email": "Email",
+      "enter": "Continue",
+      "noAccount": "Don't have an account?",
+      "password": "Password",
+      "register": "Register",
+      "title": "Enter to the system",
+      "subtitle": "Welcome"
+    },
+    "register": {
+      "enter": "Login",
+      "hasAccount": "Already have an account?",
+      "memberName": "Name in space (How do I address you?)",
+      "password": "Create a password (minimum 6 characters)",
+      "register": "Register",
+      "registering": "Registration",
+      "title": "Create an account",
+      "userName": "Your name in the system (What is your name?)",
+      "subtitle": "Get started in your space",
+      "workspaceName": "Name of your space"
+    },
+    "role": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "member": "Member",
+      "guest": "Guest"
+    },
+    "space": {
+      "changeAccount": "Change your account?",
+      "title": "Choose a space",
+      "subtitle": "Specify the workspace to continue with"
+    }
+  },
   "btn": {
     "add": "Add",
     "apply": "Apply to History",
     "cancel": "Cancel",
+    "create": "Create",
     "delete": "Delete",
     "edit": "Edit",
     "exit": "Exit",
@@ -10,16 +46,146 @@
     "saveChanges": "Save Changes",
     "show": "Add Rule"
   },
+  "chat": {
+    "accept": "Answer",
+    "audio": "AudioCall",
+    "fileAttach": "Attach a file",
+    "fileDownload": "Download file",
+    "image": "Image",
+    "inCall": "Incoming",
+    "inCallDesc": "Calling from the current room",
+    "inputMessage": "Enter your message...",
+    "hangUp": "Hang up",
+    "membersNum": "members",
+    "noMessage": "No posts",
+    "reject": "Reject",
+    "searchChat": "Search for a chat...",
+    "selectChat": "Select a chat to start a conversation",
+    "talk": "Conversation...",
+    "video": "VideoCall"
+  },
+  "member": {
+    "actions": {
+      "assignATask": "Assign a task",
+      "viewProfile": "View Profile",
+      "writeMessage": "Write a message"
+    },
+    "iAm": "I am",
+    "loadMembers": "Loading members...",
+    "members": "Members",
+    "searchPlaceholder": "Search by name or email..."
+  },
+  "menu": {
+    "admin": "Admin",
+    "chat": "Chat",
+    "members": "Members",
+    "menuManage": "Menu manage",
+    "tasks": "Tasks",
+    "tracker": "Tracker"
+  },
   "nav": {
     "allCategories": "All Categories"
   },
-  "workspace": {
-    "menu": {
-      "admin": "Classification Management"
-    }
-  },
   "order": {
     "orderList": "Rule Groups"
+  },
+  "task": {
+    "title": "Tasks",
+    "subtitle": "Managing tasks and hierarchy",
+    "searchPlaceholder": "Search by title and description...",
+    "allStatuses": "All statuses",
+    "allPriorities": "All priorities",
+    "status": {
+      "PENDING": "Pending",
+      "IN_PROGRESS": "In Progress",
+      "REVIEW": "Review",
+      "COMPLETED": "Completed",
+      "ARCHIVED": "Archived"
+    },
+    "stats": {
+      "total": "Total",
+      "pending": "Pending",
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "overdue": "Overdue",
+      "archived": "Archive"
+    },
+    "table": {
+      "task": "Task",
+      "subtasks": "Subtasks",
+      "comments": "Comments",
+      "status": "Status",
+      "priority": "Priority",
+      "department": "Department",
+      "project": "Project",
+      "dueDate": "Due Date",
+      "creator": "Creator",
+      "assignee": "Assignee"
+    }
+  },
+  "taskCreate": {
+    "title": "Create Task",
+    "back": "Back",
+    "chooseAssignee": "Select at least one assignee",
+    "noMembers": "There are no employees in this department",
+    "fields": {
+      "taskTitle": "Task Title *",
+      "description": "Description",
+      "department": "Department *",
+      "project": "Project",
+      "noProject": "No Project",
+      "parentTask": "Parent Task",
+      "noParent": "— No parent (root) —",
+      "priority": "Priority",
+      "dueDate": "Due Date",
+      "assignees": "Assignees *",
+      "defaultDeptRole": "Employee"
+    },
+    "placeholders": {
+      "taskTitle": "Enter task title",
+      "description": "Detailed task description..."
+    },
+    "errors": {
+      "titleRequired": "Task title is required"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "create": "Create"
+    }
+  },
+  "taskDetail": {
+    "backToList": "Back to tasks",
+    "loading": "Loading task...",
+    "status": "Status:",
+    "subtasks": "Subtasks:",
+    "noSubtasks": "No subtasks yet",
+    "unsavedChanges": "You have unsaved changes. Leave without saving?",
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "addSubtask": "Add subtask",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "placeholders": {
+      "title": "Task title",
+      "description": "Enter task description..."
+    },
+    "fields": {
+      "creator": "Creator:",
+      "department": "Department:",
+      "departmentGeneral": "General",
+      "project": "Project:",
+      "noProject": "No project (General task)",
+      "created": "Created:",
+      "description": "Description",
+      "noDescription": "No description",
+      "assignees": "Assignees:",
+      "dueDate": "Due date:",
+      "parentTask": "Parent task:",
+      "rootTask": "— No parent (root) —"
+    }
   },
   "tracker": {
     "activity": {
@@ -41,8 +207,8 @@
       "title": "Detail"
     },
     "period": {
-      "onTheAir" : "On the Air",
-      "dataArchive" : "Data archive"
+      "onTheAir": "On the Air",
+      "dataArchive": "Data archive"
     },
     "rule": {
       "new": "New rule",
@@ -50,9 +216,14 @@
       "rulePattern": "Pattern (part of a header or process)"
     },
     "title": {
-      "myActivity" : "My activity",
-      "employeeReport" : "Employee report",
-      "today" : "Today"
+      "myActivity": "My activity",
+      "employeeReport": "Employee report",
+      "today": "Today"
+    }
+  },
+  "workspace": {
+    "menu": {
+      "admin": "Classification Management"
     }
   }
 }

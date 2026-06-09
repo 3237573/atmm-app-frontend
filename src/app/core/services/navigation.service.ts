@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Location } from '@angular/common'; // КРИТИЧНО: должен быть @angular/common
+import { Location } from '@angular/common';
 
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
@@ -24,6 +24,8 @@ export class NavigationService {
   }
 
   getLastRoute(): string | null {
-    return localStorage.getItem(this.storageKey);
+    let route = localStorage.getItem(this.storageKey);
+    if (route?.includes('/register')) return null;
+    return route;
   }
 }

@@ -1,8 +1,44 @@
 {
+  "auth": {
+    "login": {
+      "check": "Проверка...",
+      "email": "Электронная почта",
+      "enter": "Продолжить",
+      "noAccount": "Нет аккаунта?",
+      "password": "Пароль",
+      "register": "Зарегистрироваться",
+      "title": "Вход в систему",
+      "subtitle": "Добро пожаловать"
+    },
+    "register": {
+      "enter": "Войти",
+      "hasAccount": "Уже есть аккаунт?",
+      "memberName": "Имя в пространстве (Как к вам обращаться?)",
+      "password": "Придумайте пароль (минимум 6 символов)",
+      "register": "Зарегистрироваться",
+      "registering": "Регистрация...",
+      "title": "Создать аккаунт",
+      "userName": "Ваше имя в системе (Как вас зовут?)",
+      "subtitle": "Начните работу в своем пространстве",
+      "workspaceName": "Название вашего пространства"
+    },
+    "role": {
+      "owner": "Владелец",
+      "admin": "Администратор",
+      "member": "Участник",
+      "guest": "Гость"
+    },
+    "space": {
+      "changeAccount": "Сменить аккаунт?",
+      "title": "Выберите пространство",
+      "subtitle": "Укажите рабочее пространство для продолжения"
+    }
+  },
   "btn": {
     "add": "Добавить",
     "apply": "Применить к истории",
     "cancel": "Отмена",
+    "create": "Создать",
     "delete": "Удалить",
     "edit": "Редактировать",
     "exit": "Выход",
@@ -10,16 +46,146 @@
     "saveChanges": "Сохранить изменения",
     "show": "Добавить правило"
   },
+  "chat": {
+    "accept": "Ответить",
+    "audio": "Аудиозвонок",
+    "fileAttach": "Прикрепить файл",
+    "fileDownload": "Скачать файл",
+    "image": "Изображение",
+    "inCall": "Входящий",
+    "inCallDesc": "Вызов из текущей комнаты",
+    "inputMessage": "Введите сообщение...",
+    "hangUp": "Положить трубку",
+    "membersNum": "участников",
+    "noMessage": "Нет сообщений",
+    "reject": "Отклонить",
+    "searchChat": "Поиск чата...",
+    "selectChat": "Выберите чат для начала общения",
+    "talk": "Разговор...",
+    "video": "Видеозвонок"
+  },
+  "member": {
+    "actions": {
+      "assignATask": "Назначить задачу",
+      "viewProfile": "Посмотреть профиль",
+      "writeMessage": "Написать сообщение"
+    },
+    "iAm": "Я",
+    "loadMembers": "Загрузка списка участников...",
+    "members": "Участники",
+    "searchPlaceholder": "Поиск по имени или email..."
+  },
+  "menu": {
+    "admin": "Админ",
+    "chat": "Чат",
+    "members": "Участники",
+    "menuManage": "Настройки меню",
+    "tasks": "Задачи",
+    "tracker": "Трекер"
+  },
   "nav": {
     "allCategories": "Все категории"
   },
-  "workspace": {
-    "menu": {
-      "admin": "Управление классификацией"
-    }
-  },
   "order": {
     "orderList": "Группы правил"
+  },
+  "task": {
+    "title": "Задачи",
+    "subtitle": "Управление задачами и иерархией",
+    "searchPlaceholder": "Поиск по названию и описанию...",
+    "allStatuses": "Все статусы",
+    "allPriorities": "Все приоритеты",
+    "status": {
+      "PENDING": "Ожидает",
+      "IN_PROGRESS": "В работе",
+      "REVIEW": "Проверка",
+      "COMPLETED": "Готово",
+      "ARCHIVED": "Архив"
+    },
+    "stats": {
+      "total": "Всего",
+      "pending": "Ожидают",
+      "inProgress": "В работе",
+      "completed": "Готово",
+      "overdue": "Просрочено",
+      "archived": "Архив"
+    },
+    "table": {
+      "task": "Задача",
+      "subtasks": "Подзадачи",
+      "comments": "Комментарии",
+      "status": "Статус",
+      "priority": "Приоритет",
+      "department": "Отдел",
+      "project": "Проект",
+      "dueDate": "Срок",
+      "creator": "Постановщик",
+      "assignee": "Исполнитель"
+    }
+  },
+  "taskCreate": {
+    "title": "Создать задачу",
+    "back": "Назад",
+    "chooseAssignee": "Выберите хотя бы одного исполнителя",
+    "noMembers": "В этом отделе нет сотрудников",
+    "fields": {
+      "taskTitle": "Название задачи *",
+      "description": "Описание",
+      "department": "Отдел *",
+      "project": "Проект",
+      "noProject": "Без проекта",
+      "parentTask": "Родительская задача",
+      "noParent": "— Без родителя (корневая) —",
+      "priority": "Приоритет",
+      "dueDate": "Срок выполнения",
+      "assignees": "Исполнители *",
+      "defaultDeptRole": "Сотрудник"
+    },
+    "placeholders": {
+      "taskTitle": "Введите название задачи",
+      "description": "Подробное описание задачи..."
+    },
+    "errors": {
+      "titleRequired": "Название задачи обязательно"
+    },
+    "actions": {
+      "cancel": "Отмена",
+      "creating": "Создание...",
+      "create": "Создать"
+    }
+  },
+  "taskDetail": {
+    "backToList": "Назад к задачам",
+    "loading": "Загрузка задачи...",
+    "status": "Статус:",
+    "subtasks": "Подзадачи:",
+    "noSubtasks": "Подзадач пока нет",
+    "unsavedChanges": "У вас есть несохраненные изменения. Выйти без сохранения?",
+    "actions": {
+      "edit": "Редактировать",
+      "delete": "Удалить",
+      "addSubtask": "Добавить подзадачу",
+      "cancel": "Отмена",
+      "save": "Сохранить"
+    },
+    "placeholders": {
+      "title": "Название задачи",
+      "description": "Введите описание задачи..."
+    },
+    "fields": {
+      "creator": "Постановщик:",
+      "department": "Отдел:",
+      "departmentGeneral": "Общий",
+      "project": "Проект:",
+      "noProject": "Без проекта (Общая задача)",
+      "created": "Создана:",
+      "description": "Описание",
+      "noDescription": "Нет описания",
+      "assignees": "Исполнители:",
+      "dueDate": "Срок:",
+      "parentTask": "Родительская задача:",
+      "rootTask": "— Без родителя (корневая) —"
+    }
   },
   "tracker": {
     "activity": {
@@ -41,8 +207,8 @@
       "title": "Детализация"
     },
     "period": {
-      "onTheAir" : "В эфире",
-      "dataArchive" : "Архив данных"
+      "onTheAir": "В эфире",
+      "dataArchive": "Архив данных"
     },
     "rule": {
       "new": "Новое правило",
@@ -50,10 +216,14 @@
       "rulePattern": "Паттерн (часть заголовка или процесса)"
     },
     "title": {
-      "myActivity" : "Моя активность",
-      "employeeReport" : "Отчет сотрудника",
-      "today" : "Сегодня"
+      "myActivity": "Моя активность",
+      "employeeReport": "Отчет сотрудника",
+      "today": "Сегодня"
     }
-
+  },
+  "workspace": {
+    "menu": {
+      "admin": "Управление классификацией"
+    }
   }
 }

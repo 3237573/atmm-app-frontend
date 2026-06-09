@@ -6,18 +6,22 @@ import { NavigationService } from '../../services/navigation.service';
 import { SidebarService } from '../../services/sidebar.service';
 import { AuthService } from '../../services/auth.service';
 import { filter } from 'rxjs';
+import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
+import {TranslocoPipe, TranslocoService} from '@ngneat/transloco';
 
 interface MenuItem {
   path: string;
-  label: string;
+  labelKey: string;
   icon: string;
   permission?: string;
 }
+const menuTranslatePath: string = "menu.";
+
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, BackOnEscapeDirective, TranslocoPipe],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss'
 })
@@ -26,6 +30,8 @@ export class Sidebar implements OnInit {
   private readonly navigationService = inject(NavigationService);
   private readonly router = inject(Router);
   protected readonly sidebarService = inject(SidebarService);
+  private readonly translocoService = inject(TranslocoService);
+
 
   readonly currentUserEmail = computed(() => this.authService.currentUser()?.email ?? 'none');
   readonly currentUserName = computed(() => this.authService.currentUser()?.displayName ?? 'none');
@@ -35,11 +41,11 @@ export class Sidebar implements OnInit {
   }
 
   private readonly allMenuItems: MenuItem[] = [
-    { path: '/members', icon: 'groups', label: 'Members', permission: 'user:read' },
-    { path: '/chat', icon: 'chat', label: 'Chat', permission: 'chat:read' },
-    { path: '/tasks', icon: 'account_tree', label: 'Tasks', permission: 'task:read' },
-    { path: '/tracker', icon: 'schedule', label: 'Tracker', permission: 'tracker:read' },
-    { path: '/admin', icon: 'settings', label: 'Admin', permission: 'owner:owner' }
+    { path: '/members', icon: 'groups', labelKey: 'menu.members', permission: 'user:read' },
+    { path: '/chat', icon: 'chat', labelKey: 'menu.chat', permission: 'chat:read' },
+    { path: '/tasks', icon: 'account_tree', labelKey: 'menu.tasks', permission: 'task:read' },
+    { path: '/tracker', icon: 'schedule', labelKey: 'menu.tracker', permission: 'tracker:read' },
+    { path: '/admin', icon: 'settings', labelKey: 'menu.admin', permission: 'owner:owner' }
   ];
 
   menuItems = computed(() => {

@@ -1,12 +1,12 @@
-// src/app/features/chat/chat-layout.ts
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { ChatList } from 'src/app/features/chat/chat-list/chat-list';
+import {TranslocoPipe} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-chat-layout',
   standalone: true,
-  imports: [ChatList, RouterOutlet],
+  imports: [ChatList, RouterOutlet, TranslocoPipe],
   template: `
     <div class="chat-layout" [class.room-opened]="isRoomOpened()">
       <aside class="sidebar" [class.collapsed]="isCollapsed()" (dblclick)="onSidebarDblClick($event)">
@@ -17,7 +17,7 @@ import { ChatList } from 'src/app/features/chat/chat-list/chat-list';
         @if (router.url === '/chat') {
           <div class="empty-chat-state">
             <i class="material-icons">forum</i>
-            <p>Выберите чат для начала общения</p>
+            <p>{{ ('chat.selectChat') | transloco }}</p>
           </div>
         }
         <router-outlet></router-outlet>
@@ -152,7 +152,7 @@ import { ChatList } from 'src/app/features/chat/chat-list/chat-list';
 })
 export class ChatLayout {
   protected readonly router = inject(Router);
-  // Сигнал для контроля свернутого состояния списка чатов
+  // Signal to control the collapsed state of the chat list
   protected readonly isCollapsed = signal(false);
 
   isRoomOpened(): boolean {
@@ -162,12 +162,12 @@ export class ChatLayout {
   onSidebarDblClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
 
-    // Защита: если кликнули внутрь текстового поля поиска, не сворачиваем панель
+    // Protection: if you click inside the search text field, do not collapse the panel
     if (target.tagName === 'INPUT') {
       return;
     }
 
-    // Переключаем состояние
+    // Toggle the state
     this.isCollapsed.update(state => !state);
   }
 }

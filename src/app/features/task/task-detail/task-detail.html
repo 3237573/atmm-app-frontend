@@ -2,31 +2,30 @@
   <div class="page-header">
     <button class="btn-back" (click)="goBack()">
       <i class="material-icons">arrow_back</i>
-      Назад к задачам
+      {{ 'taskDetail.backToList' | transloco }}
     </button>
   </div>
 
   @if (loading()) {
     <div class="loader-container">
       <div class="spinner"></div>
-      <span>Загрузка задачи...</span>
+      <span>{{ 'taskDetail.loading' | transloco }}</span>
     </div>
   } @else if (task(); as task) {
-    <!-- Статус-бар -->
     <div class="status-bar">
       <div class="status-left">
         <div class="status-selector">
-          <span class="label">Статус:</span>
+          <span class="label">{{ 'taskDetail.status' | transloco }}</span>
           <select
             [value]="task.status"
             (change)="updateStatus($any($event.target).value)"
             class="status-select"
             [disabled]="editing()">
-            <option value="PENDING">🟡 Ожидает</option>
-            <option value="IN_PROGRESS">🔵 В работе</option>
-            <option value="REVIEW">🟣 На проверке</option>
-            <option value="COMPLETED">✅ Выполнена</option>
-            <option value="ARCHIVED">Архив</option>
+            <option value="PENDING">🟡 {{ 'task.status.PENDING' | transloco }}</option>
+            <option value="IN_PROGRESS">🔵 {{ 'task.status.IN_PROGRESS' | transloco }}</option>
+            <option value="REVIEW">🟣 {{ 'task.status.REVIEW' | transloco }}</option>
+            <option value="COMPLETED">✅ {{ 'task.status.COMPLETED' | transloco }}</option>
+            <option value="ARCHIVED">{{ 'task.status.ARCHIVED' | transloco }}</option>
           </select>
         </div>
         <div class="priority-badge" [class]="getPriorityColor(task.priority)">
@@ -38,7 +37,7 @@
         @if (!editing() && !loading()) {
           @if (canEditTask()) {
             <button class="btn-edit" (click)="startEdit()">
-              <i class="material-icons">edit</i> Редактировать
+              <i class="material-icons">edit</i> {{ 'taskDetail.actions.edit' | transloco }}
             </button>
             <button class="btn-delete" (click)="deleteTask()" [disabled]="deleting()">
               @if (deleting()) {
@@ -46,16 +45,16 @@
               } @else {
                 <i class="material-icons">delete</i>
               }
-              <span>Удалить</span>
+              <span>{{ 'taskDetail.actions.delete' | transloco }}</span>
             </button>
           }
           <button class="btn-add-subtask" (click)="createSubtask()">
-            <i class="material-icons">add</i> Добавить подзадачу
+            <i class="material-icons">add</i> {{ 'taskDetail.actions.addSubtask' | transloco }}
           </button>
         }
         @if (editing()) {
           <button class="btn-cancel" (click)="cancelEdit()">
-            <i class="material-icons">close</i> Отмена
+            <i class="material-icons">close</i> {{ 'taskDetail.actions.cancel' | transloco }}
           </button>
           <button class="btn-save" (click)="saveEdit()" [disabled]="saving()">
             @if (saving()) {
@@ -63,15 +62,13 @@
             } @else {
               <i class="material-icons">save</i>
             }
-            <span>Сохранить</span>
+            <span>{{ 'taskDetail.actions.save' | transloco }}</span>
           </button>
         }
       </div>
     </div>
 
-    <!-- Основной контент -->
     <div class="task-content">
-      <!-- Заголовок -->
       <div class="task-title-section">
         @if (!editing()) {
           <h1>{{ task.title }}</h1>
@@ -80,57 +77,51 @@
             type="text"
             [(ngModel)]="editData.title"
             class="title-input"
-            placeholder="Название задачи">
+            placeholder="{{ 'taskDetail.placeholders.title' | transloco }}">
         }
       </div>
 
-      <!-- Мета-информация (всегда в одной сетке) -->
       <div class="meta-info">
-        <!-- Постановщик -->
         <div class="meta-item">
           <i class="material-icons">person_add</i>
-          <span>Постановщик:</span>
+          <span>{{ 'taskDetail.fields.creator' | transloco }}</span>
           <strong>{{ task.creatorName | replaceMe }}</strong>
         </div>
-        <!-- Отдел -->
         <div class="meta-item">
           <i class="material-icons">business</i>
-          <span>Отдел:</span>
-          <strong>{{ task.departmentName || 'Общий' }}</strong>
+          <span>{{ 'taskDetail.fields.department' | transloco }}</span>
+          <strong>{{ task.departmentName || ('taskDetail.fields.departmentGeneral' | transloco) }}</strong>
         </div>
-        <!-- Проект (в режиме редактирования – выпадающий список) -->
         <div class="meta-item">
           <i class="material-icons">folder</i>
-          <span>Проект:</span>
+          <span>{{ 'taskDetail.fields.project' | transloco }}</span>
           @if (!editing()) {
-            <strong>{{ task.projectName || 'Без проекта (Общая задача)' }}</strong>
+            <strong>{{ task.projectName || ('taskDetail.fields.noProject' | transloco) }}</strong>
           } @else {
             <select [(ngModel)]="editData.projectId" class="inline-select">
-              <option value="">Без проекта (Общая задача)</option>
+              <option value="">{{ 'taskDetail.fields.noProject' | transloco }}</option>
               @for (project of userProjects(); track project.projectId) {
                 <option [value]="project.projectId">{{ project.projectTitle }}</option>
               }
             </select>
           }
         </div>
-        <!-- Дата создания -->
         <div class="meta-item">
           <i class="material-icons">calendar_today</i>
-          <span>Создана:</span>
+          <span>{{ 'taskDetail.fields.created' | transloco }}</span>
           <strong>{{ formatDate(task.createdAt) }}</strong>
         </div>
 
       </div>
 
-      <!-- Описание -->
       <div class="description-section">
-        <h3><i class="material-icons">description</i> Описание</h3>
+        <h3><i class="material-icons">description</i> {{ 'taskDetail.fields.description' | transloco }}</h3>
         @if (!editing()) {
           <div class="description-content">
             @if (task.description) {
               <p>{{ task.description }}</p>
             } @else {
-              <p class="empty-description">Нет описания</p>
+              <p class="empty-description">{{ 'taskDetail.fields.noDescription' | transloco }}</p>
             }
           </div>
         } @else {
@@ -138,14 +129,13 @@
             [(ngModel)]="editData.description"
             class="description-input"
             rows="6"
-            placeholder="Введите описание задачи..."></textarea>
+            placeholder="{{ 'taskDetail.placeholders.description' | transloco }}"></textarea>
         }
       </div>
 
-      <!-- Исполнители -->
       <div class="meta-info">
         <div class="meta-item">
-          <span class="label"><i class="material-icons">people</i> Исполнители:</span>
+          <span class="label"><i class="material-icons">people</i> {{ 'taskDetail.fields.assignees' | transloco }}</span>
           <button class="btn-add-subtask" type="button">
             <span class="value clickable" (click)="openAssigneeModal()">
               {{ task.assigneeNames | replaceMe }}
@@ -153,10 +143,9 @@
             </span>
           </button>
 
-          <!-- Срок выполнения (в режиме редактирования – инпут) -->
           <div class="meta-item" [class.overdue]="!editing() && isOverdue(task.dueDate)">
             <i class="material-icons">event</i>
-            <span>Срок:</span>
+            <span>{{ 'taskDetail.fields.dueDate' | transloco }}</span>
             @if (!editing()) {
               <strong [class.overdue-text]="isOverdue(task.dueDate)">{{ formatDate(task.dueDate) }}</strong>
             } @else {
@@ -168,15 +157,14 @@
             }
           </div>
 
-          <!-- Родительская задача (в режиме просмотра – текст, в режиме редактирования – селект) -->
           <div class="meta-item">
             <i class="material-icons">subdirectory_arrow_right</i>
-            <span>Родительская задача:</span>
+            <span>{{ 'taskDetail.fields.parentTask' | transloco }}</span>
             @if (!editing()) {
-              <strong>{{ parentTaskTitleDisplay() || '— (корневая) —' }}</strong>
+              <strong>{{ parentTaskTitleDisplay() || ('taskDetail.fields.rootTask' | transloco) }}</strong>
             } @else {
               <select [(ngModel)]="editData.parentTaskId" class="inline-select">
-                <option [value]="null">— Без родителя (корневая) —</option>
+                <option [value]="null">{{ 'taskDetail.fields.rootTask' | transloco }}</option>
                 @for (parent of availableParentTasks(); track parent.id) {
                   <option [value]="parent.id">{{ parent.title }}</option>
                 }
@@ -187,12 +175,10 @@
       </div>
     </div>
 
-    <!-- Вложения -->
     <app-task-attachment-manager
       [taskId]="task.id"
       [initialAttachments]="task.attachments"/>
 
-    <!-- Подзадачи -->
     <div class="subtasks-section">
       <div class="section-header">
         <h3
@@ -200,7 +186,7 @@
           [class.clickable]="taskTree()?.subtasks?.length"
           class="subtasks-heading">
           <i class="material-icons">account_tree</i>
-          Подзадачи :
+          {{ 'taskDetail.subtasks' | transloco }}
           @if (task.subtasksCount) {
             <span class="badge">{{ task.subtasksCount }}</span>
           }
@@ -211,7 +197,7 @@
           }
         </h3>
         @if (!taskTree()?.subtasks?.length) {
-          <span class="empty-inline">Подзадач пока нет</span>
+          <span class="empty-inline">{{ 'taskDetail.noSubtasks' | transloco }}</span>
         }
       </div>
 
@@ -224,12 +210,10 @@
       }
     </div>
 
-    <!-- Комментарии -->
     <app-task-comments
       [taskId]="task.id"
       [reloadTrigger]="reloadComments()"/>
 
-    <!-- Модалка исполнителей -->
     @if (showAssigneeModal()) {
       <div class="modal-overlay" (click)="closeAssigneeModal()">
         <div (click)="$event.stopPropagation()">
