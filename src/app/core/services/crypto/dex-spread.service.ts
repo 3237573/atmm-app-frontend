@@ -13,7 +13,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class DexSpreadService {
   private readonly http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:9084/api/dex';
+  private readonly API_URL = '/api/dex';
   private readonly TIMEOUT = 10000;
 
   /**

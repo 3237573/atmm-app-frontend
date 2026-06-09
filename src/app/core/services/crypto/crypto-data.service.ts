@@ -2,12 +2,12 @@ import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable, of} from 'rxjs';
 import {catchError} from 'rxjs/operators';
-import {ExchangePrice, ExchangeSpread} from '../../models/crypto.model';
+import {ExchangePrice, ExchangeSpread} from '@core/models';
 
 @Injectable({ providedIn: 'root' })
 export class CryptoDataService {
   private readonly http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:9084/api/crypto';
+  private readonly API_URL = '/api/crypto';
 
   getCoins(): Observable<{ symbol: string; fullName: string }[]> {
     return this.http
