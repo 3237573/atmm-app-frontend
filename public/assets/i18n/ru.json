@@ -1,4 +1,22 @@
 {
+  "admin": {
+    "tabs": {
+      "departments": "Группы",
+      "members": "Участинки",
+      "permissions": "Доступы",
+      "profile": "Профиль",
+      "projects": "Проекты",
+      "roles": "Роли",
+      "tracker": "Трекер"
+    },
+    "profile": {
+      "inputName": "Введите название",
+      "subtitle": "Основная информация",
+      "spaceCode": "Код пространства",
+      "spaceName": "Название пространства",
+      "title": "Профиль пространства"
+    }
+  },
   "auth": {
     "login": {
       "check": "Проверка...",
