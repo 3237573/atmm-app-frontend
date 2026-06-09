@@ -123,6 +123,37 @@
       "assignee": "Assignee"
     }
   },
+  "taskCreate": {
+    "title": "Create Task",
+    "back": "Back",
+    "chooseAssignee": "Select at least one assignee",
+    "noMembers": "There are no employees in this department",
+    "fields": {
+      "taskTitle": "Task Title *",
+      "description": "Description",
+      "department": "Department *",
+      "project": "Project",
+      "noProject": "No Project",
+      "parentTask": "Parent Task",
+      "noParent": "— No parent (root) —",
+      "priority": "Priority",
+      "dueDate": "Due Date",
+      "assignees": "Assignees *",
+      "defaultDeptRole": "Employee"
+    },
+    "placeholders": {
+      "taskTitle": "Enter task title",
+      "description": "Detailed task description..."
+    },
+    "errors": {
+      "titleRequired": "Task title is required"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "create": "Create"
+    }
+  },
   "taskDetail": {
     "backToList": "Back to tasks",
     "loading": "Loading task...",

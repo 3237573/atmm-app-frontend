@@ -123,6 +123,37 @@
       "assignee": "Исполнитель"
     }
   },
+  "taskCreate": {
+    "title": "Создать задачу",
+    "back": "Назад",
+    "chooseAssignee": "Выберите хотя бы одного исполнителя",
+    "noMembers": "В этом отделе нет сотрудников",
+    "fields": {
+      "taskTitle": "Название задачи *",
+      "description": "Описание",
+      "department": "Отдел *",
+      "project": "Проект",
+      "noProject": "Без проекта",
+      "parentTask": "Родительская задача",
+      "noParent": "— Без родителя (корневая) —",
+      "priority": "Приоритет",
+      "dueDate": "Срок выполнения",
+      "assignees": "Исполнители *",
+      "defaultDeptRole": "Сотрудник"
+    },
+    "placeholders": {
+      "taskTitle": "Введите название задачи",
+      "description": "Подробное описание задачи..."
+    },
+    "errors": {
+      "titleRequired": "Название задачи обязательно"
+    },
+    "actions": {
+      "cancel": "Отмена",
+      "creating": "Создание...",
+      "create": "Создать"
+    }
+  },
   "taskDetail": {
     "backToList": "Назад к задачам",
     "loading": "Загрузка задачи...",
