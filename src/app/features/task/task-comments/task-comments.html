@@ -1,0 +1,48 @@
+<div class="task-comments">
+  <div class="comments-header">
+    <h3>
+      <i class="material-icons">chat_bubble</i>
+      Комментарии
+      <span class="comments-count">{{ comments().length }}</span>
+    </h3>
+  </div>
+
+  <!-- Форма добавления комментария -->
+  <div class="comment-form">
+    <div class="comment-avatar">
+      {{ (currentUser()?.fullName || currentUser()?.email || 'U').charAt(0).toUpperCase() }}
+    </div>
+    <div class="comment-input-wrapper">
+      <textarea
+        [(ngModel)]="newComment"
+        placeholder="Написать комментарий..."
+        rows="2"
+        class="comment-input"
+        [disabled]="isSubmitting()"
+      ></textarea>
+      <button
+        class="comment-submit"
+        (click)="onSubmit()"
+        [disabled]="!newComment().trim() || isSubmitting()">
+        @if (isSubmitting()) {
+          <i class="material-icons spinning">refresh</i>
+        } @else {
+          <i class="material-icons">send</i>
+        }
+      </button>
+    </div>
+  </div>
+
+  <!-- Список комментариев (рекурсивно) -->
+  @if (loading()) {
+    <div class="comments-loader">Загрузка...</div>
+  } @else if (comments().length === 0) {
+    <div class="empty-comments">Нет комментариев</div>
+  } @else {
+    <div class="comments-list">
+      @for (comment of comments(); track comment.id) {
+        <app-comment-item [comment]="comment" [taskId]="taskId" />
+      }
+    </div>
+  }
+</div>

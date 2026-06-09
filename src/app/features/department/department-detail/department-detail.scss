@@ -1,0 +1,283 @@
+/* ============================================================
+   DEPARTMENT DETAIL — DARK THEME (Premium, Organic)
+   ============================================================ */
+
+.detail-container {
+  width: 100%;
+  padding: 1.5rem 2rem;
+  color: var(--text-main);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* === Loader === */
+.loader {
+  margin-top: 2rem;
+  color: var(--text-subtle);
+  font-size: 0.9rem;
+}
+
+/* === Header === */
+.header-main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.back-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-subtle);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: 0.4rem;
+  transition: 0.15s ease;
+
+  &:hover {
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+}
+
+.title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.title-input {
+  font-size: 1.4rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-main);
+  color: var(--text-main);
+  width: 100%;
+  max-width: 42rem;
+  transition: 0.2s;
+
+  &:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-soft);
+  }
+}
+
+/* === Layout Grid === */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === Card === */
+.card {
+  background: var(--bg-elevated);
+  border-radius: 1rem;
+  border: 1px solid var(--border-subtle);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--text-main);
+  }
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-subtle);
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: 0.15s ease;
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+}
+
+/* === Employee List === */
+.employee-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* === Employee Row === */
+.employee-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.6rem;
+  background: var(--bg-main);
+  border: 1px solid var(--border-subtle);
+  transition: 0.15s ease;
+
+  &:hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+}
+
+/* === Employee Info Line === */
+.emp-line {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+}
+
+.emp-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.emp-email {
+  font-size: 0.82rem;
+  color: var(--text-subtle);
+}
+
+/* === Role Badge Input === */
+.role-badge-input {
+  background: var(--bg-main);
+  border: 1px solid var(--border-subtle);
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.45rem;
+  font-size: 0.82rem;
+  color: var(--text-main);
+  width: 350px;
+  transition: 0.18s ease;
+  outline: none;
+
+  &:hover {
+    background: var(--bg-soft);
+    border-color: var(--border-strong);
+  }
+
+  &:focus {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-soft);
+  }
+}
+
+/* === Delete Button === */
+.btn-icon.delete {
+  background: transparent;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.4rem;
+  transition: 0.15s ease;
+
+  &:hover {
+    background: rgba(var(--danger-rgb), 0.15);
+    color: var(--danger);
+  }
+}
+
+/* === Side Column === */
+.side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.45rem;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-main);
+  color: var(--text-main);
+  transition: 0.2s;
+
+  &:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-soft);
+  }
+}
+
+.empty-state {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-subtle);
+}
+
+/* === Modal === */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal-content {
+  background: var(--bg-elevated);
+  border-radius: 0.8rem;
+  padding: 1.5rem;
+  width: 480px;
+  max-width: 100%;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-strong);
+}
+
+.selection-list {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.selection-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.m-info {
+  flex: 1;
+
+  p {
+    margin: 0;
+  }
+
+  small {
+    color: var(--text-subtle);
+  }
+}
+
+.role-input {
+  width: 140px;
+}

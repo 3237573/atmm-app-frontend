@@ -1,0 +1,410 @@
+/* 1. Переменные (единый стандарт) */
+$gold: #f0b90b;
+$dark-bg: #0b0e11;
+$panel-bg: #1e2329;
+$border: #474d57;
+$text: #eaecef;
+$green: #0ecb81;
+$red: #f6465d;
+
+/* 2. Базовые настройки вьюпорта */
+:host {
+  display: block;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.dashboard-viewport {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: $dark-bg;
+  color: $text;
+}
+
+/* 3. Шапка */
+.main-header {
+  height: 60px;
+  background: $panel-bg;
+  border-bottom: 1px solid #2b3139;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  flex-shrink: 0;
+
+  .logo-title {
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0;
+  }
+
+  .live-indicator {
+    color: $green;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .pulse {
+      width: 7px;
+      height: 7px;
+      background: $green;
+      border-radius: 50%;
+      box-shadow: 0 0 8px $green;
+    }
+  }
+
+  .coin-selector-box {
+    position: relative;
+    background: #2b3139;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 6px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 240px;
+    transition: border-color 0.2s;
+
+    &:hover {
+      border-color: $gold;
+    }
+
+    label {
+      font-size: 11px;
+      color: #848e9c;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .premium-select {
+      background: transparent;
+      color: $text;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+      appearance: none;
+      padding-right: 25px;
+      z-index: 2;
+
+      option {
+        background-color: $dark-bg;
+        color: $text;
+      }
+    }
+
+    .dropdown-icon {
+      position: absolute;
+      right: 10px;
+      color: $gold;
+      pointer-events: none;
+      font-size: 18px;
+    }
+  }
+
+  .logout-button {
+    background: rgba($red, 0.15);
+    border: 1px solid $red;
+    color: $red;
+    padding: 7px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    transition: 0.2s;
+
+    &:hover {
+      background: $red;
+      color: white;
+    }
+  }
+}
+
+/* Лента топ-возможностей */
+.top-opportunities {
+  height: 80px;
+  background: #161a1e;
+  border-bottom: 1px solid #2b3139;
+  display: flex;
+  overflow: hidden; // Прячем лишнее, чтобы работала прокрутка
+  flex-shrink: 0;
+
+  .ribbon-tag {
+    background: $gold;
+    color: #000;
+    font-weight: 900;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    width: 120px;
+    z-index: 10; // Поверх ленты
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+  }
+
+  .ribbon-container {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+
+  .ribbon-track {
+    display: inline-flex;
+    width: max-content;
+    gap: 15px;
+    padding: 10px;
+    white-space: nowrap;
+    will-change: transform;
+    animation: scroll-left 20s linear infinite;
+    &:hover {
+      animation-play-state: paused; // Останавливает анимацию при наведении
+      cursor: pointer;             // Показывает, что на карточки можно нажать
+    }
+  }
+}
+
+.opportunity-card {
+  background: #2b3139;
+  border-radius: 8px;
+  padding: 10px 15px;
+  min-width: 180px;
+  flex-shrink: 0; // Не даем карточкам сжиматься
+
+  .card-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .coin-name {
+    font-weight: bold;
+    color: $gold;
+  }
+
+  .profit-val {
+    color: $green;
+    font-weight: bold;
+  }
+
+  .card-path {
+    font-size: 13px;
+    color: #00a2ff;
+
+    .arr {
+      color: #fff;
+      padding: 0 4px;
+    }
+  }
+}
+
+/* АНИМАЦИЯ: Справа на лево */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(100vw); // старт за правым краем экрана
+  }
+  100% {
+    transform: translateX(-100%); // уходит полностью влево
+  }
+}
+
+// @keyframes scroll-left {
+//   from {
+//     transform: translateX(0);
+//   }
+//   to {
+//     transform: translateX(-50%); // Если контент дублируется для бесшовности
+//   }
+// }
+
+/* 5. Матрица (Таблица) */
+.matrix-main {
+  flex: 1;
+  overflow: hidden;
+  padding: 10px;
+}
+
+.matrix-scroll-wrapper {
+  height: 100%;
+  overflow: auto;
+  border: 1px solid #2b3139;
+  border-radius: 4px;
+}
+
+.arbitrage-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  table-layout: fixed;
+
+  th,
+  td {
+    padding: 6px 8px;
+    border: 1px solid #2a2f36;
+  }
+
+  th {
+    background: #1b1f24;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    background: #111418;
+  }
+
+  .sticky-exchange {
+    background: #1b1f24 !important;
+    border-right: 2px solid #0b0e11;
+
+    .name {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .price {
+      font-size: 12px;
+      color: $gold;
+    }
+  }
+
+  .cell-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+
+    .val {
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .usd-row {
+      font-size: 10px;
+      opacity: 0.55;
+    }
+  }
+
+  .arrow {
+    font-size: 9px;
+    margin-left: 3px;
+    opacity: 0.7;
+    display: inline-block;
+    transform: translateY(-1px);
+  }
+
+  .pos-cell .arrow {
+    color: $green;
+  }
+
+  .neg-cell .arrow {
+    color: $red;
+  }
+
+  .pos-cell {
+    background: rgba(0, 255, 0, 0.08) !important;
+    color: #0ecb81;
+  }
+
+  .neg-cell {
+    background: rgba(255, 0, 0, 0.08) !important;
+    color: #f6465d;
+  }
+
+  .zero-cell {
+    opacity: 0.2;
+  }
+
+  .high-profit {
+    background: rgba($green, 0.25) !important;
+    color: #fff !important;
+    font-weight: bold;
+
+    .usd-row {
+      opacity: 1;
+      color: $green;
+    }
+  }
+}
+
+/* Контейнер для наложения */
+.loader-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba($dark-bg, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+
+  .loader-content {
+    text-align: center;
+    color: $gold;
+
+    p {
+      margin-top: 15px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 12px;
+      animation: pulse-text 1.5s infinite;
+    }
+  }
+}
+
+/* Спиннер в стиле крипто-бирж */
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba($gold, 0.1);
+  border-radius: 50%;
+  border-top-color: $gold;
+  animation: spin 1s ease-in-out infinite;
+  margin: 0 auto;
+}
+
+/* Эффект бегущей линии сканера */
+.scanner-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, $gold, transparent);
+  box-shadow: 0 0 15px $gold;
+  animation: scan 10s linear infinite;
+}
+
+/* Блюр для таблицы на фоне */
+.loading-blur {
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes scan {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

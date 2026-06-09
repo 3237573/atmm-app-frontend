@@ -1,0 +1,168 @@
+<div class="task-create" appBackOnEscape>
+  <div class="page-header">
+    <h1>
+      <i class="material-icons">assignment_add</i>
+      Создать задачу
+    </h1>
+    <button class="btn-secondary" routerLink="/tasks">
+      <i class="material-icons">arrow_back</i>
+      Назад
+    </button>
+  </div>
+
+  <div class="form-container">
+    <!-- Название -->
+    <div class="form-group">
+      <label>Название задачи *</label>
+      <input
+        type="text"
+        [ngModel]="title()"
+        (ngModelChange)="title.set($event)"
+        placeholder="Введите название задачи"
+        class="form-control"
+        [class.invalid]="!title().trim() && title().length > 0"
+      >
+      @if (!title().trim() && title().length > 0) {
+        <small class="error-text">Название задачи обязательно</small>
+      }
+    </div>
+
+    <!-- Описание -->
+    <div class="form-group">
+      <label>Описание</label>
+      <textarea
+        [ngModel]="description()"
+        (ngModelChange)="description.set($event)"
+        placeholder="Подробное описание задачи..."
+        rows="2"
+        class="form-control"
+      ></textarea>
+    </div>
+
+    <!-- Department and Project and Parent task -->
+    <div class="form-row-3" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+      <div class="form-group" style="flex: 1; margin-bottom: 0;">
+        <label>Отдел задачи *</label>
+        <select
+          [ngModel]="selectedDepartmentId()"
+          (ngModelChange)="onDepartmentChange($event)"
+          class="form-control"
+          style="width: 100%;"
+        >
+          <option value="" disabled>-- Выберите отдел --</option>
+          @for (dept of userDepartments(); track dept.departmentId) {
+            <option [value]="dept.departmentId">🏢 {{ dept.departmentName }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group" style="flex: 1; margin-bottom: 0;">
+        <label>Проект</label>
+        <select
+          [ngModel]="projectId()"
+          (ngModelChange)="projectId.set($event)"
+          class="form-control"
+          style="width: 100%;"
+        >
+          <option value="">— Без проекта (Общая задача) —</option>
+          @for (project of userProjects(); track project.projectId) {
+            <option [value]="project.projectId">📁 {{ project.projectTitle }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group" style="flex: 1; margin-bottom: 0;">
+        <label>Родительская задача</label>
+        <select [(ngModel)]="parentTaskId" class="form-control">
+          <option [value]="null">— Без родителя (корневая) —</option>
+          @for (parent of loadingParentTasks(); track parent.id) {
+            <option [value]="parent.id">{{ parent.title }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Приоритет и срок -->
+    <div class="form-row-3">
+      <div class="form-group">
+        <label>Приоритет</label>
+        <select
+          [ngModel]="priority()"
+          (ngModelChange)="priority.set($event)"
+          class="form-control"
+        >
+          <option value="LOW">🟢 Низкий</option>
+          <option value="MEDIUM">🔵 Средний</option>
+          <option value="HIGH">🟡 Высокий</option>
+          <option value="CRITICAL">🔴 Критический</option>  <!--🔥          -->
+        </select>
+      </div>
+
+
+      <div class="form-group">
+        <label>Срок выполнения</label>
+        <input
+          type="date"
+          [ngModel]="dueDate()"
+          (ngModelChange)="dueDate.set($event)"
+          class="form-control"
+          [min]="minDate"
+        >
+      </div>
+    </div>
+
+
+    <!-- Исполнители -->
+    <div class="form-group">
+      <label>Исполнители *</label>
+      <div class="members-list">
+        @if (loadingMembers()) {
+          <div>Загрузка сотрудников...</div>
+        } @else {
+          @for (member of departmentMembers(); track member.id) {
+            <label class="member-row">
+              <input
+                type="checkbox"
+                [checked]="isSelected(member.id)"
+                (change)="toggleAssignee(member.id)"
+              >
+              <span class="member-name">{{ member.displayName }}</span>
+              <span class="member-department-role">{{ getDepartmentRole(member) }}</span>
+              <span class="member-email">{{ member.email }}</span>
+              <span class="member-role" [class]="getRoleBadgeClass(member.roleName)">{{ member.roleName }}</span>
+            </label>
+          }
+          @if (departmentMembers().length === 0 && !loadingMembers()) {
+            <div class="empty-members">В этом отделе нет сотрудников</div>
+          }
+        }
+      </div>
+      @if (assigneeMemberIds().length === 0 && !loadingMembers()) {
+        <small class="hint-text">Выберите хотя бы одного исполнителя</small>
+      }
+    </div>
+
+    <!-- Кнопки действий -->
+    <div class="form-actions">
+      <button class="btn-secondary" routerLink="/tasks">
+        <i class="material-icons">close</i>
+        Отмена
+      </button>
+      <button
+        class="btn"
+        [class.btn-primary]="isFormValid()"
+        [class.btn-disabled]="!isFormValid()"
+        [disabled]="submitting() || !isFormValid()"
+        (click)="onSubmit()"
+      >
+        @if (submitting()) {
+          <i class="material-icons spinning">refresh</i>
+          <span>Создание...</span>
+        } @else {
+          <i class="material-icons">check</i>
+          <span>Создать задачу</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>

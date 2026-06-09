@@ -1,0 +1,94 @@
+<div class="tracker-container" appBackOnEscape>
+  <div class="page-header">
+    <div class="header-info">
+      <h1>
+        <i class="material-icons">history_toggle_off</i>
+        {{ (targetUserId() ? 'tracker.title.employeeReport' : 'tracker.title.myActivity') | transloco }}
+      </h1>
+    </div>
+    <span class="status-badge" [class.live]="isToday()">
+        <span class="pulse-dot"></span>
+      {{ (isToday() ? 'tracker.period.onTheAir' : 'tracker.period.dataArchive') | transloco }}
+      </span>
+
+    <div class="header-actions">
+      @if (targetUserId()) {
+        <button class="btn-secondary" (click)="resetToMe()">
+          <i class="material-icons">person_search</i> Мой профиль
+        </button>
+      }
+
+      <div class="date-navigator">
+        <button class="nav-btn" (click)="changeDay(-1)">
+          <i class="material-icons">chevron_left</i>
+        </button>
+        <div class="datepicker-box">
+          <input type="date" [value]="selectedDate()" (change)="onDateChange($event)" [max]="selectedDate()">
+          <span class="date-label">
+            {{ isToday() ? ('tracker.title.today' | transloco) : (selectedDate() | date:'dd MMMM') }}
+          </span>
+          <i class="material-icons select-arrow">expand_more</i>
+        </div>
+        <button class="nav-btn" (click)="changeDay(1)" [disabled]="isToday()">
+          <i class="material-icons">chevron_right</i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-overlay">
+      <div class="spinner"></div>
+    </div>
+  }
+
+  <div class="main-content" [class.is-loading]="loading()">
+
+    <section class="timeline-section">
+      <div class="timeline-wrapper">
+        <div class="timeline-grid">
+          @for (h of hours; track h) {
+            <div class="hour-cell"><span class="hour-label">{{ h }}:00</span></div>
+          }
+        </div>
+
+        <div class="activity-layer">
+          @for (act of processedActivities(); track $index) {
+            <div class="task-segment"
+                 [ngStyle]="act.style"
+                 [style.background-color]="act.color"
+                 [class.dimmed]="selectedProject() && selectedProject() !== act.categorySlug"
+                 [class.highlighted]="selectedProject() === act.categorySlug"
+                 (click)="toggleProject(act.categorySlug)">
+              <div class="task-tooltip">
+                <strong>{{ act.projectName }}</strong><br>
+                <span>{{ formatTime(act.start) }} — {{ formatTime(act.end) }}</span>
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (isToday()) {
+          <div class="now-marker" [style.left.%]="(currentTimeInMinutes() / 1440) * 100"></div>
+        }
+      </div>
+    </section>
+
+    <app-tracker-analytics
+      [categoryDistribution]="report()?.categoryDistribution || []"
+      [totalMinutes]="totalMinutes()"
+      [selectedProject]="selectedProject()"
+      (stateChange)="toggleProject($event)"
+      (formReset)="selectedProject.set(null)">
+    </app-tracker-analytics>
+
+    <app-activity-detail
+      [items]="report()?.projectDistributionList || []"
+      [selectedProject]="selectedProject()"
+      (toggle)="toggleProject($event)">
+    </app-activity-detail>
+
+  </div>
+
+  <app-member-token-panel/>
+</div>

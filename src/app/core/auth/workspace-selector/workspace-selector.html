@@ -1,0 +1,40 @@
+<div class="container">
+  <div class="card">
+    <div class="header">
+<!--      <div class="logo">-->
+<!--        <span class="logo-icon">⚡</span> ATMM-->
+<!--      </div>-->
+      <div class="user">{{ email() }}</div>
+    </div>
+
+    <div class="content">
+      <h2>Выберите пространство</h2>
+      <p class="hint">Укажите рабочее пространство для продолжения</p>
+
+      <div class="workspace-list">
+        @for (workspace of workspaces(); track workspace.workspaceId) {
+          <button class="workspace-btn" (click)="selectWorkspace(workspace)" [disabled]="loading()">
+            <div class="workspace-left">
+              <div class="avatar" [class]="workspace.role | lowercase">
+                {{ workspace.name.charAt(0) | uppercase }}
+              </div>
+              <div class="workspace-data">
+                <div class="workspace-name">{{ workspace.name }}</div>
+                <div class="workspace-code">{{ workspace.code }}</div>
+              </div>
+            </div>
+            <span class="badge" [class]="workspace.role | lowercase">
+              {{ getRoleLabel(workspace.role) }}
+            </span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="footer">
+      <button class="back" (click)="backToLogin()" [disabled]="loading()">
+        ← Сменить аккаунт
+      </button>
+    </div>
+  </div>
+</div>

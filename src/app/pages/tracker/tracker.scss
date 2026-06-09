@@ -1,0 +1,318 @@
+@use "sass:color";
+
+/* ============================================================
+   TRACKER — UNIFIED THEME (MATCHES TASK LIST)
+   ============================================================ */
+
+.tracker-container {
+  padding: 1.5rem;
+  min-height: 100vh;
+  color: var(--accent);
+  position: relative;
+}
+
+
+/* --- Вторичная кнопка (Мой профиль) --- */
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-main);
+  padding: 0 0.75rem;
+  height: 36px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+
+  i {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+  }
+
+  &:hover {
+    background: var(--bg-soft);
+    border-color: var(--text-muted);
+    i { color: var(--text-main); }
+  }
+}
+
+/* --- Навигатор по датам в стиле View Toggle --- */
+.date-navigator {
+  display: flex;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+  height: 36px;
+  box-sizing: border-box;
+  align-items: center;
+
+  .nav-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 0 0.3rem;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    height: 100%;
+    width: 30px;
+
+    i { font-size: 1.2rem; }
+
+    &:hover:not(:disabled) {
+      color: var(--text-main);
+      background: var(--bg-soft);
+    }
+
+    &:disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+    }
+  }
+}
+
+/* --- Контейнер выбора даты (Аналог Status Select) --- */
+.datepicker-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0 0.5rem;
+  height: 100%;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: var(--bg-soft);
+  }
+
+  .date-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+  }
+
+  .select-arrow {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+  }
+
+  input[type="date"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* ============================================================
+   НЕИЗМЕНЯЕМАЯ ЧАСТЬ (Timeline, Сетка, Сегменты)
+   ============================================================ */
+
+.timeline-wrapper {
+  position: relative;
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--bg-main-rgb), 0.6),
+    rgba(var(--bg-main-rgb), 0.3)
+  );
+  height: 80px;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  margin-bottom: 4rem;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.timeline-grid {
+  display: flex;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  .hour-cell {
+    flex: 1;
+    border-right: 1px solid var(--border);
+    position: relative;
+
+    &:last-child {
+      border-right: none;
+    }
+
+    .hour-label {
+      position: absolute;
+      bottom: -24px;
+      left: -50%;
+      width: 100%;
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+  }
+}
+
+.activity-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.task-segment {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 36px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255,255,255,0.1);
+  pointer-events: auto;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+
+  &:hover {
+    height: 48px;
+    z-index: 100;
+    filter: brightness(1.2) saturate(1.1);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+
+    .task-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, -12px) scale(1);
+    }
+  }
+
+  &.highlighted {
+    height: 52px;
+    z-index: 50;
+    border: 1.5px solid var(--accent);
+    box-shadow: 0 0 15px var(--accent);
+  }
+
+  &.dimmed {
+    opacity: 0.15;
+    filter: grayscale(0.5);
+  }
+
+  .task-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translate(-50%, 0) scale(0.9);
+    background: var(--bg-card);
+    color: var(--text-main);
+    padding: 0.6rem 0.9rem;
+    border-radius: 0.6rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    pointer-events: none;
+
+    strong {
+      display: block;
+      color: var(--accent);
+      margin-bottom: 2px;
+    }
+
+    span {
+      font-family: 'JetBrains Mono', monospace;
+      opacity: 0.8;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: var(--border);
+    }
+  }
+}
+
+.now-marker {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  width: 2px;
+  background: var(--danger);
+  z-index: 30;
+  pointer-events: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--danger);
+    box-shadow: 0 0 10px var(--danger);
+  }
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--bg-card-rgb), 0.85);
+  backdrop-filter: blur(8px);
+  border-radius: 1rem;
+}
+
+/* ============================================================
+   RESPONSIVENESS (Адаптивность)
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    .header-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .date-navigator {
+      flex-grow: 1;
+      justify-content: space-between;
+      .datepicker-box { flex-grow: 1; justify-content: center; }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header .header-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}

@@ -1,0 +1,110 @@
+<div class="dashboard-viewport">
+  <header class="main-header">
+    <div class="logo-area">
+      <h1 class="logo-title">Crypto Arbitrage Matrix</h1>
+      <div class="live-indicator">
+        <span class="pulse"></span> LIVE: {{ lastUpdatedTime | date:'HH:mm:ss' }}
+      </div>
+    </div>
+
+    <div class="center-controls">
+      <div class="coin-selector-box">
+        <label>
+          <select [(ngModel)]="selectedCoinSymbol" (change)="selectCoin()" class="premium-select">
+            @for (coin of supportedCoins; track coin.symbol) {
+              <option [value]="coin.symbol">{{ coin.symbol }} ({{ coin.fullName }})</option>
+            }
+          </select>
+          Select Asset:</label>
+        <span class="material-icons dropdown-icon">expand_more</span>
+      </div>
+    </div>
+
+    <div class="right-area">
+      <button class="logout-button" (click)="onLogout()">
+        <span class="material-icons">logout</span> Logout
+      </button>
+    </div>
+  </header>
+
+  <section class="top-opportunities">
+    <div class="ribbon-tag">TOP OPPORTUNITIES</div>
+    <div class="ribbon-container">
+      <div class="ribbon-track" [style.animationDuration]="ribbonDuration">
+
+        @for (spread of topSpreads(); track $index) {
+          <div class="opportunity-card" (click)="selectCoin(spread.coinSymbol)" >
+            <div class="card-row">
+              <span class="coin-name">{{ spread.coinSymbol }}</span>
+              <span class="profit-val">+{{ spread.spreadPct | number:'1.2-2' }}%</span>
+            </div>
+            <div class="card-path">
+              {{ spread.buy.exchange }} <span class="arr">→</span> {{ spread.sell.exchange }}
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <main class="matrix-main">
+    <div class="matrix-scroll-wrapper" style="position: relative">
+
+      @if (isLoading()) {
+        <div class="loader-overlay">
+          <div class="scanner-line"></div>
+          <div class="loader-content">
+            <div class="spinner"></div>
+            <p>Scanning Exchanges...</p>
+          </div>
+        </div>
+      }
+
+      <table class="arbitrage-table">
+        <thead>
+        <tr>
+          <th class="sticky-exchange">Exchange / Price</th>
+          @for (col of filteredPrices(); track col.name) {
+            <th>{{ col.name }}</th>
+          }
+        </tr>
+        </thead>
+        <tbody>
+          @for (row of filteredPrices(); track row.name) {
+            <tr>
+              <td class="sticky-exchange exchange-info">
+                <div class="name">{{ row.name }}</div>
+                <div class="price">${{ row.ask | number:'1.2-6' }}</div>
+              </td>
+
+              @for (col of filteredPrices(); track col.name) {
+                @let diff = calculateDiff(row.ask, col.bid);
+                @let usdDiff = col.bid - row.ask;
+
+                <td [class.pos-cell]="diff !== null && diff > 0.1"
+                    [class.neg-cell]="diff !== null && diff < -0.1">
+                  <div class="cell-content">
+                    @if (row.name !== col.name) {
+                      <span class="val"> {{ diff | number:'1.1-3' }}%
+                        <span class="arrow">
+                          @if (diff !== null) {
+                            @if (diff > 0) {
+                              ▲
+                            } @else {
+                              ▼
+                            }
+                          } </span> </span>
+                      <div class="usd-row">{{ usdDiff | number:'1.2-6' }}$</div>
+                    } @else {
+                      <span class="val" style="opacity: 0.3">SELF</span>
+                    }
+                  </div>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>

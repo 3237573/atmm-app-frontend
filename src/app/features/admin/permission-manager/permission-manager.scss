@@ -1,0 +1,85 @@
+@use "../../../app.scss" as *;
+
+.manager-card {
+  background: $bg-card;
+  border-radius: 1rem;
+  border: 1px solid $border;
+  padding: 1.5rem;
+
+  .manager-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 1rem;
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      i { color: $accent; }
+      h3 { margin: 0; font-size: 1.1rem; }
+    }
+
+    .add-form {
+      display: flex;
+      gap: 8px;
+      input {
+        background: $bg-main;
+        border: 1px solid $border;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        outline: none;
+        &:focus { border-color: $accent; }
+      }
+      button {
+        background: $accent;
+        color: $bg-main;
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        cursor: pointer;
+        @include flex-center;
+        &:disabled { opacity: 0.5; }
+      }
+    }
+  }
+
+  .permissions-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+
+    .permission-item {
+      background: rgba($bg-main, 0.5);
+      border: 1px solid $border;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s $ease;
+
+      &:hover {
+        border-color: rgba($accent, 0.5);
+        transform: translateY(-2px);
+      }
+
+      .p-name {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        color: $text-main;
+      }
+
+      .delete {
+        color: $text-muted;
+        background: none;
+        border: none;
+        cursor: pointer;
+        &:hover { color: $danger; }
+      }
+    }
+  }
+}

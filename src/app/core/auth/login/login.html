@@ -1,0 +1,44 @@
+@if (authStep() === 'login') {
+  <div class="auth-container">
+    <div class="auth-card">
+<!--      <div class="logo">-->
+<!--        <div class="logo-icon">⚡</div>-->
+<!--        <h1>ATMM</h1>-->
+<!--      </div>-->
+
+      <h2>Вход в систему</h2>
+      <p class="subtitle">Добро пожаловать</p>
+
+      @if (error()) {
+        <div class="error-message">{{ error() }}</div>
+      }
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="input-group">
+          <div class="input-wrapper">
+            <input formControlName="email" type="email" placeholder=" " />
+            <label>Email</label>
+          </div>
+
+          <div class="input-wrapper">
+            <input formControlName="password" type="password" placeholder=" " />
+            <label>Пароль</label>
+          </div>
+        </div>
+
+        <button type="submit" [disabled]="loginForm.invalid || loading()">
+          @if (loading()) {
+            <span class="spinner"></span>
+          }
+          {{ loading() ? 'Проверка...' : 'Продолжить' }}
+        </button>
+
+        <p class="switch-auth">
+          Нет аккаунта? <a routerLink="/register">Зарегистрироваться</a>
+        </p>
+      </form>
+    </div>
+  </div>
+} @else {
+  <app-workspace-selector />
+}

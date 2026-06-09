@@ -1,0 +1,245 @@
+<div class="task-detail" appBackOnEscape>
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <i class="material-icons">arrow_back</i>
+      Назад к задачам
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loader-container">
+      <div class="spinner"></div>
+      <span>Загрузка задачи...</span>
+    </div>
+  } @else if (task(); as task) {
+    <!-- Статус-бар -->
+    <div class="status-bar">
+      <div class="status-left">
+        <div class="status-selector">
+          <span class="label">Статус:</span>
+          <select
+            [value]="task.status"
+            (change)="updateStatus($any($event.target).value)"
+            class="status-select"
+            [disabled]="editing()">
+            <option value="PENDING">🟡 Ожидает</option>
+            <option value="IN_PROGRESS">🔵 В работе</option>
+            <option value="REVIEW">🟣 На проверке</option>
+            <option value="COMPLETED">✅ Выполнена</option>
+            <option value="ARCHIVED">Архив</option>
+          </select>
+        </div>
+        <div class="priority-badge" [class]="getPriorityColor(task.priority)">
+          {{ getPriorityLabel(task.priority) }}
+        </div>
+      </div>
+
+      <div *appHasPermission="['task:update']" class="status-actions">
+        @if (!editing() && !loading()) {
+          @if (canEditTask()) {
+            <button class="btn-edit" (click)="startEdit()">
+              <i class="material-icons">edit</i> Редактировать
+            </button>
+            <button class="btn-delete" (click)="deleteTask()" [disabled]="deleting()">
+              @if (deleting()) {
+                <i class="material-icons spinning">refresh</i>
+              } @else {
+                <i class="material-icons">delete</i>
+              }
+              <span>Удалить</span>
+            </button>
+          }
+          <button class="btn-add-subtask" (click)="createSubtask()">
+            <i class="material-icons">add</i> Добавить подзадачу
+          </button>
+        }
+        @if (editing()) {
+          <button class="btn-cancel" (click)="cancelEdit()">
+            <i class="material-icons">close</i> Отмена
+          </button>
+          <button class="btn-save" (click)="saveEdit()" [disabled]="saving()">
+            @if (saving()) {
+              <i class="material-icons spinning">refresh</i>
+            } @else {
+              <i class="material-icons">save</i>
+            }
+            <span>Сохранить</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="task-content">
+      <!-- Заголовок -->
+      <div class="task-title-section">
+        @if (!editing()) {
+          <h1>{{ task.title }}</h1>
+        } @else {
+          <input
+            type="text"
+            [(ngModel)]="editData.title"
+            class="title-input"
+            placeholder="Название задачи">
+        }
+      </div>
+
+      <!-- Мета-информация (всегда в одной сетке) -->
+      <div class="meta-info">
+        <!-- Постановщик -->
+        <div class="meta-item">
+          <i class="material-icons">person_add</i>
+          <span>Постановщик:</span>
+          <strong>{{ task.creatorName | replaceMe }}</strong>
+        </div>
+        <!-- Отдел -->
+        <div class="meta-item">
+          <i class="material-icons">business</i>
+          <span>Отдел:</span>
+          <strong>{{ task.departmentName || 'Общий' }}</strong>
+        </div>
+        <!-- Проект (в режиме редактирования – выпадающий список) -->
+        <div class="meta-item">
+          <i class="material-icons">folder</i>
+          <span>Проект:</span>
+          @if (!editing()) {
+            <strong>{{ task.projectName || 'Без проекта (Общая задача)' }}</strong>
+          } @else {
+            <select [(ngModel)]="editData.projectId" class="inline-select">
+              <option value="">Без проекта (Общая задача)</option>
+              @for (project of userProjects(); track project.projectId) {
+                <option [value]="project.projectId">{{ project.projectTitle }}</option>
+              }
+            </select>
+          }
+        </div>
+        <!-- Дата создания -->
+        <div class="meta-item">
+          <i class="material-icons">calendar_today</i>
+          <span>Создана:</span>
+          <strong>{{ formatDate(task.createdAt) }}</strong>
+        </div>
+
+      </div>
+
+      <!-- Описание -->
+      <div class="description-section">
+        <h3><i class="material-icons">description</i> Описание</h3>
+        @if (!editing()) {
+          <div class="description-content">
+            @if (task.description) {
+              <p>{{ task.description }}</p>
+            } @else {
+              <p class="empty-description">Нет описания</p>
+            }
+          </div>
+        } @else {
+          <textarea
+            [(ngModel)]="editData.description"
+            class="description-input"
+            rows="6"
+            placeholder="Введите описание задачи..."></textarea>
+        }
+      </div>
+
+      <!-- Исполнители -->
+      <div class="meta-info">
+        <div class="meta-item">
+          <span class="label"><i class="material-icons">people</i> Исполнители:</span>
+          <button class="btn-add-subtask" type="button">
+            <span class="value clickable" (click)="openAssigneeModal()">
+              {{ task.assigneeNames | replaceMe }}
+              <i class="material-icons edit-icon">edit_note</i>
+            </span>
+          </button>
+
+          <!-- Срок выполнения (в режиме редактирования – инпут) -->
+          <div class="meta-item" [class.overdue]="!editing() && isOverdue(task.dueDate)">
+            <i class="material-icons">event</i>
+            <span>Срок:</span>
+            @if (!editing()) {
+              <strong [class.overdue-text]="isOverdue(task.dueDate)">{{ formatDate(task.dueDate) }}</strong>
+            } @else {
+              <input
+                type="date"
+                [(ngModel)]="editData.dueDate"
+                class="inline-date"
+                [min]="minDate">
+            }
+          </div>
+
+          <!-- Родительская задача (в режиме просмотра – текст, в режиме редактирования – селект) -->
+          <div class="meta-item">
+            <i class="material-icons">subdirectory_arrow_right</i>
+            <span>Родительская задача:</span>
+            @if (!editing()) {
+              <strong>{{ parentTaskTitleDisplay() || '— (корневая) —' }}</strong>
+            } @else {
+              <select [(ngModel)]="editData.parentTaskId" class="inline-select">
+                <option [value]="null">— Без родителя (корневая) —</option>
+                @for (parent of availableParentTasks(); track parent.id) {
+                  <option [value]="parent.id">{{ parent.title }}</option>
+                }
+              </select>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Вложения -->
+    <app-task-attachment-manager
+      [taskId]="task.id"
+      [initialAttachments]="task.attachments"/>
+
+    <!-- Подзадачи -->
+    <div class="subtasks-section">
+      <div class="section-header">
+        <h3
+          (click)="toggleSubtasks()"
+          [class.clickable]="taskTree()?.subtasks?.length"
+          class="subtasks-heading">
+          <i class="material-icons">account_tree</i>
+          Подзадачи :
+          @if (task.subtasksCount) {
+            <span class="badge">{{ task.subtasksCount }}</span>
+          }
+          @if (taskTree()?.subtasks?.length) {
+            <i class="material-icons toggle-arrow">
+              {{ subtasksExpanded() ? 'expand_less' : 'expand_more' }}
+            </i>
+          }
+        </h3>
+        @if (!taskTree()?.subtasks?.length) {
+          <span class="empty-inline">Подзадач пока нет</span>
+        }
+      </div>
+
+      @if (subtasksExpanded() && taskTree()?.subtasks?.length) {
+        <div class="tree-root">
+          @for (childNode of taskTree()!.subtasks; track childNode.task.id) {
+            <app-subtask-tree [node]="childNode"></app-subtask-tree>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Комментарии -->
+    <app-task-comments
+      [taskId]="task.id"
+      [reloadTrigger]="reloadComments()"/>
+
+    <!-- Модалка исполнителей -->
+    @if (showAssigneeModal()) {
+      <div class="modal-overlay" (click)="closeAssigneeModal()">
+        <div (click)="$event.stopPropagation()">
+          <app-task-assignee-manager
+            [task]="task"
+            (assigneesUpdated)="onAssigneesUpdated()"
+            (closed)="closeAssigneeModal()"
+          />
+        </div>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,65 @@
+<div class="assignee-manager">
+  <div class="modal-header">
+    <h3>
+      <i class="material-icons">people</i>
+      Управление исполнителями
+    </h3>
+    <button class="close-btn" (click)="closeModal()">×</button>
+  </div>
+
+  <div class="modal-body">
+    <div class="search-box">
+      <i class="material-icons">search</i>
+      <input
+        type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        placeholder="Поиск сотрудников..."
+      >
+    </div>
+
+    @if (loading()) {
+      <div class="loader-small">Загрузка сотрудников...</div>
+    } @else {
+      <div class="members-list">
+        @for (member of filteredMembers(); track member.id) {
+          <label class="member-item" [class.selected]="isSelected(member.id)">
+            <input
+              type="checkbox"
+              [checked]="isSelected(member.id)"
+              (change)="toggleAssignee(member.id)"
+            >
+            <div class="member-avatar" [class]="getRoleClass(member.roleName)">
+              {{ getInitials(member) }}
+            </div>
+            <div class="member-info">
+              <div class="member-name">{{ member.displayName }}</div>
+              <div class="member-email">{{ member.email }}</div>
+              <div class="member-role" [class]="getRoleClass(member.roleName)">
+                {{ member.roleName }}
+              </div>
+            </div>
+            @if (member.id === currentMemberId) {
+              <span class="you-badge">Вы</span>
+            }
+          </label>
+        } @empty {
+          <div class="no-members">Сотрудники не найдены</div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn-cancel" (click)="closeModal()">Отмена</button>
+    <button class="btn-save" (click)="saveAssignees()" [disabled]="saving()">
+      @if (saving()) {
+        <i class="material-icons spinning">refresh</i>
+        <span>Сохранение...</span>
+      } @else {
+        <i class="material-icons">save</i>
+        <span>Сохранить</span>
+      }
+    </button>
+  </div>
+</div>

@@ -1,0 +1,140 @@
+/* ============================================================
+   1. ИМПОРТЫ И ШРИФТЫ
+   ============================================================ */
+@use './ui-components';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ============================================================
+   2. МИКСИНЫДЛЯ ТЕМЫ (Объявляем строго ДО вызова!)
+   ============================================================ */
+@mixin dark-theme-variables {
+  --bg-main: #0b0f17;       /* Глубокий благородный темный (с каплей синего пигмента) */
+  --bg-card: #151b26;       /* Контрастная карточка */
+  --bg-elevated: #1f2635;   /* Всплывающие элементы/меню */
+  --bg-soft: #1a202c;
+
+  --border: #222938;
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-strong: 0 24px 36px rgba(0, 0, 0, 0.45);
+
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+
+  --accent: #60a5fa;        /* Чуть более светлый синий для лучшей читаемости в темноте */
+  --accent-rgb: 96, 165, 250;
+  --success: #34d399;
+  --success-rgb: 52, 211, 153;
+  --danger: #f87171;
+  --danger-rgb: 248, 113, 113;
+
+  /* Роли в темной теме (Глубокие неоновые оттенки, не бьющие по глазам) */
+  --role-owner-bg: rgba(249, 115, 22, 0.12);
+  --role-owner-color: #f97316;
+  --role-admin-bg: rgba(59, 130, 246, 0.12);
+  --role-admin-color: #60a5fa;
+  --role-member-bg: rgba(34, 197, 94, 0.12);
+  --role-member-color: #4ade80;
+  --role-guest-bg: rgba(148, 163, 184, 0.12);
+  --role-guest-color: #94a3b8;
+}
+
+/* ============================================================
+   3. СИСТЕМНЫЕ ТОКЕНЫ И ТЕМЫ (THEMING)
+   ============================================================ */
+
+/* Базовые стили для СВЕТЛОЙ темы (применяются по умолчанию и через класс) */
+:root, body.light-theme {
+  /* Свежие, чистые фоны */
+  --bg-main: #f8fafc;       /* Воздушный прохладный фон, не бьет по глазам */
+  --bg-card: #ffffff;       /* Белоснежные карточки "всплывают" над фоном */
+  --bg-elevated: #ffffff;
+  --bg-soft: #f1f5f9;
+
+  /* Границы и тени */
+  --border: #e2e8f0;
+  --border-subtle: rgba(15, 23, 42, 0.04);
+  --shadow-soft: 0 2px 8px -1px rgba(15, 23, 42, 0.04), 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+  --shadow-strong: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
+
+  /* Шрифты (Цвета из палитры Slate/Zinc для снижения контрастности) */
+  --text-main: #1e293b;     /* Глубокий slate вместо угольно-черного */
+  --text-muted: #64748b;    /* Комфортный серый для второстепенного текста */
+
+  /* Системные цвета */
+  --accent: #3b82f6;        /* Яркий, современный синий */
+  --accent-rgb: 59, 130, 246;
+  --success: #10b981;
+  --success-rgb: 16, 185, 129;
+  --warning: #f59e0b;
+  --warning-rgb: 245, 158, 11;
+  --danger: #ef4444;
+  --danger-rgb: 239, 68, 68;
+
+  /* Цвета ролей (Мягкие пастельные плашки для светлой темы) */
+  --role-owner-bg: #fef3c7;
+  --role-owner-color: #b45309;
+  --role-admin-bg: #e0e7ff;
+  --role-admin-color: #4338ca;
+  --role-member-bg: #dcfce7;
+  --role-member-color: #15803d;
+  --role-guest-bg: #f1f5f9;
+  --role-guest-color: #475569;
+
+  /* Системная кривая для анимаций */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Автоматическая темная тема по системным настройкам ИЛИ через принудительный класс */
+@media (prefers-color-scheme: dark) {
+  :root {
+    @include dark-theme-variables;
+  }
+}
+body.dark-theme {
+  @include dark-theme-variables;
+}
+
+/* ============================================================
+   4. ГЛОБАЛЬНЫЙ СБРОС СТИЛЕЙ
+   ============================================================ */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Плавный переход для смены темы */
+  transition:
+    background-color 0.25s var(--ease),
+    color 0.25s var(--ease),
+    border-color 0.25s var(--ease),
+    box-shadow 0.25s var(--ease);
+}
+
+app-root {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+/* Оптимизированный транзишн для ключевых контейнеров */
+.header-area, nav, .main-container, .content-area, .card, .auth-card {
+  transition:
+    background-color 0.25s var(--ease),
+    border-color 0.25s var(--ease),
+    color 0.25s var(--ease),
+    box-shadow 0.25s var(--ease);
+}

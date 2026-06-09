@@ -1,0 +1,45 @@
+@if (canManage()) {
+  <div class="token-panel">
+    <div class="token-header">
+      <i class="material-icons">vpn_key</i>
+      <span>API Token для интеграций</span>
+    </div>
+
+    @if (isLoading()) {
+      <div class="token-skeleton">
+        <div class="skeleton-line"></div>
+      </div>
+    } @else {
+      <div class="token-content">
+        <div class="token-field">
+          <div class="token-input-wrapper">
+            <input
+              [type]="showToken() ? 'text' : 'password'"
+              [value]="memberToken()"
+              readonly
+              class="token-input"
+            />
+            <button class="eye-btn" (click)="toggleShowToken()">
+              <i class="material-icons">{{ showToken() ? 'visibility_off' : 'visibility' }}</i>
+            </button>
+          </div>
+        </div>
+
+        <div class="token-actions">
+          <button class="copy-btn" [class.copied]="tokenCopied()" (click)="copyToClipboard()">
+            <i class="material-icons">{{ tokenCopied() ? 'check' : 'content_copy' }}</i>
+            <span>{{ tokenCopied() ? 'Скопировано!' : 'Копировать' }}</span>
+          </button>
+          <button class="regenerate-btn" (click)="regenerateToken()" [disabled]="isRegenerating()">
+            <i class="material-icons">refresh</i>
+            <span>{{ isRegenerating() ? 'Обновление...' : 'Обновить' }}</span>
+          </button>
+        </div>
+
+        <p class="token-hint">
+          Используйте этот токен в заголовке <code>X-Member-Token</code> для API-запросов
+        </p>
+      </div>
+    }
+  </div>
+}

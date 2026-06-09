@@ -1,0 +1,41 @@
+<div class="chat-list-container" appBackOnEscape>
+  <div class="search-block">
+    <div class="search-wrapper">
+      <i class="material-icons">search</i>
+      <input
+        type="text"
+        [placeholder]="'Поиск чата...'"
+        [(ngModel)]="searchQuery"
+        (input)="onSearchChange()">
+    </div>
+  </div>
+
+  <div class="rooms-scroll-area">
+    @for (room of filteredRooms; track room.id) {
+      <div
+        class="room-item"
+        [class.active]="room.id === activeRoomId"
+        (click)="selectRoom(room.id)">
+
+        <div class="room-avatar" [style.background-color]="getAvatarColor(room.id)">
+          <span class="avatar-initials">{{ getAvatarInitials(room) }}</span>
+        </div>
+
+        <div class="room-details">
+          <div class="room-main-info">
+            <div class="room-meta">
+              <span class="room-name">
+                {{ room.name }}
+              </span>
+            </div>
+          </div>
+          @if (room.unreadCount > 0) {
+            <div class="unread-badge">{{ room.unreadCount }}</div>
+          }
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-rooms">Чаты не найдены</div>
+    }
+  </div>
+</div>

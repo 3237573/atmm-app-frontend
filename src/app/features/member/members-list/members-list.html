@@ -1,0 +1,79 @@
+<div class="members-container">
+
+  <div class="page-header">
+    <div class="header-info">
+      <h1>
+        <i class="material-icons">groups</i>
+        <span>Участники</span>
+      </h1>
+    </div>
+  </div>
+
+  <div class="filters-panel">
+    <div class="search-box">
+      <i class="material-icons">search</i>
+      <input
+        type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        placeholder="Поиск по имени или email..."
+      />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="page-loader">
+      <span class="spinner"></span>
+      <p>Загрузка списка участников...</p>
+    </div>
+  } @else {
+    <div class="members-list">
+      @for (member of filteredMembers(); track member.id) {
+        <div class="member-row-card">
+
+          <div class="member-profile" (click)="viewProfile(member)" style="width: 20%">
+            <div class="avatar-circle" [ngClass]="getRoleBadgeClass(member.roleName)">
+              {{ member.displayName.charAt(0) || member.email.charAt(0) | uppercase }}
+            </div>
+            <div class="member-info">
+              <span class="member-name">{{ member.displayName || 'Пользователь без имени' }}</span>
+              <span class="member-email">{{ member.email }}</span>
+            </div>
+            @if (isCurrentUser(member.email)) {
+              <span class="status-badge" [class.live]=true>
+                  <span class="pulse-dot"></span>
+                {{ ('tracker.period.onTheAir') | transloco }}
+                </span>
+            }
+            <div class="member-meta" style="width: 5%">
+              <span class="badge-role" [ngClass]="getRoleBadgeClass(member.roleName)">
+                {{ member.roleName }}
+              </span>
+            </div>
+          </div>
+
+
+          <div class="member-actions">
+            @if (!isCurrentUser(member.email)) {
+              <button class="btn-icon-action" (click)="sendMessage(member)" title="Написать сообщение">
+                <i class="material-icons">chat</i>
+              </button>
+            }
+            <button class="btn-icon-action" (click)="assignTask(member)" title="Назначить задачу">
+              <i class="material-icons">assignment_add</i>
+            </button>
+            <button class="btn-icon-action" (click)="viewProfile(member)" title="Посмотреть профиль">
+              <i class="material-icons">visibility</i>
+            </button>
+          </div>
+
+        </div>
+      } @empty {
+        <div class="empty-state">
+          <i class="material-icons">person_search</i>
+          <p>Участники не найдены</p>
+        </div>
+      }
+    </div>
+  }
+</div>
