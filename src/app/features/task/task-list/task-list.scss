@@ -168,6 +168,7 @@
   }
 
   &.status-pending .status-select-styled { background: rgba(239, 68, 68, 0.12); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); .select-arrow { color: var(--danger); } }
+  // ИСПРАВЛЕНО: Изменено с status-in_progress на status-progress для синхронизации с TASK_STATUS_CONFIG
   &.status-progress .status-select-styled { background: rgba(56, 189, 248, 0.12); color: var(--accent); border-color: rgba(56, 189, 248, 0.3); .select-arrow { color: var(--accent); } }
   &.status-review .status-select-styled { background: rgba(245, 158, 11, 0.12); color: var(--warning); border-color: rgba(245, 158, 11, 0.3); .select-arrow { color: var(--warning); } }
   &.status-completed .status-select-styled { background: rgba(74, 222, 128, 0.12); color: var(--success); border-color: rgba(74, 222, 128, 0.3); .select-arrow { color: var(--success); } }

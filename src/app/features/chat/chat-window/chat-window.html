@@ -3,14 +3,14 @@
     <button class="back-btn" (click)="goBack()" aria-label="Назад">←</button>
     <div class="room-info">
       <span class="room-name">{{ roomName }}</span>
-      <span class="member-count"> {{ memberCount }} участников</span>
+      <span class="member-count"> {{ memberCount }} {{ 'chat.membersNum' | transloco }}</span>
     </div>
 
     <div class="chat-actions">
-      <button class="icon-btn" (click)="initiateCall('AUDIO')" title="Аудиозвонок">
+      <button class="icon-btn" (click)="initiateCall('AUDIO')" title="{{ 'chat.audio' | transloco }}">
         <i class="material-icons">call</i>
       </button>
-      <button class="icon-btn" (click)="initiateCall('VIDEO')" title="Видеозвонок">
+      <button class="icon-btn" (click)="initiateCall('VIDEO')" title="{{ 'chat.video' | transloco }}">
         <i class="material-icons">videocam</i>
       </button>
     </div>
@@ -31,7 +31,9 @@
             }
             @case ('IMAGE') {
               @if (msg.mediaUrl) {
-                <img [src]="msg.mediaUrl" class="media-image" (click)="openMedia(msg.mediaUrl)" alt="Изображение">
+                <img [src]="msg.mediaUrl"
+                     class="media-image" (click)="openMedia(msg.mediaUrl)"
+                     alt="{{ 'chat.image' | transloco}}">
               }
             }
             @case ('VIDEO') {
@@ -47,7 +49,7 @@
             @case ('FILE') {
               @if (msg.mediaUrl) {
                 <a [href]="msg.mediaUrl" download class="file-link">
-                  📄 Скачать файл
+                  📄 {{ 'chat.fileDownload' | transloco}}
                 </a>
               }
             }
@@ -57,7 +59,7 @@
 
       </div>
     } @empty {
-      <div class="empty-messages">Нет сообщений</div>
+      <div class="empty-messages">{{ 'chat.noMessage' | transloco}}</div>
     }
   </div>
 
@@ -73,7 +75,7 @@
   }
 
   <div class="input-area">
-    <label class="send-btn" title="Прикрепить файл">
+    <label class="send-btn" title="{{ 'chat.fileAttach' | transloco}}">
       <input type="file" (change)="uploadFile($event)" hidden>
       📎
     </label>
@@ -83,7 +85,7 @@
       [(ngModel)]="newMessage"
       (keyup.enter)="sendMessage()"
       (input)="onTyping()"
-      placeholder="Введите сообщение..."
+      placeholder="{{ 'chat.inputMessage' | transloco}}"
       rows="1">
     </textarea>
 
@@ -96,11 +98,11 @@
     <div class="call-overlay incoming-call">
       <div class="call-card">
         <div class="pulse-avatar">📞</div>
-        <h3>Входящий {{ callType() === 'VIDEO' ? 'видеозвонок' : 'аудиозвонок' }}</h3>
-        <p>Вызов из текущей комнаты</p>
+        <h3>{{ 'chat.inCall'| transloco }} {{(callType() === 'VIDEO' ? 'chat.video' : 'chat.audio') | transloco }} </h3>
+        <p>{{ 'chat.inCallDesc'| transloco }}</p>
         <div class="call-buttons">
-          <button class="call-btn accept" (click)="acceptCall()">Ответить</button>
-          <button class="call-btn reject" (click)="rejectOrEndCall()">Отклонить</button>
+          <button class="call-btn accept" (click)="acceptCall()">{{ 'chat.accept'| transloco }}</button>
+          <button class="call-btn reject" (click)="rejectOrEndCall()">{{ 'chat.reject'| transloco }}</button>
         </div>
       </div>
     </div>
@@ -115,12 +117,12 @@
         @if (callType() === 'VIDEO') {
           <video #localVideo autoplay playsinline muted class="local-video"></video>
         } @else {
-          <div class="audio-avatar">🎙️ Разговор...</div>
+          <div class="audio-avatar">🎙️ {{ 'chat.talk' | transloco }}</div>
         }
       </div>
 
       <div class="call-controls">
-        <button class="end-call-btn" (click)="rejectOrEndCall()">Положить трубку 🛑</button>
+        <button class="end-call-btn" (click)="rejectOrEndCall()">{{ 'chat.hangUp' | transloco }} 🛑</button>
       </div>
     </div>
   }

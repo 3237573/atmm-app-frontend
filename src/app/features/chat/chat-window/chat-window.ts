@@ -9,11 +9,12 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
 import {filter} from 'rxjs';
+import {TranslocoPipe} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-chat-window',
   standalone: true,
-  imports: [CommonModule, FormsModule, BackOnEscapeDirective],
+  imports: [CommonModule, FormsModule, BackOnEscapeDirective, TranslocoPipe],
   templateUrl: './chat-window.html',
   styleUrls: ['./chat-window.scss']
 })

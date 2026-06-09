@@ -3,13 +3,13 @@ import {CommonModule} from '@angular/common'; // Добавь DecimalPipe
 import {ActivatedRoute, Router} from '@angular/router';
 import {toObservable, toSignal} from '@angular/core/rxjs-interop';
 import {combineLatest, map, switchMap, tap} from 'rxjs';
-import {ActivityService} from '../../core/services/tracker/activity.service';
-import {AppStatDTO} from '../../core/models/activity.model';
+import {ActivityService} from '@core/services/tracker/activity.service';
+import {AppStatDTO} from '@core/models/activity.model';
 import {ActivityDetail} from './activity-detail/activity-detail';
 import {TrackerAnalytics} from './tracker-analytics/tracker-analytics';
 import {TranslocoPipe} from '@ngneat/transloco';
-import {BackOnEscapeDirective} from '../../core/directives/back-on-escape.directive';
-import {MemberTokenPanel} from '../../features/admin/tracker-admin/member-token-panel/member-token-panel';
+import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
+import {MemberTokenPanel} from '@features/admin/tracker-admin/member-token-panel/member-token-panel';
 
 export interface UserActivityReportV2 {
   userId: string;

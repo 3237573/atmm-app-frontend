@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -6,18 +6,20 @@ import { TaskService } from '@core/services/task.service';
 import { MemberService } from '@core/services/member.service';
 import { AuthService } from '@core/services/auth.service';
 import { MemberRO } from '@core/models/member.model';
-import {TaskCreateRO, TaskPriority, TaskRO, TaskTreeRO} from '@core/models/task/task.model';
+import { TaskCreateRO, TaskPriority, TaskRO, TaskTreeRO } from '@core/models/task/task.model';
 import { DepartmentAffiliation } from '@core/models/departament.model';
 import { ProjectAffiliation } from '@core/models/project.model';
 import { DepartmentService } from '@core/services/departament.service';
 import { BackOnEscapeDirective } from '@core/directives/back-on-escape.directive';
 import { ComponentDeactivateService } from '@core/services/component-deactivate.service';
 import { CanComponentDeactivate } from '@core/interfaces/can-deactivate.interface';
+import { TranslocoPipe, TranslocoService } from '@ngneat/transloco';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-task-create',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, BackOnEscapeDirective],
+  imports: [CommonModule, FormsModule, RouterModule, BackOnEscapeDirective, TranslocoPipe],
   templateUrl: './task-create.html',
   styleUrl: './task-create.scss'
 })
@@ -29,36 +31,37 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
   private readonly memberService = inject(MemberService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly translocoService = inject(TranslocoService);
+
+  private queryParamsSub?: Subscription;
 
   // ========== Состояния ==========
   currentUser = signal<MemberRO | null>(null);
   departmentMembers = signal<MemberRO[]>([]);
+  parentTasksList = signal<{ id: string; title: string }[]>([]);
   loadingMembers = signal(false);
-  loadingParentTasks = signal<{ id: string; title: string }[]>([]);
   loadingUser = signal(false);
   submitting = signal(false);
-  taskTree = signal<TaskTreeRO | null>(null);
   userDepartments = signal<DepartmentAffiliation[]>([]);
   userProjects = signal<ProjectAffiliation[]>([]);
 
   minDate = new Date().toISOString().split('T')[0];
 
   // ========== Form fields (signals) ==========
-  assigneeMemberIds = signal<string[]>([]);
-  description = signal('');
-  dueDate = signal('');
-  priority = signal<TaskPriority>('MEDIUM');
-  parentTaskId= signal<string | undefined>(undefined)
-  projectId = signal<string>('');
-  selectedDepartmentId = signal<string>('');
   title = signal('');
+  description = signal('');
+  selectedDepartmentId = signal<string>('');
+  projectId = signal<string>('');
+  parentTaskId = signal<string>('');
+  priority = signal<TaskPriority>('MEDIUM');
+  dueDate = signal('');
+  assigneeMemberIds = signal<string[]>([]);
 
   // ========== Валидация (computed) ==========
   isFormValid = computed(() => {
-    const hasTitle = this.title().trim().length > 0;
-    const hasDepartment = this.selectedDepartmentId() !== '';
-    const hasAssignees = this.assigneeMemberIds().length > 0;
-    return hasTitle && hasDepartment && hasAssignees;
+    return this.title().trim().length > 0 &&
+      this.selectedDepartmentId() !== '' &&
+      this.assigneeMemberIds().length > 0;
   });
 
   // ========== Данные для отслеживания несохранённых изменений ==========
@@ -68,6 +71,7 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     priority: 'MEDIUM' as TaskPriority,
     departmentId: '',
     projectId: '',
+    parentTaskId: '',
     assigneeMemberIds: [] as string[],
     dueDate: ''
   });
@@ -77,17 +81,23 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     this.deactivateService.register(this);
     this.loadCurrentUser();
     this.loadParentTasks();
-    this.route.queryParams.subscribe(params => {
+
+    this.queryParamsSub = this.route.queryParams.subscribe(params => {
       if (params['parentId']) this.parentTaskId.set(params['parentId']);
       if (params['assigneeId']) this.assigneeMemberIds.set([params['assigneeId']]);
       if (params['title']) this.title.set(params['title']);
       this.saveInitialData();
     });
-
   }
 
   ngOnDestroy(): void {
     this.deactivateService.unregister();
+    this.queryParamsSub?.unsubscribe();
+  }
+
+  // ========== Возвращает класс цвета приоритета (как в списке задач) ==========
+  getPriorityColor(priority: string): string {
+    return priority ? priority.toLowerCase() : 'low';
   }
 
   // ========== Загрузка текущего пользователя ==========
@@ -102,12 +112,14 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     this.memberService.getMember(currentUserId).subscribe({
       next: (user) => {
         this.currentUser.set(user);
-        const uniqueDepartments = (user.departments || []).filter(
-          (dept, idx, self) => self.findIndex(d => d.departmentId === dept.departmentId) === idx
+
+        const uniqueDepartments = Array.from(
+          new Map((user.departments || []).map(d => [d.departmentId, d])).values()
         );
-        const uniqueProjects = (user.projects || []).filter(
-          (proj, idx, self) => self.findIndex(p => p.projectId === proj.projectId) === idx
+        const uniqueProjects = Array.from(
+          new Map((user.projects || []).map(p => [p.projectId, p])).values()
         );
+
         this.userDepartments.set(uniqueDepartments);
         this.userProjects.set(uniqueProjects);
 
@@ -117,8 +129,8 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
           this.loadDepartmentMembers(firstDeptId);
         }
 
-        this.loadingUser.set(false);
         this.saveInitialData();
+        this.loadingUser.set(false);
       },
       error: (err) => {
         console.error('Ошибка загрузки пользователя', err);
@@ -132,9 +144,11 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     this.loadingMembers.set(true);
     this.departmentService.getDepartmentEmployees(departmentId).subscribe({
       next: (members) => {
-        this.departmentMembers.set(members.sort((a, b) => a.email.localeCompare( b.email)));
+        const sortedMembers = [...members].sort((a, b) => a.email.localeCompare(b.email));
+        this.departmentMembers.set(sortedMembers);
+
         const validIds = this.assigneeMemberIds().filter(id =>
-          members.some(m => m.id === id)
+          sortedMembers.some(m => m.id === id)
         );
         this.assigneeMemberIds.set(validIds);
         this.loadingMembers.set(false);
@@ -147,17 +161,17 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     });
   }
 
-  // ========== Загрузка сотрудников отдела ==========
+  // ========== Загрузка родительских задач ==========
   loadParentTasks(): void {
     this.taskService.getMyTaskTree().subscribe({
       next: (trees) => {
         const allTasks = this.flattenTaskTree(trees);
-        const available = allTasks
-          .sort((a,b) => b.createdAt.localeCompare(b.createdAt))
-          .map(t => ({ id: t.id, title: t.title }));
-        this.loadingParentTasks.set(available);
+        allTasks.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+        const available = allTasks.map(t => ({ id: t.id, title: t.title }));
+        this.parentTasksList.set(available);
       },
-      error: (err) => console.error('Ошибка загрузки списка задач для переноса', err)
+      error: (err) => console.error('Ошибка загрузки списка задач', err)
     });
   }
 
@@ -181,26 +195,27 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
       priority: this.priority(),
       departmentId: this.selectedDepartmentId(),
       projectId: this.projectId(),
+      parentTaskId: this.parentTaskId(),
       assigneeMemberIds: [...this.assigneeMemberIds()],
       dueDate: this.dueDate()
     });
   }
 
-  // ========== Проверка наличия несохранённых изменений ==========
   hasUnsavedChanges(): boolean {
     const initial = this.initialData();
     const currentAssignees = [...this.assigneeMemberIds()].sort();
     const initialAssignees = [...initial.assigneeMemberIds].sort();
+
     return this.title() !== initial.title ||
       this.description() !== initial.description ||
       this.priority() !== initial.priority ||
       this.selectedDepartmentId() !== initial.departmentId ||
       this.projectId() !== initial.projectId ||
-      JSON.stringify(currentAssignees) !== JSON.stringify(initialAssignees) ||
-      this.dueDate() !== initial.dueDate;
+      this.parentTaskId() !== initial.parentTaskId ||
+      this.dueDate() !== initial.dueDate ||
+      JSON.stringify(currentAssignees) !== JSON.stringify(initialAssignees);
   }
 
-  // ========== Guard для маршрутизатора и Esc ==========
   canDeactivate(): boolean {
     if (this.hasUnsavedChanges()) {
       return confirm('Есть несохранённые изменения. Вы уверены, что хотите уйти?');
@@ -218,7 +233,8 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     );
 
     this.submitting.set(true);
-    const request: TaskCreateRO & { projectId?: string } = {
+
+    const request: TaskCreateRO = {
       title: this.title().trim(),
       description: this.description().trim() || undefined,
       priority: this.priority(),
@@ -243,7 +259,6 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     });
   }
 
-  // ========== Управление исполнителями ==========
   toggleAssignee(memberId: string): void {
     const current = this.assigneeMemberIds();
     if (current.includes(memberId)) {
@@ -269,18 +284,12 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
 
   getDepartmentRole(member: MemberRO): string {
     const currentDeptId = this.selectedDepartmentId();
-
-    // Look for an employee among the departments whose ID matches the currently selected one
-    const affiliation = member.departments?.find(
-      (dept) => dept.departmentId === currentDeptId
-    );
-
-    // If found, return the local role in the department, if not, write the default value
-    return affiliation ? affiliation.role : 'Сотрудник';
+    const affiliation = member.departments?.find(dept => dept.departmentId === currentDeptId);
+    return affiliation ? affiliation.role : this.translocoService.translate('taskCreate.fields.defaultDeptRole');
   }
 
   getRoleBadgeClass(roleName: string): string {
-    switch (roleName) {
+    switch (roleName?.toUpperCase()) {
       case 'OWNER': return 'owner';
       case 'ADMIN': return 'admin';
       case 'MEMBER': return 'member';
@@ -288,5 +297,4 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
       default: return 'member';
     }
   }
-
 }

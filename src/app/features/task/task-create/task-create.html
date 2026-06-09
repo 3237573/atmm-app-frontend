@@ -2,105 +2,103 @@
   <div class="page-header">
     <h1>
       <i class="material-icons">assignment_add</i>
-      Создать задачу
+      {{ 'taskCreate.title' | transloco }}
     </h1>
     <button class="btn-secondary" routerLink="/tasks">
       <i class="material-icons">arrow_back</i>
-      Назад
+      {{ 'taskCreate.back' | transloco }}
     </button>
   </div>
 
   <div class="form-container">
-    <!-- Название -->
     <div class="form-group">
-      <label>Название задачи *</label>
+      <label>{{ 'taskCreate.fields.taskTitle' | transloco }}</label>
       <input
         type="text"
         [ngModel]="title()"
         (ngModelChange)="title.set($event)"
-        placeholder="Введите название задачи"
+        placeholder="{{ 'taskCreate.placeholders.taskTitle' | transloco }}"
         class="form-control"
         [class.invalid]="!title().trim() && title().length > 0"
       >
       @if (!title().trim() && title().length > 0) {
-        <small class="error-text">Название задачи обязательно</small>
+        <small class="error-text">{{ 'taskCreate.errors.titleRequired' | transloco }}</small>
       }
     </div>
 
-    <!-- Описание -->
     <div class="form-group">
-      <label>Описание</label>
+      <label>{{ 'taskCreate.fields.description' | transloco }}</label>
       <textarea
         [ngModel]="description()"
         (ngModelChange)="description.set($event)"
-        placeholder="Подробное описание задачи..."
+        placeholder="{{ 'taskCreate.placeholders.description' | transloco }}"
         rows="2"
         class="form-control"
       ></textarea>
     </div>
 
-    <!-- Department and Project and Parent task -->
-    <div class="form-row-3" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-      <div class="form-group" style="flex: 1; margin-bottom: 0;">
-        <label>Отдел задачи *</label>
+    <div class="form-row-3">
+      <div class="form-group">
+        <label>{{ 'taskCreate.fields.department' | transloco }}</label>
         <select
           [ngModel]="selectedDepartmentId()"
           (ngModelChange)="onDepartmentChange($event)"
           class="form-control"
-          style="width: 100%;"
         >
-          <option value="" disabled>-- Выберите отдел --</option>
           @for (dept of userDepartments(); track dept.departmentId) {
-            <option [value]="dept.departmentId">🏢 {{ dept.departmentName }}</option>
+            <option [value]="dept.departmentId">{{ dept.departmentName }}</option>
           }
         </select>
       </div>
 
-      <div class="form-group" style="flex: 1; margin-bottom: 0;">
-        <label>Проект</label>
+      <div class="form-group">
+        <label>{{ 'taskCreate.fields.project' | transloco }}</label>
         <select
           [ngModel]="projectId()"
           (ngModelChange)="projectId.set($event)"
           class="form-control"
-          style="width: 100%;"
         >
-          <option value="">— Без проекта (Общая задача) —</option>
-          @for (project of userProjects(); track project.projectId) {
-            <option [value]="project.projectId">📁 {{ project.projectTitle }}</option>
+          <option value="">{{ 'taskCreate.fields.noProject' | transloco }}</option>
+          @for (proj of userProjects(); track proj.projectId) {
+            <option [value]="proj.projectId">{{ proj.projectTitle }}</option>
           }
         </select>
       </div>
 
-      <div class="form-group" style="flex: 1; margin-bottom: 0;">
-        <label>Родительская задача</label>
-        <select [(ngModel)]="parentTaskId" class="form-control">
-          <option [value]="null">— Без родителя (корневая) —</option>
-          @for (parent of loadingParentTasks(); track parent.id) {
-            <option [value]="parent.id">{{ parent.title }}</option>
+      <div class="form-group">
+        <label>{{ 'taskCreate.fields.parentTask' | transloco }}</label>
+        <select
+          [ngModel]="parentTaskId()"
+          (ngModelChange)="parentTaskId.set($event)"
+          class="form-control"
+        >
+          <option value="">{{ 'taskCreate.fields.noParent' | transloco }}</option>
+          @for (pt of parentTasksList(); track pt.id) {
+            <option [value]="pt.id">{{ pt.title }}</option>
           }
         </select>
       </div>
     </div>
 
-    <!-- Приоритет и срок -->
-    <div class="form-row-3">
+    <div class="form-row">
       <div class="form-group">
-        <label>Приоритет</label>
-        <select
-          [ngModel]="priority()"
-          (ngModelChange)="priority.set($event)"
-          class="form-control"
-        >
-          <option value="LOW">🟢 Низкий</option>
-          <option value="MEDIUM">🔵 Средний</option>
-          <option value="HIGH">🟡 Высокий</option>
-          <option value="CRITICAL">🔴 Критический</option>  <!--🔥          -->
-        </select>
+        <label>{{ 'taskCreate.fields.priority' | transloco }}</label>
+        <div class="priority-select-wrapper" [attr.data-priority]="priority()">
+          <select
+            [ngModel]="priority()"
+            (ngModelChange)="priority.set($event)"
+            class="form-control priority-select-styled"
+          >
+            <option value="LOW">LOW</option>
+            <option value="MEDIUM">MEDIUM</option>
+            <option value="HIGH">HIGH</option>
+            <option value="CRITICAL">CRITICAL</option>
+          </select>
+        </div>
       </div>
 
-
       <div class="form-group">
-        <label>Срок выполнения</label>
+        <label>{{ 'taskCreate.fields.dueDate' | transloco }}</label>
         <input
           type="date"
           [ngModel]="dueDate()"
@@ -111,16 +109,16 @@
       </div>
     </div>
 
-
-    <!-- Исполнители -->
     <div class="form-group">
-      <label>Исполнители *</label>
-      <div class="members-list">
+      <label>{{ 'taskCreate.fields.assignees' | transloco }}</label>
+      <div class="members-selection-list">
         @if (loadingMembers()) {
-          <div>Загрузка сотрудников...</div>
+          <div class="loading-members">
+            <span class="spinner-small"></span>
+          </div>
         } @else {
           @for (member of departmentMembers(); track member.id) {
-            <label class="member-row">
+            <label class="member-selection-item" [class.selected]="isSelected(member.id)">
               <input
                 type="checkbox"
                 [checked]="isSelected(member.id)"
@@ -129,25 +127,27 @@
               <span class="member-name">{{ member.displayName }}</span>
               <span class="member-department-role">{{ getDepartmentRole(member) }}</span>
               <span class="member-email">{{ member.email }}</span>
-              <span class="member-role" [class]="getRoleBadgeClass(member.roleName)">{{ member.roleName }}</span>
+              <span class="member-role" [class]="getRoleBadgeClass(member.roleName)">
+                {{ 'auth.role.' + member.roleName.toLowerCase() | transloco }}
+              </span>
             </label>
           }
           @if (departmentMembers().length === 0 && !loadingMembers()) {
-            <div class="empty-members">В этом отделе нет сотрудников</div>
+            <div class="empty-members">{{ 'taskCreate.noMembers' | transloco }}</div>
           }
         }
       </div>
       @if (assigneeMemberIds().length === 0 && !loadingMembers()) {
-        <small class="hint-text">Выберите хотя бы одного исполнителя</small>
+        <small class="hint-text">{{ 'taskCreate.chooseAssignee' | transloco }}</small>
       }
     </div>
 
-    <!-- Кнопки действий -->
     <div class="form-actions">
       <button class="btn-secondary" routerLink="/tasks">
         <i class="material-icons">close</i>
-        Отмена
+        {{ 'taskCreate.actions.cancel' | transloco }}
       </button>
+
       <button
         class="btn"
         [class.btn-primary]="isFormValid()"
@@ -157,10 +157,10 @@
       >
         @if (submitting()) {
           <i class="material-icons spinning">refresh</i>
-          <span>Создание...</span>
+          <span>{{ 'taskCreate.actions.creating' | transloco }}</span>
         } @else {
-          <i class="material-icons">check</i>
-          <span>Создать задачу</span>
+          <i class="material-icons">save</i>
+          <span>{{ 'taskCreate.actions.create' | transloco }}</span>
         }
       </button>
     </div>

@@ -1,14 +1,15 @@
-import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
-import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
-import {email} from '@angular/forms/signals';
+import {Component, inject, signal} from '@angular/core';
+import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
+import {AuthService} from '../../services/auth.service';
+import {CommonModule} from '@angular/common';
+import {Router, RouterLink} from '@angular/router';
+import {TranslocoPipe} from '@ngneat/transloco';
+import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslocoPipe, BackOnEscapeDirective],
   templateUrl: './register.html',
   styleUrl: './register.scss'
 })
@@ -53,7 +54,7 @@ export class Register {
             this.error.set(err.error?.message || err.error?.error || 'Неверный email или пароль');
           }
         });
-        this.router.navigate(['/tasks']);
+        void this.router.navigate(['/tasks']);
       },
       error: (err) => {
         this.loading.set(false);

@@ -7,7 +7,7 @@ import {ExchangePrice, ExchangeSpread} from '../../models/crypto.model';
 @Injectable({ providedIn: 'root' })
 export class CryptoDataService {
   private readonly http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:9083/api/crypto';
+  private readonly API_URL = 'http://localhost:9084/api/crypto';
 
   getCoins(): Observable<{ symbol: string; fullName: string }[]> {
     return this.http

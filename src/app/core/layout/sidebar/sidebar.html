@@ -1,14 +1,15 @@
-<nav (dblclick)="onNavbarDblClick($event)">
+<nav (dblclick)="onNavbarDblClick($event)" appBackOnEscape>
   <ul class="nav-list">
     @for (item of menuItems(); track item.path) {
       <li>
         <a [routerLink]="item.path"
            routerLinkActive="active"
-           [title]="sidebarService.isCollapsed() ? item.label : ''">
+           [attr.title]="(sidebarService.isCollapsed() ? item.labelKey : null) | transloco"
+        >
           <span class="icon">
             <i class="material-icons">{{ item.icon }}</i>
           </span>
-          <span class="text">{{ item.label }}</span>
+          <span class="text">{{ item.labelKey | transloco }}</span>
         </a>
       </li>
     }

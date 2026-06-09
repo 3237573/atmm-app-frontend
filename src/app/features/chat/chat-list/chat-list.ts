@@ -7,11 +7,12 @@ import {ChatRoomBaseRO} from '@core/models/chat.model';
 import {filter, startWith} from 'rxjs';
 import {FormsModule} from '@angular/forms';
 import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
+import {TranslocoPipe} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-chat-list',
   standalone: true,
-  imports: [FormsModule, BackOnEscapeDirective],
+  imports: [FormsModule, BackOnEscapeDirective, TranslocoPipe],
   templateUrl: './chat-list.html',
   styleUrls: ['./chat-list.scss']
 })

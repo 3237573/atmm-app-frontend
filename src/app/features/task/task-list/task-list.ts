@@ -1,12 +1,13 @@
-import { Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { TaskService } from '@core/services/task.service';
-import { TaskRO, TaskTreeRO } from '@core/models/task/task.model';
-import { AuthService } from '@core/services/auth.service';
-import { BackOnEscapeDirective } from '@core/directives/back-on-escape.directive';
-import { ReplaceMePipe } from '@core/pipes/replace-me.pipe';
+import {Component, computed, effect, inject, OnInit, signal, untracked} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {RouterModule} from '@angular/router';
+import {TaskService} from '@core/services/task.service';
+import {TASK_STATUS_CONFIG, TASK_STATUS_LIST, TaskRO, TaskStatus, TaskTreeRO} from '@core/models/task/task.model';
+import {AuthService} from '@core/services/auth.service';
+import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
+import {ReplaceMePipe} from '@core/pipes/replace-me.pipe';
+import {TranslocoPipe, TranslocoService} from '@ngneat/transloco'; // <-- Добавили импорты
 
 type RenderTask = TaskRO & {
   level: number;
@@ -17,7 +18,7 @@ type RenderTask = TaskRO & {
 interface TaskListState {
   viewMode: 'list' | 'board';
   searchQuery: string;
-  selectedStatus: string;
+  selectedStatus: TaskStatus | '';
   selectedPriority: string;
   sortColumn: string;
   sortDirection: 'asc' | 'desc';
@@ -27,34 +28,32 @@ interface TaskListState {
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, BackOnEscapeDirective, ReplaceMePipe],
+  imports: [CommonModule, FormsModule, RouterModule, BackOnEscapeDirective, ReplaceMePipe, TranslocoPipe], // <-- Добавили TranslocoPipe
   templateUrl: './task-list.html',
   styleUrl: './task-list.scss'
 })
 export class TaskList implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly taskService = inject(TaskService);
+  private readonly translocoService = inject(TranslocoService); // <-- Внедряем сервис для работы с языком
   private readonly STORAGE_KEY = 'task_list_state';
+  protected readonly TASK_STATUS_LIST = TASK_STATUS_LIST;
 
   currentUser = this.authService.currentUser;
   taskTrees = signal<TaskTreeRO[]>([]);
   loading = signal(true);
   viewMode = signal<'list' | 'board'>('list');
 
-  // Флаг, указывающий, что данные загрузились хотя бы один раз
-  private tasksInitialLoaded = signal(false);
+  private readonly tasksInitialLoaded = signal(false);
 
-  // Фильтры
   searchQuery = signal('');
-  selectedStatus = signal<string>('');
+  selectedStatus = signal<TaskStatus | ''>('');
   selectedPriority = signal<string>('');
   expandedNodes = signal<Set<string>>(new Set());
 
-  // Сортировка
   sortColumn = signal<string>('title');
   sortDirection = signal<'asc' | 'desc'>('asc');
 
-  // Плоское дерево задач
   flatTasks = computed(() => {
     const tasks: TaskRO[] = [];
     const traverse = (trees: TaskTreeRO[]) => {
@@ -67,7 +66,6 @@ export class TaskList implements OnInit {
     return tasks;
   });
 
-  // Карта родителей для быстрого поиска вверх по дереву
   private readonly parentMap = computed(() => {
     const map = new Map<string, string | null>();
     for (const task of this.flatTasks()) {
@@ -76,20 +74,19 @@ export class TaskList implements OnInit {
     return map;
   });
 
-  // Статистика
   stats = computed(() => {
     const tasks = this.flatTasks();
-    const currentStats = { total: tasks.length, pending: 0, inProgress: 0, review: 0, completed: 0, overdue: 0, archived: 0 };
+    const currentStats = {total: tasks.length, pending: 0, inProgress: 0, review: 0, completed: 0, overdue: 0, archived: 0};
     const todayTime = new Date().setHours(0, 0, 0, 0);
 
     for (const t of tasks) {
-      if (t.status === 'PENDING') currentStats.pending++;
-      else if (t.status === 'IN_PROGRESS') currentStats.inProgress++;
-      else if (t.status === 'REVIEW') currentStats.review++;
-      else if (t.status === 'COMPLETED') currentStats.completed++;
-      else if (t.status === 'ARCHIVED') currentStats.archived++;
+      if (t.taskStatus === 'PENDING') currentStats.pending++;
+      else if (t.taskStatus === 'IN_PROGRESS') currentStats.inProgress++;
+      else if (t.taskStatus === 'REVIEW') currentStats.review++;
+      else if (t.taskStatus === 'COMPLETED') currentStats.completed++;
+      else if (t.taskStatus === 'ARCHIVED') currentStats.archived++;
 
-      if (t.dueDate && t.status !== 'COMPLETED') {
+      if (t.dueDate && t.taskStatus !== 'COMPLETED') {
         const dTime = new Date(t.dueDate).setHours(0, 0, 0, 0);
         if (dTime < todayTime) currentStats.overdue++;
       }
@@ -97,11 +94,10 @@ export class TaskList implements OnInit {
     return currentStats;
   });
 
-  // Фильтрация
   filteredTaskSets = computed(() => {
     const tasks = this.flatTasks();
     const query = this.searchQuery().trim().toLowerCase();
-    const status = this.selectedStatus();
+    const taskStatus = this.selectedStatus();
     const priority = this.selectedPriority();
 
     const matchedIds = new Set<string>();
@@ -109,7 +105,7 @@ export class TaskList implements OnInit {
     const parentMap = this.parentMap();
 
     for (const task of tasks) {
-      if (status && task.status !== status) continue;
+      if (taskStatus && task.taskStatus !== taskStatus) continue;
       if (priority && task.priority !== priority) continue;
       if (query) {
         const titleMatch = task.title.toLowerCase().includes(query);
@@ -127,27 +123,27 @@ export class TaskList implements OnInit {
       }
     }
 
-    return { matchedIds, visibleIds, isFiltered: !!(query || status || priority) };
+    return {matchedIds, visibleIds, isFiltered: !!(query || taskStatus || priority)};
   });
 
-  // Построение видимых задач для рендеринга
   visibleTasks = computed(() => {
-    const { visibleIds } = this.filteredTaskSets();
+    const {visibleIds} = this.filteredTaskSets();
     const expanded = this.expandedNodes();
     const result: RenderTask[] = [];
     const todayTime = new Date().setHours(0, 0, 0, 0);
 
     const parseDateInfo = (dateStr: string | undefined) => {
-      if (!dateStr) return { dateClass: '' as const, formattedDate: '—' };
+      if (!dateStr) return {dateClass: '' as const, formattedDate: '—'};
       const d = new Date(dateStr);
-      const formattedDate = d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      // Используем текущий язык приложения из Transloco вместо хардкода 'ru-RU'
+      const formattedDate = d.toLocaleDateString(this.translocoService.getActiveLang(), {day: '2-digit', month: '2-digit', year: 'numeric'});
       const dateTime = d.setHours(0, 0, 0, 0);
 
-      if (dateTime < todayTime) return { dateClass: 'overdue' as const, formattedDate };
-      if (dateTime === todayTime) return { dateClass: 'today' as const, formattedDate };
+      if (dateTime < todayTime) return {dateClass: 'overdue' as const, formattedDate};
+      if (dateTime === todayTime) return {dateClass: 'today' as const, formattedDate};
       const diffDays = Math.ceil((dateTime - todayTime) / (1000 * 60 * 60 * 24));
-      if (diffDays > 0 && diffDays <= 3) return { dateClass: 'soon' as const, formattedDate };
-      return { dateClass: 'future' as const, formattedDate };
+      if (diffDays > 0 && diffDays <= 3) return {dateClass: 'soon' as const, formattedDate};
+      return {dateClass: 'future' as const, formattedDate};
     };
 
     const traverse = (trees: TaskTreeRO[], level: number) => {
@@ -174,20 +170,17 @@ export class TaskList implements OnInit {
   });
 
   filteredFlatTasks = computed(() => {
-    const { matchedIds } = this.filteredTaskSets();
+    const {matchedIds} = this.filteredTaskSets();
     return this.flatTasks().filter(t => matchedIds.has(t.id));
   });
 
   constructor() {
-    // 1. Сначала восстанавливаем состояние из хранилища
     this.restoreState();
 
-    // ЭФФЕКТ 1: Автоматическое раскрытие веток при поиске/фильтрации
     effect(() => {
-      const { visibleIds, isFiltered } = this.filteredTaskSets();
+      const {visibleIds, isFiltered} = this.filteredTaskSets();
 
       untracked(() => {
-        // Если фильтр пустой или данные еще не загружены, ничего автоматически не раскрываем
         if (!isFiltered || !this.tasksInitialLoaded()) return;
 
         const currentExpanded = new Set(this.expandedNodes());
@@ -202,11 +195,9 @@ export class TaskList implements OnInit {
 
         if (changed) this.expandedNodes.set(currentExpanded);
       });
-    }, { allowSignalWrites: true });
+    }, {allowSignalWrites: true});
 
-    // ЭФФЕКТ 2: Сохранение состояния в LocalStorage при любых изменениях
     effect(() => {
-      // Защита: не перезаписываем сохраненную структуру пустой, пока не сработал первый loadTasks
       if (!this.tasksInitialLoaded()) return;
 
       const state: TaskListState = {
@@ -221,13 +212,11 @@ export class TaskList implements OnInit {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
     });
 
-    // ЭФФЕКТ 3: Очистка старых/удаленных ID задач из списка раскрытых веток
     effect(() => {
       const tasks = this.flatTasks();
       const isLoaded = this.tasksInitialLoaded();
 
       untracked(() => {
-        // Начинаем валидацию сохраненных веток ТОЛЬКО после того, как получили актуальное дерево от API
         if (!isLoaded) return;
 
         const currentIds = new Set(tasks.map(t => t.id));
@@ -242,7 +231,7 @@ export class TaskList implements OnInit {
         }
         if (needUpdate) this.expandedNodes.set(expanded);
       });
-    }, { allowSignalWrites: true });
+    }, {allowSignalWrites: true});
   }
 
   ngOnInit() {
@@ -256,7 +245,13 @@ export class TaskList implements OnInit {
       const state = JSON.parse(raw) as TaskListState;
       this.viewMode.set(state.viewMode ?? 'list');
       this.searchQuery.set(state.searchQuery ?? '');
-      this.selectedStatus.set(state.selectedStatus ?? '');
+
+      const savedStatus = state.selectedStatus;
+      const validStatus = savedStatus && TASK_STATUS_LIST.includes(savedStatus as TaskStatus)
+        ? savedStatus as TaskStatus
+        : '';
+      this.selectedStatus.set(validStatus);
+
       this.selectedPriority.set(state.selectedPriority ?? '');
       this.sortColumn.set(state.sortColumn ?? 'title');
       this.sortDirection.set(state.sortDirection ?? 'asc');
@@ -274,7 +269,6 @@ export class TaskList implements OnInit {
       next: (data) => {
         this.taskTrees.set(data || []);
         this.loading.set(false);
-        // Сигнализируем, что первая успешная загрузка завершена
         this.tasksInitialLoaded.set(true);
       },
       error: (err) => {
@@ -365,34 +359,40 @@ export class TaskList implements OnInit {
     this.expandedNodes.set(newSet);
   }
 
-  getStatusClass(status: string): string {
-    const classes: Record<string, string> = {
-      'PENDING': 'status-pending',
-      'IN_PROGRESS': 'status-progress',
-      'REVIEW': 'status-review',
-      'COMPLETED': 'status-completed',
-      'ARCHIVED': 'status-archived'
-    };
-    return classes[status] || '';
+  getStatusClass(status: TaskStatus): string {
+    return TASK_STATUS_CONFIG[status]?.class || '';
+  }
+
+  getFilterStatusClass(status: TaskStatus | ''): string {
+    if (!status) return '';
+    return TASK_STATUS_CONFIG[status]?.class || '';
   }
 
   getPriorityColor(priority: string): string {
     return priority ? priority.toLowerCase() : 'low';
   }
 
-  getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      'PENDING': 'Ожидает',
-      'IN_PROGRESS': 'В работе',
-      'REVIEW': 'Проверка',
-      'COMPLETED': 'Готово',
-      'ARCHIVED': 'Архив'
-    };
-    return labels[status] || status;
-  }
-
   updateStatus(task: TaskRO, newStatus: string): void {
-    this.taskService.updateTaskStatus(task.id, newStatus).subscribe(() => this.loadTasks());
+    const status = newStatus as TaskStatus;
+    const updateTaskInTree = (trees: TaskTreeRO[]): boolean => {
+      for (const tree of trees) {
+        if (tree.task.id === task.id) {
+          tree.task.taskStatus = status;
+          return true;
+        }
+        if (tree.subtasks?.length && updateTaskInTree(tree.subtasks)) return true;
+      }
+      return false;
+    };
+    updateTaskInTree(this.taskTrees());
+    this.taskTrees.set([...this.taskTrees()]);
+
+    this.taskService.updateTaskStatus(task.id, status).subscribe({
+      error: (err) => {
+        console.error('Ошибка обновления', err);
+        this.loadTasks();
+      }
+    });
   }
 
   setViewMode(mode: 'list' | 'board') {
