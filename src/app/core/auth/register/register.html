@@ -1,0 +1,55 @@
+<div class="auth-container">
+  <div class="auth-card">
+<!--    <div class="logo">-->
+<!--      <div class="logo-icon">⚡</div>-->
+<!--      <h1>ATMM</h1>-->
+<!--    </div>-->
+
+    <h2>Создать аккаунт</h2>
+    <p class="subtitle">Начните работу в своем пространстве</p>
+
+    @if (error()) {
+      <div class="error-message">{{ error() }}</div>
+    }
+
+    <form [formGroup]="regForm" (ngSubmit)="onSubmit()">
+      <div class="input-group">
+        <div class="input-wrapper">
+          <input formControlName="fullName" type="text" placeholder=" " />
+          <label>Ваше имя в системе (Как вас зовут?)</label>
+        </div>
+
+        <div class="input-wrapper">
+          <input formControlName="displayName" type="text" placeholder=" " />
+          <label>Имя в пространстве (Как к вам обращаться?)</label>
+        </div>
+
+        <div class="input-wrapper">
+          <input formControlName="email" type="email" placeholder=" " />
+          <label>Электронная почта</label>
+        </div>
+
+        <div class="input-wrapper">
+          <input formControlName="workspaceName" type="text" placeholder=" " />
+          <label>Название вашего пространства</label>
+        </div>
+
+        <div class="input-wrapper">
+          <input formControlName="password" type="password" placeholder=" " />
+          <label>Придумайте пароль (минимум 6 символов)</label>
+        </div>
+      </div>
+
+      <button type="submit" [disabled]="regForm.invalid || loading()">
+        @if (loading()) {
+          <span class="spinner"></span>
+        }
+        {{ loading() ? 'Регистрация...' : 'Зарегистрироваться' }}
+      </button>
+
+      <p class="switch-auth">
+        Уже есть аккаунт? <a routerLink="/login">Войти</a>
+      </p>
+    </form>
+  </div>
+</div>

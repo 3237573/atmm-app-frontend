@@ -1,0 +1,270 @@
+// role-manager.scss
+
+.role-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  align-items: start;
+
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.roles-sidebar {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  box-shadow: var(--shadow-soft);
+  transition: all 0.25s var(--ease);
+
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+
+    h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+  }
+}
+
+.role-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.role-card {
+  padding: 1rem 1.25rem;
+  border-radius: 0.85rem;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    border-color: var(--accent);
+    transform: translateX(4px);
+  }
+
+  &.active {
+    background: color-mix(in srgb, var(--accent) 8%, var(--bg-card));
+    border-color: var(--accent);
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--accent);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .role-name {
+      color: var(--accent);
+    }
+  }
+
+  .role-name {
+    display: block;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    margin-bottom: 0.25rem;
+    transition: color 0.2s ease;
+  }
+
+  .perm-count {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+}
+
+.permissions-matrix {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  min-height: 540px;
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+
+  .matrix-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+  }
+
+  .matrix-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.75rem;
+    overflow-y: auto;
+    max-height: 65vh;
+    padding-right: 0.5rem;
+
+    /* Красивый тонкий скроллбар */
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 10px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+  }
+}
+
+/* Современные карточки-чекбоксы прав */
+.perm-checkbox-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  user-select: none;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+    background: color-mix(in srgb, var(--accent) 2%, var(--bg-main));
+  }
+
+  input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid var(--border);
+    border-radius: 0.35rem;
+    background: var(--bg-card);
+    cursor: pointer;
+    display: grid;
+    place-content: center;
+    transition: all 0.15s var(--ease);
+
+    &::before {
+      content: "";
+      width: 0.65rem;
+      height: 0.65rem;
+      transform: scale(0);
+      transition: 0.15s transform var(--ease);
+      background-color: white;
+      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    }
+
+    &:checked {
+      background: var(--accent);
+      border-color: var(--accent);
+
+      &::before {
+        transform: scale(1);
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid color-mix(in srgb, var(--accent) 40%, transparent);
+      outline-offset: 2px;
+    }
+  }
+
+  .perm-box {
+    display: flex;
+    flex-direction: column;
+
+    .p-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+  }
+}
+
+/* Заглушка, когда роль не выбрана */
+.empty-matrix {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  gap: 0.75rem;
+
+  i {
+    font-size: 3rem;
+    color: color-mix(in srgb, var(--text-muted) 30%, transparent);
+  }
+
+  p {
+    font-size: 0.95rem;
+    font-weight: 400;
+  }
+}
+
+/* Кнопки в едином стиле UI */
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  white-space: nowrap;
+
+  i { font-size: 1.1rem; }
+
+  &.btn-primary {
+    background: var(--accent);
+    color: #ffffff;
+
+    &:hover {
+      background: color-mix(in srgb, var(--accent) 85%, #000000);
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 25%, transparent);
+    }
+  }
+
+  &.btn-icon-only {
+    padding: 0.5rem;
+    background: var(--bg-main);
+    border-color: var(--border);
+    color: var(--text-muted);
+
+    &:hover {
+      color: var(--text-main);
+      border-color: var(--text-muted);
+    }
+  }
+}

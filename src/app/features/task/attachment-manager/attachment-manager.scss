@@ -1,0 +1,171 @@
+@use "sass:color";
+@use "../../../app" as *; // Импорт глобальных переменных темы ($border, $accent, $text-muted и т.д.)
+
+.attachments-inline-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba($border, 0.1);
+  border: 1px solid $border;
+  border-radius: 0.5rem;
+  min-height: 40px; /* Высота подгоняется под строку подзадач */
+  margin: 0.75rem 0;
+  box-sizing: border-box;
+  flex-wrap: wrap; /* Если чипсы не влезут на мелких экранах, они перенесутся */
+}
+
+// Левая кнопка "Дропзона"
+.compact-dropzone {
+  display: flex;
+  align-items: center;
+  border: 1px dashed $border;
+  border-radius: 0.375rem;
+  padding: 0 0.6rem;
+  background: transparent;
+  cursor: pointer;
+  height: 28px; /* Компактная высота */
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+
+  &:hover:not(.disabled) {
+    border-color: $accent;
+    background: rgba($accent, 0.05);
+
+    .upload-icon, .text-hint {
+      color: $accent;
+    }
+  }
+
+  &.dragging {
+    border-color: $accent;
+    background: rgba($accent, 0.1);
+  }
+
+  &.uploading {
+    cursor: not-allowed;
+    border-color: $border;
+    background: rgba($border, 0.03);
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    border-style: solid;
+    background: rgba($border, 0.05);
+    opacity: 0.6;
+  }
+
+  .dropzone-content {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+  }
+
+  .upload-icon {
+    font-size: 1.1rem;
+    color: $text-muted;
+    transition: color 0.2s;
+  }
+
+  .text-hint {
+    font-size: 0.8rem;
+    color: $text-muted;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+}
+
+// Контейнер списка файлов справа
+.attachments-horizontal-list {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+// Чипсы файлов (горизонтальные элементы)
+.attachment-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba($border, 0.2);
+  border: 1px solid rgba($border, 0.5);
+  border-radius: 1.25rem; /* Округлые края */
+  padding: 0 0.5rem 0 0.6rem;
+  height: 26px;
+  max-width: 180px;
+  box-sizing: border-box;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: rgba($border, 0.35);
+  }
+
+  .file-icon {
+    font-size: 1rem;
+    color: $accent;
+    flex-shrink: 0;
+  }
+
+  .file-name {
+    color: $text-main;
+    font-size: 0.78rem;
+    font-weight: 400;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:hover {
+      color: $accent;
+      text-decoration: underline;
+    }
+  }
+
+  .btn-delete-chip {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-left: 0.15rem;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    transition: background-color 0.15s;
+
+    i {
+      font-size: 0.9rem;
+    }
+
+    &:hover {
+      background: rgba(#ef4444, 0.15);
+    }
+  }
+}
+
+.empty-attachments-text {
+  font-size: 0.78rem;
+  color: $text-muted;
+  font-style: italic;
+}
+
+// Мини-лоадер внутри кнопки при загрузке
+.spinner-small {
+  width: 12px;
+  height: 12px;
+  border: 2px solid $border;
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

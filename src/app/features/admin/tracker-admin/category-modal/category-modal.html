@@ -1,0 +1,70 @@
+<div class="modal-overlay" (click)="close.emit()" *transloco="let t" appBackOnEscape>
+  <div class="modal-content" (click)="$event.stopPropagation()" [formGroup]="categoryForm">
+    <h3>{{ category() ? t('tracker.category.edit') : t('tracker.category.new') }}</h3>
+
+    <div class="form-field">
+      <label>{{ t('tracker.category.name') }}</label>
+      <input type="text" formControlName="name" [placeholder]="t('tracker.category.nameTooltip')">
+    </div>
+
+    <div class="form-field">
+      <label>{{ t('tracker.category.slug') }}</label>
+      <input type="text" formControlName="slug">
+    </div>
+
+    <div class="form-row inline-group">
+      <div class="form-field color-part">
+        <label>{{ t('tracker.category.color') }}</label>
+        <input type="color" formControlName="color" class="color-input">
+      </div>
+
+      <div class="form-field icon-part">
+        <label>{{ t('tracker.category.icon') }}</label>
+        <div class="icon-selector-wrapper">
+          <div class="icon-display" (click)="toggleIconPicker()">
+            <i class="material-icons">{{ categoryForm.value.icon || 'folder' }}</i>
+            <span class="icon-name">{{ categoryForm.value.icon || 'folder' }}</span>
+            <i class="material-icons dropdown-icon">arrow_drop_down</i>
+          </div>
+
+          @if (showIconPicker()) {
+            <div class="icon-picker-dropdown">
+              <div class="icon-search">
+                <i class="material-icons">search</i>
+                <input
+                  type="text"
+                  [placeholder]="'Поиск иконок...'"
+                  [(ngModel)]="iconSearchQuery"
+                  (click)="$event.stopPropagation()"
+                />
+              </div>
+              <div class="icon-grid">
+                @for (icon of filteredIcons(); track icon) {
+                  <div class="icon-option" (click)="selectIcon(icon)">
+                    <i class="material-icons">{{ icon }}</i>
+                    <span>{{ icon }}</span>
+                  </div>
+                }
+                @if (filteredIcons().length === 0) {
+                  <div class="no-icons">Иконок не найдено</div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label>{{ t('tracker.category.priority') }}</label>
+      <input type="number" formControlName="priority" class="dark-number-input">
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-amber" (click)="close.emit()">{{ t('btn.cancel') }}</button>
+      <button type="button" class="btn btn-blue" (click)="submit()" [disabled]="categoryForm.invalid">
+        {{ t('btn.saveChanges') }}
+      </button>
+    </div>
+  </div>
+</div>

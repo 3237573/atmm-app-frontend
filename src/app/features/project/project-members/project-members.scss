@@ -1,0 +1,224 @@
+/* === Project Members — Adaptive Theme === */
+
+.members-container {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* === Заголовок секции и кнопка === */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+
+  h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-main);
+
+    i {
+      color: var(--accent);
+      font-size: 1.3rem;
+    }
+  }
+}
+
+/* Оптимизированная кнопка-pill */
+.btn-add-member {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: var(--accent-soft); // Используем переменную
+  color: var(--accent);
+  border-radius: 20px; // Форма таблетки
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+
+  i { font-size: 18px; }
+
+  &:hover:not(:disabled) {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
+  }
+
+  &:active { transform: scale(0.96); }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(1);
+  }
+}
+
+/* Сетка участников */
+.member-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+/* Карточка участника с правильной геометрией */
+.member-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-main); // Контрастный фон для светлой темы
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    border-color: var(--accent);
+    background: var(--bg-card); // Меняем фон при ховере
+    box-shadow: var(--shadow-sm);
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0; // Для обрезки длинных имен
+    flex: 1;
+
+    .name {
+      color: var(--text-main);
+      font-weight: 500;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .role {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+  }
+
+  .btn-remove {
+    all: unset;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    padding: 4px;
+    border-radius: 6px;
+    transition: all 0.2s;
+
+    &:hover {
+      background: rgba(244, 67, 54, 0.1);
+      color: #f44336;
+    }
+
+    i { font-size: 18px; }
+  }
+}
+
+.empty-members {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2.5rem;
+  color: var(--text-muted);
+  border: 2px dashed var(--border);
+  border-radius: 16px;
+  background: rgba(var(--text-muted-rgb), 0.03);
+}
+
+/* === Modal === */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4); // Чуть светлее для чистоты
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 500px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+
+  h3 {
+    margin: 0 0 1.5rem;
+    color: var(--text-main);
+    font-size: 1.25rem;
+  }
+}
+
+.selection-list {
+  max-height: 400px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-right: 4px;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+}
+
+.selection-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-main);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+
+  .m-info {
+    flex: 1;
+    p { margin: 0; font-weight: 500; font-size: 0.95rem; color: var(--text-main); }
+    small { color: var(--text-muted); }
+  }
+
+  .role-input {
+    width: 130px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem;
+    color: var(--text-main);
+    font-size: 0.85rem;
+
+    &:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
+    }
+  }
+}

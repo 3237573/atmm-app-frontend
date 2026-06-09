@@ -1,0 +1,58 @@
+{
+  "btn": {
+    "add": "Add",
+    "apply": "Apply to History",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "exit": "Exit",
+    "save": "Save",
+    "saveChanges": "Save Changes",
+    "show": "Add Rule"
+  },
+  "nav": {
+    "allCategories": "All Categories"
+  },
+  "workspace": {
+    "menu": {
+      "admin": "Classification Management"
+    }
+  },
+  "order": {
+    "orderList": "Rule Groups"
+  },
+  "tracker": {
+    "activity": {
+      "title": "Activity"
+    },
+    "adminTitle": "Classification management",
+    "categories": "List of categories",
+    "category": {
+      "color": "Color",
+      "edit": "Edit Category",
+      "icon": "Material Icon ",
+      "name": "Category Name",
+      "nameTooltip": "Enter a name",
+      "new": "New category",
+      "priority": "Priority",
+      "slug": "Slug (key)"
+    },
+    "details": {
+      "title": "Detail"
+    },
+    "period": {
+      "onTheAir" : "On the Air",
+      "dataArchive" : "Data archive"
+    },
+    "rule": {
+      "new": "New rule",
+      "ruleHint": "Classification for a category",
+      "rulePattern": "Pattern (part of a header or process)"
+    },
+    "title": {
+      "myActivity" : "My activity",
+      "employeeReport" : "Employee report",
+      "today" : "Today"
+    }
+  }
+}

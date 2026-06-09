@@ -1,0 +1,60 @@
+<div class="members-container">
+  <div class="section-header">
+    <h3>
+      <i class="material-icons">groups</i>
+      <span>Участники проекта</span>
+    </h3>
+
+    <button
+      type="button"
+      class="btn-add-member"
+      (click)="showModal.set(true)"
+      [disabled]="loading()"
+    >
+      <i class="material-icons">person_add</i>
+      <span>Добавить</span>
+    </button>
+  </div>
+
+  <div class="member-grid">
+    @for (m of displayMembers(); track m.memberId) {
+      <div class="member-card">
+        <div class="avatar">{{ m.initials }}</div>
+        <div class="info">
+          <span class="name">{{ m.name }}</span>
+          <span class="role">{{ m.roleInProject || 'Участник' }}</span>
+        </div>
+        <button type="button" class="btn-remove" (click)="onRemove.emit(m.memberId)" [disabled]="loading()">
+          <i class="material-icons">close</i>
+        </button>
+      </div>
+    }
+  </div>
+</div>
+
+@if (showModal()) {
+  <div class="modal-overlay" (click)="showModal.set(false)">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>Добавить сотрудника</h3>
+
+      <div class="selection-list">
+        @for (m of availableToAssign(); track m.id) {
+          <div class="selection-row">
+            <div class="m-info">
+              <p>{{ m.displayName }}</p>
+              <small>{{ m.email }}</small>
+            </div>
+
+            <input #roleInput class="role-input form-input" placeholder="Роль в отделе...">
+            <button class="btn-primary btn-sm" (click)="add(m.id, roleInput.value)">
+              Добавить
+            </button>
+
+          </div>
+        } @empty {
+          <div class="empty-state">Все сотрудники уже в этом проекте.</div>
+        }
+      </div>
+    </div>
+  </div>
+}

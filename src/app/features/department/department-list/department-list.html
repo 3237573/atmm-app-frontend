@@ -1,0 +1,80 @@
+<div class="department-container" appBackOnEscape>
+  <div class="page-header">
+    <div class="header-info">
+      <h1><i class="material-icons">account_tree</i> Структура пространства</h1>
+      <p>Отделы и подраздедления</p>
+    </div>
+
+    <button
+      *appHasPermission="['department:create']"
+      class="btn-primary" [routerLink]="['/departments/create']"
+    >
+      <i class="material-icons">add</i> Добавить отдел
+    </button>
+
+  </div>
+
+  @if (loading()) {
+    <div class="loader">Загрузка структуры...</div>
+  } @else {
+    <div class="tree-root">
+      <ng-container *ngTemplateOutlet="recursiveTree; context: { $implicit: departmentTree() }"></ng-container>
+    </div>
+  }
+</div>
+
+<ng-template #recursiveTree let-nodes>
+  <ul class="tree-branch">
+    @for (node of nodes; track node.id) {
+      <li class="tree-node">
+        <div class="node-content">
+
+          <div class="node-main">
+            @if (node.childDepartments?.length) {
+              <i class="material-icons node-toggle"
+                 [class.open]="expandedNodes().has(node.id)"
+                 (click)="toggleNode(node.id, $event)">chevron_right</i>
+            } @else {
+              <span class="node-spacer"></span>
+            }
+
+            <i class="material-icons node-icon">
+              {{ node.childDepartments?.length ? 'domain' : 'corporate_fare' }}
+            </i>
+
+            <div class="node-info">
+              <div class="node-title-row">
+                [&nbsp;
+                <span class="node-name">{{ node.name }}</span>
+                &nbsp;]
+                <span class="badge-count" title="Количество сотрудников">&nbsp;:&nbsp;{{ node.employeeCount || 0 }}</span>
+                @if (node.headMemberId) {
+                  <span class="node-meta">&nbsp;Руководитель назначен</span>
+                } @else {
+                  <span class="node-meta muted">&nbsp;Нет руководителя</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="node-actions-container">
+            <div class="node-actions icon-btn" (click)="$event.preventDefault(); $event.stopPropagation()">
+              <i class="material-icons">more_vert</i>
+            </div>
+
+            <button class="btn-icon edit-btn"
+                    [routerLink]="['/departments', node.id]"
+                    title="Открыть настройки отдела">
+              <i class="material-icons">edit</i>
+            </button>
+          </div>
+
+        </div>
+
+        @if (node.childDepartments?.length && expandedNodes().has(node.id)) {
+          <ng-container *ngTemplateOutlet="recursiveTree; context: { $implicit: node.childDepartments }"></ng-container>
+        }
+      </li>
+    }
+  </ul>
+</ng-template>

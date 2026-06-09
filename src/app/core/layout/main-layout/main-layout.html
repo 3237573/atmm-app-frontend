@@ -1,0 +1,22 @@
+<div class="layout-wrapper" [class.auth-mode]="isAuthPage$ | async">
+
+  @if (!(isAuthPage$ | async)) {
+    <header class="header-area">
+      <app-header></app-header>
+    </header>
+  }
+
+  <div class="main-body">
+    @if (!(isAuthPage$ | async)) {
+      <app-sidebar></app-sidebar>
+
+      @if (!sidebarService.isCollapsed()) {
+        <div class="sidebar-backdrop" (click)="sidebarService.close()"></div>
+      }
+    }
+
+    <main class="content-area">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

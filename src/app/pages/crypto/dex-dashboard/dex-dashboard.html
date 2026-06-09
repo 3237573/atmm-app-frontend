@@ -1,0 +1,161 @@
+<div class="dex-dashboard">
+  <!-- Header -->
+  <header class="dex-header">
+    <div class="header-left">
+      <h2>🦄 DEX Arbitrage Scanner</h2>
+      <span class="badge">Cross-Chain</span>
+    </div>
+
+    <div class="header-right">
+      <div class="network-selector">
+        <select [(ngModel)]="selectedNetwork" (change)="selectedNetwork.set($any($event.target).value)">
+          <option value="all">🌐 All Networks</option>
+          @for (net of networks(); track net.id) {
+            <option [value]="net.id">{{ net.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="wallet-connect">
+        @if (!walletConnected()) {
+          <button class="connect-btn" (click)="connectWallet()">
+            <span class="icon">🔌</span> Connect Wallet
+          </button>
+        } @else {
+          <div class="wallet-info">
+            <span class="dot"></span>
+            <span class="address">{{ walletAddress().slice(0,6) }}...{{ walletAddress().slice(-4) }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- Filters -->
+  <section class="filters-bar">
+    <div class="filter-group">
+      <label>Protocol:</label>
+      <select [(ngModel)]="selectedProtocol" (change)="selectedProtocol.set($any($event.target).value)">
+        <option value="all">All Protocols</option>
+        @for (proto of protocols(); track proto) {
+          <option [value]="proto">{{ proto }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Min Spread:</label>
+      <input type="range" min="0.5" max="20" step="0.5"
+             [(ngModel)]="minSpread" (change)="minSpread.set($any($event.target).value)">
+      <span class="value">{{ minSpread() }}%</span>
+    </div>
+
+    <div class="filter-group">
+      <label>Min Liquidity:</label>
+      <select [(ngModel)]="minLiquidity" (change)="minLiquidity.set($any($event.target).value)">
+        <option value="50000">$50k</option>
+        <option value="100000">$100k</option>
+        <option value="500000">$500k</option>
+        <option value="1000000">$1M</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- Spreads Table -->
+  <main class="spreads-container">
+    @if (isLoading()) {
+      <div class="loader">
+        <div class="spinner"></div>
+        <p>Scanning DEX pools across chains...</p>
+      </div>
+    }
+
+    <div class="table-wrapper">
+      <table class="dex-table">
+        <thead>
+        <tr>
+          <th>Coin</th>
+          <th>Buy From</th>
+          <th>Price</th>
+          <th>Sell To</th>
+          <th>Price</th>
+          <th>Spread</th>
+          <th>Profit (1k$)</th>
+          <th>Liquidity</th>
+          <th>Gas Cost</th>
+          <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (spread of filteredSpreads(); track $index) {
+            <tr class="spread-row">
+              <td class="coin-cell">
+                <strong>{{ spread.coinSymbol }}</strong>
+                <div class="network-badge">{{ spread.network }}</div>
+              </td>
+
+              <td class="dex-cell buy">
+                <div class="dex-name">{{ spread.buy.protocol }}</div>
+                <div class="pool-name">{{ spread.buy.pool }}</div>
+              </td>
+              <td class="price-cell">${{ formatPrice(spread.buy.price) }}</td>
+
+              <td class="dex-cell sell">
+                <div class="dex-name">{{ spread.sell.protocol }}</div>
+                <div class="pool-name">{{ spread.sell.pool }}</div>
+              </td>
+              <td class="price-cell">${{ formatPrice(spread.sell.price) }}</td>
+
+              <td class="spread-cell" [class.high]="spread.spreadPct > 5">
+                <span class="spread-value">{{ spread.spreadPct | number:'1.2-2' }}%</span>
+                <span class="trend">▲</span>
+              </td>
+
+              <td class="profit-cell">
+                <span class="profit-usd">${{ spread.spreadCash | number:'1.2-2' }}</span>
+                <span class="profit-pct">({{ ((spread.spreadCash/1000)*100) | number:'1.1-1' }}%)</span>
+              </td>
+
+              <td class="liq-cell">
+                {{ formatLiquidity(spread.buy.liquidityUsd || 0) }}
+              </td>
+
+              <td class="gas-cell">
+                <span class="gas-usd">${{ spread.estimatedGas.totalGasCostUsd | number:'1.2-2' }}</span>
+                <span class="gas-gwei">{{ spread.estimatedGas.gasPriceGwei | number:'1.0-0' }} Gwei</span>
+              </td>
+
+              <td class="action-cell">
+                <button class="trade-btn"
+                        [disabled]="!walletConnected()"
+                        (click)="executeArbitrage(spread)">
+                  <span class="icon">⚡</span> Trade
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Stats Footer -->
+  <footer class="dex-footer">
+    <div class="stat">
+      <span class="label">Pools scanned:</span>
+      <span class="value">1,247</span>
+    </div>
+    <div class="stat">
+      <span class="label">Networks:</span>
+      <span class="value">{{ networks().length }}</span>
+    </div>
+    <div class="stat">
+      <span class="label">Active opportunities:</span>
+      <span class="value">{{ filteredSpreads().length }}</span>
+    </div>
+    <div class="stat">
+      <span class="label">Max spread:</span>
+      <span class="value">{{ (filteredSpreads()[0]?.spreadPct | number:'1.2-2') || 0 }}%</span>
+    </div>
+  </footer>
+</div>

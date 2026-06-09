@@ -1,0 +1,33 @@
+<div class="stats-container">
+  <div class="stats-header">
+    <h3>Детализация приложений</h3>
+  </div>
+
+  <table class="stats-table">
+    <thead>
+    <tr>
+      <th>Приложение</th>
+      <th class="text-right">Категория</th>
+      <th class="text-right">Время</th>
+    </tr>
+    </thead>
+    <tbody>
+      @for (app of _stats; track app.name + $index) {
+        <tr>
+          <td>
+            <div class="app-info">
+              <span class="color-dot" [style.background-color]="app.color" [style.color]="app.color"></span>
+              <span class="app-name">{{ app.name }}</span>
+            </div>
+          </td>
+          <td class="text-right">
+            <span class="category-badge">{{ app.categorySlug }}</span>
+          </td>
+          <td class="text-right duration">
+            {{ formatTime(app.minutes) }}
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

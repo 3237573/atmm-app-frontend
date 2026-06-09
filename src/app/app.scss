@@ -1,0 +1,44 @@
+// --- app.scss (SASS ПЕРЕМЕННЫЕ И МИКСИНЫ) ---
+// Мы мапим старые Sass переменные на новые CSS переменные,
+// чтобы старые компоненты сразу стали поддерживать смену тем!
+
+// 1. Базовые переменные
+$bg-main: var(--bg-main);
+$bg-card: var(--bg-card);
+$border: var(--border);
+$text-main: var(--text-main);
+$text-muted: var(--text-muted);
+$accent: var(--accent);
+$danger: var(--danger);
+$success: var(--success);
+$warning: var(--warning);
+
+// 2. Анимации (починит ошибку Undefined variable $ease)
+$ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+// 3. Роли (починит ошибки Undefined variable $role-...)
+$role-owner-bg: var(--role-owner-bg);
+$role-owner-color: var(--role-owner-color);
+$role-admin-bg: var(--role-admin-bg);
+$role-admin-color: var(--role-admin-color);
+$role-member-bg: var(--role-member-bg);
+$role-member-color: var(--role-member-color);
+$role-guest-bg: var(--role-guest-bg);
+$role-guest-color: var(--role-guest-color);
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin custom-scrollbar {
+  &::-webkit-scrollbar { width: 6px; height: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+}
+
+@mixin role-badge($bg, $color) {
+  background: $bg;
+  color: $color;
+}

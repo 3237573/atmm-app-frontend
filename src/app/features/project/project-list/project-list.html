@@ -1,0 +1,77 @@
+<div class="projects-container" appBackOnEscape>
+
+  <div class="page-header">
+    <div class="header-info">
+      <h1>
+        <i class="material-icons">folder</i>
+        <span>Проекты пространства</span>
+      </h1>
+      <p>Иерархическая структура проектов и отслеживание их выполнения</p>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="page-loader">Загрузка проектов...</div>
+  } @else {
+    <div class="tree-root">
+      <ng-container *ngTemplateOutlet="nodeTemplate; context: { $implicit: projectTree() }"></ng-container>
+    </div>
+  }
+</div>
+
+<ng-template #nodeTemplate let-nodes>
+  <ul class="tree-branch">
+    @for (project of nodes; track project.id) {
+      <li class="tree-node">
+
+        <div class="node-content">
+          <div class="node-main">
+            @if (project.subProjects && project.subProjects.length > 0) {
+              <i class="material-icons node-toggle"
+                 [class.open]="expandedNodes().has(project.id)"
+                 (click)="toggleNode(project.id, $event)">
+                chevron_right
+              </i>
+            } @else {
+              <div class="node-spacer"></div>
+            }
+
+            <i class="material-icons node-icon">folder_open</i>
+
+            <div class="node-info">
+              <div class="node-title-row">
+                [<span class="project-title">{{project.title}}</span>]
+                @if (project.description) {
+                  <span class="node-meta description">{{ project.description }}</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="node-side-meta" style="display: flex; align-items: center; gap: 1rem;">
+            <span class="status-badge" [ngClass]="project.status?.toLowerCase()">
+              {{ getStatusLabel(project.status) }}
+            </span>
+
+            <button class="btn-icon"
+                    [routerLink]="['/projects', 'edit', project.id]"
+                    title="Открыть настройки проекта"
+                    style="background: transparent; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; padding: 4px; border-radius: 4px;">
+              <i class="material-icons" style="font-size: 1.2rem;">edit</i>
+            </button>
+          </div>
+        </div>
+
+        @if (project.subProjects && project.subProjects.length > 0 && expandedNodes().has(project.id)) {
+          <ng-container *ngTemplateOutlet="nodeTemplate; context: { $implicit: project.subProjects }"></ng-container>
+        }
+
+      </li>
+    } @empty {
+      <div class="empty-state">
+        <i class="material-icons">folder_off</i>
+        <p>Проекты еще не созданы</p>
+      </div>
+    }
+  </ul>
+</ng-template>

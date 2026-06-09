@@ -1,0 +1,262 @@
+@use "sass:color";
+@use "../../../../app" as *;
+
+.comment-item {
+  display: flex;
+  gap: 0.75rem;
+
+  &.deleted {
+    opacity: 0.5;
+  }
+
+  .comment-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  .comment-content {
+    flex: 1;
+    /* Вместо rgba($bg-card, 0.3) */
+    background: color-mix(in srgb, var(--bg-card), transparent 70%);
+    border-radius: 0.75rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .edit-input {
+    width: 100%;
+    padding: 0.5rem;
+    background: var(--bg-main);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    color: var(--text-main);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+
+    &:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+  }
+
+  .edit-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  .reply-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+
+    .reply-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 0.5rem;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .reply-input-wrapper {
+      flex: 1;
+
+      .reply-input {
+        width: 100%;
+        padding: 0.5rem;
+        background: var(--bg-main);
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        color: var(--text-main);
+        font-size: 0.8rem;
+        resize: vertical;
+
+        &:focus { outline: none; border-color: var(--accent); }
+      }
+
+      .reply-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+        margin-top: 0.5rem;
+      }
+    }
+  }
+
+  .replies {
+    margin-top: 0.5rem;
+    margin-left: -3rem;
+    padding-left: 0.5rem;
+    border-left: 1px solid color-mix(in srgb, var(--border), transparent 70%);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+.comment-line {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  flex: 1;
+
+  .comment-author {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--accent);
+  }
+
+  .comment-date {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  .comment-edited {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .comment-text {
+    font-size: 0.85rem;
+    color: var(--text-main);
+    flex: 1;
+    word-break: break-word;
+  }
+}
+
+.comment-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.comment-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.reply-btn, .edit-btn, .delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+
+  i { font-size: 0.8rem; }
+  span { font-size: 0.7rem; }
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.reply-btn {
+  color: var(--success);
+  background: color-mix(in srgb, var(--success), transparent 92%);
+
+  &:hover {
+    background: color-mix(in srgb, var(--success), transparent 80%);
+    color: color-mix(in srgb, var(--success), white 10%);
+  }
+}
+
+.edit-btn {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent), transparent 92%);
+
+  &:hover {
+    background: color-mix(in srgb, var(--accent), transparent 80%);
+    color: color-mix(in srgb, var(--accent), white 10%);
+  }
+}
+
+.delete-btn {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger), transparent 92%);
+
+  &:hover {
+    background: color-mix(in srgb, var(--danger), transparent 80%);
+    color: color-mix(in srgb, var(--danger), white 10%);
+  }
+}
+
+.btn-cancel-small, .btn-cancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  &:hover { background: color-mix(in srgb, var(--border), transparent 80%); }
+}
+
+.btn-save-small, .btn-save {
+  background: var(--accent);
+  border: none;
+  color: var(--bg-main);
+  &:hover { filter: brightness(1.1); }
+}
+
+.btn-submit-small {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  background: var(--accent);
+  color: var(--bg-main);
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.7rem;
+  cursor: pointer;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.action-reply, .action-edit, .action-delete {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
+
+  i {
+    font-size: 1rem;
+    color: var(--text-muted);
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--border), transparent 80%);
+  }
+}
+
+.action-reply:hover i { color: var(--success); }
+.action-edit:hover i { color: var(--accent); }
+.action-delete:hover i { color: var(--danger); }

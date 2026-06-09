@@ -1,0 +1,218 @@
+@use "../../../../app/app.scss" as app;
+
+:host {
+  display: block;
+  height: 100%;
+  width: 170px;
+  transition: width 0.3s var(--ease, ease-in-out);
+  flex-shrink: 0;
+  z-index: 100;
+  position: relative; /* Важно для хендла */
+
+  &.collapsed {
+    width: 48px;
+  }
+}
+
+nav {
+  background: var(--bg-card, #ffffff);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border, #dee2e6);
+  overflow: hidden;
+  user-select: none;
+}
+
+.sidebar-empty-space {
+  flex: 1;
+  width: 100%;
+  cursor: pointer;
+}
+
+ul.nav-list {
+  list-style: none;
+  padding: 0.75rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+li {
+  width: 100%;
+}
+
+a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  color: var(--text-muted, #6c757d);
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+
+  &:hover,
+  &.active {
+    background: var(--border, #f1f3f5);
+    color: var(--text-main, #212529);
+
+    .icon {
+      color: var(--accent, #007bff);
+    }
+  }
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+/* Свернутое состояние */
+:host.collapsed {
+  ul.nav-list {
+    padding: 0.75rem 0;
+  }
+
+  li {
+    display: flex;
+    justify-content: center;
+  }
+
+  a {
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+
+    .text {
+      display: none;
+    }
+  }
+}
+
+/* ==========================================================================
+   ↔️ ИНТЕРАКТИВНЫЙ ХЕНДЛ (КНОПКА РАСКРЫТИЯ/СКРЫТИЯ НА ГРАНИЦЕ)
+   ========================================================================== */
+.sidebar-toggle-handle {
+  position: absolute;
+  top: 0;
+  right: -6px; /* Накладывается прямо на правую границу */
+  width: 12px;
+  height: 100%;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Тонкая невидимая вертикальная линия-индикатор */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 5px;
+    width: 2px;
+    height: 100%;
+    background-color: var(--primary, #007bff);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  /* Круглая плашка со стрелочкой внутри */
+  .toggle-circle {
+    width: 20px;
+    height: 20px;
+    background: var(--bg-card, #ffffff);
+    border: 1px solid var(--border, #dee2e6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.15s;
+
+    i {
+      font-size: 14px;
+      color: var(--text-muted, #6c757d);
+      font-weight: bold;
+      user-select: none;
+    }
+  }
+
+  /* Эффект при наведении на область границы */
+  &:hover {
+    &::before {
+      opacity: 0.4;
+    }
+    .toggle-circle {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Эффект при клике по кнопке */
+  .toggle-circle:hover {
+    background: var(--bg-hover, #f8f9fa);
+    i {
+      color: var(--primary, #007bff);
+    }
+  }
+}
+
+/* ==========================================================================
+   📱 МОБИЛЬНАЯ АДАПТАЦИЯ
+   ========================================================================== */
+@media (max-width: 768px) {
+  :host {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    height: calc(100vh - 56px);
+    width: 240px !important;
+    transition: transform 0.3s ease-in-out;
+    z-index: 100;
+
+    &.collapsed {
+      display: none !important;
+      width: 0 !important;
+      transform: translateX(-100%);
+    }
+
+    &:not(.collapsed) {
+      display: block !important;
+      transform: translateX(0);
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  nav {
+    border-right: none;
+  }
+
+  .sidebar-toggle-handle {
+    display: none !important; /* Убираем кнопку управления мышью на мобилках */
+  }
+
+  :host.collapsed a .text, a .text {
+    display: block !important;
+  }
+
+  :host.collapsed a {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    padding: 0.6rem 0.75rem !important;
+    border-radius: 8px !important;
+  }
+}

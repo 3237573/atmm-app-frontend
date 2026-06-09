@@ -1,0 +1,205 @@
+:host {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+
+.chat-list-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  background: var(--bg-card);
+  overflow: hidden;
+}
+
+.search-block {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+
+  .search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    i {
+      position: absolute;
+      left: 12px;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.6rem 0.6rem 0.6rem 2.5rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-size: 0.9rem;
+      &:focus { outline: none; border-color: var(--accent); }
+    }
+  }
+}
+
+.rooms-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.room-item {
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  gap: 0.85rem;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+
+  &:hover { background: var(--bg-main); }
+  &.active {
+    background: var(--bg-active);
+    color: var(--accent);
+    .room-name { color: var(--accent); }
+  }
+}
+
+.room-avatar {
+  width: 44px;
+  height: 44px;
+  background: var(--bg-elevated);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  i { font-size: 1.4rem; color: var(--text-muted); }
+}
+
+.room-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;       /* Делаем flex-контейнер для левой и правой части */
+  justify-content: space-between;
+  align-items: center; /* Центрируем по вертикали, либо flex-start, если нужно прибить к верху */
+  gap: 8px;
+
+  .room-main-info {
+    flex: 1;
+    min-width: 0;      /* Чтобы длинный текст превью не распирал контейнер */
+  }
+
+  .room-meta {
+    margin-bottom: 0.25rem;
+  }
+
+  .room-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .last-message-preview {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &.has-unread {
+      color: var(--text-main); /* Подсветим текст, если есть непрочитанные */
+      font-weight: 500;
+    }
+  }
+
+  /* Правая колонка: время сверху, badge снизу */
+  .room-meta-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 6px;
+    flex-shrink: 0;
+    min-width: 35px; /* Задаем минимальную ширину, чтобы элементы не прыгали */
+  }
+
+  .last-msg-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+}
+
+/* Красивый круглый счетчик */
+.unread-badge {
+  background: var(--accent, #007bff);
+  color: white;
+  font-size: 0.70rem;
+  font-weight: bold;
+  height: 24px;
+  min-width: 24px;
+  padding: 0 5px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.room-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #ffffff; /* Белые буквы на цветном фоне */
+
+  .avatar-initials {
+    font-weight: bold;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    user-select: none;
+  }
+}
+
+// Опционально: можно сделать текст превью последнего сообщения чуть ярче, если оно не прочитано
+.last-message-preview.has-unread {
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .chat-list-container {
+    .search-block {
+      display: none; /* Скрываем поиск, так как инпут сожмется */
+    }
+
+    .room-item {
+      padding: 0.75rem 0;
+      justify-content: center; /* Центрируем аватарку */
+    }
+
+    .room-details,
+    .room-meta-right {
+      display: none !important; /* Начисто скрываем весь текст и счетчики */
+    }
+  }
+}
