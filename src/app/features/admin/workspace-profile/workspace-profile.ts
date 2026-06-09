@@ -1,17 +1,18 @@
 import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IWorkspace } from '../../../core/models/workspace.model';
-import { WorkspaceService } from '../../../core/services/workspace.service';
+import { IWorkspace } from '@core/models/workspace.model';
+import { WorkspaceService } from '@core/services/workspace.service';
 import { finalize, Subject, takeUntil } from 'rxjs';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '@core/services/auth.service';
 import { ClipboardModule } from '@angular/cdk/clipboard';
-import { BackOnEscapeDirective } from '../../../core/directives/back-on-escape.directive';
+import { BackOnEscapeDirective } from '@core/directives/back-on-escape.directive';
+import {TranslocoPipe} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-workspace-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, ClipboardModule, BackOnEscapeDirective],
+  imports: [CommonModule, FormsModule, ClipboardModule, BackOnEscapeDirective, TranslocoPipe],
   templateUrl: './workspace-profile.html',
   styleUrls: ['./workspace-profile.scss'],
 })

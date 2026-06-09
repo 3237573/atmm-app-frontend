@@ -6,7 +6,7 @@
           [class.active]="activeTab === tab.id"
           (click)="setActiveTab(tab.id)">
           <i class="material-icons">{{ tab.icon }}</i>
-          {{ tab.label }}
+          {{ tab.label | transloco }}
         </button>
       }
     </nav>

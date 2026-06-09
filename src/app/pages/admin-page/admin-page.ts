@@ -8,6 +8,7 @@ import {TrackerAdmin} from '../../features/admin/tracker-admin/tracker-admin';
 import {BackOnEscapeDirective} from '../../core/directives/back-on-escape.directive';
 import {DepartmentList} from '@features/department/department-list/department-list';
 import {ProjectList} from '@features/project/project-list/project-list';
+import {TranslocoPipe} from '@ngneat/transloco';
 
 type TabId = 'profile' | 'departments' | 'projects' | 'members' | 'roles' | 'permissions' | 'tracker';
 
@@ -20,7 +21,7 @@ interface ITab {
 @Component({
   selector: 'app-admin-page',
   standalone: true,
-  imports: [CommonModule, PermissionManager, RoleManager, MembersAdmin, WorkspaceProfile, TrackerAdmin, BackOnEscapeDirective, DepartmentList, ProjectList],
+  imports: [CommonModule, PermissionManager, RoleManager, MembersAdmin, WorkspaceProfile, TrackerAdmin, BackOnEscapeDirective, DepartmentList, ProjectList, TranslocoPipe],
   templateUrl: './admin-page.html',
   styleUrls: ['./admin-page.scss']
 })
@@ -28,13 +29,13 @@ export class AdminPage implements OnInit {
   activeTab: TabId = 'profile';
 
   tabs: ITab[] = [  // 👈 указываем тип массива
-    { id: 'profile', label: 'Profile', icon: 'business' },
-    { id: 'departments', label: 'Departments', icon: 'account_tree' },
-    { id: 'projects', label: 'Projects', icon: 'folder_copy' },
-    { id: 'members', label: 'Members', icon: 'people' },
-    { id: 'roles', label: 'Roles', icon: 'badge' },
-    { id: 'permissions', label: 'Permissions', icon: 'security' },
-    { id: 'tracker', label: 'Tracker', icon: 'timeline' }
+    { id: 'profile', label: 'admin.tabs.profile', icon: 'business' },
+    { id: 'departments', label: 'admin.tabs.departments', icon: 'account_tree' },
+    { id: 'projects', label: 'admin.tabs.projects', icon: 'folder_copy' },
+    { id: 'members', label: 'admin.tabs.members', icon: 'people' },
+    { id: 'roles', label: 'admin.tabs.roles', icon: 'badge' },
+    { id: 'permissions', label: 'admin.tabs.permissions', icon: 'security' },
+    { id: 'tracker', label: 'admin.tabs.tracker', icon: 'timeline' }
   ];
 
   ngOnInit() {

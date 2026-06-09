@@ -1,4 +1,15 @@
 {
+  "admin": {
+    "tabs": {
+      "departments": "Groups",
+      "members": "Members",
+      "permissions": "Permissions",
+      "profile": "Profile",
+      "projects": "Projects",
+      "roles": "Roles",
+      "tracker": "Tracker"
+    }
+  },
   "auth": {
     "login": {
       "check": "Checking...",
