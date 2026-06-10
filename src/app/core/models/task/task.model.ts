@@ -43,6 +43,7 @@ export interface TaskRO {
 }
 
 export interface TaskCreateRO {
+  taskStatus: TaskStatus;
   title: string;
   description?: string;
   priority: TaskPriority;
