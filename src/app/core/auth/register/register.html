@@ -5,7 +5,7 @@
     <p class="subtitle">{{'auth.register.subtitle' | transloco}}</p>
 
     @if (error()) {
-      <div class="error-message">{{ error() }}</div>
+      <div class="error-message">{{ error() | transloco }}</div>
     }
 
     <form [formGroup]="regForm" (ngSubmit)="onSubmit()">
