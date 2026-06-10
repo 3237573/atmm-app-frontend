@@ -43,9 +43,10 @@ export class ChatService {
     };
 
     const token = getCookie('auth_token');
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = token
-      ? `ws://${window.location.host}/v1/chat/ws?token=${token}`
-      : `ws://${window.location.host}/v1/chat/ws`;
+      ? `${wsProtocol}//${window.location.host}/v1/chat/ws?token=${token}`
+      : `${wsProtocol}//${window.location.host}/v1/chat/ws`;
 
     if (this.socket$) {
       this.socket$.complete();
