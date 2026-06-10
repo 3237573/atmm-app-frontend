@@ -39,7 +39,7 @@ export class Login {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.message || err.error?.error || 'Неверный email или пароль');
+        this.error.set(err.error?.message || err.error?.error || 'error.wrongEmailOrPassword');
       }
     });
   }

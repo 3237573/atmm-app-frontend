@@ -51,15 +51,15 @@ export class Register {
           },
           error: (err) => {
             this.loading.set(false);
-            this.error.set(err.error?.message || err.error?.error || 'Неверный email или пароль');
+            this.error.set(err.error?.message || err.error?.error || 'error.wrongEmailOrPassword');
           }
         });
         void this.router.navigate(['/tasks']);
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.message || 'Ошибка регистрации. Возможно, email уже используется.');
-        console.error('Ошибка регистрации:', err);
+        this.error.set(err.error?.message || 'error.registrationError');
+        console.error('Registration error:', err);
       }
     });
   }

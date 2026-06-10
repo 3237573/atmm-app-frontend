@@ -82,6 +82,10 @@
     "talk": "Разговор...",
     "video": "Видеозвонок"
   },
+  "error": {
+    "wrongEmailOrPassword": "Неверный email или пароль",
+    "registrationError": "Ошибка регистрации. Возможно, email уже используется."
+  },
   "member": {
     "actions": {
       "assignATask": "Назначить задачу",

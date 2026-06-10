@@ -75,6 +75,10 @@
     "talk": "Conversation...",
     "video": "VideoCall"
   },
+  "error": {
+    "wrongEmailOrPassword": "Invalid email or password",
+    "registrationError": "Registration error. Your email may already be in use."
+  },
   "member": {
     "actions": {
       "assignATask": "Assign a task",
