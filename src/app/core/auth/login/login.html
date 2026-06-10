@@ -6,7 +6,7 @@
       <p class="subtitle">{{'auth.login.subtitle' | transloco}}</p>
 
       @if (error()) {
-        <div class="error-message">{{ error() }}</div>
+        <div class="error-message">{{ error() | transloco }}</div>
       }
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
