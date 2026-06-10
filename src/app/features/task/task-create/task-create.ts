@@ -235,6 +235,7 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     this.submitting.set(true);
 
     const request: TaskCreateRO = {
+      taskStatus: 'PENDING',
       title: this.title().trim(),
       description: this.description().trim() || undefined,
       priority: this.priority(),
