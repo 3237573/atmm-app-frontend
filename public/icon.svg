@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <circle id="c" r="14" stroke-width="2.5" fill="none" />
+  </defs>
+  <!-- People (синий) -->
+  <use href="#c" x="18" y="18" stroke="#3B82F6" />
+  <!-- Actions (зелёный) -->
+  <use href="#c" x="38" y="20" stroke="#10B981" />
+  <!-- Moments (оранжевый) -->
+  <use href="#c" x="28" y="40" stroke="#F59E0B" />
+  <!-- соединительные точки -->
+  <circle cx="25" cy="26" r="3" fill="#3B82F6" />
+  <circle cx="33" cy="30" r="3" fill="#10B981" />
+  <circle cx="24" cy="37" r="3" fill="#F59E0B" />
+</svg>
