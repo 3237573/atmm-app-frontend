@@ -111,6 +111,23 @@
   "order": {
     "orderList": "Группы правил"
   },
+  "routes": {
+    "admin": "Администрирование",
+    "chat": "Чат",
+    "departmentCreate": "Создать отдел",
+    "departmentDetail": "Детали отдела",
+    "departments": "Структура пространства",
+    "login": "Вход",
+    "members": "Участники",
+    "projectCreate": "Новый проект",
+    "projectEdit": "Редактирование проекта",
+    "projects": "Проекты",
+    "register": "Регистрация",
+    "taskCreate": "Новая задача",
+    "taskEdit": "Редактирование задачи",
+    "tasks": "Задачи",
+    "tracker": "Трекер"
+  },
   "task": {
     "title": "Задачи",
     "subtitle": "Управление задачами и иерархией",

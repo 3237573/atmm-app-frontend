@@ -104,6 +104,23 @@
   "order": {
     "orderList": "Rule Groups"
   },
+  "routes": {
+    "admin": "Administration",
+    "chat": "Chat",
+    "departmentCreate": "Create Department",
+    "departmentDetail": "Department Details",
+    "departments": "Workspace Structure",
+    "login": "Login",
+    "members": "Members",
+    "projectCreate": "New Project",
+    "projectEdit": "Edit Project",
+    "projects": "Projects",
+    "register": "Register",
+    "taskCreate": "New Task",
+    "taskEdit": "Edit Task",
+    "tasks": "Tasks",
+    "tracker": "Tracker"
+  },
   "task": {
     "title": "Tasks",
     "subtitle": "Managing tasks and hierarchy",
