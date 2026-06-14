@@ -134,6 +134,12 @@
     "searchPlaceholder": "Поиск по названию и описанию...",
     "allStatuses": "Все статусы",
     "allPriorities": "Все приоритеты",
+    "priority": {
+      "LOW": "Низкий",
+      "MEDIUM": "Средний",
+      "HIGH": "Высокий",
+      "CRITICAL": "Критический"
+    },
     "status": {
       "PENDING": "Ожидает",
       "IN_PROGRESS": "В работе",
