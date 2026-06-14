@@ -134,6 +134,12 @@
       "COMPLETED": "Completed",
       "ARCHIVED": "Archived"
     },
+    "priority": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "CRITICAL": "Critical"
+    },
     "stats": {
       "total": "Total",
       "pending": "Pending",
