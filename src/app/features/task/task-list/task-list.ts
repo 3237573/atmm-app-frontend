@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
 import {TaskService} from '@core/services/task.service';
-import {TASK_STATUS_CONFIG, TASK_STATUS_LIST, TaskRO, TaskStatus, TaskTreeRO} from '@core/models/task/task.model';
+import {TASK_STATUS_CONFIG, TASK_STATUS_LIST, TaskPriority, TaskRO, TaskStatus, TaskTreeRO} from '@core/models/task/task.model';
 import {AuthService} from '@core/services/auth.service';
 import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
 import {ReplaceMePipe} from '@core/pipes/replace-me.pipe';
@@ -359,6 +359,11 @@ export class TaskList implements OnInit {
     this.expandedNodes.set(newSet);
   }
 
+  getPriorityColor(priority: TaskPriority | string): string {
+    if (!priority) return 'priority-low';
+    return 'priority-' + priority.toLowerCase();
+  }
+
   getStatusClass(status: TaskStatus): string {
     return TASK_STATUS_CONFIG[status]?.class || '';
   }
@@ -366,10 +371,6 @@ export class TaskList implements OnInit {
   getFilterStatusClass(status: TaskStatus | ''): string {
     if (!status) return '';
     return TASK_STATUS_CONFIG[status]?.class || '';
-  }
-
-  getPriorityColor(priority: string): string {
-    return priority ? priority.toLowerCase() : 'low';
   }
 
   updateStatus(task: TaskRO, newStatus: string): void {

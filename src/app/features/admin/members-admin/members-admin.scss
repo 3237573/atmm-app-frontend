@@ -68,7 +68,7 @@
   input, select {
     background: $bg-card;
     border: 1px solid $border;
-    color: white;
+    color: var(--text-main);
     padding: 0.6rem 1rem;
     border-radius: 0.5rem;
     outline: none;

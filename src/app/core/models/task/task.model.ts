@@ -12,6 +12,14 @@ export const TASK_STATUS_CONFIG: Record<TaskStatus, { label: string; class: stri
 
 export const TASK_STATUS_LIST = Object.keys(TASK_STATUS_CONFIG) as TaskStatus[];
 
+export const TASK_PRIORITY_CONFIG: Record<TaskPriority, { label: string; class: string }> = {
+  LOW: { label: 'Низкий', class: 'priority-low' },
+  MEDIUM: { label: 'Средний', class: 'priority-medium' },
+  HIGH: { label: 'Высокий', class: 'priority-high' },
+  CRITICAL: { label: 'Критический', class: 'priority-critical' }
+};
+
+export const TASK_PRIORITY_LIST = Object.keys(TASK_PRIORITY_CONFIG) as TaskPriority[];
 
 export interface TaskRO {
   assigneeId?: string;
@@ -40,6 +48,11 @@ export interface TaskRO {
   timeSpent?: number; // в часах
   title: string;
   updatedAt?: string;
+}
+
+export interface TaskTreeRO {
+  task: TaskRO;
+  subtasks?: TaskTreeRO[];
 }
 
 export interface TaskCreateRO {
@@ -80,11 +93,6 @@ export interface TaskComment {
   createdAt: string;
   updatedAt: string;
   replies?: TaskComment[];
-}
-
-export interface TaskTreeRO {
-  task: TaskRO;
-  subtasks: TaskTreeRO[];
 }
 
 export interface TaskAttachmentRO {

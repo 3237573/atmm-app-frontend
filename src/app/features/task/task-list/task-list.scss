@@ -1,9 +1,16 @@
+// ==========================================================================
+// ГЛАВНЫЙ КОНТЕЙНЕР
+// ==========================================================================
 .task-list {
   padding: 1.5rem;
   min-height: 100vh;
   color: var(--text-main);
+  box-sizing: border-box;
 }
 
+// ==========================================================================
+// ПАНЕЛЬ ФИЛЬТРОВ И СТАТИСТИКИ
+// ==========================================================================
 .filters-stats-row {
   display: flex;
   align-items: center;
@@ -67,6 +74,9 @@
   }
 }
 
+// ==========================================================================
+// ПЕРЕКЛЮЧАТЕЛЬ РЕЖИМОВ ОТОБРАЖЕНИЯ (LIST / BOARD)
+// ==========================================================================
 .view-toggle {
   display: flex;
   background: var(--bg-card);
@@ -97,6 +107,9 @@
   }
 }
 
+// ==========================================================================
+// СЕТКА СТАТИСТИКИ (КАРТОЧКИ)
+// ==========================================================================
 .stat-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -126,64 +139,202 @@
     text-overflow: ellipsis;
     width: 100%;
   }
-  &.pending .stat-value { color: var(--warning); }
-  &.progress .stat-value { color: var(--accent); }
-  &.completed .stat-value { color: var(--success); }
-  &.overdue { background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.15); .stat-value { color: var(--danger); } }
-  &.archived .stat-value { color: var(--text-muted); }
+  &.pending .stat-value { color: var(--danger); }
+  &.progress .stat-value { color: #2563eb; }
+  &.completed .stat-value { color: #16a34a; }
+  &.overdue {
+    background: rgba(239, 68, 68, 0.05);
+    border-color: rgba(239, 68, 68, 0.15);
+    .stat-value { color: var(--danger); }
+  }
+  &.archived .stat-value { color: #4b5563; }
 }
 
-.status-select-wrapper, .priority-select-wrapper {
+// ==========================================================================
+// СЕЛЕКТЫ СТАТУСОВ (ОБЩИЕ СТИЛИ ДЛЯ ФИЛЬТРА И ТАБЛИЦЫ)
+// ==========================================================================
+.status-select-wrapper {
   position: relative;
-  display: inline-block;
-  flex-shrink: 0;
-  width: 120px;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0 0.25rem;
+  background: var(--bg-card);
+  transition: all 0.2s ease-in-out;
+  height: 36px;
+  box-sizing: border-box;
 
-  .status-select-styled, .priority-select-styled {
-    appearance: none;
-    cursor: pointer;
-    padding: 0 1.5rem 0 0.5rem;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    background: var(--bg-card);
-    color: var(--text-muted);
-    transition: all 0.2s ease;
+  .status-select-styled {
     width: 100%;
-    height: 36px;
-    box-sizing: border-box;
-    border: 1px solid var(--border);
-
-    &:focus { outline: none; }
-    option { background: var(--bg-card); color: var(--text-main); }
+    padding: 0 1.5rem 0 0.4rem;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    appearance: none;
+    color: var(--text-main);
+    height: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
   .select-arrow {
     position: absolute;
-    right: 4px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1rem;
+    right: 6px;
     pointer-events: none;
+    color: var(--text-muted);
+    font-size: 1.1rem;
   }
 
-  &.status-pending .status-select-styled { background: rgba(239, 68, 68, 0.12); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); .select-arrow { color: var(--danger); } }
-  // ИСПРАВЛЕНО: Изменено с status-in_progress на status-progress для синхронизации с TASK_STATUS_CONFIG
-  &.status-progress .status-select-styled { background: rgba(56, 189, 248, 0.12); color: var(--accent); border-color: rgba(56, 189, 248, 0.3); .select-arrow { color: var(--accent); } }
-  &.status-review .status-select-styled { background: rgba(245, 158, 11, 0.12); color: var(--warning); border-color: rgba(245, 158, 11, 0.3); .select-arrow { color: var(--warning); } }
-  &.status-completed .status-select-styled { background: rgba(74, 222, 128, 0.12); color: var(--success); border-color: rgba(74, 222, 128, 0.3); .select-arrow { color: var(--success); } }
-  &.status-archived .status-select-styled { background: rgba(148, 163, 184, 0.12); color: var(--text-muted); border-color: rgba(148, 163, 184, 0.2); .select-arrow { color: var(--text-muted); } }
+  // Динамическая цветовая схема статусов (Панель фильтров + Строки таблиц)
+  &.status-pending {
+    background-color: rgba(234, 179, 8, 0.08);
+    border-color: rgba(234, 179, 8, 0.25);
+    .status-select-styled, .select-arrow { color: var(--danger); }
+  }
+  &.status-progress {
+    background-color: rgba(59, 130, 246, 0.08);
+    border-color: rgba(59, 130, 246, 0.25);
+    .status-select-styled, .select-arrow { color: #2563eb; }
+  }
+  &.status-review {
+    background-color: rgba(168, 85, 247, 0.08);
+    border-color: rgba(168, 85, 247, 0.25);
+    .status-select-styled, .select-arrow { color: #9333ea; }
+  }
+  &.status-completed {
+    background-color: rgba(34, 197, 94, 0.08);
+    border-color: rgba(34, 197, 94, 0.25);
+    .status-select-styled, .select-arrow { color: #16a34a; }
+  }
+  &.status-archived {
+    background-color: rgba(156, 163, 175, 0.1);
+    border-color: rgba(156, 163, 175, 0.3);
+    .status-select-styled, .select-arrow { color: #4b5563; }
+  }
 }
 
+// ==========================================================================
+// СТИЛИЗАЦИЯ ВСЕХ ВЫПАДАЮЩИХ СПИСКОВ (<option>)
+// ==========================================================================
+option {
+  background-color: var(--bg-card);
+  color: var(--text-main);
+
+  // Цвета для статусов
+  &.status-default { color: var(--text-main); }
+  &.status-pending { color: var(--danger); }
+  &.status-progress { color: #2563eb; }
+  &.status-review { color: #9333ea; }
+  &.status-completed { color: #16a34a; }
+  &.status-archived { color: #4b5563; }
+
+  // Цвета для приоритетов (ТЕПЕРЬ В ФИЛЬТРЕ БУДУТ ЦВЕТА)
+  &.priority-default { color: var(--text-main); }
+  &.priority-low { color: #16a34a; }
+  &.priority-medium { color: #2563eb; }
+  &.priority-high { color: #d97706; }
+  &.priority-critical { color: var(--danger); }
+}
+
+// ==========================================================================
+// БЭЙДЖИ ПРИОРИТЕТА (ТАБЛИЦА И КАНБАН)
+// ==========================================================================
+.priority-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+
+  // Абсолютно надежная привязка: стили цепляются напрямую к значению из базы (LOW, MEDIUM и т.д.)
+  // Оставлены запасные классы (.low, .priority-low) на случай, если где-то еще в проекте они используются.
+  &[data-priority="LOW"], &.low, &.priority-low {
+    background: rgba(34, 197, 94, 0.1);
+    color: #16a34a;
+  }
+  &[data-priority="MEDIUM"], &.medium, &.priority-medium {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+  }
+  &[data-priority="HIGH"], &.high, &.priority-high {
+    background: rgba(245, 158, 11, 0.12);
+    color: #d97706;
+  }
+  &[data-priority="CRITICAL"], &.critical, &.priority-critical {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--danger);
+  }
+}
+
+// ==========================================================================
+// УПРАВЛЕНИЕ СТИЛЯМИ ПРИОРИТЕТОВ (СИНХРОННО ДЛЯ ФИЛЬТРА И ТАБЛИЦЫ)
+// ==========================================================================
+// 1. Фильтр приоритета (Выпадающий список на панели управления)
 .priority-select-wrapper {
-  .priority-select-styled { color: var(--text-main); }
-  .select-arrow { color: var(--text-muted); }
-  &[data-priority="LOW"] .priority-select-styled { background: rgba(74, 222, 128, 0.1); color: var(--success); border-color: rgba(74, 222, 128, 0.2); }
-  &[data-priority="MEDIUM"] .priority-select-styled { background: rgba(245, 158, 11, 0.1); color: var(--accent); border-color: rgba(245, 158, 11, 0.2); }
-  &[data-priority="HIGH"] .priority-select-styled { background: rgba(239, 68, 68, 0.12); color: var(--warning); border-color: rgba(239, 68, 68, 0.2); }
-  &[data-priority="CRITICAL"] .priority-select-styled { background: rgba(239, 68, 68, 0.12); color: var(--danger); border-color: rgba(239, 68, 68, 0.2); }
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 36px;
+  box-sizing: border-box;
+
+  .priority-select-styled {
+    height: 100%;
+    padding: 0 1.8rem 0 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-card);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    appearance: none;
+    color: var(--text-main);
+    outline: none;
+    transition: all 0.2s;
+  }
+  .select-arrow {
+    position: absolute;
+    right: 8px;
+    pointer-events: none;
+    font-size: 1.1rem;
+    color: var(--text-main);
+  }
+
+  &[data-priority="LOW"] .priority-select-styled { background: rgba(34, 197, 94, 0.08); color: #16a34a; border-color: rgba(34, 197, 94, 0.25); }
+  &[data-priority="MEDIUM"] .priority-select-styled { background: rgba(59, 130, 246, 0.08); color: #2563eb; border-color: rgba(59, 130, 246, 0.25); }
+  &[data-priority="HIGH"] .priority-select-styled { background: rgba(245, 158, 11, 0.08); color: #d97706; border-color: rgba(245, 158, 11, 0.25); }
+  &[data-priority="CRITICAL"] .priority-select-styled { background: rgba(239, 68, 68, 0.08); color: var(--danger); border-color: rgba(239, 68, 68, 0.25); }
 }
 
+// 2. Бэйджи приоритета внутри таблицы и канбан-карточек
+.priority-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+
+  &.low { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+  &.medium { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+  &.high { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+  &.critical { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
+}
+
+// ==========================================================================
+// РЕЖИМ ОТОБРАЖЕНИЯ: ТАБЛИЦА (LIST VIEW)
+// ==========================================================================
 .table-container {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -199,7 +350,7 @@
   min-width: 1200px;
 
   th, td {
-    padding: 0.75rem 1rem;
+    padding: 0.2rem 1rem;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
   }
@@ -233,19 +384,25 @@
     &:hover { background: rgba(var(--accent-rgb), 0.02); }
   }
 
-  .col-status, .col-priority { width: 80px; }
-  .col-date { width: 50px; }
-  .col-icon { width: 50px; text-align: center; i { font-size: 1.2rem; color: var(--text-muted); } }
+  // Тонкая настройка адаптивных колонок
   .col-task { min-width: 250px; }
+  .col-icon { width: 50px; text-align: center; i { font-size: 1.2rem; color: var(--text-muted); } }
+
+  // Увеличена ширина под селекты статусов, чтобы текст помещался полностью и не обрезался
+  .col-status { width: 150px; }
+  .col-priority { width: 100px; }
+
   .col-department { width: 140px; }
-  .col-project { width: 50px; }
-  .col-creator { width: 50px; }
-  .col-assignee { width: 50px; }
+  .col-project { width: 120px; }
+  .col-date { width: 110px; }
+  .col-creator { width: 120px; }
+  .col-assignee { width: 130px; }
 
   .text-center { text-align: center; }
   .text-right { text-align: right; }
 }
 
+// Компоненты внутри ячеек таблицы
 .title-wrapper {
   display: flex;
   align-items: center;
@@ -264,32 +421,17 @@
   .task-title { font-weight: 500; color: var(--text-main); }
 }
 
-.priority-badge {
-  display: inline-block;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  text-align: center;
-  width: 100%;
-  box-sizing: border-box;
-  &.low { background: rgba(74, 222, 128, 0.12); color: var(--success); }
-  &.medium { background: rgba(245, 158, 11, 0.12); color: var(--accent); }
-  &.high { background: rgba(239, 68, 68, 0.15); color: var(--warning); }
-  &.critical { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
-}
-
 .due-date {
   font-size: 0.85rem;
   font-weight: 600;
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
   display: inline-block;
+  white-space: nowrap;
   &.overdue { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-  &.today { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-  &.soon { background: rgba(79, 70, 229, 0.08); color: var(--warning); }
-  &.future { color: var(--accent); }
+  &.today { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+  &.soon { background: rgba(79, 70, 229, 0.08); color: #2563eb; }
+  &.future { color: var(--text-main); background: var(--bg-soft); border: 1px solid var(--border); }
 }
 
 .count-text {
@@ -299,7 +441,7 @@
   &.muted { color: var(--border); font-weight: normal; }
 }
 
-.assignee-cell .assignee,
+.assignee,
 .department-name,
 .project-name,
 .creator-name {
@@ -316,6 +458,9 @@
 .arrow { color: var(--border); font-size: 1.2rem; transition: transform 0.2s; }
 .task-row:hover .arrow { color: var(--accent); transform: translateX(2px); }
 
+// ==========================================================================
+// РЕЖИМ ОТОБРАЖЕНИЯ: КАНБАН-ДОСКА (KANBAN BOARD)
+// ==========================================================================
 .kanban-board {
   display: flex;
   gap: 1rem;
@@ -331,7 +476,12 @@
   border: 1px solid var(--border);
   border-radius: 1rem;
   padding: 1rem;
-  .column-header { margin-bottom: 1rem; h3 { margin: 0; font-size: 1rem; color: var(--text-main); } }
+  box-sizing: border-box;
+
+  .column-header {
+    margin-bottom: 1rem;
+    h3 { margin: 0; font-size: 1rem; color: var(--text-main); font-weight: 600; }
+  }
 }
 
 .kanban-card {
@@ -342,11 +492,13 @@
   margin-bottom: 0.8rem;
   cursor: pointer;
   transition: all 0.2s;
+
   &:hover { background: rgba(var(--accent-rgb), 0.04); border-color: var(--accent); }
-  .card-header { margin-bottom: 0.3rem; }
+  .card-header { margin-bottom: 0.5rem; display: flex; }
+
   .card-title {
     font-size: 0.9rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
     display: flex;
     align-items: center;
     gap: 0.4rem;
@@ -354,18 +506,31 @@
     font-weight: 500;
     .sub-icon { font-size: 1rem; color: var(--text-muted); transform: scaleX(-1); }
   }
+
   .card-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 0.75rem;
     color: var(--text-muted);
-    .card-meta { display: flex; gap: 0.5rem; i { font-size: 0.9rem; vertical-align: middle; margin-right: 2px; } }
+    gap: 0.5rem;
+
+    .assignee { max-width: 110px; }
+    .card-meta {
+      display: flex;
+      gap: 0.5rem;
+      white-space: nowrap;
+      span { display: flex; align-items: center; gap: 2px; }
+      i { font-size: 0.95rem; }
+    }
   }
 }
 
+// ==========================================================================
+// АДАПТИВНОСТЬ (MEDIA QUERIES)
+// ==========================================================================
 @media (max-width: 1400px) {
-  .tasks-table .col-department, .tasks-table .col-project { width: 120px; }
+  .tasks-table .col-department, .tasks-table .col-project { width: 110px; }
 }
 
 @media (max-width: 1200px) {
@@ -388,4 +553,5 @@
   .task-list { padding: 1rem; }
   .tasks-table .col-assignee { display: none; }
   .kanban-board { flex-direction: column; }
+  .kanban-column { width: 100%; }
 }
