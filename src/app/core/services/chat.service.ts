@@ -39,8 +39,19 @@ export class ChatService {
       return;
     }
 
-    // ИСПРАВЛЕНО: Подключаем воркер из папки public как статический ресурс для корректного шеринга между вкладками
+    // 🛑 КРИТИЧЕСКИЙ ГВАРД: Если воркер для этой вкладки уже создан, не создаем его заново!
+    if (this.worker) {
+      return;
+    }
+
     this.worker = new SharedWorker('/chat.worker.js', { name: 'ChatWorker' });
+
+    // 🔄 Автоматически удаляем порт из воркера, если вкладка закрывается или обновляется (F5)
+    window.addEventListener('beforeunload', () => {
+      if (this.worker) {
+        this.worker.port.postMessage({ action: 'UNLOAD_PORT' });
+      }
+    });
 
     this.worker.port.onmessage = (event) => {
       const data = event.data;
@@ -51,7 +62,6 @@ export class ChatService {
       else if (data.type === 'WS_MESSAGE') {
         const response = data.payload as WebSocketResponse;
 
-        // Перехватываем звонок на глобальном уровне
         if (response.type === 'call_offer') {
           this.incomingCall$.next({
             roomId: response.fromId,
@@ -60,17 +70,14 @@ export class ChatService {
           });
         }
 
-        // Обрабатываем обновление счетчиков комнат и статусы печати локально
         this.handleIncomingSocketMessage(response);
         this.messageSubject.next(response);
       }
       else if (data.type === 'HIDE_CALL_MODAL') {
-        // Другая вкладка ответила на звонок - прячем модалку здесь
         this.incomingCall$.next(null);
       }
     };
 
-    // Запускаем порт и отправляем INIT с токеном
     this.worker.port.start();
     this.worker.port.postMessage({
       action: 'INIT',
@@ -78,6 +85,15 @@ export class ChatService {
       host: window.location.host,
       protocol: window.location.protocol
     });
+  }
+
+  disconnect(): void {
+    if (this.worker) {
+      this.worker.port.postMessage({ action: 'DISCONNECT' });
+      this.worker = null; // 🛑 ОБЯЗАТЕЛЬНО зануляем ссылку, чтобы очистить память вкладки
+    }
+    this.connectionStatus.next(false);
+    this.typingUsersSubject.next({});
   }
 
   sendMessage(msg: WebSocketMessage): void {
@@ -195,15 +211,6 @@ export class ChatService {
         this.loadUserRooms(true);
         break;
     }
-  }
-
-  disconnect(): void {
-    if (this.worker) {
-      // Принудительно закрывать порт обычно не требуется, но при необходимости можно передать сигнал воркеру
-      this.worker.port.postMessage({ action: 'DISCONNECT' });
-    }
-    this.connectionStatus.next(false);
-    this.typingUsersSubject.next({});
   }
 
   getUserRooms(): Observable<ChatRoomRO[]> {

@@ -76,11 +76,9 @@ self.onconnect = (event) => {
         port.postMessage({ type: 'WS_STATUS', connected: isConnected });
         break;
 
-      case 'SEND_WS': // Привели к единому названию с сервисом
+      case 'SEND_WS':
         if (socket && socket.readyState === WebSocket.OPEN) {
           socket.send(JSON.stringify(payload));
-        } else {
-          console.warn('[Worker] Cannot send message, socket is not open');
         }
         break;
 
@@ -88,8 +86,18 @@ self.onconnect = (event) => {
         broadcast({ type: 'HIDE_CALL_MODAL', roomId: payload.roomId });
         break;
 
-      case 'DISCONNECT': // Добавили корректную очистку при выходе из учетной записи
-        console.log('[Worker] Received DISCONNECT signal. Cleaning up...');
+      // 🛑 НОВЫЙ ЭКШЕН: Чистим массив портов от старой/закрывающейся вкладки
+      case 'UNLOAD_PORT': {
+        const idx = ports.indexOf(port);
+        if (idx !== -1) {
+          ports.splice(idx, 1);
+          console.log('[Worker] Порт успешно удален. Осталось активных вкладок:', ports.length);
+        }
+        break;
+      }
+
+      case 'DISCONNECT':
+        console.log('[Worker] Получен сигнал DISCONNECT. Очистка сокета...');
         currentToken = null;
         if (socket) {
           socket.close();

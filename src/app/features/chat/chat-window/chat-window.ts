@@ -78,7 +78,14 @@ export class ChatWindow implements OnInit, OnDestroy {
         { type: 'new_message' } => this.isCurrentRoomMessage(res)),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(({message}) => {
-      this.messages.update(prev => [...prev, message]);
+      this.messages.update(prev => {
+        // 🛑 БРОНЕЖИЛЕТ: Проверяем, нет ли уже такого сообщения в массиве
+        const isDuplicate = prev.some(m => m.id === message.id);
+        if (isDuplicate) {
+          return prev; // Игнорируем дубликат
+        }
+        return [...prev, message]; // Добавляем только уникальное
+      });
       this.scrollToBottomOnNextTick();
     });
 
