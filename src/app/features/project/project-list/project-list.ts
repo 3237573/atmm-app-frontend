@@ -4,11 +4,12 @@ import {RouterModule} from '@angular/router';
 import {ProjectService} from '@core/services/project.service';
 import {ProjectRO} from '@core/models/project.model';
 import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
+import {TranslocoPipe} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-project-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, BackOnEscapeDirective],
+  imports: [CommonModule, RouterModule, BackOnEscapeDirective, TranslocoPipe],
   templateUrl: './project-list.html',
   styleUrl: './project-list.scss'
 })

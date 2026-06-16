@@ -97,6 +97,58 @@ export class ChatWindow implements OnInit, OnDestroy {
     ).subscribe((response: any) => {
       void this.handleCallSignaling(response);
     });
+
+    // Слушаем изменение Query параметров для авто-ответа на вызов
+    this.route.queryParams.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(params => {
+      if (params['autoAnswer'] === 'true' && params['sdp']) {
+        const incomingSdp = params['sdp'];
+
+        // Немедленно вычищаем параметры из URL (чтобы при обычном рефреше страницы F5 звонок не запускался повторно)
+        void this.router.navigate([], {
+          queryParams: {autoAnswer: null, sdp: null},
+          queryParamsHandling: 'merge'
+        });
+
+        // Запускаем WebRTC подключение на основе переданного SDP
+        void this.handleIncomingCallFromOverlay(incomingSdp);
+      }
+    });
+  }
+
+  // Метод обработки звонка, принятого из глобального оверлея
+  private async handleIncomingCallFromOverlay(offerSdp: string): Promise<void> {
+    this.isIncomingCall.set(false);
+    this.isCallActive.set(true);
+
+    try {
+      // Захватываем медиа-потоки вкладки
+      this.localStream = await navigator.mediaDevices.getUserMedia({
+        video: this.callType() === 'VIDEO',
+        audio: true
+      });
+
+      this.setupPeerConnection();
+
+      if (this.callType() === 'VIDEO' && this.localVideoRef) {
+        this.localVideoRef.nativeElement.srcObject = this.localStream;
+      }
+
+      // Накатываем удаленное описание, пришедшее из оверлея
+      await this.peerConnection!.setRemoteDescription(new RTCSessionDescription({type: 'offer', sdp: offerSdp}));
+      this.processPendingIceCandidates();
+
+      // Создаем ответ (Answer)
+      const answer = await this.peerConnection!.createAnswer();
+      await this.peerConnection!.setLocalDescription(answer);
+
+      // Передаем ответ бэкенду
+      this.chatService.sendCallAnswer(this.roomId(), answer.sdp!);
+    } catch (err) {
+      console.error('Не удалось инициализировать WebRTC сессию после оверлея:', err);
+      this.cleanupWebRTC();
+    }
   }
 
   // Тот самый простой метод загрузки данных без "пайпов-хуяйпов"

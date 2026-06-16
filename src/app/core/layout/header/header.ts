@@ -17,8 +17,8 @@ import { AsyncPipe, UpperCasePipe } from '@angular/common';
 export class Header {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  protected readonly themeService = inject(ThemeService);
   protected readonly sidebarService = inject(SidebarService); // Сервис для отслеживания линии
+  protected readonly themeService = inject(ThemeService);
   private readonly translocoService = inject(TranslocoService);
 
 
@@ -41,8 +41,18 @@ export class Header {
   }
 
   onLogout() {
-    this.authService.logout().subscribe(() => {
-      this.router.navigate(['/login']);
-    });
+    // Получаем строку перевода или используем дефолтный текст
+    const confirmMsg = this.translocoService.translate('auth.logoutConfirmation') || 'Вы уверены, что хотите выйти из системы?';
+
+    if (confirm(confirmMsg)) {
+      this.authService.logout().subscribe({
+        next: () => {
+          this.router.navigate(['/login']);
+        },
+        error: (err) => {
+          console.error('Logout error', err);
+        }
+      });
+    }
   }
 }

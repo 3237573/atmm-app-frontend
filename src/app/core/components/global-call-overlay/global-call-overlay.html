@@ -1,0 +1,21 @@
+@if (call(); as callData) {
+  <div class="call-overlay-backdrop">
+    <div class="call-card">
+      <div class="pulse-avatar">
+        <i class="material-icons">phone_in_talk</i>
+      </div>
+
+      <h2>Входящий звонок</h2>
+      <p>Вам звонят в комнате ID: {{ callData.roomId }}</p>
+
+      <div class="actions">
+        <button class="btn-accept" (click)="accept(callData)">
+          <i class="material-icons">call</i> Ответить
+        </button>
+        <button class="btn-decline" (click)="decline(callData)">
+          <i class="material-icons">call_end</i> Отклонить
+        </button>
+      </div>
+    </div>
+  </div>
+}
