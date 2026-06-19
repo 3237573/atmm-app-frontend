@@ -1,9 +1,9 @@
 // core/services/chat.service.ts
-import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, Subject, BehaviorSubject, Subscription } from 'rxjs';
-import { AuthService } from './auth.service';
-import { ChatMessage, ChatRoomRO, CreateChatRoomRequest, WebSocketMessage, WebSocketResponse } from '@core/models/chat.model';
+import {inject, Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {AuthService} from './auth.service';
+import {ChatMessage, ChatRoomRO, CreateChatRoomRequest, WebSocketMessage, WebSocketResponse} from '@core/models/chat.model';
 
 interface IncomingCall {
   roomId: string;
@@ -11,7 +11,7 @@ interface IncomingCall {
   sdp: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class ChatService {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
@@ -44,12 +44,12 @@ export class ChatService {
       return;
     }
 
-    this.worker = new SharedWorker('/chat.worker.js', { name: 'ChatWorker' });
+    this.worker = new SharedWorker('/chat.worker.js', {name: 'ChatWorker'});
 
     // 🔄 Автоматически удаляем порт из воркера, если вкладка закрывается или обновляется (F5)
     window.addEventListener('beforeunload', () => {
       if (this.worker) {
-        this.worker.port.postMessage({ action: 'UNLOAD_PORT' });
+        this.worker.port.postMessage({action: 'UNLOAD_PORT'});
       }
     });
 
@@ -58,22 +58,23 @@ export class ChatService {
 
       if (data.type === 'WS_STATUS') {
         this.connectionStatus.next(data.connected);
-      }
-      else if (data.type === 'WS_MESSAGE') {
+      } else if (data.type === 'WS_MESSAGE') {
         const response = data.payload as WebSocketResponse;
 
         if (response.type === 'call_offer') {
           this.incomingCall$.next({
-            roomId: response.fromId,
+            roomId: response.roomId,
             callType: response.callType as 'VIDEO' | 'AUDIO',
             sdp: response.sdp
           });
         }
+        else if (response.type === 'call_ended') {
+          this.incomingCall$.next(null);
+        }
 
         this.handleIncomingSocketMessage(response);
         this.messageSubject.next(response);
-      }
-      else if (data.type === 'HIDE_CALL_MODAL') {
+      } else if (data.type === 'HIDE_CALL_MODAL') {
         this.incomingCall$.next(null);
       }
     };
@@ -89,7 +90,7 @@ export class ChatService {
 
   disconnect(): void {
     if (this.worker) {
-      this.worker.port.postMessage({ action: 'DISCONNECT' });
+      this.worker.port.postMessage({action: 'DISCONNECT'});
       this.worker = null; // 🛑 ОБЯЗАТЕЛЬНО зануляем ссылку, чтобы очистить память вкладки
     }
     this.connectionStatus.next(false);
@@ -99,7 +100,7 @@ export class ChatService {
   sendMessage(msg: WebSocketMessage): void {
     if (this.worker) {
       // ИСПРАВЛЕНО: Экшен изменен на 'SEND', чтобы соответствовать switch-case в chat.worker.js
-      this.worker.port.postMessage({ action: 'SEND_WS', payload: msg });
+      this.worker.port.postMessage({action: 'SEND_WS', payload: msg});
     }
   }
 
@@ -108,7 +109,7 @@ export class ChatService {
     this.incomingCall$.next(null); // Убираем модалку локально
     if (this.worker) {
       // Говорим воркеру, чтобы он закрыл модалки в других вкладках
-      this.worker.port.postMessage({ action: 'CALL_ANSWERED_LOCALLY', payload: { roomId } });
+      this.worker.port.postMessage({action: 'CALL_ANSWERED_LOCALLY', payload: {roomId}});
     }
   }
 
@@ -124,7 +125,7 @@ export class ChatService {
 
     if (roomId) {
       const updatedRooms = this.roomsSubject.value.map(room =>
-        room.id === roomId ? { ...room, unreadCount: 0 } : room
+        room.id === roomId ? {...room, unreadCount: 0} : room
       );
       this.roomsSubject.next(updatedRooms);
       this.markRoomAsRead(roomId);
@@ -136,7 +137,7 @@ export class ChatService {
     const currentRooms = this.roomsSubject.value;
     if (currentRooms.length > 0) {
       const updatedRooms = currentRooms.map(room =>
-        room.id === roomId ? { ...room, unreadCount: 0 } : room
+        room.id === roomId ? {...room, unreadCount: 0} : room
       );
       this.roomsSubject.next(updatedRooms);
     }
@@ -171,7 +172,7 @@ export class ChatService {
 
     switch (res.type) {
       case 'typing_indicator': {
-        const currentMap = { ...this.typingUsersSubject.value };
+        const currentMap = {...this.typingUsersSubject.value};
         const roomUsers = currentMap[res.roomId] || [];
 
         if (res.isTyping) {
@@ -191,7 +192,7 @@ export class ChatService {
         const index = currentRooms.findIndex(r => r.id === res.message.roomId);
 
         if (index !== -1) {
-          const updatedRoom = { ...currentRooms[index] };
+          const updatedRoom = {...currentRooms[index]};
           updatedRoom.lastMessage = res.message;
 
           if (res.message.senderMemberId !== this.auth.currentUser()?.id && res.message.roomId !== this.activeRoomId) {
@@ -226,7 +227,7 @@ export class ChatService {
   }
 
   addMembers(roomId: string, memberIds: string[]): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/rooms/${roomId}/members`, { memberIds });
+    return this.http.post<void>(`${this.baseUrl}/rooms/${roomId}/members`, {memberIds});
   }
 
   removeMember(roomId: string, memberId: string): Observable<void> {
@@ -235,7 +236,7 @@ export class ChatService {
 
   getMessages(roomId: string, limit = 50, offset = 0): Observable<ChatMessage[]> {
     return this.http.get<ChatMessage[]>(`${this.baseUrl}/rooms/${roomId}/messages`, {
-      params: { limit, offset }
+      params: {limit, offset}
     });
   }
 

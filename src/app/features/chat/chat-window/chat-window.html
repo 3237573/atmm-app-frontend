@@ -19,11 +19,9 @@
   <div class="messages-container" #scrollMe>
     @for (msg of messages(); track msg.id) {
       <div class="message" [class.own]="isOwnMessage(msg)">
-
         @if (!isOwnMessage(msg)) {
           <div class="message-sender">{{ msg.senderName }}</div>
         }
-
         <div class="message-content">
           @switch (msg.type) {
             @case ('TEXT') {
@@ -33,7 +31,7 @@
               @if (msg.mediaUrl) {
                 <img [src]="msg.mediaUrl"
                      class="media-image" (click)="openMedia(msg.mediaUrl)"
-                     alt="{{ 'chat.image' | transloco}}">
+                     alt="{{ 'chat.image' | transloco }}">
               }
             }
             @case ('VIDEO') {
@@ -49,17 +47,16 @@
             @case ('FILE') {
               @if (msg.mediaUrl) {
                 <a [href]="msg.mediaUrl" download class="file-link">
-                  📄 {{ 'chat.fileDownload' | transloco}}
+                  📄 {{ 'chat.fileDownload' | transloco }}
                 </a>
               }
             }
           }
           <div class="message-time">{{ msg.timestamp | date:'HH:mm' }}</div>
         </div>
-
       </div>
     } @empty {
-      <div class="empty-messages">{{ 'chat.noMessage' | transloco}}</div>
+      <div class="empty-messages">{{ 'chat.noMessage' | transloco }}</div>
     }
   </div>
 
@@ -69,13 +66,13 @@
         <div class="dots-animation">
           <span></span><span></span><span></span>
         </div>
-        <span class="typing-text">{{ getTypingText() }}</span>
+        <span class="typing-text">{{ 'chat.typing' | transloco }}</span>
       </div>
     </div>
   }
 
   <div class="input-area">
-    <label class="send-btn" title="{{ 'chat.fileAttach' | transloco}}">
+    <label class="send-btn" title="{{ 'chat.fileAttach' | transloco }}">
       <input type="file" (change)="uploadFile($event)" hidden>
       📎
     </label>
@@ -85,12 +82,12 @@
       [(ngModel)]="newMessage"
       (keyup.enter)="sendMessage()"
       (input)="onTyping()"
-      placeholder="{{ 'chat.inputMessage' | transloco}}"
+      placeholder="{{ 'chat.inputMessage' | transloco }}"
       rows="1">
     </textarea>
 
     <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()">
-      <i class="material-icons">{{ "send" }}</i>
+      <i class="material-icons">send</i>
     </button>
   </div>
 
@@ -98,11 +95,11 @@
     <div class="call-overlay incoming-call">
       <div class="call-card">
         <div class="pulse-avatar">📞</div>
-        <h3>{{ 'chat.inCall'| transloco }} {{(callType() === 'VIDEO' ? 'chat.video' : 'chat.audio') | transloco }} </h3>
-        <p>{{ 'chat.inCallDesc'| transloco }}</p>
+        <h3>{{ 'chat.inCall' | transloco }} {{ (callType() === 'VIDEO' ? 'chat.video' : 'chat.audio') | transloco }}</h3>
+        <p>{{ 'chat.inCallDesc' | transloco }}</p>
         <div class="call-buttons">
-          <button class="call-btn accept" (click)="acceptCall()">{{ 'chat.accept'| transloco }}</button>
-          <button class="call-btn reject" (click)="rejectOrEndCall()">{{ 'chat.reject'| transloco }}</button>
+          <button class="call-btn accept" (click)="acceptCall()">{{ 'chat.accept' | transloco }}</button>
+          <button class="call-btn reject" (click)="rejectOrEndCall()">{{ 'chat.reject' | transloco }}</button>
         </div>
       </div>
     </div>
@@ -111,16 +108,13 @@
   @if (isCallActive()) {
     <div class="call-overlay active-call">
       <div class="video-grid" [class.audio-only]="callType() === 'AUDIO'">
-
         <video #remoteVideo autoplay playsinline class="remote-video"></video>
-
         @if (callType() === 'VIDEO') {
           <video #localVideo autoplay playsinline muted class="local-video"></video>
         } @else {
           <div class="audio-avatar">🎙️ {{ 'chat.talk' | transloco }}</div>
         }
       </div>
-
       <div class="call-controls">
         <button class="end-call-btn" (click)="rejectOrEndCall()">{{ 'chat.hangUp' | transloco }} 🛑</button>
       </div>
