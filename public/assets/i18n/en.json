@@ -8,6 +8,13 @@
       "projects": "Projects",
       "roles": "Roles",
       "tracker": "Tracker"
+    },
+    "profile": {
+      "inputName": "Enter a name",
+      "subtitle": "Basic information",
+      "spaceCode": "Space Code",
+      "spaceName": "Space Name",
+      "title": "Space Profile"
     }
   },
   "auth": {
@@ -21,6 +28,7 @@
       "title": "Enter to the system",
       "subtitle": "Welcome"
     },
+    "logoutConfirmation": "Are you sure you want to log out?",
     "register": {
       "enter": "Login",
       "hasAccount": "Already have an account?",
@@ -73,6 +81,7 @@
     "searchChat": "Search for a chat...",
     "selectChat": "Select a chat to start a conversation",
     "talk": "Conversation...",
+    "typing": "Typing...",
     "video": "VideoCall"
   },
   "error": {
@@ -103,6 +112,10 @@
   },
   "order": {
     "orderList": "Rule Groups"
+  },
+  "project": {
+    "title": "Projects",
+    "subtitle": "Project and hierarchy management"
   },
   "routes": {
     "admin": "Administration",

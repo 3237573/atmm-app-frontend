@@ -4,10 +4,14 @@
     <div class="header-info">
       <h1>
         <i class="material-icons">folder</i>
-        <span>Проекты пространства</span>
+        {{ 'project.title' | transloco }}
       </h1>
-      <p>Иерархическая структура проектов и отслеживание их выполнения</p>
+      <p>{{ 'project.subtitle' | transloco }}</p>
     </div>
+    <button class="btn-primary" routerLink="/projects/create">
+      <i class="material-icons">add</i>
+      {{ 'btn.create' | transloco }}
+    </button>
   </div>
 
   @if (loading()) {

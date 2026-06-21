@@ -1,9 +1,4 @@
-import {
-  provideAppInitializer,
-  ApplicationConfig,
-  provideZoneChangeDetection,
-  inject, isDevMode,
-} from '@angular/core';
+import {ApplicationConfig, inject, isDevMode, provideAppInitializer, provideZoneChangeDetection,} from '@angular/core';
 import {provideRouter, TitleStrategy} from '@angular/router';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
 import {routes} from './app.routes';
@@ -14,17 +9,18 @@ import {TranslocoHttpLoader} from './transloco-loader';
 import {provideTransloco} from '@ngneat/transloco';
 import {I18nTitleStrategy} from '@core/strategies/i18n-title.strategy';
 
-function initializeApp(authService: AuthService) {
-  return () => authService.checkAuth();
-}
-
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({eventCoalescing: true}),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([apiInterceptor, credentialsInterceptor])),
-    provideAppInitializer((authService = inject(AuthService)) =>
-      authService.checkAuth()), provideHttpClient(), provideTransloco({
+    provideHttpClient(
+      withInterceptors([apiInterceptor, credentialsInterceptor])
+    ),
+    provideAppInitializer(() => {
+      const authService = inject(AuthService);
+      return authService.checkAuth();
+    }),
+    provideTransloco({
       config: {
         availableLangs: ['en', 'ru'],
         defaultLang: 'en',
@@ -34,6 +30,6 @@ export const appConfig: ApplicationConfig = {
       },
       loader: TranslocoHttpLoader
     }),
-    { provide: TitleStrategy, useClass: I18nTitleStrategy }
+    {provide: TitleStrategy, useClass: I18nTitleStrategy}
   ],
 };

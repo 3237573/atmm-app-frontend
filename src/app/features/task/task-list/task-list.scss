@@ -385,7 +385,7 @@ option {
   }
 
   // Тонкая настройка адаптивных колонок
-  .col-task { min-width: 250px; }
+  .col-task { width: 700px; min-width: 350px}
   .col-icon { width: 50px; text-align: center; i { font-size: 1.2rem; color: var(--text-muted); } }
 
   // Увеличена ширина под селекты статусов, чтобы текст помещался полностью и не обрезался

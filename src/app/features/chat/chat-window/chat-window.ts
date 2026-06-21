@@ -1,15 +1,15 @@
 // chat-window.component.ts
-import {Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ChatService} from '@core/services/chat.service';
-import {AuthService} from '@core/services/auth.service';
-import {ChatMessage, ChatRoomRO, WebSocketResponse} from '@core/models/chat.model';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
-import {filter} from 'rxjs';
-import {TranslocoPipe} from '@ngneat/transloco';
+import { Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ChatService } from '@core/services/chat.service';
+import { AuthService } from '@core/services/auth.service';
+import { ChatMessage, ChatRoomRO, WebSocketResponse } from '@core/models/chat.model';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { BackOnEscapeDirective } from '@core/directives/back-on-escape.directive';
+import { filter } from 'rxjs';
+import { TranslocoPipe } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-chat-window',
@@ -26,28 +26,26 @@ export class ChatWindow implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild('scrollMe') private readonly scrollContainer!: ElementRef<HTMLDivElement>;
-  @ViewChild('localVideo') private localVideoRef!: ElementRef<HTMLVideoElement>;
-  @ViewChild('remoteVideo') private remoteVideoRef!: ElementRef<HTMLVideoElement>;
+  @ViewChild('localVideo') private readonly localVideoRef!: ElementRef<HTMLVideoElement>;
+  @ViewChild('remoteVideo') private readonly remoteVideoRef!: ElementRef<HTMLVideoElement>;
 
-  // Простые сигналы для данных
   readonly roomId = signal<string>('');
   readonly currentRoom = signal<ChatRoomRO | null>(null);
   readonly messages = signal<ChatMessage[]>([]);
   readonly typingUsers = signal<string[]>([]);
 
-  // 2. ДОБАВИТЬ: Сигналы управления звонком
   readonly isCallActive = signal<boolean>(false);
   readonly isIncomingCall = signal<boolean>(false);
   readonly callType = signal<'VIDEO' | 'AUDIO'>('VIDEO');
 
-  // 3. ДОБАВИТЬ: Внутренние WebRTC объекты
   private peerConnection: RTCPeerConnection | null = null;
   private localStream: MediaStream | null = null;
   private pendingIceCandidates: RTCIceCandidateInit[] = [];
+  private cachedOfferSdp: string | null = null;
   private readonly rtcConfig: RTCConfiguration = {
     iceServers: [
-      {urls: 'stun:stun.l.google.com:19302'},
-      {urls: 'stun:stun1.l.google.com:19302'}
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' }
     ]
   };
 
@@ -55,73 +53,93 @@ export class ChatWindow implements OnInit, OnDestroy {
   myMemberId = '';
   private isTypingSignalSent = false;
   private typingTimer: any;
-  private markSeenTimer: any;
 
   ngOnInit(): void {
     this.myMemberId = this.auth.currentUser()?.id || '';
 
-    // 1. Просто подписываемся на изменение ID в урле
-    this.route.params.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(params => {
-      const id = params['roomId'];
-      if (id) {
-        this.roomId.set(id);
-        this.chatService.setActiveRoomId(id)
-        this.loadChatData(id); // Вызываем простой метод загрузки
-      }
-    });
+    // 1. Подписка на изменение ID комнаты в URL
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const id = params['roomId'];
+        if (id) {
+          this.roomId.set(id);
+          this.chatService.setActiveRoomId(id);
+          this.loadChatData(id);
+        }
+      });
 
-    // 2. WebSocket: новые сообщения
+    // 2. 🌟 Перехват параметров звонка из Глобального Оверлея (Восстановление состояния)
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(queryParams => {
+        if (queryParams['autoAnswer'] === 'true' && queryParams['sdp']) {
+          this.cachedOfferSdp = queryParams['sdp'];
+          this.callType.set(queryParams['callType'] || 'VIDEO');
+
+          this.isCallActive.set(true);
+          this.isIncomingCall.set(false);
+
+          // Запуск WebRTC после рендеринга шаблона видео
+          setTimeout(() => {
+            void this.startWebRTCAfterAutoAnswer();
+          }, 150);
+
+          // Чистим URL-строку от параметров, чтобы ручной F5 не вызывал автоответ повторно
+          void this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { autoAnswer: null, sdp: null, callType: null },
+            queryParamsHandling: 'merge'
+          });
+        }
+      });
+
+    // 3. Новые сообщения через WebSocket
     this.chatService.messages$.pipe(
-      filter((res): res is WebSocketResponse &
-        { type: 'new_message' } => this.isCurrentRoomMessage(res)),
+      filter((res): res is WebSocketResponse & { type: 'new_message' } =>
+        res?.type === 'new_message' && res.message?.roomId === this.roomId()
+      ),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(({message}) => {
-      this.messages.update(prev => [...prev, message]);
+    ).subscribe(({ message }) => {
+      this.messages.update(prev => {
+        const isDuplicate = prev.some(m => m.id === message.id);
+        return isDuplicate ? prev : [...prev, message];
+      });
       this.scrollToBottomOnNextTick();
     });
 
-    // 3. WebSocket: кто печатает
-    this.chatService.typingUsers$.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(typingMap => {
-      const ids = typingMap[this.roomId()] || [];
-      // Исключаем себя
-      this.typingUsers.set(ids.filter(id => id !== this.myMemberId));
-    });
+    // 4. Индикация печатающих
+    this.chatService.typingUsers$.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(typingMap => {
+        const ids = typingMap[this.roomId()] || [];
+        this.typingUsers.set(ids.filter(id => id !== this.myMemberId));
+      });
 
-    // 4. ДОБАВИТЬ: Подписка на входящие сигналы WebRTC из шины сокета
-    this.chatService.messages$.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe((response: any) => {
-      void this.handleCallSignaling(response);
-    });
+    // 5. Обработка сигналов WebRTC
+    this.chatService.messages$.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(msg => this.handleCallSignaling(msg));
   }
 
-  // Тот самый простой метод загрузки данных без "пайпов-хуяйпов"
   private loadChatData(id: string): void {
     this.clearRoomState();
-
-    // Получаем данные комнаты по ID
     this.chatService.getRoomById(id).subscribe({
       next: (room) => this.currentRoom.set(room),
       error: (err) => console.error('Ошибка загрузки комнаты:', err)
     });
-
-    // Получаем сообщения для этой комнаты
     this.chatService.getMessages(id).subscribe({
-      next: (historyMessages) => {
-        this.messages.set(historyMessages);
+      next: (history) => {
+        this.messages.set(history);
         this.scrollToBottomOnNextTick();
-        this.scheduleMarkSeen();
-        this.sendReadRoomSignal();
       },
-      error: (err) => console.error('Ошибка загрузки истории сообщений:', err)
+      error: (err) => console.error('Ошибка загрузки истории:', err)
     });
   }
 
-  // Геттеры для шаблона стали максимально простыми
+  private clearRoomState(): void {
+    this.messages.set([]);
+    this.typingUsers.set([]);
+    this.currentRoom.set(null);
+    this.isTypingSignalSent = false;
+  }
+
   get roomName(): string {
     const room = this.currentRoom();
     if (!room) return 'Загрузка...';
@@ -132,40 +150,23 @@ export class ChatWindow implements OnInit, OnDestroy {
     return this.currentRoom()?.memberIds.length || 0;
   }
 
-  // --- Ниже остаётся стандартная логика отправки и утилит ---
-
-  private clearRoomState(): void {
-    this.messages.set([]);
-    this.typingUsers.set([]);
-    this.currentRoom.set(null);
-    this.isTypingSignalSent = false;
-  }
-
-  sendMessage(event?: KeyboardEvent | Event): void {
-    if (event) event.preventDefault();
-    const trimmedMessage = this.newMessage.trim();
-    if (!trimmedMessage) return;
+  sendMessage(event?: Event): void {
+    event?.preventDefault();
+    const trimmed = this.newMessage.trim();
+    if (!trimmed) return;
 
     this.chatService.sendMessage({
       type: 'send_message',
-      message: {roomId: this.roomId(), content: trimmedMessage}
+      message: { roomId: this.roomId(), content: trimmed }
     });
 
     this.newMessage = '';
     this.sendTypingFalseImmediate();
-    this.scheduleMarkSeen();
-  }
-
-  onKeyPress(event: Event): void {
-    const keyboardEvent = event as KeyboardEvent;
-    if (keyboardEvent.key === 'Enter' && !keyboardEvent.shiftKey) {
-      this.sendMessage(keyboardEvent);
-    }
   }
 
   onTyping(): void {
     if (!this.isTypingSignalSent) {
-      this.chatService.sendMessage({type: 'typing', roomId: this.roomId(), isTyping: true});
+      this.chatService.sendMessage({ type: 'typing', roomId: this.roomId(), isTyping: true });
       this.isTypingSignalSent = true;
     }
     this.resetTypingTimeout();
@@ -178,7 +179,7 @@ export class ChatWindow implements OnInit, OnDestroy {
 
   private sendTypingFalseImmediate(): void {
     if (this.isTypingSignalSent) {
-      this.chatService.sendMessage({type: 'typing', roomId: this.roomId(), isTyping: false});
+      this.chatService.sendMessage({ type: 'typing', roomId: this.roomId(), isTyping: false });
       this.isTypingSignalSent = false;
     }
     if (this.typingTimer) {
@@ -187,46 +188,15 @@ export class ChatWindow implements OnInit, OnDestroy {
     }
   }
 
-  private scheduleMarkSeen(): void {
-    if (this.markSeenTimer) clearTimeout(this.markSeenTimer);
-    this.markSeenTimer = setTimeout(() => {
-      this.markMessagesSeen();
-      this.markSeenTimer = null;
-    }, 500);
-  }
-
-  private markMessagesSeen(): void {
-    const currentMessages = this.messages();
-    if (!currentMessages.length) return;
-    const lastMessage = currentMessages[currentMessages.length - 1];
-    if (lastMessage && lastMessage.senderMemberId !== this.myMemberId) {
-      this.chatService.sendMessage({type: 'mark_seen', messageId: lastMessage.id});
-    }
-  }
-
-  private sendReadRoomSignal(): void {
-    if (!this.roomId()) return;
-    this.chatService.sendMessage({
-      type: 'read_room',
-      roomId: this.roomId(),
-      untilTimestamp: new Date().toISOString()
-    });
-  }
-
   private scrollToBottomOnNextTick(): void {
     requestAnimationFrame(() => setTimeout(() => this.scrollToBottom(), 40));
   }
 
-  scrollToBottom(): void {
-    try {
-      const container = this.scrollContainer?.nativeElement;
-      if (container) container.scrollTop = container.scrollHeight;
-    } catch (err) {
+  private scrollToBottom(): void {
+    const container = this.scrollContainer?.nativeElement;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
     }
-  }
-
-  trackByMessageId(index: number, item: ChatMessage) {
-    return item.id;
   }
 
   isOwnMessage(msg: ChatMessage): boolean {
@@ -237,22 +207,18 @@ export class ChatWindow implements OnInit, OnDestroy {
     this.router.navigate(['/chat']);
   }
 
-  getTypingText(): string {
-    return 'Печатает...';
-  }
-
   uploadFile(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.chatService.uploadMedia(this.roomId(), input.files[0]).pipe(
-        takeUntilDestroyed(this.destroyRef)
-      ).subscribe({
-        next: (msg) => {
-          this.messages.update(prev => [...prev, msg]);
-          this.scrollToBottomOnNextTick();
-        },
-        error: (err) => console.error('Ошибка загрузки файла:', err)
-      });
+    if (input.files && input.files.length) {
+      this.chatService.uploadMedia(this.roomId(), input.files[0])
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (msg) => {
+            this.messages.update(prev => [...prev, msg]);
+            this.scrollToBottomOnNextTick();
+          },
+          error: (err) => console.error('Ошибка загрузки файла:', err)
+        });
     }
   }
 
@@ -260,48 +226,45 @@ export class ChatWindow implements OnInit, OnDestroy {
     window.open(url, '_blank', 'noopener,noreferrer');
   }
 
-  getFileName(url: string): string {
-    return url ? url.split('/').pop() || 'Файл' : 'Файл';
-  }
-
   ngOnDestroy(): void {
     this.cleanupWebRTC();
     this.chatService.setActiveRoomId(null);
     if (this.typingTimer) clearTimeout(this.typingTimer);
-    if (this.markSeenTimer) clearTimeout(this.markSeenTimer);
   }
 
-  // ==========================================
-  // ЛОГИКА СИГНАЛИНГА И РАБОТЫ С WEBRTC
-  // ==========================================
+  // ==================== WEBRTC ====================
 
-  // Маппинг входящих сообщений от Ktor-сервера (классы WebSocketResponse на бэкенде)
   private async handleCallSignaling(msg: any): Promise<void> {
     switch (msg.type) {
       case 'call_offer':
-        // Нам звонят. Если мы уже в звонке — игнорируем, если нет — показываем модалку
         if (this.isCallActive()) return;
         this.isIncomingCall.set(true);
         this.callType.set(msg.callType);
-        // Сохраняем SDP офер во внутреннее свойство, чтобы применить при нажатии "Ответить"
-        (this as any).cachedOfferSdp = msg.sdp;
+        this.cachedOfferSdp = msg.sdp;
         break;
 
       case 'call_answer':
         if (this.peerConnection) {
-          await this.peerConnection.setRemoteDescription(new RTCSessionDescription({type: 'answer', sdp: msg.sdp}));
+          await this.peerConnection.setRemoteDescription(
+            new RTCSessionDescription({ type: 'answer', sdp: msg.sdp })
+          );
           this.processPendingIceCandidates();
         }
         break;
 
-      case 'call_ice':
-        const candidateInit: RTCIceCandidateInit = {candidate: msg.candidate, sdpMid: '0', sdpMLineIndex: 0};
+      case 'call_ice': {
+        const candidate: RTCIceCandidateInit = {
+          candidate: msg.candidate,
+          sdpMid: '0',
+          sdpMLineIndex: 0
+        };
         if (this.peerConnection && this.peerConnection.remoteDescription) {
-          await this.peerConnection.addIceCandidate(new RTCIceCandidate(candidateInit));
+          await this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
         } else {
-          this.pendingIceCandidates.push(candidateInit);
+          this.pendingIceCandidates.push(candidate);
         }
         break;
+      }
 
       case 'call_ended':
         this.cleanupWebRTC();
@@ -309,7 +272,6 @@ export class ChatWindow implements OnInit, OnDestroy {
     }
   }
 
-  // Действие 1: Нажали кнопку "Позвонить" (Мы - Инициатор)
   async initiateCall(type: 'VIDEO' | 'AUDIO'): Promise<void> {
     this.callType.set(type);
     this.isCallActive.set(true);
@@ -322,26 +284,53 @@ export class ChatWindow implements OnInit, OnDestroy {
 
       this.setupPeerConnection();
 
-      // Показываем локальное превью
       if (type === 'VIDEO' && this.localVideoRef) {
         this.localVideoRef.nativeElement.srcObject = this.localStream;
       }
 
-      // Создаем Offer
       const offer = await this.peerConnection!.createOffer();
       await this.peerConnection!.setLocalDescription(offer);
-
-      // Отправляем офер на бэк
       this.chatService.sendCallOffer(this.roomId(), offer.sdp!, type);
     } catch (err) {
-      console.error('Ошибка доступа к медиа-устройствам:', err);
+      console.error('Ошибка доступа к медиа:', err);
       this.cleanupWebRTC();
     }
   }
 
-  // Действие 2: Нажали кнопку "Ответить" (Мы - Получатель)
+  // 🌟 Метод для обработки автоматического ответа (сохраняет стабильность типов TS)
+  private async startWebRTCAfterAutoAnswer(): Promise<void> {
+    try {
+      this.localStream = await navigator.mediaDevices.getUserMedia({
+        video: this.callType() === 'VIDEO',
+        audio: true
+      });
+
+      this.setupPeerConnection();
+
+      if (this.callType() === 'VIDEO' && this.localVideoRef) {
+        this.localVideoRef.nativeElement.srcObject = this.localStream;
+      }
+
+      if (this.peerConnection && this.cachedOfferSdp) {
+        await this.peerConnection.setRemoteDescription(
+          new RTCSessionDescription({ type: 'offer', sdp: this.cachedOfferSdp })
+        );
+        this.processPendingIceCandidates();
+
+        const answer = await this.peerConnection.createAnswer();
+        await this.peerConnection.setLocalDescription(answer);
+
+        // Отправка ответа (используем ! для исключения undefined типа SDP)
+        this.chatService.sendCallAnswer(this.roomId(), answer.sdp!);
+      }
+    } catch (error) {
+      console.error('Ошибка автоответа WebRTC:', error);
+      this.cleanupWebRTC();
+    }
+  }
+
   async acceptCall(): Promise<void> {
-    const offerSdp = (this as any).cachedOfferSdp;
+    if (!this.cachedOfferSdp) return;
     this.isIncomingCall.set(false);
     this.isCallActive.set(true);
 
@@ -357,39 +346,38 @@ export class ChatWindow implements OnInit, OnDestroy {
         this.localVideoRef.nativeElement.srcObject = this.localStream;
       }
 
-      // Применяем удаленный Offer от инициатора
-      await this.peerConnection!.setRemoteDescription(new RTCSessionDescription({type: 'offer', sdp: offerSdp}));
+      await this.peerConnection!.setRemoteDescription(
+        new RTCSessionDescription({ type: 'offer', sdp: this.cachedOfferSdp })
+      );
       this.processPendingIceCandidates();
 
-      // Генерируем Answer
       const answer = await this.peerConnection!.createAnswer();
       await this.peerConnection!.setLocalDescription(answer);
-
-      // Отправляем ответ назад
       this.chatService.sendCallAnswer(this.roomId(), answer.sdp!);
     } catch (err) {
-      console.error('Не удалось принять звонок:', err);
+      console.error('Не удалось ответить на звонок:', err);
       this.cleanupWebRTC();
     }
   }
 
-  // Инициализация объекта соединения WebRTC
+  rejectOrEndCall(): void {
+    this.chatService.sendCallEnd(this.roomId());
+    this.cleanupWebRTC();
+  }
+
   private setupPeerConnection(): void {
     this.peerConnection = new RTCPeerConnection(this.rtcConfig);
 
-    // Добавляем локальные треки в канал связи
     this.localStream?.getTracks().forEach(track => {
       this.peerConnection!.addTrack(track, this.localStream!);
     });
 
-    // Генерация ICE кандидатов и отправка их партнеру через сокет
     this.peerConnection.onicecandidate = (event) => {
       if (event.candidate) {
         this.chatService.sendCallIce(this.roomId(), event.candidate.candidate);
       }
     };
 
-    // Ловим входящий видео/аудио поток от собеседника
     this.peerConnection.ontrack = (event) => {
       if (this.remoteVideoRef && event.streams[0]) {
         this.remoteVideoRef.nativeElement.srcObject = event.streams[0];
@@ -397,28 +385,19 @@ export class ChatWindow implements OnInit, OnDestroy {
     };
   }
 
-  // Нажатие кнопки сброса/отклонения
-  rejectOrEndCall(): void {
-    this.chatService.sendCallEnd(this.roomId());
-    this.cleanupWebRTC();
-  }
-
   private processPendingIceCandidates(): void {
     if (!this.peerConnection) return;
-    this.pendingIceCandidates.forEach(candidate => {
-      this.peerConnection!.addIceCandidate(new RTCIceCandidate(candidate)).catch(e => console.error(e));
-    });
+    for (const candidate of this.pendingIceCandidates) {
+      this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
+        .catch(e => console.error('Ошибка добавления ICE кандидата:', e));
+    }
     this.pendingIceCandidates = [];
   }
 
-  private isCurrentRoomMessage(res: any): res is WebSocketResponse & { type: 'new_message' } {
-    return res?.type === 'new_message' && res.message?.roomId === this.roomId();
-  }
-
-  // Сброс состояния, гашение камеры и закрытие портов соединений
   private cleanupWebRTC(): void {
     this.isCallActive.set(false);
     this.isIncomingCall.set(false);
+    this.cachedOfferSdp = null;
 
     if (this.localStream) {
       this.localStream.getTracks().forEach(track => track.stop());
@@ -429,6 +408,5 @@ export class ChatWindow implements OnInit, OnDestroy {
       this.peerConnection = null;
     }
     this.pendingIceCandidates = [];
-    (this as any).cachedOfferSdp = null;
   }
 }

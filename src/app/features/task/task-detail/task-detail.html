@@ -17,7 +17,7 @@
         <div class="status-selector">
           <span class="label">{{ 'taskDetail.status' | transloco }}</span>
           <select
-            [value]="task.status"
+            [value]="task.taskStatus"
             (change)="updateStatus($any($event.target).value)"
             class="status-select"
             [disabled]="editing()">
