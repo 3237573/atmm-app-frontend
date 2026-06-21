@@ -1,4 +1,12 @@
-<div class="chat-list-container" appBackOnEscape>
+<div class="chat-list-container" [class.collapsed]="isListCollapsed()" appBackOnEscape>
+
+  <div class="chat-list-header" (click)="toggleList()">
+    <span class="header-title">{{ 'menu.chat' | transloco }}</span>
+    <i class="material-icons toggle-icon">
+      {{ isListCollapsed() ? 'expand_more' : 'expand_less' }}
+    </i>
+  </div>
+
   <div class="search-block">
     <div class="search-wrapper">
       <i class="material-icons">search</i>
@@ -24,9 +32,7 @@
         <div class="room-details">
           <div class="room-main-info">
             <div class="room-meta">
-              <span class="room-name">
-                {{ room.name }}
-              </span>
+              <span class="room-name">{{ room.name }}</span>
             </div>
           </div>
           @if (room.unreadCount > 0) {
@@ -38,4 +44,5 @@
       <div class="empty-rooms">Чаты не найдены</div>
     }
   </div>
+
 </div>

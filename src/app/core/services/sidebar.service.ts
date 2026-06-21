@@ -4,7 +4,7 @@ import { Injectable, signal } from '@angular/core';
 @Injectable({ providedIn: 'root' })
 export class SidebarService {
   // Читаем из localStorage начальное состояние
-  isCollapsed = signal<boolean>(localStorage.getItem('sidebarCollapsed') === 'true');
+  isCollapsed = signal<boolean>(localStorage.getItem('sidebarCollapsed') !== 'false');
 
   toggle() {
     this.isCollapsed.update(collapsed => {

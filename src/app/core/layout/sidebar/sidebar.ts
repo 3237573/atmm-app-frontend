@@ -55,6 +55,8 @@ export class Sidebar implements OnInit {
     );
   });
 
+  // src/app/core/layout/sidebar/sidebar.ts
+
   ngOnInit() {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
@@ -64,33 +66,27 @@ export class Sidebar implements OnInit {
         this.navigationService.setLastRoute(url);
       }
 
+      // На мобилках (экран <= 768px) всегда принудительно закрываем сайдбар
       if (window.innerWidth <= 768) {
-        if (typeof this.sidebarService.close === 'function') {
-          this.sidebarService.close();
-        } else {
-          (this.sidebarService.isCollapsed as any).set(true);
-        }
+        this.sidebarService.close();
       }
     });
   }
 
-  // Method of handling double clicking on the panel
+// Обработка двойного клика по панели
   onNavbarDblClick(event: MouseEvent): void {
-    // Ignoring double clicks on mobile phones (the sidebar works as an overlay there)
+    // Игнорируем на мобилках
     if (window.innerWidth <= 768) return;
 
-    const collapsedSignal = this.sidebarService.isCollapsed as any;
-    if (collapsedSignal && typeof collapsedSignal.set === 'function') {
-      collapsedSignal.set(!this.sidebarService.isCollapsed());
-    }
+    // 🌟 Вызываем метод сервиса, чтобы состояние сохранилось в localStorage!
+    this.sidebarService.toggle();
   }
 
-  // Pure method of clicking on the arrow (leave it as is)
+// Клик по стрелочке
   toggleSidebar(event: MouseEvent): void {
     event.stopPropagation();
-    const collapsedSignal = this.sidebarService.isCollapsed as any;
-    if (collapsedSignal && typeof collapsedSignal.set === 'function') {
-      collapsedSignal.set(!this.sidebarService.isCollapsed());
-    }
+
+    // 🌟 Вызываем метод сервиса, чтобы состояние сохранилось в localStorage!
+    this.sidebarService.toggle();
   }
 }

@@ -27,7 +27,8 @@ export class GlobalCallOverlay {
     void this.router.navigate(['/chat', callData.roomId], {
       queryParams: {
         autoAnswer: 'true',
-        sdp: callData.sdp
+        sdp: callData.sdp,
+        callType: callData.callType || 'VIDEO'
       }
     });
   }

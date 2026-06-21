@@ -8,6 +8,13 @@
       "projects": "Projects",
       "roles": "Roles",
       "tracker": "Tracker"
+    },
+    "profile": {
+      "inputName": "Enter a name",
+      "subtitle": "Basic information",
+      "spaceCode": "Space Code",
+      "spaceName": "Space Name",
+      "title": "Space Profile"
     }
   },
   "auth": {
@@ -74,6 +81,7 @@
     "searchChat": "Search for a chat...",
     "selectChat": "Select a chat to start a conversation",
     "talk": "Conversation...",
+    "typing": "Typing...",
     "video": "VideoCall"
   },
   "error": {
