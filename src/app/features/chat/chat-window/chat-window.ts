@@ -35,7 +35,6 @@ export class ChatWindow implements OnInit, OnDestroy {
   readonly typingUsers = signal<string[]>([]);
 
   readonly isCallActive = signal<boolean>(false);
-  readonly isIncomingCall = signal<boolean>(false);
   readonly callType = signal<'VIDEO' | 'AUDIO'>('VIDEO');
 
   private peerConnection: RTCPeerConnection | null = null;
@@ -58,7 +57,6 @@ export class ChatWindow implements OnInit, OnDestroy {
     this.cachedOfferSdp = sdp;
     this.callType.set(callType);
     this.isCallActive.set(true);
-    this.isIncomingCall.set(false);
 
     // Запуск WebRTC после рендеринга шаблона видео
     setTimeout(() => {
@@ -242,13 +240,6 @@ export class ChatWindow implements OnInit, OnDestroy {
 
   private async handleCallSignaling(msg: any): Promise<void> {
     switch (msg.type) {
-      case 'call_offer':
-        if (this.isCallActive()) return;
-        this.isIncomingCall.set(true);
-        this.callType.set(msg.callType);
-        this.cachedOfferSdp = msg.sdp;
-        break;
-
       case 'call_answer':
         if (this.peerConnection) {
           await this.peerConnection.setRemoteDescription(
@@ -264,7 +255,7 @@ export class ChatWindow implements OnInit, OnDestroy {
           sdpMid: '0',
           sdpMLineIndex: 0
         };
-        if (this.peerConnection && this.peerConnection.remoteDescription) {
+        if (this.peerConnection?.remoteDescription) {
           await this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
         } else {
           this.pendingIceCandidates.push(candidate);
@@ -335,38 +326,7 @@ export class ChatWindow implements OnInit, OnDestroy {
     }
   }
 
-  async acceptCall(): Promise<void> {
-    if (!this.cachedOfferSdp) return;
-    this.isIncomingCall.set(false);
-    this.isCallActive.set(true);
-
-    try {
-      this.localStream = await navigator.mediaDevices.getUserMedia({
-        video: this.callType() === 'VIDEO',
-        audio: true
-      });
-
-      this.setupPeerConnection();
-
-      if (this.callType() === 'VIDEO' && this.localVideoRef) {
-        this.localVideoRef.nativeElement.srcObject = this.localStream;
-      }
-
-      await this.peerConnection!.setRemoteDescription(
-        new RTCSessionDescription({type: 'offer', sdp: this.cachedOfferSdp})
-      );
-      this.processPendingIceCandidates();
-
-      const answer = await this.peerConnection!.createAnswer();
-      await this.peerConnection!.setLocalDescription(answer);
-      this.chatService.sendCallAnswer(this.roomId(), answer.sdp!);
-    } catch (err) {
-      console.error('Не удалось ответить на звонок:', err);
-      this.cleanupWebRTC();
-    }
-  }
-
-  rejectOrEndCall(): void {
+  endCall(): void {
     this.chatService.sendCallEnd(this.roomId());
     this.cleanupWebRTC();
   }
@@ -402,7 +362,6 @@ export class ChatWindow implements OnInit, OnDestroy {
 
   private cleanupWebRTC(): void {
     this.isCallActive.set(false);
-    this.isIncomingCall.set(false);
     this.cachedOfferSdp = null;
 
     if (this.localStream) {
