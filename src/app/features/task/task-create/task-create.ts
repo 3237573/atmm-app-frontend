@@ -21,7 +21,7 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, BackOnEscapeDirective, TranslocoPipe],
   templateUrl: './task-create.html',
-  styleUrl: './task-create.scss'
+  styleUrls: ['./task-create.scss']
 })
 export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
   private readonly authService = inject(AuthService);
@@ -39,15 +39,17 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
   currentUser = signal<MemberRO | null>(null);
   departmentMembers = signal<MemberRO[]>([]);
   parentTasksList = signal<{ id: string; title: string }[]>([]);
+  pendingFiles = signal<File[]>([]);
   loadingMembers = signal(false);
   loadingUser = signal(false);
   submitting = signal(false);
+  uploadingFiles = signal(false);
   userDepartments = signal<DepartmentAffiliation[]>([]);
   userProjects = signal<ProjectAffiliation[]>([]);
 
   minDate = new Date().toISOString().split('T')[0];
 
-  // ========== Form fields (signals) ==========
+  // ========== Поля формы ==========
   title = signal('');
   description = signal('');
   selectedDepartmentId = signal<string>('');
@@ -57,14 +59,17 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
   dueDate = signal('');
   assigneeMemberIds = signal<string[]>([]);
 
-  // ========== Валидация (computed) ==========
-  isFormValid = computed(() => {
-    return this.title().trim().length > 0 &&
-      this.selectedDepartmentId() !== '' &&
-      this.assigneeMemberIds().length > 0;
-  });
+  // ========== Модальное окно выбора исполнителей ==========
+  showAssigneeModal = signal(false);
 
-  // ========== Данные для отслеживания несохранённых изменений ==========
+  // ========== Валидация ==========
+  isFormValid = computed(() =>
+    this.title().trim().length > 0 &&
+    this.selectedDepartmentId() !== '' &&
+    this.assigneeMemberIds().length > 0
+  );
+
+  // ========== Отслеживание несохранённых изменений ==========
   private readonly initialData = signal({
     title: '',
     description: '',
@@ -76,12 +81,10 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     dueDate: ''
   });
 
-  // ========== Lifecycle ==========
   ngOnInit(): void {
     this.deactivateService.register(this);
     this.loadCurrentUser();
     this.loadParentTasks();
-
     this.queryParamsSub = this.route.queryParams.subscribe(params => {
       if (params['parentId']) this.parentTaskId.set(params['parentId']);
       if (params['assigneeId']) this.assigneeMemberIds.set([params['assigneeId']]);
@@ -95,12 +98,29 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     this.queryParamsSub?.unsubscribe();
   }
 
-  // ========== Возвращает класс цвета приоритета (как в списке задач) ==========
   getPriorityColor(priority: string): string {
-    return priority ? priority.toLowerCase() : 'low';
+    return `priority-${priority.toLowerCase()}`;
   }
 
-  // ========== Загрузка текущего пользователя ==========
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+
+  getFileIcon(fileName: string): string {
+    const name = fileName.toLowerCase();
+    if (/\.(jpg|jpeg|png|gif|webp)$/.test(name)) return 'image';
+    if (name.endsWith('.pdf')) return 'picture_as_pdf';
+    if (name.endsWith('.zip') || name.endsWith('.rar') || name.endsWith('.7z')) return 'archive';
+    if (name.endsWith('.doc') || name.endsWith('.docx')) return 'description';
+    if (name.endsWith('.xls') || name.endsWith('.xlsx')) return 'table_chart';
+    return 'insert_drive_file';
+  }
+
+  // ---------- Загрузка данных ----------
   loadCurrentUser(): void {
     this.loadingUser.set(true);
     const currentUserId = this.authService.currentUser()?.id;
@@ -108,27 +128,21 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
       this.loadingUser.set(false);
       return;
     }
-
     this.memberService.getMember(currentUserId).subscribe({
       next: (user) => {
         this.currentUser.set(user);
-
         const uniqueDepartments = Array.from(
           new Map((user.departments || []).map(d => [d.departmentId, d])).values()
         );
         const uniqueProjects = Array.from(
           new Map((user.projects || []).map(p => [p.projectId, p])).values()
         );
-
         this.userDepartments.set(uniqueDepartments);
         this.userProjects.set(uniqueProjects);
-
         if (uniqueDepartments.length > 0) {
-          const firstDeptId = uniqueDepartments[0].departmentId;
-          this.selectedDepartmentId.set(firstDeptId);
-          this.loadDepartmentMembers(firstDeptId);
+          this.selectedDepartmentId.set(uniqueDepartments[0].departmentId);
+          this.loadDepartmentMembers(uniqueDepartments[0].departmentId);
         }
-
         this.saveInitialData();
         this.loadingUser.set(false);
       },
@@ -139,37 +153,30 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     });
   }
 
-  // ========== Загрузка сотрудников отдела ==========
   loadDepartmentMembers(departmentId: string): void {
     this.loadingMembers.set(true);
     this.departmentService.getDepartmentEmployees(departmentId).subscribe({
       next: (members) => {
-        const sortedMembers = [...members].sort((a, b) => a.email.localeCompare(b.email));
-        this.departmentMembers.set(sortedMembers);
-
-        const validIds = this.assigneeMemberIds().filter(id =>
-          sortedMembers.some(m => m.id === id)
-        );
+        const sorted = [...members].sort((a, b) => a.email.localeCompare(b.email));
+        this.departmentMembers.set(sorted);
+        const validIds = this.assigneeMemberIds().filter(id => sorted.some(m => m.id === id));
         this.assigneeMemberIds.set(validIds);
         this.loadingMembers.set(false);
       },
       error: (err) => {
-        console.error('Ошибка загрузки сотрудников отдела', err);
+        console.error('Ошибка загрузки сотрудников', err);
         this.departmentMembers.set([]);
         this.loadingMembers.set(false);
       }
     });
   }
 
-  // ========== Загрузка родительских задач ==========
   loadParentTasks(): void {
     this.taskService.getMyTaskTree().subscribe({
       next: (trees) => {
         const allTasks = this.flattenTaskTree(trees);
         allTasks.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-
-        const available = allTasks.map(t => ({ id: t.id, title: t.title }));
-        this.parentTasksList.set(available);
+        this.parentTasksList.set(allTasks.map(t => ({ id: t.id, title: t.title })));
       },
       error: (err) => console.error('Ошибка загрузки списка задач', err)
     });
@@ -187,7 +194,7 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     return result;
   }
 
-  // ========== Сохранение начального состояния ==========
+  // ---------- Управление состоянием формы ----------
   saveInitialData(): void {
     this.initialData.set({
       title: this.title(),
@@ -202,65 +209,42 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
   }
 
   hasUnsavedChanges(): boolean {
-    const initial = this.initialData();
-    const currentAssignees = [...this.assigneeMemberIds()].sort();
-    const initialAssignees = [...initial.assigneeMemberIds].sort();
-
-    return this.title() !== initial.title ||
-      this.description() !== initial.description ||
-      this.priority() !== initial.priority ||
-      this.selectedDepartmentId() !== initial.departmentId ||
-      this.projectId() !== initial.projectId ||
-      this.parentTaskId() !== initial.parentTaskId ||
-      this.dueDate() !== initial.dueDate ||
-      JSON.stringify(currentAssignees) !== JSON.stringify(initialAssignees);
+    const init = this.initialData();
+    const curAssignees = [...this.assigneeMemberIds()].sort();
+    const initAssignees = [...init.assigneeMemberIds].sort();
+    return (
+      this.title() !== init.title ||
+      this.description() !== init.description ||
+      this.priority() !== init.priority ||
+      this.selectedDepartmentId() !== init.departmentId ||
+      this.projectId() !== init.projectId ||
+      this.parentTaskId() !== init.parentTaskId ||
+      this.dueDate() !== init.dueDate ||
+      JSON.stringify(curAssignees) !== JSON.stringify(initAssignees)
+    );
   }
 
   canDeactivate(): boolean {
     if (this.hasUnsavedChanges()) {
-      return confirm('Есть несохранённые изменения. Вы уверены, что хотите уйти?');
+      return confirm(this.translocoService.translate('taskCreate.unsavedChanges'));
     }
     return true;
   }
 
-  // ========== Отправка формы ==========
-  onSubmit(): void {
-    if (!this.isFormValid()) return;
-
-    const departmentId = this.selectedDepartmentId();
-    const validMemberIds = this.assigneeMemberIds().filter(id =>
-      this.departmentMembers().some(m => m.id === id)
-    );
-
-    this.submitting.set(true);
-
-    const request: TaskCreateRO = {
-      taskStatus: 'PENDING',
-      title: this.title().trim(),
-      description: this.description().trim() || undefined,
-      priority: this.priority(),
-      departmentId: departmentId,
-      projectId: this.projectId() || undefined,
-      assigneeIds: validMemberIds,
-      dueDate: this.dueDate() || undefined,
-      parentTaskId: this.parentTaskId() || undefined
-    };
-
-    this.taskService.createTask(request).subscribe({
-      next: () => {
-        this.submitting.set(false);
-        this.saveInitialData();
-        this.router.navigate(['/tasks']);
-      },
-      error: (err) => {
-        console.error('Ошибка создания задачи', err);
-        this.submitting.set(false);
-        alert('Ошибка сервера: ' + (err.error?.message || 'не удалось создать задачу'));
-      }
-    });
+  // ---------- Исполнители (inline чипсы + модалка) ----------
+  getSelectedMembers(): MemberRO[] {
+    return this.departmentMembers().filter(m => this.assigneeMemberIds().includes(m.id));
   }
 
-  toggleAssignee(memberId: string): void {
+  openAssigneeModal(): void {
+    this.showAssigneeModal.set(true);
+  }
+
+  closeAssigneeModal(): void {
+    this.showAssigneeModal.set(false);
+  }
+
+  toggleAssigneeInModal(memberId: string): void {
     const current = this.assigneeMemberIds();
     if (current.includes(memberId)) {
       this.assigneeMemberIds.set(current.filter(id => id !== memberId));
@@ -271,16 +255,6 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
 
   isSelected(memberId: string): boolean {
     return this.assigneeMemberIds().includes(memberId);
-  }
-
-  onDepartmentChange(departmentId: string): void {
-    this.selectedDepartmentId.set(departmentId);
-    if (departmentId) {
-      this.loadDepartmentMembers(departmentId);
-    } else {
-      this.departmentMembers.set([]);
-      this.assigneeMemberIds.set([]);
-    }
   }
 
   getDepartmentRole(member: MemberRO): string {
@@ -297,5 +271,120 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
       case 'GUEST': return 'guest';
       default: return 'member';
     }
+  }
+
+  onDepartmentChange(departmentId: string): void {
+    this.selectedDepartmentId.set(departmentId);
+    if (departmentId) {
+      this.loadDepartmentMembers(departmentId);
+    } else {
+      this.departmentMembers.set([]);
+      this.assigneeMemberIds.set([]);
+    }
+  }
+
+  // ---------- Вложения (Drag & Drop) ----------
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      this.addFiles(input.files);
+      input.value = '';
+    }
+  }
+
+  onDropFiles(event: DragEvent): void {
+    event.preventDefault();
+    if (event.dataTransfer?.files) {
+      this.addFiles(event.dataTransfer.files);
+    }
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  private addFiles(fileList: FileList | File[]): void {
+    const files = Array.from(fileList);
+    const valid = files.filter(f => f.size <= 1024 * 1024);
+    if (valid.length + this.pendingFiles().length > 3) {
+      alert('Максимум 3 файла');
+      return;
+    }
+    this.pendingFiles.update(prev => [...prev, ...valid]);
+  }
+
+  removePendingFile(index: number): void {
+    this.pendingFiles.update(files => files.filter((_, i) => i !== index));
+  }
+
+  // ---------- Отправка формы ----------
+  onSubmit(): void {
+    if (!this.isFormValid()) return;
+
+    const departmentId = this.selectedDepartmentId();
+    const validMemberIds = this.assigneeMemberIds().filter(id =>
+      this.departmentMembers().some(m => m.id === id)
+    );
+
+    this.submitting.set(true);
+    const request: TaskCreateRO = {
+      taskStatus: 'PENDING',
+      title: this.title().trim(),
+      description: this.description().trim() || undefined,
+      priority: this.priority(),
+      departmentId,
+      projectId: this.projectId() || undefined,
+      assigneeIds: validMemberIds,
+      dueDate: this.dueDate() || undefined,
+      parentTaskId: this.parentTaskId() || undefined
+    };
+
+    this.taskService.createTask(request).subscribe({
+      next: (response: { id: string }) => {
+        this.submitting.set(false);
+        this.saveInitialData();
+        this.uploadAttachments(response.id);
+      },
+      error: (err) => {
+        console.error('Ошибка создания задачи', err);
+        this.submitting.set(false);
+        alert('Ошибка сервера: ' + (err.error?.message || 'не удалось создать задачу'));
+      }
+    });
+  }
+
+  private uploadAttachments(taskId: string): void {
+    const files = this.pendingFiles();
+    if (files.length === 0) {
+      this.router.navigate(['/tasks']);
+      return;
+    }
+    this.uploadingFiles.set(true);
+    let completed = 0;
+    const total = files.length;
+    files.forEach(file => {
+      this.taskService.uploadAttachment(taskId, file).subscribe({
+        next: () => {
+          completed++;
+          if (completed === total) {
+            this.uploadingFiles.set(false);
+            this.router.navigate(['/tasks']);
+          }
+        },
+        error: () => {
+          completed++;
+          if (completed === total) {
+            this.uploadingFiles.set(false);
+            this.router.navigate(['/tasks']);
+          }
+        }
+      });
+    });
   }
 }

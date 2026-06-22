@@ -2,39 +2,38 @@ import { Injectable, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { RouterStateSnapshot, TitleStrategy } from '@angular/router';
 import { TranslocoService } from '@ngneat/transloco';
+import { BehaviorSubject, filter, switchMap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class I18nTitleStrategy extends TitleStrategy {
   private readonly transloco = inject(TranslocoService);
   private readonly titleService = inject(Title);
 
+  // Создаем поток для хранения текущего ключа роута (например, 'routes.tasks')
+  private readonly titleKey$ = new BehaviorSubject<string>('');
+
   constructor() {
     super();
-    // Автоматически обновляем заголовок вкладки при смене языка в приложении
-    this.transloco.langChanges$.subscribe(() => {
-      // Перерасчитываем текущий заголовок, используя сохраненное состояние
-      if (this.lastTitleKey) {
-        this.updateTitleWithTranslation(this.lastTitleKey);
-      }
+
+    // Магия RxJS: связываем ключ страницы с реактивным переводом Transloco
+    this.titleKey$.pipe(
+      // Игнорируем пустые значения при старте
+      filter(key => !!key),
+      // selectTranslate автоматически:
+      // 1. Дождется загрузки JSON-файла с сервера (ошибка пропадет!)
+      // 2. Будет сам реагировать на изменения языка в приложении
+      switchMap(key => this.transloco.selectTranslate(key))
+    ).subscribe(translatedTitle => {
+      this.titleService.setTitle(`${translatedTitle}`);
     });
   }
-
-  private lastTitleKey = '';
 
   override updateTitle(routerState: RouterStateSnapshot): void {
     const titleKey = this.buildTitle(routerState);
 
     if (titleKey) {
-      this.lastTitleKey = titleKey;
-      this.updateTitleWithTranslation(titleKey);
+      // Просто пушим новый ключ в поток, остальное за нас сделает подписка выше
+      this.titleKey$.next(titleKey);
     }
-  }
-
-  private updateTitleWithTranslation(key: string): void {
-    // Получаем перевод по ключу (например, 'routes.tracker')
-    const translatedTitle = this.transloco.translate(key);
-
-    // Форматируем заголовок (например: "Трекер | ATMM")
-    this.titleService.setTitle(`${translatedTitle}`);
   }
 }
