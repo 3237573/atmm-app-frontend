@@ -1,11 +1,12 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { SidebarService } from '../../services/sidebar.service'; // Проверьте путь к вашему сервису!
+import { SidebarService } from '../../services/sidebar.service';
 import { ThemeService } from '../../services/theme.service';
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 import { filter, map, startWith } from 'rxjs';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
+import { LanguageService } from '@core/services/language.service';
 
 @Component({
   selector: 'app-header',
@@ -16,13 +17,12 @@ import { AsyncPipe, UpperCasePipe } from '@angular/common';
 })
 export class Header {
   private readonly authService = inject(AuthService);
+  protected readonly languageService = inject(LanguageService); // Сделал protected для шаблона
   private readonly router = inject(Router);
-  protected readonly sidebarService = inject(SidebarService); // Сервис для отслеживания линии
+  protected readonly sidebarService = inject(SidebarService);
   protected readonly themeService = inject(ThemeService);
   private readonly translocoService = inject(TranslocoService);
 
-
-  // Если у вас возвращается имя воркспейса из другого сигнала/сервиса, используйте его:
   readonly currentWorkspaceName = computed(() => this.authService.currentWorkspace()?.name ?? '');
 
   readonly isAuthPage$ = this.router.events.pipe(
@@ -31,23 +31,23 @@ export class Header {
     map(() => this.router.url.includes('/login') || this.router.url.includes('/register'))
   );
 
+  // Теперь реактивно берем язык напрямую из нашего сигнала
   get activeLang(): string {
-    return this.translocoService.getActiveLang();
+    return this.languageService.language();
   }
 
   toggleLanguage() {
-    const newLang = this.activeLang === 'ru' ? 'en' : 'ru';
-    this.translocoService.setActiveLang(newLang);
+    // Вся магия теперь под капотом одного метода
+    this.languageService.toggleLanguage();
   }
 
   onLogout() {
-    // Получаем строку перевода или используем дефолтный текст
     const confirmMsg = this.translocoService.translate('auth.logoutConfirmation') || 'Вы уверены, что хотите выйти из системы?';
 
     if (confirm(confirmMsg)) {
       this.authService.logout().subscribe({
         next: () => {
-          this.router.navigate(['/login']);
+          void this.router.navigate(['/login']);
         },
         error: (err) => {
           console.error('Logout error', err);
