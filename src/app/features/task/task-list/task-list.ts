@@ -1,13 +1,14 @@
-import {Component, computed, effect, inject, OnInit, signal, untracked} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {RouterModule} from '@angular/router';
-import {TaskService} from '@core/services/task.service';
-import {TASK_STATUS_CONFIG, TASK_STATUS_LIST, TaskPriority, TaskRO, TaskStatus, TaskTreeRO} from '@core/models/task/task.model';
-import {AuthService} from '@core/services/auth.service';
-import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
-import {ReplaceMePipe} from '@core/pipes/replace-me.pipe';
-import {TranslocoPipe, TranslocoService} from '@ngneat/transloco'; // <-- Добавили импорты
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { TaskService } from '@core/services/task.service';
+import { TASK_STATUS_CONFIG, TASK_STATUS_LIST, TaskPriority, TaskRO, TaskStatus, TaskTreeRO } from '@core/models/task/task.model';
+import { AuthService } from '@core/services/auth.service';
+import { LanguageService } from '@core/services/language.service'; // <-- Внедряем твой сервис языка
+import { BackOnEscapeDirective } from '@core/directives/back-on-escape.directive';
+import { ReplaceMePipe } from '@core/pipes/replace-me.pipe';
+import { TranslocoPipe } from '@ngneat/transloco';
 
 type RenderTask = TaskRO & {
   level: number;
@@ -28,14 +29,14 @@ interface TaskListState {
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, BackOnEscapeDirective, ReplaceMePipe, TranslocoPipe], // <-- Добавили TranslocoPipe
+  imports: [CommonModule, FormsModule, RouterModule, BackOnEscapeDirective, ReplaceMePipe, TranslocoPipe],
   templateUrl: './task-list.html',
   styleUrl: './task-list.scss'
 })
 export class TaskList implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly taskService = inject(TaskService);
-  private readonly translocoService = inject(TranslocoService); // <-- Внедряем сервис для работы с языком
+  private readonly languageService = inject(LanguageService); // <-- Подключаем для реактивного перевода дат
   private readonly STORAGE_KEY = 'task_list_state';
   protected readonly TASK_STATUS_LIST = TASK_STATUS_LIST;
 
@@ -76,7 +77,7 @@ export class TaskList implements OnInit {
 
   stats = computed(() => {
     const tasks = this.flatTasks();
-    const currentStats = {total: tasks.length, pending: 0, inProgress: 0, review: 0, completed: 0, overdue: 0, archived: 0};
+    const currentStats = { total: tasks.length, pending: 0, inProgress: 0, review: 0, completed: 0, overdue: 0, archived: 0 };
     const todayTime = new Date().setHours(0, 0, 0, 0);
 
     for (const t of tasks) {
@@ -123,27 +124,27 @@ export class TaskList implements OnInit {
       }
     }
 
-    return {matchedIds, visibleIds, isFiltered: !!(query || taskStatus || priority)};
+    return { matchedIds, visibleIds, isFiltered: !!(query || taskStatus || priority) };
   });
 
   visibleTasks = computed(() => {
-    const {visibleIds} = this.filteredTaskSets();
+    const { visibleIds, isFiltered } = this.filteredTaskSets();
     const expanded = this.expandedNodes();
+    const currentLang = this.languageService.language(); // Трэкаем сигнал языка (теперь даты переведутся на лету!)
     const result: RenderTask[] = [];
     const todayTime = new Date().setHours(0, 0, 0, 0);
 
     const parseDateInfo = (dateStr: string | undefined) => {
-      if (!dateStr) return {dateClass: '' as const, formattedDate: '—'};
+      if (!dateStr) return { dateClass: '' as const, formattedDate: '—' };
       const d = new Date(dateStr);
-      // Используем текущий язык приложения из Transloco вместо хардкода 'ru-RU'
-      const formattedDate = d.toLocaleDateString(this.translocoService.getActiveLang(), {day: '2-digit', month: '2-digit', year: 'numeric'});
+      const formattedDate = d.toLocaleDateString(currentLang, { day: '2-digit', month: '2-digit', year: 'numeric' });
       const dateTime = d.setHours(0, 0, 0, 0);
 
-      if (dateTime < todayTime) return {dateClass: 'overdue' as const, formattedDate};
-      if (dateTime === todayTime) return {dateClass: 'today' as const, formattedDate};
+      if (dateTime < todayTime) return { dateClass: 'overdue' as const, formattedDate };
+      if (dateTime === todayTime) return { dateClass: 'today' as const, formattedDate };
       const diffDays = Math.ceil((dateTime - todayTime) / (1000 * 60 * 60 * 24));
-      if (diffDays > 0 && diffDays <= 3) return {dateClass: 'soon' as const, formattedDate};
-      return {dateClass: 'future' as const, formattedDate};
+      if (diffDays > 0 && diffDays <= 3) return { dateClass: 'soon' as const, formattedDate };
+      return { dateClass: 'future' as const, formattedDate };
     };
 
     const traverse = (trees: TaskTreeRO[], level: number) => {
@@ -159,7 +160,11 @@ export class TaskList implements OnInit {
           formattedDate: dateInfo.formattedDate
         });
 
-        if (expanded.has(task.id) && node.subtasks?.length) {
+        // ДЕКЛАРАТИВНОЕ ПРАВИЛО: узел считается развернутым, если пользователь развернул его вручную,
+        // ЛИБО если сейчас включен фильтр поиска/статуса и этот узел ведет к отфильтрованным подзадачам.
+        const isNodeExpanded = expanded.has(task.id) || (isFiltered && visibleIds.has(task.id));
+
+        if (isNodeExpanded && node.subtasks?.length) {
           traverse(node.subtasks, level + 1);
         }
       }
@@ -177,26 +182,7 @@ export class TaskList implements OnInit {
   constructor() {
     this.restoreState();
 
-    effect(() => {
-      const {visibleIds, isFiltered} = this.filteredTaskSets();
-
-      untracked(() => {
-        if (!isFiltered || !this.tasksInitialLoaded()) return;
-
-        const currentExpanded = new Set(this.expandedNodes());
-        let changed = false;
-
-        visibleIds.forEach(id => {
-          if (!currentExpanded.has(id)) {
-            currentExpanded.add(id);
-            changed = true;
-          }
-        });
-
-        if (changed) this.expandedNodes.set(currentExpanded);
-      });
-    }, {allowSignalWrites: true});
-
+    // ОСТАЛСЯ ТОЛЬКО ОДИН ЭФФЕКТ: Синхронизация состояния с LocalStorage (чистый side-effect)
     effect(() => {
       if (!this.tasksInitialLoaded()) return;
 
@@ -211,27 +197,6 @@ export class TaskList implements OnInit {
       };
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
     });
-
-    effect(() => {
-      const tasks = this.flatTasks();
-      const isLoaded = this.tasksInitialLoaded();
-
-      untracked(() => {
-        if (!isLoaded) return;
-
-        const currentIds = new Set(tasks.map(t => t.id));
-        const expanded = new Set(this.expandedNodes());
-        let needUpdate = false;
-
-        for (const id of expanded) {
-          if (!currentIds.has(id)) {
-            expanded.delete(id);
-            needUpdate = true;
-          }
-        }
-        if (needUpdate) this.expandedNodes.set(expanded);
-      });
-    }, {allowSignalWrites: true});
   }
 
   ngOnInit() {
@@ -270,6 +235,21 @@ export class TaskList implements OnInit {
         this.taskTrees.set(data || []);
         this.loading.set(false);
         this.tasksInitialLoaded.set(true);
+
+        // ОПТИМИЗАЦИЯ: Чистим устаревшие ID из expandedNodes один раз при получении свежих данных
+        const currentIds = new Set(this.flatTasks().map(t => t.id));
+        const expanded = new Set(this.expandedNodes());
+        let needUpdate = false;
+
+        for (const id of expanded) {
+          if (!currentIds.has(id)) {
+            expanded.delete(id);
+            needUpdate = true;
+          }
+        }
+        if (needUpdate) {
+          this.expandedNodes.set(expanded);
+        }
       },
       error: (err) => {
         console.error('Ошибка загрузки задач', err);

@@ -11,7 +11,7 @@ import {ChatService} from '@core/services/chat.service';
 })
 export class App implements OnInit {
   private readonly chatService = inject(ChatService);
-  protected readonly title = signal('atmm-app-frontend');
+  protected readonly title = signal('pam');
 
   ngOnInit(): void {
     // Automatically start a connection to SharedWorker at the start of the entire application
