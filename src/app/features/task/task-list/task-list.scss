@@ -8,38 +8,93 @@
   box-sizing: border-box;
 }
 
-// ==========================================================================
-// ПАНЕЛЬ ФИЛЬТРОВ И СТАТИСТИКИ
-// ==========================================================================
-.filters-stats-row {
+// Шапка страницы
+.page-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
+  align-items: center;
   margin-bottom: 1.5rem;
-  width: 100%;
+  flex-wrap: wrap;
+  gap: 1rem;
 
-  .filters-container {
-    flex: 0 0 calc(50% - 0.75rem);
-    width: calc(50% - 0.75rem);
-    display: flex;
-    align-items: center;
-  }
-
-  .stats-grid {
-    flex: 0 0 calc(50% - 0.75rem);
-    width: calc(50% - 0.75rem);
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 0.4rem;
+  .header-info {
+    h1 {
+      margin: 0 0 0.25rem 0;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-main);
+      i { color: var(--accent); }
+    }
+    p { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
   }
 }
 
+// ==========================================================================
+// БЛОК СТАТИСТИКИ (ВЕРХНИЙ РЯД СВОДКИ)
+// ==========================================================================
+.stats-container {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 42px;
+  box-sizing: border-box;
+  padding: 0 0.5rem;
+
+  .stat-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1.1;
+  }
+  .stat-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    line-height: 1;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+  }
+  &.pending .stat-value { color: var(--danger); }
+  &.progress .stat-value { color: #2563eb; }
+  &.completed .stat-value { color: #16a34a; }
+  &.overdue {
+    background: rgba(239, 68, 68, 0.05);
+    border-color: rgba(239, 68, 68, 0.15);
+    .stat-value { color: var(--danger); }
+  }
+  &.archived .stat-value { color: #4b5563; }
+}
+
+// ==========================================================================
+// ПАНЕЛЬ ФИЛЬТРОВ И УПРАВЛЕНИЯ (НИЖНИЙ РЯД КОНТРОЛЛЕРОВ)
+// ==========================================================================
 .filters-bar {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   width: 100%;
+  margin-bottom: 1.5rem;
 
   .search-box {
     position: relative;
@@ -74,9 +129,7 @@
   }
 }
 
-// ==========================================================================
-// ПЕРЕКЛЮЧАТЕЛЬ РЕЖИМОВ ОТОБРАЖЕНИЯ (LIST / BOARD)
-// ==========================================================================
+// Переключатель видов (List / Board)
 .view-toggle {
   display: flex;
   background: var(--bg-card);
@@ -92,7 +145,7 @@
     background: transparent;
     border: none;
     color: var(--text-muted);
-    padding: 0 0.4rem;
+    padding: 0 0.5rem;
     cursor: pointer;
     border-radius: 4px;
     display: flex;
@@ -108,66 +161,26 @@
 }
 
 // ==========================================================================
-// СЕТКА СТАТИСТИКИ (КАРТОЧКИ)
+// СЕЛЕКТЫ СТАТУСОВ И ПРИОРИТЕТОВ
 // ==========================================================================
-.stat-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 36px;
-  box-sizing: border-box;
-  padding: 0 0.2rem;
-
-  .stat-value {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--accent);
-    line-height: 1;
-  }
-  .stat-label {
-    font-size: 0.55rem;
-    color: var(--text-muted);
-    line-height: 1;
-    margin-top: 1px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-  }
-  &.pending .stat-value { color: var(--danger); }
-  &.progress .stat-value { color: #2563eb; }
-  &.completed .stat-value { color: #16a34a; }
-  &.overdue {
-    background: rgba(239, 68, 68, 0.05);
-    border-color: rgba(239, 68, 68, 0.15);
-    .stat-value { color: var(--danger); }
-  }
-  &.archived .stat-value { color: #4b5563; }
-}
-
-// ==========================================================================
-// СЕЛЕКТЫ СТАТУСОВ (ОБЩИЕ СТИЛИ ДЛЯ ФИЛЬТРА И ТАБЛИЦЫ)
-// ==========================================================================
-.status-select-wrapper {
+.status-select-wrapper,
+.priority-select-wrapper {
   position: relative;
   display: flex;
   align-items: center;
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 0 0.25rem;
   background: var(--bg-card);
   transition: all 0.2s ease-in-out;
   height: 36px;
   box-sizing: border-box;
+  min-width: 140px;
 
-  .status-select-styled {
+  .status-select-styled,
+  .priority-select-styled {
     width: 100%;
-    padding: 0 1.5rem 0 0.4rem;
+    height: 100%;
+    padding: 0 1.8rem 0 0.5rem;
     background: transparent;
     border: none;
     outline: none;
@@ -176,7 +189,6 @@
     cursor: pointer;
     appearance: none;
     color: var(--text-main);
-    height: 100%;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -184,65 +196,61 @@
 
   .select-arrow {
     position: absolute;
-    right: 6px;
+    right: 8px;
     pointer-events: none;
     color: var(--text-muted);
     font-size: 1.1rem;
   }
+}
 
-  // Динамическая цветовая схема статусов (Панель фильтров + Строки таблиц)
+// Цветовые схемы для селекта статусов
+.status-select-wrapper {
   &.status-pending {
-    background-color: rgba(234, 179, 8, 0.08);
-    border-color: rgba(234, 179, 8, 0.25);
+    background-color: rgba(234, 179, 8, 0.08); border-color: rgba(234, 179, 8, 0.25);
     .status-select-styled, .select-arrow { color: var(--danger); }
   }
   &.status-progress {
-    background-color: rgba(59, 130, 246, 0.08);
-    border-color: rgba(59, 130, 246, 0.25);
+    background-color: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.25);
     .status-select-styled, .select-arrow { color: #2563eb; }
   }
   &.status-review {
-    background-color: rgba(168, 85, 247, 0.08);
-    border-color: rgba(168, 85, 247, 0.25);
+    background-color: rgba(168, 85, 247, 0.08); border-color: rgba(168, 85, 247, 0.25);
     .status-select-styled, .select-arrow { color: #9333ea; }
   }
   &.status-completed {
-    background-color: rgba(34, 197, 94, 0.08);
-    border-color: rgba(34, 197, 94, 0.25);
+    background-color: rgba(34, 197, 94, 0.08); border-color: rgba(34, 197, 94, 0.25);
     .status-select-styled, .select-arrow { color: #16a34a; }
   }
   &.status-archived {
-    background-color: rgba(156, 163, 175, 0.1);
-    border-color: rgba(156, 163, 175, 0.3);
+    background-color: rgba(156, 163, 175, 0.1); border-color: rgba(156, 163, 175, 0.3);
     .status-select-styled, .select-arrow { color: #4b5563; }
   }
 }
 
-// ==========================================================================
-// СТИЛИЗАЦИЯ ВСЕХ ВЫПАДАЮЩИХ СПИСКОВ (<option>)
-// ==========================================================================
+// Цветовые схемы для селекта приоритетов
+.priority-select-wrapper {
+  &[data-priority="LOW"] { background: rgba(34, 197, 94, 0.08); border-color: rgba(34, 197, 94, 0.25); .priority-select-styled, .select-arrow { color: #16a34a; } }
+  &[data-priority="MEDIUM"] { background: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.25); .priority-select-styled, .select-arrow { color: #2563eb; } }
+  &[data-priority="HIGH"] { background: rgba(245, 158, 11, 0.08); border-color: rgba(245, 158, 11, 0.25); .priority-select-styled, .select-arrow { color: #d97706; } }
+  &[data-priority="CRITICAL"] { background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.25); .priority-select-styled, .select-arrow { color: var(--danger); } }
+}
+
+// Выпадающие списки (<option>)
 option {
   background-color: var(--bg-card);
   color: var(--text-main);
 
-  // Цвета для статусов
-  &.status-default { color: var(--text-main); }
-  &.status-pending { color: var(--danger); }
-  &.status-progress { color: #2563eb; }
+  &.status-default, &.priority-default { color: var(--text-main); }
+  &.status-pending, &.priority-critical { color: var(--danger); }
+  &.status-progress, &.priority-medium { color: #2563eb; }
   &.status-review { color: #9333ea; }
-  &.status-completed { color: #16a34a; }
+  &.status-completed, &.priority-low { color: #16a34a; }
   &.status-archived { color: #4b5563; }
-
-  // Цвета для приоритетов (ТЕПЕРЬ В ФИЛЬТРЕ БУДУТ ЦВЕТА)
-  &.priority-default { color: var(--text-main); }
-  &.priority-low { color: #16a34a; }
-  &.priority-medium { color: #2563eb; }
   &.priority-high { color: #d97706; }
-  &.priority-critical { color: var(--danger); }
 }
 
 // ==========================================================================
-// БЭЙДЖИ ПРИОРИТЕТА (ТАБЛИЦА И КАНБАН)
+// БЭЙДЖИ ПРИОРИТЕТА ВНУТРИ КОНТЕНТА (ЕДИНЫЙ БЛОК)
 // ==========================================================================
 .priority-badge {
   display: inline-block;
@@ -254,82 +262,12 @@ option {
   text-align: center;
   width: 100%;
   box-sizing: border-box;
+  white-space: nowrap;
 
-  // Абсолютно надежная привязка: стили цепляются напрямую к значению из базы (LOW, MEDIUM и т.д.)
-  // Оставлены запасные классы (.low, .priority-low) на случай, если где-то еще в проекте они используются.
-  &[data-priority="LOW"], &.low, &.priority-low {
-    background: rgba(34, 197, 94, 0.1);
-    color: #16a34a;
-  }
-  &[data-priority="MEDIUM"], &.medium, &.priority-medium {
-    background: rgba(59, 130, 246, 0.1);
-    color: #2563eb;
-  }
-  &[data-priority="HIGH"], &.high, &.priority-high {
-    background: rgba(245, 158, 11, 0.12);
-    color: #d97706;
-  }
-  &[data-priority="CRITICAL"], &.critical, &.priority-critical {
-    background: rgba(239, 68, 68, 0.12);
-    color: var(--danger);
-  }
-}
-
-// ==========================================================================
-// УПРАВЛЕНИЕ СТИЛЯМИ ПРИОРИТЕТОВ (СИНХРОННО ДЛЯ ФИЛЬТРА И ТАБЛИЦЫ)
-// ==========================================================================
-// 1. Фильтр приоритета (Выпадающий список на панели управления)
-.priority-select-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  height: 36px;
-  box-sizing: border-box;
-
-  .priority-select-styled {
-    height: 100%;
-    padding: 0 1.8rem 0 0.5rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--bg-card);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    appearance: none;
-    color: var(--text-main);
-    outline: none;
-    transition: all 0.2s;
-  }
-  .select-arrow {
-    position: absolute;
-    right: 8px;
-    pointer-events: none;
-    font-size: 1.1rem;
-    color: var(--text-main);
-  }
-
-  &[data-priority="LOW"] .priority-select-styled { background: rgba(34, 197, 94, 0.08); color: #16a34a; border-color: rgba(34, 197, 94, 0.25); }
-  &[data-priority="MEDIUM"] .priority-select-styled { background: rgba(59, 130, 246, 0.08); color: #2563eb; border-color: rgba(59, 130, 246, 0.25); }
-  &[data-priority="HIGH"] .priority-select-styled { background: rgba(245, 158, 11, 0.08); color: #d97706; border-color: rgba(245, 158, 11, 0.25); }
-  &[data-priority="CRITICAL"] .priority-select-styled { background: rgba(239, 68, 68, 0.08); color: var(--danger); border-color: rgba(239, 68, 68, 0.25); }
-}
-
-// 2. Бэйджи приоритета внутри таблицы и канбан-карточек
-.priority-badge {
-  display: inline-block;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  text-align: center;
-  width: 100%;
-  box-sizing: border-box;
-
-  &.low { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
-  &.medium { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
-  &.high { background: rgba(245, 158, 11, 0.12); color: #d97706; }
-  &.critical { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
+  &[data-priority="LOW"], &.low, &.priority-low { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+  &[data-priority="MEDIUM"], &.medium, &.priority-medium { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+  &[data-priority="HIGH"], &.high, &.priority-high { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+  &[data-priority="CRITICAL"], &.critical, &.priority-critical { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
 }
 
 // ==========================================================================
@@ -350,7 +288,7 @@ option {
   min-width: 1200px;
 
   th, td {
-    padding: 0.2rem 1rem;
+    padding: 0.4rem 1rem;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
   }
@@ -384,14 +322,10 @@ option {
     &:hover { background: rgba(var(--accent-rgb), 0.02); }
   }
 
-  // Тонкая настройка адаптивных колонок
-  .col-task { width: 700px; min-width: 350px}
+  .col-task { width: 700px; min-width: 350px; }
   .col-icon { width: 50px; text-align: center; i { font-size: 1.2rem; color: var(--text-muted); } }
-
-  // Увеличена ширина под селекты статусов, чтобы текст помещался полностью и не обрезался
-  .col-status { width: 150px; }
-  .col-priority { width: 100px; }
-
+  .col-status { width: 160px; }
+  .col-priority { width: 110px; }
   .col-department { width: 140px; }
   .col-project { width: 120px; }
   .col-date { width: 110px; }
@@ -402,7 +336,6 @@ option {
   .text-right { text-align: right; }
 }
 
-// Компоненты внутри ячеек таблицы
 .title-wrapper {
   display: flex;
   align-items: center;
@@ -441,10 +374,7 @@ option {
   &.muted { color: var(--border); font-weight: normal; }
 }
 
-.assignee,
-.department-name,
-.project-name,
-.creator-name {
+.assignee, .department-name, .project-name, .creator-name {
   font-size: 0.85rem;
   color: var(--text-main);
   font-weight: 500;
@@ -495,7 +425,6 @@ option {
 
   &:hover { background: rgba(var(--accent-rgb), 0.04); border-color: var(--accent); }
   .card-header { margin-bottom: 0.5rem; display: flex; }
-
   .card-title {
     font-size: 0.9rem;
     margin-bottom: 0.75rem;
@@ -527,20 +456,15 @@ option {
 }
 
 // ==========================================================================
-// АДАПТИВНОСТЬ (MEDIA QUERIES)
+// АДАПТИВНОСТЬ И МЕДИА-ЗАПРОСЫ
 // ==========================================================================
 @media (max-width: 1400px) {
   .tasks-table .col-department, .tasks-table .col-project { width: 110px; }
 }
 
 @media (max-width: 1200px) {
-  .filters-stats-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-    .filters-container, .stats-grid { flex: 0 0 100%; width: 100%; }
-    .stats-grid { gap: 0.5rem; }
-    .stat-card { height: 40px; .stat-value { font-size: 1rem; } }
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr); // Статистика становится 3х2 вместо сжатия
   }
   .tasks-table .col-department, .tasks-table .col-project { display: none; }
 }
@@ -549,8 +473,36 @@ option {
   .tasks-table .col-creator { display: none; }
 }
 
+// МОБИЛЬНЫЕ УСТРОЙСТВА
 @media (max-width: 768px) {
   .task-list { padding: 1rem; }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr); // На мобильных статистика превращается в компактную сетку 2х3
+    .stat-card { height: 40px; }
+  }
+
+  // ОТВЕТ НА ВАШ ВОПРОС: Полностью перестраиваем панель фильтров в вертикальный ряд, исключая наложение
+  .filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+
+    .search-box,
+    .status-select-wrapper,
+    .priority-select-wrapper,
+    .view-toggle {
+      width: 100%; // Каждый элемент занимает всю строку
+    }
+
+    .view-toggle {
+      justify-content: center;
+      .toggle-btn {
+        flex: 1; // Кнопки переключения вида делят экран поровну
+      }
+    }
+  }
+
   .tasks-table .col-assignee { display: none; }
   .kanban-board { flex-direction: column; }
   .kanban-column { width: 100%; }

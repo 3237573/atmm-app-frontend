@@ -1,46 +1,104 @@
 @use "../../../app" as *;
 
-.task-create {
-  padding: 1.5rem;
-  //max-width: 800px;
-  //margin: 0 auto;
-  min-height: 100vh;
+// ---------- Placeholders (Шаблоны для переиспользования) ----------
+%icon-btn-reset {
+  background: transparent;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+
+  &:hover { color: $text-main; }
 }
 
-//.page-header {
-//  display: flex;
-//  justify-content: space-between;
-//  align-items: center;
-//  margin-bottom: 2rem;
-//  flex-wrap: wrap;
-//  gap: 1rem;
-//
-//  h1 {
-//    margin: 0;
-//    font-size: 1.5rem;
-//    display: flex;
-//    align-items: center;
-//    gap: 0.5rem;
-//
-//    i {
-//      color: $accent;
-//      font-size: 1.75rem;
-//    }
-//  }
-//}
+%btn-base {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
 
+  i { font-size: 1.1rem; }
+}
+
+// ---------- Main Layout ----------
+.task-create {
+  padding: 1.5rem;
+  min-height: 100vh;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+// ---------- Header ----------
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: $text-main;
+
+    i {
+      color: $accent;
+      font-size: 1.75rem;
+    }
+  }
+}
+
+.btn-back {
+  @extend %icon-btn-reset;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+
+  i { font-size: 1.2rem; }
+  &:hover {
+    background: rgba($border, 0.2);
+    color: $accent;
+  }
+}
+
+// ---------- Form container ----------
 .form-container {
   background: $bg-card;
   border-radius: 1rem;
   border: 1px solid $border;
   padding: 1.5rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 }
 
 .form-group {
   margin-bottom: 1.5rem;
 
   label {
-    //display: block;
+    display: block;
     margin-bottom: 0.5rem;
     font-weight: 600;
     font-size: 0.85rem;
@@ -53,9 +111,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-  }
+  @media (max-width: 480px) { grid-template-columns: 1fr; }
 }
 
 .form-row-3 {
@@ -63,9 +119,8 @@
   grid-template-columns: 1fr 1fr 1fr;
   gap: 1rem;
 
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-  }
+  @media (max-width: 768px) { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 480px) { grid-template-columns: 1fr; }
 }
 
 .form-control {
@@ -86,10 +141,7 @@
 
   &.invalid {
     border-color: $danger;
-
-    &:focus {
-      box-shadow: 0 0 0 2px rgba($danger, 0.1);
-    }
+    &:focus { box-shadow: 0 0 0 2px rgba($danger, 0.1); }
   }
 }
 
@@ -112,167 +164,398 @@ textarea.form-control {
   color: $text-muted;
 }
 
-.members-list {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid $border;
-  border-radius: 0.5rem;
-  background: $bg-main;
-  overflow: hidden;
+// ---------- Priority select ----------
+.priority-select-wrapper {
+  position: relative;
+
+  .priority-select-styled {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2rem;
+  }
 }
 
-.member-row {
+// ---------- Unified Compact Rows (Attachments & Assignees) ----------
+.attachments-row,
+.assignees-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.6rem 1rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  border-bottom: 1px solid rgba($border, 0.3);
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  min-height: 2.2rem;
 
-  &:last-child {
-    border-bottom: none;
+  .attachments-label,
+  .assignees-label {
+    flex: 0 0 auto;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: $text-muted;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    .label-hint {
+      font-size: 0.75rem;
+      color: $danger;
+      font-weight: normal;
+    }
   }
+
+  .attachments-actions,
+  .assignees-actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+  }
+
+  .btn-icon-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.35rem;
+    border: 1px solid $border;
+    background: $bg-main;
+    color: $accent;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    i { font-size: 1.1rem; }
+    &:hover:not([disabled]) {
+      background: rgba($accent, 0.1);
+      border-color: $accent;
+    }
+    &[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .attachments-inline,
+  .assignees-inline {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+    background: rgba($bg-main, 0.4);
+    border: 1px dashed $border;
+    border-radius: 0.35rem;
+    padding: 0.2rem 0.5rem;
+    min-height: 2rem;
+  }
+
+  .attachments-list,
+  .assignees-list {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar { height: 3px; }
+    &::-webkit-scrollbar-thumb {
+      background: rgba($border, 0.5);
+      border-radius: 2px;
+    }
+  }
+
+  // Мобильная адаптивность строк
+  @media (max-width: 640px) {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.4rem;
+    min-height: auto;
+
+    .attachments-label,
+    .assignees-label {
+      grid-column: 1;
+      white-space: normal;
+    }
+
+    .attachments-actions,
+    .assignees-actions {
+      grid-column: 2;
+      justify-content: flex-end;
+    }
+
+    .attachments-inline,
+    .assignees-inline {
+      grid-column: 1 / span 2;
+      width: 100%;
+      padding: 0.4rem;
+    }
+
+    .attachments-list,
+    .assignees-list {
+      flex-direction: column;
+      overflow-x: visible;
+      gap: 0.4rem;
+    }
+  }
+}
+
+// ---------- Компактные Чипсы (Элементы списков) ----------
+.attachment-chip,
+.assignee-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: $bg-main;
+  border: 1px solid $border;
+  border-radius: 0.35rem;
+  padding: 0.15rem 0.4rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  max-width: 180px;
+
+  @media (max-width: 640px) {
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .file-icon,
+  .member-icon {
+    font-size: 1rem;
+    color: $accent;
+    flex-shrink: 0;
+  }
+
+  .file-name,
+  .member-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: $text-main;
+  }
+
+  .file-size {
+    font-size: 0.7rem;
+    color: $text-muted;
+    flex-shrink: 0;
+  }
+
+  .btn-delete-chip {
+    @extend %icon-btn-reset;
+    margin-left: 0.15rem;
+    flex-shrink: 0;
+    i { font-size: 0.95rem; }
+    &:hover { color: $danger; }
+  }
+}
+
+.assignee-chip {
+  background: rgba($accent, 0.05);
+  border-color: rgba($accent, 0.15);
+  .member-name { color: $accent; font-weight: 500; }
+}
+
+.empty-attachments-text,
+.empty-assignees-text {
+  font-size: 0.8rem;
+  color: $text-muted;
+  font-style: italic;
+}
+
+// ---------- Modal ----------
+.modal-overlay {
+  position: fixed;
+  inset: 0; // Сокращение для top, left, right, bottom: 0
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: $bg-card;
+  border-radius: 1rem;
+  border: 1px solid $border;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid $border;
+
+  h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: $text-main;
+  }
+
+  .btn-close-modal {
+    @extend %icon-btn-reset;
+    padding: 0.25rem;
+    i { font-size: 1.2rem; }
+  }
+}
+
+.modal-body {
+  padding: 1rem 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid $border;
+  display: flex;
+  justify-content: flex-end;
+}
+
+// Members list inside modal
+.members-selection-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.member-selection-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.4rem;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
 
   &:hover {
     background: rgba($accent, 0.05);
+    border-color: rgba($accent, 0.2);
   }
 
-  input {
-    margin: 0;
-    flex-shrink: 0;
-    width: 16px;
-    height: 16px;
+  &.selected {
+    background: rgba($accent, 0.08);
+    border-color: $accent;
+    box-shadow: 0 0 0 1px rgba($accent, 0.15);
+  }
+
+  input[type="checkbox"] {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid $border;
+    border-radius: 0.25rem;
+    background: $bg-main;
     cursor: pointer;
-    accent-color: $accent;
+    flex-shrink: 0;
+    transition: 0.15s;
+    position: relative;
+
+    &:checked {
+      background: $accent;
+      border-color: $accent;
+      &::after {
+        content: '✓';
+        position: absolute;
+        left: 3px;
+        top: -1px;
+        color: #fff;
+        font-size: 13px;
+        font-weight: bold;
+      }
+    }
+    &:hover { border-color: $accent; }
   }
 
   .member-name {
-    font-weight: 500;
-    font-size: 0.9rem;
-    min-width: 150px;
-  }
-
-  .member-email {
-    //font-size: 0.75rem;
-    color: $text-muted;
     flex: 1;
+    font-weight: 500;
+    color: $text-main;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .member-role {
     font-size: 0.65rem;
     font-weight: 600;
-    padding: 0.2rem 0.7rem;
+    padding: 0.1rem 0.6rem;
     border-radius: 2rem;
     text-align: center;
-    min-width: 70px;
+    min-width: 60px;
+    flex-shrink: 0;
 
-    &.owner {
-      background: color-mix(in srgb, var(--role-owner-color), transparent 85%);
-      color: $role-owner-color;
-      border: 1px solid rgba($role-owner-color, 0.3);
-    }
-    &.admin {
-      background: rgba($role-admin-color, 0.15);
-      color: $role-admin-color;
-      border: 1px solid rgba($role-admin-color, 0.3);
-    }
-    &.member {
-      background: rgba($role-member-color, 0.15);
-      color: $role-member-color;
-      border: 1px solid rgba($role-member-color, 0.3);
-    }
-    &.guest {
-      background: rgba($role-guest-color, 0.15);
-      color: $role-guest-color;
-      border: 1px solid rgba($role-guest-color, 0.3);
+    // Оптимизация ролей через SCSS Map Loop
+    $role-colors: (
+      "owner": $role-owner-color,
+      "admin": $role-admin-color,
+      "member": $role-member-color,
+      "guest": $role-guest-color
+    );
+
+    @each $name, $color in $role-colors {
+      &.#{$name} {
+        background: rgba($color, 0.15);
+        color: $color;
+        border: 1px solid rgba($color, 0.3);
+      }
     }
   }
 }
 
-.empty-members {
-  text-align: center;
-  padding: 2rem;
-  color: $text-muted;
-  font-size: 0.85rem;
-}
-
-.loader-small {
-  text-align: center;
-  padding: 2rem;
-  color: $text-muted;
-  font-size: 0.85rem;
-}
-
+// ---------- Buttons ----------
 .form-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 1rem;
   margin-top: 2rem;
   padding-top: 1.5rem;
   border-top: 1px solid $border;
 
-  button {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    i {
-      font-size: 1.1rem;
-    }
-  }
-}
-
-// Responsive
-@media (max-width: 768px) {
-  .task-create {
-    padding: 1rem;
-  }
-
-  .form-container {
-    padding: 1rem;
-  }
-
-  .member-row {
-    flex-wrap: wrap;
-    gap: 0.5rem;
-
-    .member-name {
-      min-width: 100px;
-    }
-
-    .member-email {
-      flex: 1;
-      min-width: 150px;
-    }
-
-    .member-role {
-      margin-left: auto;
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .form-actions {
+  @media (max-width: 480px) {
     flex-direction: column-reverse;
-
-    button {
-      width: 100%;
-      justify-content: center;
-    }
   }
+}
 
-  .member-row {
-    flex-direction: column;
-    align-items: flex-start;
+.btn-primary {
+  @extend %btn-base;
+  background: $accent;
+  color: $bg-main;
+  border: 1px solid $accent;
 
-    .member-role {
-      margin-left: 0;
-    }
+  &:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+  &:disabled, &.btn-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: $border;
+    color: $text-muted;
+    border-color: $border;
+    transform: none;
   }
+}
+
+.btn-secondary {
+  @extend %btn-base;
+  background: transparent;
+  color: $text-muted;
+  border: 1px solid $border;
+
+  &:hover { background: rgba($border, 0.2); color: $text-main; }
+}
+
+// ---------- Spinner ----------
+.spinning {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

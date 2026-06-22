@@ -175,15 +175,27 @@
     }
   },
   "taskCreate": {
+    "assignees": {
+      "done": "Done",
+      "edit": "Modify",
+      "modalTitle": "Members"
+    },
+    "attachments": {
+      "add": "Attach",
+      "label": "Add documents",
+      "empty": "No documents"
+    },
     "title": "Create Task",
     "back": "Back",
     "chooseAssignee": "Select at least one assignee",
     "noMembers": "There are no employees in this department",
     "fields": {
+      "attachments": "Attached documents",
       "taskTitle": "Task Title *",
       "description": "Description",
       "department": "Department *",
       "project": "Project",
+      "noAssignees": "No performers",
       "noProject": "No Project",
       "parentTask": "Parent Task",
       "noParent": "— No parent (root) —",

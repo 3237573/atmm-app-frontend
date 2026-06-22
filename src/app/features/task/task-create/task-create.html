@@ -4,13 +4,14 @@
       <i class="material-icons">assignment_add</i>
       {{ 'taskCreate.title' | transloco }}
     </h1>
-    <button class="btn-secondary" routerLink="/tasks">
+    <button class="btn-back" routerLink="/tasks">
       <i class="material-icons">arrow_back</i>
       {{ 'taskCreate.back' | transloco }}
     </button>
   </div>
 
   <div class="form-container">
+    <!-- Название -->
     <div class="form-group">
       <label>{{ 'taskCreate.fields.taskTitle' | transloco }}</label>
       <input
@@ -19,32 +20,31 @@
         (ngModelChange)="title.set($event)"
         placeholder="{{ 'taskCreate.placeholders.taskTitle' | transloco }}"
         class="form-control"
-        [class.invalid]="!title().trim() && title().length > 0"
-      >
+        [class.invalid]="!title().trim() && title().length > 0" />
       @if (!title().trim() && title().length > 0) {
         <small class="error-text">{{ 'taskCreate.errors.titleRequired' | transloco }}</small>
       }
     </div>
 
+    <!-- Описание -->
     <div class="form-group">
       <label>{{ 'taskCreate.fields.description' | transloco }}</label>
       <textarea
         [ngModel]="description()"
         (ngModelChange)="description.set($event)"
         placeholder="{{ 'taskCreate.placeholders.description' | transloco }}"
-        rows="2"
-        class="form-control"
-      ></textarea>
+        rows="3"
+        class="form-control"></textarea>
     </div>
 
+    <!-- Отдел / Проект / Родительская задача -->
     <div class="form-row-3">
       <div class="form-group">
         <label>{{ 'taskCreate.fields.department' | transloco }}</label>
         <select
           [ngModel]="selectedDepartmentId()"
           (ngModelChange)="onDepartmentChange($event)"
-          class="form-control"
-        >
+          class="form-control">
           @for (dept of userDepartments(); track dept.departmentId) {
             <option [value]="dept.departmentId">{{ dept.departmentName }}</option>
           }
@@ -56,8 +56,7 @@
         <select
           [ngModel]="projectId()"
           (ngModelChange)="projectId.set($event)"
-          class="form-control"
-        >
+          class="form-control">
           <option value="">{{ 'taskCreate.fields.noProject' | transloco }}</option>
           @for (proj of userProjects(); track proj.projectId) {
             <option [value]="proj.projectId">{{ proj.projectTitle }}</option>
@@ -70,8 +69,7 @@
         <select
           [ngModel]="parentTaskId()"
           (ngModelChange)="parentTaskId.set($event)"
-          class="form-control"
-        >
+          class="form-control">
           <option value="">{{ 'taskCreate.fields.noParent' | transloco }}</option>
           @for (pt of parentTasksList(); track pt.id) {
             <option [value]="pt.id">{{ pt.title }}</option>
@@ -80,6 +78,7 @@
       </div>
     </div>
 
+    <!-- Приоритет / Срок -->
     <div class="form-row">
       <div class="form-group">
         <label>{{ 'taskCreate.fields.priority' | transloco }}</label>
@@ -87,12 +86,11 @@
           <select
             [ngModel]="priority()"
             (ngModelChange)="priority.set($event)"
-            class="form-control priority-select-styled"
-          >
-            <option value="LOW">LOW</option>
-            <option value="MEDIUM">MEDIUM</option>
-            <option value="HIGH">HIGH</option>
-            <option value="CRITICAL">CRITICAL</option>
+            class="form-control priority-select-styled">
+            <option value="LOW">🟢 LOW</option>
+            <option value="MEDIUM">🟡 MEDIUM</option>
+            <option value="HIGH">🟠 HIGH</option>
+            <option value="CRITICAL">🔴 CRITICAL</option>
           </select>
         </div>
       </div>
@@ -104,44 +102,77 @@
           [ngModel]="dueDate()"
           (ngModelChange)="dueDate.set($event)"
           class="form-control"
-          [min]="minDate"
-        >
+          [min]="minDate" />
       </div>
     </div>
 
+    <!-- Attachments -->
     <div class="form-group">
-      <label>{{ 'taskCreate.fields.assignees' | transloco }}</label>
-      <div class="members-selection-list">
-        @if (loadingMembers()) {
-          <div class="loading-members">
-            <span class="spinner-small"></span>
-          </div>
-        } @else {
-          @for (member of departmentMembers(); track member.id) {
-            <label class="member-selection-item" [class.selected]="isSelected(member.id)">
-              <input
-                type="checkbox"
-                [checked]="isSelected(member.id)"
-                (change)="toggleAssignee(member.id)"
-              >
-              <span class="member-name">{{ member.displayName }}</span>
-              <span class="member-department-role">{{ getDepartmentRole(member) }}</span>
-              <span class="member-email">{{ member.email }}</span>
-              <span class="member-role" [class]="getRoleBadgeClass(member.roleName)">
-                {{ 'auth.role.' + member.roleName.toLowerCase() | transloco }}
-              </span>
-            </label>
+      <div class="attachments-row">
+        <label class="attachments-label">{{ 'taskCreate.fields.attachments' | transloco }}:</label>
+
+        <div class="attachments-actions">
+          <input type="file" #fileInput hidden multiple (change)="onFileSelected($event)" [disabled]="pendingFiles().length >= 3" />
+          <button type="button" class="btn-icon-action" (click)="pendingFiles().length < 3 && fileInput.click()" [disabled]="pendingFiles().length >= 3" aria-label="Upload files">
+            <i class="material-icons">attach_file</i>
+          </button>
+        </div>
+
+        <div class="attachments-inline">
+          @if (pendingFiles().length > 0) {
+            <div class="attachments-list">
+              @for (file of pendingFiles(); track file.name; let i = $index) {
+                <div class="attachment-chip" [title]="file.name + ' (' + formatFileSize(file.size) + ')'">
+                  <i class="material-icons file-icon">{{ getFileIcon(file.name) }}</i>
+                  <span class="file-name">{{ file.name }}</span>
+                  <span class="file-size">({{ formatFileSize(file.size) }})</span>
+                  <button type="button" class="btn-delete-chip" (click)="removePendingFile(i)" aria-label="Remove file">
+                    <i class="material-icons">close</i>
+                  </button>
+                </div>
+              }
+            </div>
+          } @else {
+            <span class="empty-attachments-text">{{ 'taskCreate.attachments.empty' | transloco }}</span>
           }
-          @if (departmentMembers().length === 0 && !loadingMembers()) {
-            <div class="empty-members">{{ 'taskCreate.noMembers' | transloco }}</div>
-          }
-        }
+        </div>
       </div>
-      @if (assigneeMemberIds().length === 0 && !loadingMembers()) {
-        <small class="hint-text">{{ 'taskCreate.chooseAssignee' | transloco }}</small>
-      }
     </div>
 
+    <!-- Assignees -->
+    <div class="form-group">
+      <div class="assignees-row">
+        <label class="assignees-label">
+          {{ 'taskCreate.fields.assignees' | transloco }}:
+          @if (assigneeMemberIds().length === 0) {
+            <span class="label-hint">({{ 'taskCreate.chooseAssignee' | transloco }})</span>
+          }
+        </label>
+
+        <div class="assignees-actions">
+          <button type="button" class="btn-icon-action" (click)="openAssigneeModal()" title="{{ 'taskCreate.assignees.edit' | transloco }}">
+            <i class="material-icons">edit</i>
+          </button>
+        </div>
+
+        <div class="assignees-inline">
+          @if (getSelectedMembers().length > 0) {
+            <div class="assignees-list">
+              @for (member of getSelectedMembers(); track member.id) {
+                <div class="assignee-chip" [title]="member.displayName">
+                  <i class="material-icons member-icon">person</i>
+                  <span class="member-name">{{ member.displayName }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <span class="empty-assignees-text">{{ 'taskCreate.fields.noAssignees' | transloco }}</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Кнопки -->
     <div class="form-actions">
       <button class="btn-secondary" routerLink="/tasks">
         <i class="material-icons">close</i>
@@ -149,12 +180,10 @@
       </button>
 
       <button
-        class="btn"
-        [class.btn-primary]="isFormValid()"
+        class="btn btn-primary"
         [class.btn-disabled]="!isFormValid()"
         [disabled]="submitting() || !isFormValid()"
-        (click)="onSubmit()"
-      >
+        (click)="onSubmit()">
         @if (submitting()) {
           <i class="material-icons spinning">refresh</i>
           <span>{{ 'taskCreate.actions.creating' | transloco }}</span>
@@ -165,4 +194,37 @@
       </button>
     </div>
   </div>
+
+  <!-- Модальное окно выбора исполнителей -->
+  @if (showAssigneeModal()) {
+    <div class="modal-overlay" (click)="closeAssigneeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>{{ 'taskCreate.assignees.modalTitle' | transloco }}</h2>
+          <button class="btn-close-modal" (click)="closeAssigneeModal()">
+            <i class="material-icons">close</i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="members-selection-list">
+            @for (member of departmentMembers(); track member.id) {
+              <label class="member-selection-item" [class.selected]="isSelected(member.id)">
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(member.id)"
+                  (change)="toggleAssigneeInModal(member.id)" />
+                <span class="member-name">{{ member.displayName }}</span>
+                <span class="member-role" [class]="getRoleBadgeClass(member.roleName)">
+                  {{ 'auth.role.' + member.roleName.toLowerCase() | transloco }}
+                </span>
+              </label>
+            }
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" (click)="closeAssigneeModal()">{{ 'taskCreate.assignees.done' | transloco }}</button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

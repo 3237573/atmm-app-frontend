@@ -175,15 +175,27 @@
     }
   },
   "taskCreate": {
+    "assignees": {
+      "done": "Готово",
+      "edit": "Изменить",
+      "modalTitle": "Участники"
+    },
+    "attachments": {
+      "add": "Прикрепить",
+      "label": "Добавить документы",
+      "empty": "Документов нет"
+    },
     "title": "Создать задачу",
     "back": "Назад",
     "chooseAssignee": "Выберите хотя бы одного исполнителя",
     "noMembers": "В этом отделе нет сотрудников",
     "fields": {
+      "attachments": "Прикрепленные документы",
       "taskTitle": "Название задачи *",
       "description": "Описание",
       "department": "Отдел *",
       "project": "Проект",
+      "noAssignees": "Нет исполнителей",
       "noProject": "Без проекта",
       "parentTask": "Родительская задача",
       "noParent": "— Без родителя (корневая) —",
