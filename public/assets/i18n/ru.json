@@ -175,11 +175,16 @@
     }
   },
   "taskCreate": {
+    "attachments": {
+      "label": "Добавить документы",
+      "empty": "Документов нет"
+    },
     "title": "Создать задачу",
     "back": "Назад",
     "chooseAssignee": "Выберите хотя бы одного исполнителя",
     "noMembers": "В этом отделе нет сотрудников",
     "fields": {
+      "attachments": "Прикрепленные документы",
       "taskTitle": "Название задачи *",
       "description": "Описание",
       "department": "Отдел *",

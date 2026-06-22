@@ -2,33 +2,54 @@
 
 .task-create {
   padding: 1.5rem;
-  //max-width: 800px;
-  //margin: 0 auto;
   min-height: 100vh;
 }
 
-//.page-header {
-//  display: flex;
-//  justify-content: space-between;
-//  align-items: center;
-//  margin-bottom: 2rem;
-//  flex-wrap: wrap;
-//  gap: 1rem;
-//
-//  h1 {
-//    margin: 0;
-//    font-size: 1.5rem;
-//    display: flex;
-//    align-items: center;
-//    gap: 0.5rem;
-//
-//    i {
-//      color: $accent;
-//      font-size: 1.75rem;
-//    }
-//  }
-//}
+// ---------- Header ----------
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: $text-main;
+
+    i {
+      color: $accent;
+      font-size: 1.75rem;
+    }
+  }
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+
+  i { font-size: 1.2rem; }
+  &:hover {
+    background: rgba($border, 0.2);
+    color: $accent;
+  }
+}
+
+// ---------- Form container ----------
 .form-container {
   background: $bg-card;
   border-radius: 1rem;
@@ -40,7 +61,7 @@
   margin-bottom: 1.5rem;
 
   label {
-    //display: block;
+    display: block;
     margin-bottom: 0.5rem;
     font-weight: 600;
     font-size: 0.85rem;
@@ -63,6 +84,9 @@
   grid-template-columns: 1fr 1fr 1fr;
   gap: 1rem;
 
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+  }
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
   }
@@ -86,10 +110,7 @@
 
   &.invalid {
     border-color: $danger;
-
-    &:focus {
-      box-shadow: 0 0 0 2px rgba($danger, 0.1);
-    }
+    &:focus { box-shadow: 0 0 0 2px rgba($danger, 0.1); }
   }
 }
 
@@ -112,63 +133,315 @@ textarea.form-control {
   color: $text-muted;
 }
 
-.members-list {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid $border;
-  border-radius: 0.5rem;
-  background: $bg-main;
-  overflow: hidden;
+// ---------- Priority select ----------
+.priority-select-wrapper {
+  position: relative;
+
+  .priority-select-styled {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2rem;
+  }
 }
 
-.member-row {
+// ---------- Attachments (как в AttachmentManager) ----------
+.attachments-block {
+  .compact-dropzone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1rem;
+    border: 2px dashed $border;
+    border-radius: 0.5rem;
+    background: rgba($bg-main, 0.5);
+    cursor: pointer;
+    transition: all 0.2s;
+    color: $text-muted;
+    gap: 0.5rem;
+    user-select: none;
+
+    .dropzone-content {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .upload-icon {
+      font-size: 1.2rem;
+      color: $accent;
+    }
+
+    &:hover:not(.disabled) {
+      border-color: $accent;
+      background: rgba($accent, 0.05);
+      color: $accent;
+    }
+
+    &.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .attachments-horizontal-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .attachment-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: $bg-main;
+    border: 1px solid $border;
+    border-radius: 0.5rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
+    color: $text-main;
+    max-width: 250px;
+
+    .file-icon {
+      font-size: 1.1rem;
+      color: $accent;
+      flex-shrink: 0;
+    }
+
+    .file-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    .file-size {
+      font-size: 0.7rem;
+      color: $text-muted;
+      margin-left: 0.25rem;
+      flex-shrink: 0;
+    }
+
+    .btn-delete-chip {
+      background: transparent;
+      border: none;
+      color: $text-muted;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      i { font-size: 1rem; }
+      &:hover { color: $danger; }
+    }
+  }
+
+  .empty-attachments-text {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: $text-muted;
+    font-style: italic;
+  }
+}
+
+// ---------- Assignees inline chips ----------
+.assignees-inline-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: $bg-main;
+  border: 1px solid $border;
+  border-radius: 0.5rem;
+  min-height: 2.5rem;
+}
+
+.assignees-chips {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+
+  .assignee-chip {
+    background: rgba($accent, 0.1);
+    color: $accent;
+    font-size: 0.8rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 1rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .no-assignees {
+    color: $text-muted;
+    font-style: italic;
+    font-size: 0.85rem;
+  }
+}
+
+.btn-edit-assignees {
+  background: transparent;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 0.25rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.6rem 1rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  border-bottom: 1px solid rgba($border, 0.3);
+  flex-shrink: 0;
 
-  &:last-child {
-    border-bottom: none;
+  i { font-size: 1.2rem; }
+  &:hover {
+    background: rgba($accent, 0.1);
+    color: $accent;
   }
+}
+
+// ---------- Modal ----------
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: $bg-card;
+  border-radius: 1rem;
+  border: 1px solid $border;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid $border;
+
+  h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: $text-main;
+  }
+
+  .btn-close-modal {
+    background: transparent;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    padding: 0.25rem;
+    i { font-size: 1.2rem; }
+    &:hover { color: $text-main; }
+  }
+}
+
+.modal-body {
+  padding: 1rem 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid $border;
+  display: flex;
+  justify-content: flex-end;
+}
+
+// Members list inside modal
+.members-selection-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.member-selection-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.4rem;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
 
   &:hover {
     background: rgba($accent, 0.05);
+    border-color: rgba($accent, 0.2);
   }
 
-  input {
-    margin: 0;
-    flex-shrink: 0;
-    width: 16px;
-    height: 16px;
+  &.selected {
+    background: rgba($accent, 0.08);
+    border-color: $accent;
+    box-shadow: 0 0 0 1px rgba($accent, 0.15);
+  }
+
+  input[type="checkbox"] {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid $border;
+    border-radius: 0.25rem;
+    background: $bg-main;
     cursor: pointer;
-    accent-color: $accent;
+    flex-shrink: 0;
+    transition: 0.15s;
+    position: relative;
+
+    &:checked {
+      background: $accent;
+      border-color: $accent;
+      &::after {
+        content: '✓';
+        position: absolute;
+        left: 3px;
+        top: -1px;
+        color: #fff;
+        font-size: 13px;
+        font-weight: bold;
+      }
+    }
+
+    &:hover { border-color: $accent; }
   }
 
   .member-name {
-    font-weight: 500;
-    font-size: 0.9rem;
-    min-width: 150px;
-  }
-
-  .member-email {
-    //font-size: 0.75rem;
-    color: $text-muted;
     flex: 1;
+    font-weight: 500;
+    color: $text-main;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .member-role {
     font-size: 0.65rem;
     font-weight: 600;
-    padding: 0.2rem 0.7rem;
+    padding: 0.1rem 0.6rem;
     border-radius: 2rem;
     text-align: center;
-    min-width: 70px;
+    min-width: 60px;
+    flex-shrink: 0;
 
     &.owner {
-      background: color-mix(in srgb, var(--role-owner-color), transparent 85%);
+      background: rgba($role-owner-color, 0.15);
       color: $role-owner-color;
       border: 1px solid rgba($role-owner-color, 0.3);
     }
@@ -190,20 +463,7 @@ textarea.form-control {
   }
 }
 
-.empty-members {
-  text-align: center;
-  padding: 2rem;
-  color: $text-muted;
-  font-size: 0.85rem;
-}
-
-.loader-small {
-  text-align: center;
-  padding: 2rem;
-  color: $text-muted;
-  font-size: 0.85rem;
-}
-
+// ---------- Buttons ----------
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -216,40 +476,53 @@ textarea.form-control {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-
-    i {
-      font-size: 1.1rem;
-    }
+    i { font-size: 1.1rem; }
   }
 }
 
-// Responsive
+.btn-primary {
+  background: $accent;
+  color: $bg-main;
+  border: 1px solid $accent;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+  &:disabled, &.btn-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: $border;
+    color: $text-muted;
+    border-color: $border;
+  }
+}
+
+.btn-secondary {
+  background: transparent;
+  color: $text-muted;
+  border: 1px solid $border;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover { background: rgba($border, 0.2); color: $text-main; }
+}
+
+// ---------- Spinner ----------
+.spinning {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ---------- Responsive ----------
 @media (max-width: 768px) {
-  .task-create {
-    padding: 1rem;
-  }
-
-  .form-container {
-    padding: 1rem;
-  }
-
-  .member-row {
-    flex-wrap: wrap;
-    gap: 0.5rem;
-
-    .member-name {
-      min-width: 100px;
-    }
-
-    .member-email {
-      flex: 1;
-      min-width: 150px;
-    }
-
-    .member-role {
-      margin-left: auto;
-    }
-  }
+  .task-create { padding: 1rem; }
+  .form-container { padding: 1rem; }
 }
 
 @media (max-width: 480px) {
@@ -260,19 +533,6 @@ textarea.form-control {
 
   .form-actions {
     flex-direction: column-reverse;
-
-    button {
-      width: 100%;
-      justify-content: center;
-    }
-  }
-
-  .member-row {
-    flex-direction: column;
-    align-items: flex-start;
-
-    .member-role {
-      margin-left: 0;
-    }
+    button { width: 100%; justify-content: center; }
   }
 }
