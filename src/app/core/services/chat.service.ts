@@ -19,6 +19,7 @@ export class ChatService {
   private activeRoomId: string | null = null;
   private worker: SharedWorker | null = null;
 
+  public readonly acceptCallCommand$ = new Subject<{roomId: string, sdp: string, callType: 'VIDEO' | 'AUDIO'}>();
   private readonly messageSubject = new Subject<WebSocketResponse>();
   private readonly connectionStatus = new BehaviorSubject<boolean>(false);
   private readonly roomsSubject = new BehaviorSubject<ChatRoomRO[]>([]);
