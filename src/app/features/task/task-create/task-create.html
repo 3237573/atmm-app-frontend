@@ -108,44 +108,37 @@
 
     <!-- Attachments -->
     <div class="form-group">
-      <div class="attachments-block">
-        <label>{{ 'taskCreate.fields.attachments' | transloco }}: </label>
-        @if (pendingFiles().length) {
-          <div class="attachments-horizontal-list">
-            @for (file of pendingFiles(); track file.name + file.size; let i = $index) {
-              <div class="attachment-chip" [title]="file.name + ' (' + formatFileSize(file.size) + ')'">
-                <i class="material-icons file-icon">{{ getFileIcon(file.name) }}</i>
-                <span class="file-name">{{ file.name }}</span>
-                <span class="file-size">{{ formatFileSize(file.size) }}</span>
-                <button class="btn-delete-chip" (click)="removePendingFile(i)" title="{{ 'taskCreate.attachments.remove' | transloco }}">
-                  <i class="material-icons">close</i>
-                </button>
-              </div>
-            }
+      <div class="attachments-row">
+        <label class="attachments-label">{{ 'taskCreate.fields.attachments' | transloco }}:</label>
+
+        <div class="attachments-inline">
+          <div class="attachments-list" *ngIf="pendingFiles().length; else emptyAttachments">
+            <div class="attachment-chip" *ngFor="let file of pendingFiles(); let i = index" [title]="file.name + ' (' + formatFileSize(file.size) + ')'">
+              <i class="material-icons file-icon">{{ getFileIcon(file.name) }}</i>
+              <span class="file-name">{{ file.name }}</span>
+              <span class="file-size">{{ formatFileSize(file.size) }}</span>
+              <button class="btn-delete-chip" (click)="removePendingFile(i)" aria-label="Remove file">
+                <i class="material-icons">close</i>
+              </button>
+            </div>
           </div>
-        } @else {
-          <span class="empty-attachments-text">{{ 'taskCreate.attachments.empty' | transloco }}</span>
-        }
-        <div
-          class="compact-dropzone"
-          [class.disabled]="pendingFiles().length >= 3"
-          (click)="pendingFiles().length < 3 && fileInput.click()"
-          (dragover)="onDragOver($event)"
-          (dragleave)="onDragLeave($event)"
-          (drop)="onDropFiles($event)"
-          [title]="pendingFiles().length >= 3 ? ('taskCreate.attachments.limit' | transloco) : ('taskCreate.placeholders.attachments' | transloco)">
-          <input type="file" #fileInput hidden multiple (change)="onFileSelected($event)" [disabled]="pendingFiles().length >= 3" />
-          <div class="dropzone-content">
-            <i class="material-icons upload-icon">attach_file</i>
-            <span class="text-hint">{{ 'taskCreate.attachments.label' | transloco:{ count: pendingFiles().length } }}</span>
-          </div>
+
+          <ng-template #emptyAttachments>
+            <span class="empty-attachments-text">{{ 'taskCreate.attachments.empty' | transloco }}</span>
+          </ng-template>
         </div>
 
-
+        <div class="attachments-actions">
+          <input type="file" #fileInput hidden multiple (change)="onFileSelected($event)" [disabled]="pendingFiles().length >= 3" />
+          <button type="button" class="btn-upload" (click)="pendingFiles().length < 3 && fileInput.click()" [disabled]="pendingFiles().length >= 3" aria-label="Upload files">
+            <i class="material-icons">attach_file</i>
+            <span class="btn-text">{{ 'taskCreate.attachments.add' | transloco }}</span>
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Исполнители (inline chips) -->
+    <!-- Assignees (inline chips) -->
     <div class="form-group">
       <label>{{ 'taskCreate.fields.assignees' | transloco }}</label>
       <div class="assignees-inline-container">
