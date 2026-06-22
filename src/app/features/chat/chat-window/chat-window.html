@@ -91,20 +91,6 @@
     </button>
   </div>
 
-<!--  @if (isIncomingCall()) {-->
-<!--    <div class="call-overlay incoming-call">-->
-<!--      <div class="call-card">-->
-<!--        <div class="pulse-avatar">📞</div>-->
-<!--        <h3>{{ 'chat.inCall' | transloco }} {{ (callType() === 'VIDEO' ? 'chat.video' : 'chat.audio') | transloco }}</h3>-->
-<!--        <p>{{ 'chat.inCallDesc' | transloco }}</p>-->
-<!--        <div class="call-buttons">-->
-<!--          <button class="call-btn accept" (click)="acceptCall()">{{ 'chat.accept' | transloco }}</button>-->
-<!--          <button class="call-btn reject" (click)="rejectOrEndCall()">{{ 'chat.reject' | transloco }}</button>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  }-->
-
   @if (isCallActive()) {
     <div class="call-overlay active-call">
       <div class="video-grid" [class.audio-only]="callType() === 'AUDIO'">
@@ -116,7 +102,7 @@
         }
       </div>
       <div class="call-controls">
-        <button class="end-call-btn" (click)="rejectOrEndCall()">{{ 'chat.hangUp' | transloco }} 🛑</button>
+        <button class="end-call-btn" (click)="endCall()">{{ 'chat.hangUp' | transloco }} 🛑</button>
       </div>
     </div>
   }
