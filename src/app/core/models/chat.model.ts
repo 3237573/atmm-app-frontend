@@ -66,7 +66,7 @@ export type WebSocketMessage =
   | { type: 'mark_seen'; messageId: string; roomId?: string }
   | { type: 'call_offer'; roomId: string; sdp: string; callType: string }
   | { type: 'call_answer'; roomId: string; sdp: string }
-  | { type: 'call_ice'; roomId: string; candidate: string }
+  | { type: 'call_ice'; roomId: string; candidate: IceCandidateModel }
   | { type: 'call_end'; roomId: string }
   | { type: 'ping' };
 
@@ -77,5 +77,12 @@ export type WebSocketResponse =
   | { type: 'typing_indicator'; roomId: string; memberId: string; isTyping: boolean }
   | { type: 'call_offer'; fromId: string; roomId: string; sdp: string; callType: string }
   | { type: 'call_answer'; fromId: string; sdp: string }
-  | { type: 'call_ice'; fromId: string; candidate: string }
+  | { type: 'call_ice'; fromId: string; candidate: IceCandidateModel }
   | { type: 'call_ended'; roomId: string };
+
+
+export interface IceCandidateModel {
+  candidate: string;
+  sdpMid: string | null;
+  sdpMLineIndex: number | null;
+}

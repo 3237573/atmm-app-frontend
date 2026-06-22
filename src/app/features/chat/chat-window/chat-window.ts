@@ -251,12 +251,14 @@ export class ChatWindow implements OnInit, OnDestroy {
 
       case 'call_ice': {
         const candidate: RTCIceCandidateInit = {
-          candidate: msg.candidate,
-          sdpMid: '0',
-          sdpMLineIndex: 0
+          candidate: msg.candidate.candidate,         // Обрати внимание: msg.candidate.candidate
+          sdpMid: msg.candidate.sdpMid ?? '0',         // Берём sdpMid из объекта бэкенда
+          sdpMLineIndex: msg.candidate.sdpMLineIndex ?? 0 // Берём индекс из объекта бэкенда
         };
-        if (this.peerConnection?.remoteDescription) {
-          await this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+
+        if (this.peerConnection && this.peerConnection.remoteDescription) {
+          await this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
+            .catch(e => console.error('Ошибка добавления ICE:', e));
         } else {
           this.pendingIceCandidates.push(candidate);
         }
@@ -340,7 +342,12 @@ export class ChatWindow implements OnInit, OnDestroy {
 
     this.peerConnection.onicecandidate = (event) => {
       if (event.candidate) {
-        this.chatService.sendCallIce(this.roomId(), event.candidate.candidate);
+        // Передаем объект со всеми тремя параметрами
+        this.chatService.sendCallIce(this.roomId(), {
+          candidate: event.candidate.candidate,
+          sdpMid: event.candidate.sdpMid,
+          sdpMLineIndex: event.candidate.sdpMLineIndex
+        });
       }
     };
 

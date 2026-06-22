@@ -268,7 +268,10 @@ export class ChatService {
     });
   }
 
-  sendCallIce(roomId: string, candidate: string): void {
+  sendCallIce(
+    roomId: string,
+    candidate: { candidate: string; sdpMid: string | null; sdpMLineIndex: number | null }
+  ): void {
     this.sendMessage({
       type: 'call_ice',
       roomId: roomId,
