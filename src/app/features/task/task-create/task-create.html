@@ -111,52 +111,65 @@
       <div class="attachments-row">
         <label class="attachments-label">{{ 'taskCreate.fields.attachments' | transloco }}:</label>
 
-        <div class="attachments-inline">
-          <div class="attachments-list" *ngIf="pendingFiles().length; else emptyAttachments">
-            <div class="attachment-chip" *ngFor="let file of pendingFiles(); let i = index" [title]="file.name + ' (' + formatFileSize(file.size) + ')'">
-              <i class="material-icons file-icon">{{ getFileIcon(file.name) }}</i>
-              <span class="file-name">{{ file.name }}</span>
-              <span class="file-size">{{ formatFileSize(file.size) }}</span>
-              <button class="btn-delete-chip" (click)="removePendingFile(i)" aria-label="Remove file">
-                <i class="material-icons">close</i>
-              </button>
-            </div>
-          </div>
-
-          <ng-template #emptyAttachments>
-            <span class="empty-attachments-text">{{ 'taskCreate.attachments.empty' | transloco }}</span>
-          </ng-template>
-        </div>
-
         <div class="attachments-actions">
           <input type="file" #fileInput hidden multiple (change)="onFileSelected($event)" [disabled]="pendingFiles().length >= 3" />
-          <button type="button" class="btn-upload" (click)="pendingFiles().length < 3 && fileInput.click()" [disabled]="pendingFiles().length >= 3" aria-label="Upload files">
+          <button type="button" class="btn-icon-action" (click)="pendingFiles().length < 3 && fileInput.click()" [disabled]="pendingFiles().length >= 3" aria-label="Upload files">
             <i class="material-icons">attach_file</i>
-            <span class="btn-text">{{ 'taskCreate.attachments.add' | transloco }}</span>
           </button>
+        </div>
+
+        <div class="attachments-inline">
+          @if (pendingFiles().length > 0) {
+            <div class="attachments-list">
+              @for (file of pendingFiles(); track file.name; let i = $index) {
+                <div class="attachment-chip" [title]="file.name + ' (' + formatFileSize(file.size) + ')'">
+                  <i class="material-icons file-icon">{{ getFileIcon(file.name) }}</i>
+                  <span class="file-name">{{ file.name }}</span>
+                  <span class="file-size">({{ formatFileSize(file.size) }})</span>
+                  <button type="button" class="btn-delete-chip" (click)="removePendingFile(i)" aria-label="Remove file">
+                    <i class="material-icons">close</i>
+                  </button>
+                </div>
+              }
+            </div>
+          } @else {
+            <span class="empty-attachments-text">{{ 'taskCreate.attachments.empty' | transloco }}</span>
+          }
         </div>
       </div>
     </div>
 
-    <!-- Assignees (inline chips) -->
+    <!-- Assignees -->
     <div class="form-group">
-      <label>{{ 'taskCreate.fields.assignees' | transloco }}</label>
-      <div class="assignees-inline-container">
-        <div class="assignees-chips">
-          @for (member of getSelectedMembers(); track member.id) {
-            <span class="assignee-chip">{{ member.displayName }}</span>
-          }
+      <div class="assignees-row">
+        <label class="assignees-label">
+          {{ 'taskCreate.fields.assignees' | transloco }}:
           @if (assigneeMemberIds().length === 0) {
-            <span class="no-assignees">{{ 'taskCreate.fields.noAssignees' | transloco }}</span>
+            <span class="label-hint">({{ 'taskCreate.chooseAssignee' | transloco }})</span>
+          }
+        </label>
+
+        <div class="assignees-actions">
+          <button type="button" class="btn-icon-action" (click)="openAssigneeModal()" title="{{ 'taskCreate.assignees.edit' | transloco }}">
+            <i class="material-icons">edit</i>
+          </button>
+        </div>
+
+        <div class="assignees-inline">
+          @if (getSelectedMembers().length > 0) {
+            <div class="assignees-list">
+              @for (member of getSelectedMembers(); track member.id) {
+                <div class="assignee-chip" [title]="member.displayName">
+                  <i class="material-icons member-icon">person</i>
+                  <span class="member-name">{{ member.displayName }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <span class="empty-assignees-text">{{ 'taskCreate.fields.noAssignees' | transloco }}</span>
           }
         </div>
-        <button type="button" class="btn-edit-assignees" (click)="openAssigneeModal()" title="{{ 'taskCreate.assignees.edit' | transloco }}">
-          <i class="material-icons">edit</i>
-        </button>
       </div>
-      @if (assigneeMemberIds().length === 0) {
-        <small class="hint-text">{{ 'taskCreate.chooseAssignee' | transloco }}</small>
-      }
     </div>
 
     <!-- Кнопки -->
