@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { TaskService } from '@core/services/task.service';
 import { TASK_STATUS_CONFIG, TASK_STATUS_LIST, TaskPriority, TaskRO, TaskStatus, TaskTreeRO } from '@core/models/task/task.model';
 import { AuthService } from '@core/services/auth.service';
-import { LanguageService } from '@core/services/language.service'; // <-- Внедряем твой сервис языка
+import { LanguageService } from '@core/services/language.service';
 import { BackOnEscapeDirective } from '@core/directives/back-on-escape.directive';
 import { ReplaceMePipe } from '@core/pipes/replace-me.pipe';
 import { TranslocoPipe } from '@ngneat/transloco';
@@ -19,7 +19,7 @@ type RenderTask = TaskRO & {
 interface TaskListState {
   viewMode: 'list' | 'board';
   searchQuery: string;
-  selectedStatus: TaskStatus | '';
+  selectedStatus: string;
   selectedPriority: string;
   sortColumn: string;
   sortDirection: 'asc' | 'desc';
@@ -36,7 +36,7 @@ interface TaskListState {
 export class TaskList implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly taskService = inject(TaskService);
-  private readonly languageService = inject(LanguageService); // <-- Подключаем для реактивного перевода дат
+  private readonly languageService = inject(LanguageService);
   private readonly STORAGE_KEY = 'task_list_state';
   protected readonly TASK_STATUS_LIST = TASK_STATUS_LIST;
 
@@ -48,7 +48,7 @@ export class TaskList implements OnInit {
   private readonly tasksInitialLoaded = signal(false);
 
   searchQuery = signal('');
-  selectedStatus = signal<TaskStatus | ''>('');
+  selectedStatus = signal<string>(''); // Тип string, чтобы вместить 'OVERDUE'
   selectedPriority = signal<string>('');
   expandedNodes = signal<Set<string>>(new Set());
 
@@ -95,6 +95,19 @@ export class TaskList implements OnInit {
     return currentStats;
   });
 
+  // Динамическая конфигурация карточек для привязки событий клика
+  statCardsConfig = computed(() => {
+    const s = this.stats();
+    return [
+      { value: s.total, label: 'task.stats.total', class: 'total', statusValue: '' },
+      { value: s.pending, label: 'task.stats.pending', class: 'pending', statusValue: 'PENDING' },
+      { value: s.inProgress, label: 'task.stats.inProgress', class: 'progress', statusValue: 'IN_PROGRESS' },
+      { value: s.completed, label: 'task.stats.completed', class: 'completed', statusValue: 'COMPLETED' },
+      { value: s.overdue, label: 'task.stats.overdue', class: 'overdue', statusValue: 'OVERDUE' },
+      { value: s.archived, label: 'task.stats.archived', class: 'archived', statusValue: 'ARCHIVED' }
+    ];
+  });
+
   filteredTaskSets = computed(() => {
     const tasks = this.flatTasks();
     const query = this.searchQuery().trim().toLowerCase();
@@ -104,10 +117,23 @@ export class TaskList implements OnInit {
     const matchedIds = new Set<string>();
     const visibleIds = new Set<string>();
     const parentMap = this.parentMap();
+    const todayTime = new Date().setHours(0, 0, 0, 0);
 
     for (const task of tasks) {
-      if (taskStatus && task.taskStatus !== taskStatus) continue;
+      // 1. Фильтр приоритета
       if (priority && task.priority !== priority) continue;
+
+      // 2. Умный фильтр статуса (включая обработку Просроченных)
+      if (taskStatus) {
+        if (taskStatus === 'OVERDUE') {
+          const dTime = task.dueDate ? new Date(task.dueDate).setHours(0, 0, 0, 0) : null;
+          if (!dTime || dTime >= todayTime || task.taskStatus === 'COMPLETED') continue;
+        } else {
+          if (task.taskStatus !== taskStatus) continue;
+        }
+      }
+
+      // 3. Фильтр по строке поиска
       if (query) {
         const titleMatch = task.title.toLowerCase().includes(query);
         const descMatch = (task.description || '').toLowerCase().includes(query);
@@ -130,7 +156,7 @@ export class TaskList implements OnInit {
   visibleTasks = computed(() => {
     const { visibleIds, isFiltered } = this.filteredTaskSets();
     const expanded = this.expandedNodes();
-    const currentLang = this.languageService.language(); // Трэкаем сигнал языка (теперь даты переведутся на лету!)
+    const currentLang = this.languageService.language();
     const result: RenderTask[] = [];
     const todayTime = new Date().setHours(0, 0, 0, 0);
 
@@ -160,8 +186,6 @@ export class TaskList implements OnInit {
           formattedDate: dateInfo.formattedDate
         });
 
-        // ДЕКЛАРАТИВНОЕ ПРАВИЛО: узел считается развернутым, если пользователь развернул его вручную,
-        // ЛИБО если сейчас включен фильтр поиска/статуса и этот узел ведет к отфильтрованным подзадачам.
         const isNodeExpanded = expanded.has(task.id) || (isFiltered && visibleIds.has(task.id));
 
         if (isNodeExpanded && node.subtasks?.length) {
@@ -175,14 +199,13 @@ export class TaskList implements OnInit {
   });
 
   filteredFlatTasks = computed(() => {
-    const {matchedIds} = this.filteredTaskSets();
+    const { matchedIds } = this.filteredTaskSets();
     return this.flatTasks().filter(t => matchedIds.has(t.id));
   });
 
   constructor() {
     this.restoreState();
 
-    // ОСТАЛСЯ ТОЛЬКО ОДИН ЭФФЕКТ: Синхронизация состояния с LocalStorage (чистый side-effect)
     effect(() => {
       if (!this.tasksInitialLoaded()) return;
 
@@ -211,11 +234,10 @@ export class TaskList implements OnInit {
       this.viewMode.set(state.viewMode ?? 'list');
       this.searchQuery.set(state.searchQuery ?? '');
 
-      const savedStatus = state.selectedStatus;
-      const validStatus = savedStatus && TASK_STATUS_LIST.includes(savedStatus as TaskStatus)
-        ? savedStatus as TaskStatus
-        : '';
-      this.selectedStatus.set(validStatus);
+      const savedStatus = state.selectedStatus || '';
+      // Проверяем валидность статуса, разрешая OVERDUE
+      const isValid = savedStatus === 'OVERDUE' || savedStatus === '' || TASK_STATUS_LIST.includes(savedStatus as TaskStatus);
+      this.selectedStatus.set(isValid ? savedStatus : '');
 
       this.selectedPriority.set(state.selectedPriority ?? '');
       this.sortColumn.set(state.sortColumn ?? 'title');
@@ -236,7 +258,6 @@ export class TaskList implements OnInit {
         this.loading.set(false);
         this.tasksInitialLoaded.set(true);
 
-        // ОПТИМИЗАЦИЯ: Чистим устаревшие ID из expandedNodes один раз при получении свежих данных
         const currentIds = new Set(this.flatTasks().map(t => t.id));
         const expanded = new Set(this.expandedNodes());
         let needUpdate = false;
@@ -344,13 +365,15 @@ export class TaskList implements OnInit {
     return 'priority-' + priority.toLowerCase();
   }
 
-  getStatusClass(status: TaskStatus): string {
-    return TASK_STATUS_CONFIG[status]?.class || '';
+  getStatusClass(status: string): string {
+    if (status === 'OVERDUE') return 'status-overdue'; // Добавлено для OVERDUE
+    return TASK_STATUS_CONFIG[status as TaskStatus]?.class || '';
   }
 
-  getFilterStatusClass(status: TaskStatus | ''): string {
+  getFilterStatusClass(status: string): string {
     if (!status) return '';
-    return TASK_STATUS_CONFIG[status]?.class || '';
+    if (status === 'OVERDUE') return 'status-overdue'; // Добавлено для OVERDUE
+    return TASK_STATUS_CONFIG[status as TaskStatus]?.class || '';
   }
 
   updateStatus(task: TaskRO, newStatus: string): void {

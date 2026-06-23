@@ -28,59 +28,77 @@
 }
 
 // ==========================================================================
-// РЯД 1: СУПЕР-КОМПАКТНАЯ СТАТИСТИКА (ВСЕГДА В ОДНУ СТРОКУ)
+// РЯД 1: СУПЕР-КОМПАКТНАЯ СТАТИСТИКА
 // ==========================================================================
 .stats-container {
   width: 100%;
-  margin-top: 0.75rem ;
+  margin-top: 0.75rem;
   margin-bottom: 0.75rem;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); // Ровно 6 колонок без переносов
-  gap: 3px;                              // Минимальные отступы
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1px;
   width: 100%;
 }
 
 .stat-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 6px;
   text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 28px;                          // Высота уменьшена почти в 2 раза
-  box-sizing: border-box;
+  height: 32px;
   padding: 0 1px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
 
   .stat-value {
-    font-size: 0.8rem;                   // Шрифт стал компактнее
+    font-size: 0.9rem;
     font-weight: 700;
-    color: var(--accent);
+    color: var(--text-main);
     line-height: 1;
   }
+
   .stat-label {
-    font-size: 0.5rem;                   // Микро-шрифт для подписей
+    font-size: 0.6rem;
     color: var(--text-muted);
-    line-height: 1;
-    margin-top: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
   }
-  &.pending .stat-value { color: var(--danger); }
-  &.progress .stat-value { color: #2563eb; }
-  &.completed .stat-value { color: #16a34a; }
-  &.overdue {
-    background: rgba(239, 68, 68, 0.03);
-    border-color: rgba(239, 68, 68, 0.12);
-    .stat-value { color: var(--danger); }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-soft, 0 4px 12px rgba(0, 0, 0, 0.05));
+    border-color: var(--accent);
   }
-  &.archived .stat-value { color: #4b5563; }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  // Стили для активного состояния (выбранный фильтр)
+  &.active {
+    background: rgba(var(--accent-rgb, 59, 130, 246), 0.05);
+    border-color: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+
+  // Цветовое кодирование
+  &.pending .stat-value { color: #f59e0b; }
+  &.progress .stat-value { color: #3b82f6; }
+  &.completed .stat-value { color: #10b981; }
+  &.overdue .stat-value { color: #ef4444; }
+  &.archived .stat-value { color: #9ca3af; }
 }
 
 // ==========================================================================
@@ -94,7 +112,6 @@
   margin-bottom: 0.75rem;
   box-sizing: border-box;
 
-  // Ряд Поиска + Кнопок вида
   &.main-actions {
     .search-box {
       flex: 1;
@@ -117,24 +134,22 @@
         border-radius: 5px;
         color: var(--text-main);
         font-size: 0.8rem;
-        height: 30px;                     // Уменьшенная высота инпута
+        height: 30px;
         box-sizing: border-box;
         &:focus { outline: none; border-color: var(--accent); }
       }
     }
   }
 
-  // Ряд Селекторов статусов и приоритетов
   &.filter-selectors {
     .status-select-wrapper,
     .priority-select-wrapper {
-      flex: 1;                            // Одинаковая ширина в строке
+      flex: 1;
       min-width: 0;
     }
   }
 }
 
-// Переключатель режимов отображения (List / Board)
 .view-toggle {
   display: flex;
   background: var(--bg-card);
@@ -143,7 +158,7 @@
   padding: 1px;
   gap: 1px;
   flex-shrink: 0;
-  height: 30px;                           // Согласованная высота
+  height: 30px;
   box-sizing: border-box;
 
   .toggle-btn {
@@ -166,7 +181,7 @@
 }
 
 // ==========================================================================
-// СТИЛИЗАЦИЯ СЕЛЕКТОВ (КОМПАКТНЫЙ ВАРИАНТ)
+// СТИЛИЗАЦИЯ СЕЛЕКТОВ
 // ==========================================================================
 .status-select-wrapper,
 .priority-select-wrapper {
@@ -176,7 +191,7 @@
   border: 1px solid var(--border);
   border-radius: 5px;
   background: var(--bg-card);
-  height: 30px;                           // Снижена с 36px до 30px
+  height: 30px;
   box-sizing: border-box;
 
   .status-select-styled,
@@ -187,7 +202,7 @@
     background: transparent;
     border: none;
     outline: none;
-    font-size: 0.78rem;                   // Компактный аккуратный текст
+    font-size: 0.78rem;
     font-weight: 600;
     cursor: pointer;
     appearance: none;
@@ -208,6 +223,7 @@
 
 // Схемы состояний статусов
 .status-select-wrapper {
+  &.status-overdue { background-color: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.2); .status-select-styled, .select-arrow { color: var(--danger); } }
   &.status-pending { background-color: rgba(234, 179, 8, 0.05); border-color: rgba(234, 179, 8, 0.2); .status-select-styled, .select-arrow { color: var(--danger); } }
   &.status-progress { background-color: rgba(59, 130, 246, 0.05); border-color: rgba(59, 130, 246, 0.2); .status-select-styled, .select-arrow { color: #2563eb; } }
   &.status-review { background-color: rgba(168, 85, 247, 0.05); border-color: rgba(168, 85, 247, 0.2); .status-select-styled, .select-arrow { color: #9333ea; } }
@@ -215,7 +231,6 @@
   &.status-archived { background-color: rgba(156, 163, 175, 0.07); border-color: rgba(156, 163, 175, 0.2); .status-select-styled, .select-arrow { color: #4b5563; } }
 }
 
-// Схемы состояний приоритетов
 .priority-select-wrapper {
   &[data-priority="LOW"] { background: rgba(34, 197, 94, 0.05); border-color: rgba(34, 197, 94, 0.2); .priority-select-styled, .select-arrow { color: #16a34a; } }
   &[data-priority="MEDIUM"] { background: rgba(59, 130, 246, 0.05); border-color: rgba(59, 130, 246, 0.2); .priority-select-styled, .select-arrow { color: #2563eb; } }
@@ -226,7 +241,7 @@
 option {
   background-color: var(--bg-card);
   color: var(--text-main);
-  &.status-default, &.priority-default { color: var(--text-main); }
+  &.status-overdue { color: var(--danger); }
   &.status-pending, &.priority-critical { color: var(--danger); }
   &.status-progress, &.priority-medium { color: #2563eb; }
   &.status-review { color: #9333ea; }
@@ -235,7 +250,6 @@ option {
   &.priority-high { color: #d97706; }
 }
 
-// Нативные бэйджи внутри таблицы
 .priority-badge {
   display: inline-block;
   padding: 0.15rem 0.4rem;
@@ -362,7 +376,7 @@ option {
 }
 
 @media (max-width: 768px) {
-  .task-list { padding: 0.1rem; }
+  .task-list { padding: 0.75rem; }
   .tasks-table .col-assignee { display: none; }
   .kanban-board { flex-direction: column; }
   .kanban-column { width: 100%; }
