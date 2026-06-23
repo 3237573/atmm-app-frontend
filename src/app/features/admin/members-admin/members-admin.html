@@ -10,16 +10,17 @@
 
   <!-- Header -->
   <div class="page-header">
-    <div class="header-text">
-      <h2><i class="material-icons">admin_panel_settings</i> Управление пользователями</h2>
-      <p>Управление доступом, ролями и правами пользователей в вашей пространства</p>
+    <div class="header-info">
+      <h1><i class="material-icons">admin_panel_settings</i> Участники</h1>
+      <p>Пространства</p>
     </div>
-    @if (canCreate()) {
-      <button class="btn-primary" (click)="toggleInviteForm()">
-        <i class="material-icons">{{ showInviteForm() ? 'close' : 'person_add' }}</i>
-        <span>{{ showInviteForm() ? 'Отмена' : 'Пригласить' }}</span>
-      </button>
-    }
+    <button
+      *appHasPermission="['user:create']"
+      class="btn-primary" (click)="toggleInviteForm()">
+      <i class="material-icons">{{ showInviteForm() ? 'close' : 'person_add' }}</i>
+      <span>{{ showInviteForm() ? 'Отмена' : 'Создать' }}</span>
+    </button>
+
   </div>
 
   <!-- Единая строка: фильтры слева, статистика справа -->
@@ -110,14 +111,16 @@
       <div class="invite-grid">
         <div class="input-group">
           <label><i class="material-icons">email</i> Email *</label>
-          <input type="email" [(ngModel)]="inviteData.email" placeholder="email@example.com" [class.invalid]="inviteData.email && !isValidEmail(inviteData.email)">
+          <input type="email" [(ngModel)]="inviteData.email" placeholder="email@example.com"
+                 [class.invalid]="inviteData.email && !isValidEmail(inviteData.email)">
           @if (inviteData.email && !isValidEmail(inviteData.email)) {
             <small class="error-text">Введите корректный email</small>
           }
         </div>
         <div class="input-group">
           <label><i class="material-icons">lock</i> Пароль *</label>
-          <input type="password" [(ngModel)]="inviteData.password" placeholder="Мин. 6 символов" [class.invalid]="inviteData.password && inviteData.password.length < 6">
+          <input type="password" [(ngModel)]="inviteData.password" placeholder="Мин. 6 символов"
+                 [class.invalid]="inviteData.password && inviteData.password.length < 6">
           @if (inviteData.password && inviteData.password.length < 6) {
             <small class="error-text">Минимум 6 символов</small>
           }
@@ -155,7 +158,9 @@
           <th (click)="sortBy('displayName')" class="sortable">Пользователи <i class="material-icons sort-icon">{{ getSortIcon('displayName') }}</i></th>
           <th (click)="sortBy('roleName')" class="sortable">Роль <i class="material-icons sort-icon">{{ getSortIcon('roleName') }}</i></th>
           <th (click)="sortBy('status')" class="sortable">Статус <i class="material-icons sort-icon">{{ getSortIcon('status') }}</i></th>
-          @if (canManage()) { <th class="text-right">Действия</th> }
+          @if (canManage()) {
+            <th class="text-right">Действия</th>
+          }
         </tr>
         </thead>
         <tbody>
@@ -163,7 +168,9 @@
             <tr [class.deleted-row]="member.status === 'DELETED'">
               <td>
                 <div class="user-info">
-                  <div class="user-avatar" [style.background]="member.status === 'DELETED' ? '#4a4a4a' : '#6366f1'">{{ (member.displayName || member.email).charAt(0).toUpperCase() }}</div>
+                  <div class="user-avatar"
+                       [style.background]="member.status === 'DELETED' ? '#4a4a4a' : '#6366f1'">{{ (member.displayName || member.email).charAt(0).toUpperCase() }}
+                  </div>
                   <div class="user-details">
                     <span class="user-name">{{ member.displayName }}</span>
                     <span class="user-email">{{ member.email }}</span>
@@ -172,11 +179,21 @@
               </td>
               <td><span class="badge-role" [class]="member.roleName.toLowerCase()">
                 @switch (member.roleName) {
-                  @case ('OWNER') { 👑 Owner }
-                  @case ('ADMIN') { ⚙️ Admin }
-                  @case ('MEMBER') { 👥 Member }
-                  @case ('GUEST') { 👤 Guest }
-                  @default { {{ member.roleName }} }
+                  @case ('OWNER') {
+                    👑 Owner
+                  }
+                  @case ('ADMIN') {
+                    ⚙️ Admin
+                  }
+                  @case ('MEMBER') {
+                    👥 Member
+                  }
+                  @case ('GUEST') {
+                    👤 Guest
+                  }
+                  @default {
+                    {{ member.roleName }}
+                  }
                 }
               </span></td>
               <td>
@@ -184,10 +201,18 @@
                   <span class="status-dot" [class]="member.status.toLowerCase()"></span>
                   <span class="status-text">
                     @switch (member.status) {
-                      @case ('ACTIVE') { Активен }
-                      @case ('PENDING') { Ожидает }
-                      @case ('DELETED') { Удален }
-                      @default { {{ member.status }} }
+                      @case ('ACTIVE') {
+                        Активен
+                      }
+                      @case ('PENDING') {
+                        Ожидает
+                      }
+                      @case ('DELETED') {
+                        Удален
+                      }
+                      @default {
+                        {{ member.status }}
+                      }
                     }
                   </span>
                 </div>
@@ -196,17 +221,27 @@
                 <td class="actions-cell">
                   @if (member.status !== 'DELETED') {
                     <button class="btn-icon edit" (click)="editMember(member)" title="Редактировать"><i class="material-icons">edit</i></button>
-                    <button class="btn-icon reset" (click)="resetPassword(member.id, member.displayName)" title="Сбросить пароль"><i class="material-icons">vpn_key</i></button>
+                    <button class="btn-icon reset" (click)="resetPassword(member.id, member.displayName)" title="Сбросить пароль"><i class="material-icons">vpn_key</i>
+                    </button>
                     <button class="btn-icon view" (click)="viewActivity(member.id)" title="Активность"><i class="material-icons">visibility</i></button>
-                    @if (canDelete()) { <button class="btn-icon delete" (click)="deleteMember(member.id, member.displayName)" title="Удалить"><i class="material-icons">person_remove</i></button> }
+                    @if (canDelete()) {
+                      <button class="btn-icon delete" (click)="deleteMember(member.id, member.displayName)" title="Удалить"><i class="material-icons">person_remove</i>
+                      </button>
+                    }
                   } @else {
-                    <button class="btn-icon restore" (click)="restoreMember(member.id, member.displayName)" title="Восстановить"><i class="material-icons">restore_from_trash</i></button>
+                    <button class="btn-icon restore" (click)="restoreMember(member.id, member.displayName)" title="Восстановить"><i class="material-icons">restore_from_trash</i>
+                    </button>
                   }
                 </td>
               }
             </tr>
           } @empty {
-            <tr><td colspan="4" class="empty-state"><i class="material-icons">people_outline</i><p>Сотрудники не найдены</p>@if (searchQuery() || selectedRole() || selectedStatus()) { <button class="btn-link" (click)="clearFilters()">Очистить фильтры</button> }</td></tr>
+            <tr>
+              <td colspan="4" class="empty-state"><i class="material-icons">people_outline</i>
+                <p>Сотрудники не найдены</p>@if (searchQuery() || selectedRole() || selectedStatus()) {
+                  <button class="btn-link" (click)="clearFilters()">Очистить фильтры</button>
+                }</td>
+            </tr>
           }
         </tbody>
       </table>
@@ -214,18 +249,24 @@
       <!-- Пагинация -->
       @if (filteredMembers().length > 0) {
         <div class="pagination">
-          <div class="pagination-info">Показано {{ (currentPage() - 1) * itemsPerPage() + 1 }} - {{ Math.min(currentPage() * itemsPerPage(), filteredMembers().length) }} из {{ filteredMembers().length }}</div>
+          <div class="pagination-info">Показано {{ (currentPage() - 1) * itemsPerPage() + 1 }}
+            - {{ Math.min(currentPage() * itemsPerPage(), filteredMembers().length) }} из {{ filteredMembers().length }}
+          </div>
           <div class="pagination-controls">
-            <button class="page-btn" [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)"><i class="material-icons">chevron_left</i></button>
+            <button class="page-btn" [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)"><i class="material-icons">chevron_left</i>
+            </button>
             @for (page of [].constructor(totalPages); track $index) {
               <button class="page-btn" [class.active]="currentPage() === $index + 1" (click)="changePage($index + 1)">{{ $index + 1 }}</button>
             }
-            <button class="page-btn" [disabled]="currentPage() === totalPages" (click)="changePage(currentPage() + 1)"><i class="material-icons">chevron_right</i></button>
+            <button class="page-btn" [disabled]="currentPage() === totalPages" (click)="changePage(currentPage() + 1)"><i
+              class="material-icons">chevron_right</i></button>
           </div>
         </div>
       }
     } @else {
-      <div class="loader-container"><div class="loader"></div><span>Загрузка команды...</span></div>
+      <div class="loader-container">
+        <div class="loader"></div>
+        <span>Загрузка команды...</span></div>
     }
   </div>
 </div>
@@ -234,13 +275,23 @@
 @if (showEditModal() && editingMember()) {
   <div class="modal-overlay" (click)="showEditModal.set(false)">
     <div class="modal" (click)="$event.stopPropagation()">
-      <div class="modal-header"><h3>Редактировать сотрудника</h3><button class="close-btn" (click)="showEditModal.set(false)">×</button></div>
+      <div class="modal-header"><h3>Редактировать сотрудника</h3>
+        <button class="close-btn" (click)="showEditModal.set(false)">×</button>
+      </div>
       <div class="modal-body">
         <div class="input-group"><label>Имя в пространства</label><input [(ngModel)]="editingMember()!.displayName" placeholder="Введите имя"></div>
-        <div class="input-group"><label>Роль</label><select [(ngModel)]="editingMember()!.roleName"><option value="OWNER">👑 Owner</option><option value="ADMIN">⚙️ Admin</option><option value="MEMBER">👥 Member</option><option value="GUEST">👤 Guest</option></select></div>
+        <div class="input-group"><label>Роль</label><select [(ngModel)]="editingMember()!.roleName">
+          <option value="OWNER">👑 Owner</option>
+          <option value="ADMIN">⚙️ Admin</option>
+          <option value="MEMBER">👥 Member</option>
+          <option value="GUEST">👤 Guest</option>
+        </select></div>
         <div class="info-box"><i class="material-icons">info</i><small>Email пользователя: {{ editingMember()!.email }}</small></div>
       </div>
-      <div class="modal-actions"><button class="btn-secondary" (click)="showEditModal.set(false)">Отмена</button><button class="btn-primary" (click)="updateMember()">Сохранить</button></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="showEditModal.set(false)">Отмена</button>
+        <button class="btn-primary" (click)="updateMember()">Сохранить</button>
+      </div>
     </div>
   </div>
 }

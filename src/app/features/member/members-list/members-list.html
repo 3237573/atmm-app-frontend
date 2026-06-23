@@ -1,10 +1,9 @@
-<div class="members-container">
-
+<div class="members-container" appBackOnEscape>
   <div class="page-header">
     <div class="header-info">
       <h1>
         <i class="material-icons">groups</i>
-        <span>{{ 'member.members' | transloco}}</span>
+        <span>{{ 'member.members' | transloco }}</span>
       </h1>
     </div>
   </div>
@@ -16,7 +15,7 @@
         type="text"
         [ngModel]="searchQuery()"
         (ngModelChange)="searchQuery.set($event)"
-        placeholder="{{ 'member.searchPlaceholder' | transloco}}"
+        placeholder="{{ 'member.searchPlaceholder' | transloco }}"
       />
     </div>
   </div>
@@ -24,45 +23,47 @@
   @if (loading()) {
     <div class="page-loader">
       <span class="spinner"></span>
-      <p>{{ 'member.loadMembers' | transloco}}</p>
+      <p>{{ 'member.loadMembers' | transloco }}</p>
     </div>
   } @else {
     <div class="members-list">
       @for (member of filteredMembers(); track member.id) {
         <div class="member-row-card">
 
-          <div class="member-profile" (click)="viewProfile(member)" style="width: 20%">
+          <div class="member-profile" (click)="viewProfile(member)">
             <div class="avatar-circle" [ngClass]="getRoleBadgeClass(member.roleName)">
               {{ member.displayName.charAt(0) || member.email.charAt(0) | uppercase }}
             </div>
+
             <div class="member-info">
-              <span class="member-name">{{ member.displayName || 'Пользователь без имени' }}</span>
+              <div class="member-name-wrapper">
+                <span class="member-name">{{ member.displayName }}</span>
+
+                <span class="badge-role" [ngClass]="getRoleBadgeClass(member.roleName)">
+                  {{ member.roleName }}
+                </span>
+
+                @if (isCurrentUser(member.email)) {
+                  <span class="status-badge live">
+                    <span class="pulse-dot"></span>
+                    <span class="status-text">{{ 'member.iAm' | transloco }}</span>
+                  </span>
+                }
+              </div>
               <span class="member-email">{{ member.email }}</span>
             </div>
-            <div class="member-meta" style="width: 5%">
-              <span class="badge-role" [ngClass]="getRoleBadgeClass(member.roleName)">
-                {{ member.roleName }}
-              </span>
-            </div>
-            @if (isCurrentUser(member.email)) {
-              <span class="status-badge" [class.live]=true>
-                  <span class="pulse-dot"></span>
-                {{ ('member.iAm') | transloco }}
-                </span>
-            }
           </div>
-
 
           <div class="member-actions">
             @if (!isCurrentUser(member.email)) {
-              <button class="btn-icon-action" (click)="sendMessage(member)" title="{{ ('member.actions.writeMessage') | transloco }}">
+              <button class="btn-icon-action chat" (click)="sendMessage(member)" title="{{ 'member.actions.writeMessage' | transloco }}">
                 <i class="material-icons">chat</i>
               </button>
             }
-            <button class="btn-icon-action" (click)="assignTask(member)" title="{{ ('member.actions.assignATask') | transloco }}">
+            <button class="btn-icon-action task" (click)="assignTask(member)" title="{{ 'member.actions.assignATask' | transloco }}">
               <i class="material-icons">assignment_add</i>
             </button>
-            <button class="btn-icon-action" (click)="viewProfile(member)" title="{{ ('member.actions.viewProfile') | transloco }}">
+            <button class="btn-icon-action view" (click)="viewProfile(member)" title="{{ 'member.actions.viewProfile' | transloco }}">
               <i class="material-icons">visibility</i>
             </button>
           </div>
@@ -71,7 +72,7 @@
       } @empty {
         <div class="empty-state">
           <i class="material-icons">person_search</i>
-          <p>Участники не найдены</p>
+          <p>Сотрудники не найдены</p>
         </div>
       }
     </div>

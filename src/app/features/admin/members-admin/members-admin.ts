@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { Subject, finalize, takeUntil } from 'rxjs';
+import {HasPermissionDirective} from '@core/directives/has-permission.directive';
 
 interface InviteData {
   email: string;
@@ -26,7 +27,7 @@ interface StatsData {
 @Component({
   selector: 'app-members-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HasPermissionDirective],
   templateUrl: './members-admin.html',
   styleUrl: './members-admin.scss'
 })
