@@ -4,9 +4,9 @@
     <div class="header-info">
       <h1>
         <i class="material-icons">business</i>
-        <span>{{ 'admin.profile.title' | transloco}}</span>
+        <span>{{ 'admin.profile.title' | transloco }}</span>
       </h1>
-      <p><span>{{ 'admin.profile.subtitle' | transloco}}</span></p>
+      <p><span>{{ 'admin.profile.subtitle' | transloco }}</span></p>
     </div>
 
     @if (canEdit()) {
@@ -22,40 +22,49 @@
 
   <div class="profile-grid">
 
-    <div class="profile-card-field">
+    <div class="profile-card-field" [class.is-editing]="editing">
       <div class="field-icon">
         <i class="material-icons">badge</i>
       </div>
       <div class="field-body">
-        <label>{{ 'admin.profile.spaceName' | transloco}}</label>
+        <label>{{ 'admin.profile.spaceName' | transloco }}</label>
         <div class="field-input-wrapper">
           @if (editing) {
-            <input type="text" [(ngModel)]="workspace.name"
-                   placeholder="{{ 'admin.profile.inputName' | transloco}}"/>
+            <input
+              type="text"
+              [(ngModel)]="workspace.name"
+              placeholder="{{ 'admin.profile.spaceNamePlaceholder' | transloco }}"
+              class="form-control"
+            />
           } @else {
-            <span class="readonly-text">{{ workspace.name || '—' }}</span>
+            <span class="field-value">{{ workspace.name }}</span>
           }
         </div>
       </div>
     </div>
 
-    <div class="profile-card-field">
+    <div class="profile-card-field" [class.is-editing]="editing">
       <div class="field-icon">
         <i class="material-icons">code</i>
       </div>
       <div class="field-body">
-        <label>{{ 'admin.profile.spaceCode' | transloco}}</label>
-        <div class="field-input-wrapper code-layout">
+        <label>{{ 'admin.profile.spaceCode' | transloco }}</label>
+        <div class="field-input-wrapper">
           @if (editing) {
-            <input type="text" [(ngModel)]="workspace.code" placeholder="Введите код"/>
+            <input
+              type="text"
+              [(ngModel)]="workspace.code"
+              placeholder="{{ 'admin.profile.spaceCodePlaceholder' | transloco }}"
+              class="form-control"
+            />
           } @else {
-            <code class="styled-code">{{ workspace.code || '—' }}</code>
-            @if (workspace.code) {
-              <button class="copy-btn" [cdkCopyToClipboard]="workspace.code" (cdkCopyToClipboardCopied)="onCopy()">
+            <div class="copy-value-container">
+              <span class="field-value code-text">{{ workspace.code }}</span>
+              <button class="btn-copy" [cdkCopyToClipboard]="workspace.code" (cdkCopyToClipboardCopied)="onCopy()" title="Копировать код">
                 <i class="material-icons">{{ copySuccess ? 'done' : 'content_copy' }}</i>
-                @if (copySuccess) { <span class="copy-tooltip">Скопировано!</span> }
+                @if (copySuccess) { <span class="tooltip">Скопировано!</span> }
               </button>
-            }
+            </div>
           }
         </div>
       </div>
@@ -93,8 +102,7 @@
     <div class="form-actions">
       <button class="btn-primary" (click)="saveChanges()" [disabled]="saving">
         @if (saving) {
-          <span class="spinner-small"></span>
-          <span>Сохранение...</span>
+          <span class="spinner"></span>
         } @else {
           <i class="material-icons">save</i>
           <span>Сохранить изменения</span>

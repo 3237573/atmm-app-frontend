@@ -9,11 +9,12 @@ import {ChatService} from '@core/services/chat.service';
 import {firstValueFrom} from 'rxjs';
 import {TranslocoPipe} from '@ngneat/transloco';
 import {disabled} from '@angular/forms/signals';
+import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
 
 @Component({
   selector: 'app-members-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslocoPipe],
+  imports: [CommonModule, FormsModule, TranslocoPipe, BackOnEscapeDirective],
   templateUrl: './members-list.html',
   styleUrl: './members-list.scss'
 })

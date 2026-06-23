@@ -5,12 +5,75 @@
         <i class="material-icons">assignment</i>
         {{ 'task.title' | transloco }}
       </h1>
-      <p>{{ 'task.subtitle' | transloco }}</p>
     </div>
     <button class="btn-primary" routerLink="/tasks/create">
       <i class="material-icons">add</i>
       {{ 'btn.create' | transloco }}
     </button>
+  </div>
+
+  <div class="controls-row main-actions">
+    <div class="search-box">
+      <i class="material-icons">search</i>
+      <input
+        type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        placeholder="{{ 'task.searchPlaceholder' | transloco }}"
+      >
+    </div>
+
+    <div class="view-toggle">
+      <button
+        class="toggle-btn"
+        [class.active]="viewMode() === 'list'"
+        (click)="setViewMode('list')"
+      >
+        <i class="material-icons">view_list</i>
+      </button>
+      <button
+        class="toggle-btn"
+        [class.active]="viewMode() === 'board'"
+        (click)="setViewMode('board')"
+      >
+        <i class="material-icons">view_kanban</i>
+      </button>
+    </div>
+  </div>
+
+  <div class="controls-row filter-selectors">
+    <div class="status-select-wrapper" [ngClass]="getFilterStatusClass(selectedStatus())">
+      <select
+        [ngModel]="selectedStatus()"
+        (ngModelChange)="selectedStatus.set($event)"
+        class="status-select-styled"
+      >
+        <option value="" class="status-default">
+          {{ 'task.allStatuses' | transloco }}
+        </option>
+        @for (status of TASK_STATUS_LIST; track status) {
+          <option [value]="status" [ngClass]="getStatusClass(status)">
+            {{ 'task.status.' + status | transloco }}
+          </option>
+        }
+      </select>
+      <i class="material-icons select-arrow">expand_more</i>
+    </div>
+
+    <div class="priority-select-wrapper" [attr.data-priority]="selectedPriority()">
+      <select
+        [ngModel]="selectedPriority()"
+        (ngModelChange)="selectedPriority.set($event)"
+        class="priority-select-styled"
+      >
+        <option value="" class="priority-default">{{ 'task.allPriorities' | transloco }}</option>
+        <option value="LOW" class="priority-low">LOW</option>
+        <option value="MEDIUM" class="priority-medium">MEDIUM</option>
+        <option value="HIGH" class="priority-high">HIGH</option>
+        <option value="CRITICAL" class="priority-critical">CRITICAL</option>
+      </select>
+      <i class="material-icons select-arrow">expand_more</i>
+    </div>
   </div>
 
   @if (viewMode() === 'list') {
@@ -205,70 +268,6 @@
     </div>
   }
 
-  <div class="filters-bar">
-
-    <div class="status-select-wrapper" [ngClass]="getFilterStatusClass(selectedStatus())">
-      <select
-        [ngModel]="selectedStatus()"
-        (ngModelChange)="selectedStatus.set($event)"
-        class="status-select-styled"
-      >
-        <option value="" class="status-default">
-          {{ 'task.allStatuses' | transloco }}
-        </option>
-        @for (status of TASK_STATUS_LIST; track status) {
-          <option [value]="status" [ngClass]="getStatusClass(status)">
-            {{ 'task.status.' + status | transloco }}
-          </option>
-        }
-      </select>
-      <i class="material-icons select-arrow">expand_more</i>
-    </div>
-
-    <div class="priority-select-wrapper" [attr.data-priority]="selectedPriority()">
-      <select
-        [ngModel]="selectedPriority()"
-        (ngModelChange)="selectedPriority.set($event)"
-        class="priority-select-styled"
-      >
-        <option value="" class="priority-default">{{ 'task.allPriorities' | transloco }}</option>
-        <option value="LOW" class="priority-low">LOW</option>
-        <option value="MEDIUM" class="priority-medium">MEDIUM</option>
-        <option value="HIGH" class="priority-high">HIGH</option>
-        <option value="CRITICAL" class="priority-critical">CRITICAL</option>
-      </select>
-      <i class="material-icons select-arrow">expand_more</i>
-    </div>
-
-    <div class="view-toggle">
-      <button
-        class="toggle-btn"
-        [class.active]="viewMode() === 'list'"
-        (click)="setViewMode('list')"
-      >
-        <i class="material-icons">view_list</i>
-      </button>
-      <button
-        class="toggle-btn"
-        [class.active]="viewMode() === 'board'"
-        (click)="setViewMode('board')"
-      >
-        <i class="material-icons">view_kanban</i>
-      </button>
-    </div>
-
-    <div class="search-box">
-      <i class="material-icons">search</i>
-      <input
-        type="text"
-        [ngModel]="searchQuery()"
-        (ngModelChange)="searchQuery.set($event)"
-        placeholder="{{ 'task.searchPlaceholder' | transloco }}"
-      >
-    </div>
-
-  </div>
-
   <div class="stats-container">
     <div class="stats-grid">
       <div class="stat-card">
@@ -297,7 +296,4 @@
       </div>
     </div>
   </div>
-
-
-
 </div>

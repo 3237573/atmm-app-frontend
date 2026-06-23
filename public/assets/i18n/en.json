@@ -15,7 +15,8 @@
       "spaceCode": "Space Code",
       "spaceName": "Space Name",
       "title": "Space Profile"
-    }
+    },
+    "title": "Settings"
   },
   "auth": {
     "login": {
@@ -94,9 +95,10 @@
       "viewProfile": "View Profile",
       "writeMessage": "Write a message"
     },
-    "iAm": "I am",
+    "iAm": "I'm",
     "loadMembers": "Loading members...",
     "members": "Members",
+    "notAssigned": "Not assigned",
     "searchPlaceholder": "Search by name or email..."
   },
   "menu": {
@@ -188,7 +190,7 @@
     "title": "Create Task",
     "back": "Back",
     "chooseAssignee": "Select at least one assignee",
-    "noMembers": "There are no employees in this department",
+    "noMembers": "There are no members in this group/department",
     "fields": {
       "attachments": "Attached documents",
       "taskTitle": "Task Title *",

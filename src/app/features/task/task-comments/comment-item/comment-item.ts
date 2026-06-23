@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '@core/services/auth.service';
 import { TaskCommentService } from '@core/services/task-comment.service';
 import { TaskComment } from '@core/models/task/task.model';
+import {TranslocoPipe} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-comment-item',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslocoPipe],
   templateUrl: './comment-item.html',
   styleUrl: './comment-item.scss'
 })

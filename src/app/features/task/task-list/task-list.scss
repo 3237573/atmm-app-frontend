@@ -1,5 +1,5 @@
 // ==========================================================================
-// ГЛАВНЫЙ КОНТЕЙНЕР
+// ГЛАВНЫЙ КОНТЕЙНЕР И ШАПКА
 // ==========================================================================
 .task-list {
   padding: 1.5rem;
@@ -8,68 +8,65 @@
   box-sizing: border-box;
 }
 
-// Шапка страницы
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   flex-wrap: wrap;
   gap: 1rem;
 
-  .header-info {
-    h1 {
-      margin: 0 0 0.25rem 0;
-      font-size: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--text-main);
-      i { color: var(--accent); }
-    }
-    p { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
+  .header-info h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-main);
+    i { color: var(--accent); }
   }
 }
 
 // ==========================================================================
-// БЛОК СТАТИСТИКИ (ВЕРХНИЙ РЯД СВОДКИ)
+// РЯД 1: СУПЕР-КОМПАКТНАЯ СТАТИСТИКА (ВСЕГДА В ОДНУ СТРОКУ)
 // ==========================================================================
 .stats-container {
   width: 100%;
-  margin-bottom: 1.5rem;
+  margin-top: 0.75rem ;
+  margin-bottom: 0.75rem;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(6, 1fr); // Ровно 6 колонок без переносов
+  gap: 3px;                              // Минимальные отступы
   width: 100%;
 }
 
 .stat-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 4px;
   text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 42px;
+  height: 28px;                          // Высота уменьшена почти в 2 раза
   box-sizing: border-box;
-  padding: 0 0.5rem;
+  padding: 0 1px;
 
   .stat-value {
-    font-size: 1rem;
+    font-size: 0.8rem;                   // Шрифт стал компактнее
     font-weight: 700;
     color: var(--accent);
-    line-height: 1.1;
+    line-height: 1;
   }
   .stat-label {
-    font-size: 0.65rem;
+    font-size: 0.5rem;                   // Микро-шрифт для подписей
     color: var(--text-muted);
     line-height: 1;
-    margin-top: 2px;
+    margin-top: 1px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -79,89 +76,97 @@
   &.progress .stat-value { color: #2563eb; }
   &.completed .stat-value { color: #16a34a; }
   &.overdue {
-    background: rgba(239, 68, 68, 0.05);
-    border-color: rgba(239, 68, 68, 0.15);
+    background: rgba(239, 68, 68, 0.03);
+    border-color: rgba(239, 68, 68, 0.12);
     .stat-value { color: var(--danger); }
   }
   &.archived .stat-value { color: #4b5563; }
 }
 
 // ==========================================================================
-// ПАНЕЛЬ ФИЛЬТРОВ И УПРАВЛЕНИЯ (НИЖНИЙ РЯД КОНТРОЛЛЕРОВ)
+// СТРУКТУРА СТРОК С УПРАВЛЕНИЕМ (БЛОКИ ФИЛЬТРАЦИИ)
 // ==========================================================================
-.filters-bar {
+.controls-row {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   width: 100%;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
+  box-sizing: border-box;
 
-  .search-box {
-    position: relative;
-    flex: 1;
-    min-width: 0;
+  // Ряд Поиска + Кнопок вида
+  &.main-actions {
+    .search-box {
+      flex: 1;
+      position: relative;
+      min-width: 0;
 
-    i {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-      font-size: 1.1rem;
-    }
-
-    input {
-      width: 100%;
-      padding: 0.45rem 0.75rem 0.45rem 2.2rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text-main);
-      font-size: 0.85rem;
-      height: 36px;
-      box-sizing: border-box;
-
-      &:focus {
-        outline: none;
-        border-color: var(--accent);
+      i {
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 1rem;
       }
+      input {
+        width: 100%;
+        padding: 0 0.5rem 0 1.8rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        color: var(--text-main);
+        font-size: 0.8rem;
+        height: 30px;                     // Уменьшенная высота инпута
+        box-sizing: border-box;
+        &:focus { outline: none; border-color: var(--accent); }
+      }
+    }
+  }
+
+  // Ряд Селекторов статусов и приоритетов
+  &.filter-selectors {
+    .status-select-wrapper,
+    .priority-select-wrapper {
+      flex: 1;                            // Одинаковая ширина в строке
+      min-width: 0;
     }
   }
 }
 
-// Переключатель видов (List / Board)
+// Переключатель режимов отображения (List / Board)
 .view-toggle {
   display: flex;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 2px;
-  gap: 2px;
+  border-radius: 5px;
+  padding: 1px;
+  gap: 1px;
   flex-shrink: 0;
-  height: 36px;
+  height: 30px;                           // Согласованная высота
   box-sizing: border-box;
 
   .toggle-btn {
     background: transparent;
     border: none;
     color: var(--text-muted);
-    padding: 0 0.5rem;
+    padding: 0 0.4rem;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 3px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
+    transition: all 0.15s;
     height: 100%;
 
-    i { font-size: 1.1rem; }
+    i { font-size: 1rem; }
     &:hover { color: var(--text-main); background: var(--bg-soft); }
     &.active { background: var(--accent); color: #fff; }
   }
 }
 
 // ==========================================================================
-// СЕЛЕКТЫ СТАТУСОВ И ПРИОРИТЕТОВ
+// СТИЛИЗАЦИЯ СЕЛЕКТОВ (КОМПАКТНЫЙ ВАРИАНТ)
 // ==========================================================================
 .status-select-wrapper,
 .priority-select-wrapper {
@@ -169,22 +174,20 @@
   display: flex;
   align-items: center;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 5px;
   background: var(--bg-card);
-  transition: all 0.2s ease-in-out;
-  height: 36px;
+  height: 30px;                           // Снижена с 36px до 30px
   box-sizing: border-box;
-  min-width: 140px;
 
   .status-select-styled,
   .priority-select-styled {
     width: 100%;
     height: 100%;
-    padding: 0 1.8rem 0 0.5rem;
+    padding: 0 1.4rem 0 0.4rem;
     background: transparent;
     border: none;
     outline: none;
-    font-size: 0.85rem;
+    font-size: 0.78rem;                   // Компактный аккуратный текст
     font-weight: 600;
     cursor: pointer;
     appearance: none;
@@ -196,50 +199,33 @@
 
   .select-arrow {
     position: absolute;
-    right: 8px;
+    right: 4px;
     pointer-events: none;
     color: var(--text-muted);
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 }
 
-// Цветовые схемы для селекта статусов
+// Схемы состояний статусов
 .status-select-wrapper {
-  &.status-pending {
-    background-color: rgba(234, 179, 8, 0.08); border-color: rgba(234, 179, 8, 0.25);
-    .status-select-styled, .select-arrow { color: var(--danger); }
-  }
-  &.status-progress {
-    background-color: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.25);
-    .status-select-styled, .select-arrow { color: #2563eb; }
-  }
-  &.status-review {
-    background-color: rgba(168, 85, 247, 0.08); border-color: rgba(168, 85, 247, 0.25);
-    .status-select-styled, .select-arrow { color: #9333ea; }
-  }
-  &.status-completed {
-    background-color: rgba(34, 197, 94, 0.08); border-color: rgba(34, 197, 94, 0.25);
-    .status-select-styled, .select-arrow { color: #16a34a; }
-  }
-  &.status-archived {
-    background-color: rgba(156, 163, 175, 0.1); border-color: rgba(156, 163, 175, 0.3);
-    .status-select-styled, .select-arrow { color: #4b5563; }
-  }
+  &.status-pending { background-color: rgba(234, 179, 8, 0.05); border-color: rgba(234, 179, 8, 0.2); .status-select-styled, .select-arrow { color: var(--danger); } }
+  &.status-progress { background-color: rgba(59, 130, 246, 0.05); border-color: rgba(59, 130, 246, 0.2); .status-select-styled, .select-arrow { color: #2563eb; } }
+  &.status-review { background-color: rgba(168, 85, 247, 0.05); border-color: rgba(168, 85, 247, 0.2); .status-select-styled, .select-arrow { color: #9333ea; } }
+  &.status-completed { background-color: rgba(34, 197, 94, 0.05); border-color: rgba(34, 197, 94, 0.2); .status-select-styled, .select-arrow { color: #16a34a; } }
+  &.status-archived { background-color: rgba(156, 163, 175, 0.07); border-color: rgba(156, 163, 175, 0.2); .status-select-styled, .select-arrow { color: #4b5563; } }
 }
 
-// Цветовые схемы для селекта приоритетов
+// Схемы состояний приоритетов
 .priority-select-wrapper {
-  &[data-priority="LOW"] { background: rgba(34, 197, 94, 0.08); border-color: rgba(34, 197, 94, 0.25); .priority-select-styled, .select-arrow { color: #16a34a; } }
-  &[data-priority="MEDIUM"] { background: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.25); .priority-select-styled, .select-arrow { color: #2563eb; } }
-  &[data-priority="HIGH"] { background: rgba(245, 158, 11, 0.08); border-color: rgba(245, 158, 11, 0.25); .priority-select-styled, .select-arrow { color: #d97706; } }
-  &[data-priority="CRITICAL"] { background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.25); .priority-select-styled, .select-arrow { color: var(--danger); } }
+  &[data-priority="LOW"] { background: rgba(34, 197, 94, 0.05); border-color: rgba(34, 197, 94, 0.2); .priority-select-styled, .select-arrow { color: #16a34a; } }
+  &[data-priority="MEDIUM"] { background: rgba(59, 130, 246, 0.05); border-color: rgba(59, 130, 246, 0.2); .priority-select-styled, .select-arrow { color: #2563eb; } }
+  &[data-priority="HIGH"] { background: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.2); .priority-select-styled, .select-arrow { color: #d97706; } }
+  &[data-priority="CRITICAL"] { background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.2); .priority-select-styled, .select-arrow { color: var(--danger); } }
 }
 
-// Выпадающие списки (<option>)
 option {
   background-color: var(--bg-card);
   color: var(--text-main);
-
   &.status-default, &.priority-default { color: var(--text-main); }
   &.status-pending, &.priority-critical { color: var(--danger); }
   &.status-progress, &.priority-medium { color: #2563eb; }
@@ -249,14 +235,12 @@ option {
   &.priority-high { color: #d97706; }
 }
 
-// ==========================================================================
-// БЭЙДЖИ ПРИОРИТЕТА ВНУТРИ КОНТЕНТА (ЕДИНЫЙ БЛОК)
-// ==========================================================================
+// Нативные бэйджи внутри таблицы
 .priority-badge {
   display: inline-block;
-  padding: 0.2rem 0.5rem;
+  padding: 0.15rem 0.4rem;
   border-radius: 4px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
   text-align: center;
@@ -264,10 +248,10 @@ option {
   box-sizing: border-box;
   white-space: nowrap;
 
-  &[data-priority="LOW"], &.low, &.priority-low { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
-  &[data-priority="MEDIUM"], &.medium, &.priority-medium { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
-  &[data-priority="HIGH"], &.high, &.priority-high { background: rgba(245, 158, 11, 0.12); color: #d97706; }
-  &[data-priority="CRITICAL"], &.critical, &.priority-critical { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
+  &[data-priority="LOW"], &.low { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+  &[data-priority="MEDIUM"], &.medium { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+  &[data-priority="HIGH"], &.high { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+  &[data-priority="CRITICAL"], &.critical { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
 }
 
 // ==========================================================================
@@ -276,7 +260,7 @@ option {
 .table-container {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   overflow-x: auto;
 }
 
@@ -284,54 +268,38 @@ option {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   min-width: 1200px;
 
-  th, td {
-    padding: 0.4rem 1rem;
-    border-bottom: 1px solid var(--border);
-    vertical-align: middle;
-  }
-
+  th, td { padding: 0.4rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
   th {
     background: var(--bg-main);
     color: var(--text-muted);
     font-weight: 600;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.03em;
     white-space: nowrap;
 
     &.sortable {
       cursor: pointer;
       user-select: none;
       &:hover { background: rgba(var(--border-rgb), 0.2); }
-      .sort-icon {
-        font-size: 1rem;
-        vertical-align: middle;
-        margin-left: 0.25rem;
-        opacity: 0.5;
-      }
+      .sort-icon { font-size: 0.95rem; vertical-align: middle; margin-left: 0.2rem; opacity: 0.4; }
       &:hover .sort-icon { opacity: 1; }
     }
   }
 
-  .task-row {
-    cursor: pointer;
-    transition: background 0.2s;
-    &:hover { background: rgba(var(--accent-rgb), 0.02); }
-  }
-
+  .task-row { cursor: pointer; transition: background 0.15s; &:hover { background: rgba(var(--accent-rgb), 0.01); } }
   .col-task { width: 700px; min-width: 350px; }
-  .col-icon { width: 50px; text-align: center; i { font-size: 1.2rem; color: var(--text-muted); } }
-  .col-status { width: 160px; }
-  .col-priority { width: 110px; }
-  .col-department { width: 140px; }
-  .col-project { width: 120px; }
-  .col-date { width: 110px; }
-  .col-creator { width: 120px; }
-  .col-assignee { width: 130px; }
-
+  .col-icon { width: 45px; text-align: center; i { font-size: 1.1rem; color: var(--text-muted); } }
+  .col-status { width: 145px; }
+  .col-priority { width: 100px; }
+  .col-department { width: 135px; }
+  .col-project { width: 115px; }
+  .col-date { width: 105px; }
+  .col-creator { width: 115px; }
+  .col-assignee { width: 125px; }
   .text-center { text-align: center; }
   .text-right { text-align: right; }
 }
@@ -339,133 +307,53 @@ option {
 .title-wrapper {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-
-  .node-toggle {
-    cursor: pointer;
-    color: var(--text-muted);
-    transition: transform 0.2s;
-    user-select: none;
-    font-size: 1.3rem;
-    margin-left: -4px;
-    &.open { transform: rotate(90deg); color: var(--accent); }
-  }
-  .node-spacer { width: 20px; display: inline-block; }
+  gap: 0.4rem;
+  .node-toggle { cursor: pointer; color: var(--text-muted); transition: transform 0.15s; user-select: none; font-size: 1.2rem; &.open { transform: rotate(90deg); color: var(--accent); } }
+  .node-spacer { width: 18px; display: inline-block; }
   .task-title { font-weight: 500; color: var(--text-main); }
 }
 
 .due-date {
-  font-size: 0.85rem;
-  font-weight: 600;
-  padding: 0.15rem 0.4rem;
-  border-radius: 4px;
-  display: inline-block;
-  white-space: nowrap;
-  &.overdue { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-  &.today { background: rgba(245, 158, 11, 0.1); color: #d97706; }
-  &.soon { background: rgba(79, 70, 229, 0.08); color: #2563eb; }
+  font-size: 0.8rem; font-weight: 600; padding: 0.1rem 0.35rem; border-radius: 4px; display: inline-block; white-space: nowrap;
+  &.overdue { background: rgba(239, 68, 68, 0.08); color: var(--danger); }
+  &.today { background: rgba(245, 158, 11, 0.08); color: #d97706; }
+  &.soon { background: rgba(79, 70, 229, 0.06); color: #2563eb; }
   &.future { color: var(--text-main); background: var(--bg-soft); border: 1px solid var(--border); }
 }
 
-.count-text {
-  font-weight: 600;
-  color: var(--text-main);
-  font-size: 0.85rem;
-  &.muted { color: var(--border); font-weight: normal; }
-}
-
-.assignee, .department-name, .project-name, .creator-name {
-  font-size: 0.85rem;
-  color: var(--text-main);
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 140px;
-  display: inline-block;
-}
-
-.arrow { color: var(--border); font-size: 1.2rem; transition: transform 0.2s; }
+.count-text { font-weight: 600; color: var(--text-main); font-size: 0.8rem; &.muted { color: var(--border); font-weight: normal; } }
+.assignee, .department-name, .project-name, .creator-name { font-size: 0.8rem; color: var(--text-main); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; display: inline-block; }
+.arrow { color: var(--border); font-size: 1.1rem; transition: transform 0.15s; }
 .task-row:hover .arrow { color: var(--accent); transform: translateX(2px); }
 
 // ==========================================================================
 // РЕЖИМ ОТОБРАЖЕНИЯ: КАНБАН-ДОСКА (KANBAN BOARD)
 // ==========================================================================
-.kanban-board {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-  overflow-x: auto;
-  padding-bottom: 0.5rem;
-}
-
+.kanban-board { display: flex; gap: 0.75rem; align-items: flex-start; overflow-x: auto; padding-bottom: 0.5rem; }
 .kanban-column {
-  flex: 1;
-  min-width: 280px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  padding: 1rem;
-  box-sizing: border-box;
-
-  .column-header {
-    margin-bottom: 1rem;
-    h3 { margin: 0; font-size: 1rem; color: var(--text-main); font-weight: 600; }
-  }
+  flex: 1; min-width: 270px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 0.75rem; box-sizing: border-box;
+  .column-header { margin-bottom: 0.75rem; h3 { margin: 0; font-size: 0.95rem; color: var(--text-main); font-weight: 600; } }
 }
-
 .kanban-card {
-  background: var(--bg-main);
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  padding: 0.8rem;
-  margin-bottom: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover { background: rgba(var(--accent-rgb), 0.04); border-color: var(--accent); }
-  .card-header { margin-bottom: 0.5rem; display: flex; }
-  .card-title {
-    font-size: 0.9rem;
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    color: var(--text-main);
-    font-weight: 500;
-    .sub-icon { font-size: 1rem; color: var(--text-muted); transform: scaleX(-1); }
-  }
-
+  background: var(--bg-main); border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.7rem; margin-bottom: 0.6rem; cursor: pointer; transition: all 0.15s;
+  &:hover { background: rgba(var(--accent-rgb), 0.03); border-color: var(--accent); }
+  .card-header { margin-bottom: 0.4rem; display: flex; }
+  .card-title { font-size: 0.85rem; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.3rem; color: var(--text-main); font-weight: 500; .sub-icon { font-size: 0.9rem; color: var(--text-muted); transform: scaleX(-1); } }
   .card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    gap: 0.5rem;
-
-    .assignee { max-width: 110px; }
-    .card-meta {
-      display: flex;
-      gap: 0.5rem;
-      white-space: nowrap;
-      span { display: flex; align-items: center; gap: 2px; }
-      i { font-size: 0.95rem; }
-    }
+    display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--text-muted); gap: 0.4rem;
+    .assignee { max-width: 100px; }
+    .card-meta { display: flex; gap: 0.4rem; white-space: nowrap; span { display: flex; align-items: center; gap: 1px; } i { font-size: 0.85rem; } }
   }
 }
 
 // ==========================================================================
-// АДАПТИВНОСТЬ И МЕДИА-ЗАПРОСЫ
+// МЕДИА-ЗАПРОСЫ (МАСШТАБИРОВАНИЕ И АДАПТИВНОСТЬ)
 // ==========================================================================
 @media (max-width: 1400px) {
-  .tasks-table .col-department, .tasks-table .col-project { width: 110px; }
+  .tasks-table .col-department, .tasks-table .col-project { width: 100px; }
 }
 
 @media (max-width: 1200px) {
-  .stats-grid {
-    grid-template-columns: repeat(3, 1fr); // Статистика становится 3х2 вместо сжатия
-  }
   .tasks-table .col-department, .tasks-table .col-project { display: none; }
 }
 
@@ -473,36 +361,8 @@ option {
   .tasks-table .col-creator { display: none; }
 }
 
-// МОБИЛЬНЫЕ УСТРОЙСТВА
 @media (max-width: 768px) {
-  .task-list { padding: 1rem; }
-
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr); // На мобильных статистика превращается в компактную сетку 2х3
-    .stat-card { height: 40px; }
-  }
-
-  // ОТВЕТ НА ВАШ ВОПРОС: Полностью перестраиваем панель фильтров в вертикальный ряд, исключая наложение
-  .filters-bar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-
-    .search-box,
-    .status-select-wrapper,
-    .priority-select-wrapper,
-    .view-toggle {
-      width: 100%; // Каждый элемент занимает всю строку
-    }
-
-    .view-toggle {
-      justify-content: center;
-      .toggle-btn {
-        flex: 1; // Кнопки переключения вида делят экран поровну
-      }
-    }
-  }
-
+  .task-list { padding: 0.1rem; }
   .tasks-table .col-assignee { display: none; }
   .kanban-board { flex-direction: column; }
   .kanban-column { width: 100%; }
