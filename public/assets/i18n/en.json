@@ -15,7 +15,8 @@
       "spaceCode": "Space Code",
       "spaceName": "Space Name",
       "title": "Space Profile"
-    }
+    },
+    "title": "Settings"
   },
   "auth": {
     "login": {

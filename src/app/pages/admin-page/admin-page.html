@@ -1,18 +1,27 @@
 <div class="admin-page" appBackOnEscape>
-  <header class="page-header">
-    <nav class="admin-tabs">
-      @for (tab of tabs; track tab.id) {
-        <button
-          [class.active]="activeTab === tab.id"
-          (click)="setActiveTab(tab.id)">
-          <i class="material-icons">{{ tab.icon }}</i>
-          {{ tab.label | transloco }}
-        </button>
-      }
-    </nav>
-    <div class="header-info">
-      <h2>Workspace</h2>
+  <header class="admin-header">
+    <div class="header-title-row">
+      <div class="header-info">
+        <h1>
+          <i class="material-icons">admin_panel_settings</i>
+          <span>{{ 'admin.title' | transloco }}</span>
+        </h1>
+        <span class="workspace-tag">Workspace</span>
+      </div>
     </div>
+
+    <nav class="admin-tabs-container">
+      <div class="admin-tabs">
+        @for (tab of tabs; track tab.id) {
+          <button
+            [class.active]="activeTab === tab.id"
+            (click)="setActiveTab(tab.id)">
+            <i class="material-icons">{{ tab.icon }}</i>
+            <span>{{ tab.label | transloco }}</span>
+          </button>
+        }
+      </div>
+    </nav>
   </header>
 
   <section class="admin-content">
@@ -37,9 +46,6 @@
       }
       @case ('tracker') {
         <app-tracker-admin></app-tracker-admin>
-      }
-      @default {
-        <div class="empty-state">Select a tab</div>
       }
     }
   </section>
