@@ -12,6 +12,21 @@
     </button>
   </div>
 
+  <div class="stats-container">
+    <div class="stats-grid">
+      @for (card of statCardsConfig(); track card.label) {
+        <div
+          class="stat-card {{ card.class }}"
+          [class.active]="selectedStatus() === card.statusValue"
+          (click)="selectedStatus.set(card.statusValue)"
+        >
+          <div class="stat-value">{{ card.value }}</div>
+          <div class="stat-label">{{ card.label | transloco }}</div>
+        </div>
+      }
+    </div>
+  </div>
+
   <div class="controls-row main-actions">
     <div class="search-box">
       <i class="material-icons">search</i>
@@ -271,18 +286,5 @@
     </div>
   }
 
-  <div class="stats-container">
-    <div class="stats-grid">
-      @for (card of statCardsConfig(); track card.label) {
-        <div
-          class="stat-card {{ card.class }}"
-          [class.active]="selectedStatus() === card.statusValue"
-          (click)="selectedStatus.set(card.statusValue)"
-        >
-          <div class="stat-value">{{ card.value }}</div>
-          <div class="stat-label">{{ card.label | transloco }}</div>
-        </div>
-      }
-    </div>
-  </div>
+
 </div>
