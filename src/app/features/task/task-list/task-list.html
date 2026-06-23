@@ -48,9 +48,12 @@
         (ngModelChange)="selectedStatus.set($event)"
         class="status-select-styled"
       >
-        <option value="" class="status-default">
-          {{ 'task.allStatuses' | transloco }}
+        <option value="" class="status-default">{{ 'task.allStatuses' | transloco }}</option>
+
+        <option value="OVERDUE" class="status-overdue" [hidden]="selectedStatus() !== 'OVERDUE'">
+          {{ 'task.stats.overdue' | transloco }}
         </option>
+
         @for (status of TASK_STATUS_LIST; track status) {
           <option [value]="status" [ngClass]="getStatusClass(status)">
             {{ 'task.status.' + status | transloco }}
@@ -270,30 +273,16 @@
 
   <div class="stats-container">
     <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-value">{{ stats().total }}</div>
-        <div class="stat-label">{{ 'task.stats.total' | transloco }}</div>
-      </div>
-      <div class="stat-card pending">
-        <div class="stat-value">{{ stats().pending }}</div>
-        <div class="stat-label">{{ 'task.stats.pending' | transloco }}</div>
-      </div>
-      <div class="stat-card progress">
-        <div class="stat-value">{{ stats().inProgress }}</div>
-        <div class="stat-label">{{ 'task.stats.inProgress' | transloco }}</div>
-      </div>
-      <div class="stat-card completed">
-        <div class="stat-value">{{ stats().completed }}</div>
-        <div class="stat-label">{{ 'task.stats.completed' | transloco }}</div>
-      </div>
-      <div class="stat-card overdue">
-        <div class="stat-value">{{ stats().overdue }}</div>
-        <div class="stat-label">{{ 'task.stats.overdue' | transloco }}</div>
-      </div>
-      <div class="stat-card archived">
-        <div class="stat-value">{{ stats().archived }}</div>
-        <div class="stat-label">{{ 'task.stats.archived' | transloco }}</div>
-      </div>
+      @for (card of statCardsConfig(); track card.label) {
+        <div
+          class="stat-card {{ card.class }}"
+          [class.active]="selectedStatus() === card.statusValue"
+          (click)="selectedStatus.set(card.statusValue)"
+        >
+          <div class="stat-value">{{ card.value }}</div>
+          <div class="stat-label">{{ card.label | transloco }}</div>
+        </div>
+      }
     </div>
   </div>
 </div>
