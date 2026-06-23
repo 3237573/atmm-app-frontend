@@ -19,9 +19,14 @@ export class ChatService {
   private activeRoomId: string | null = null;
 
   private worker: SharedWorker | null = null;
-  private normalSocket: WebSocket | null = null; // 🌟 Ссылка на прямой сокет для мобильных платформ
+  private normalSocket: WebSocket | null = null;
+  private mobileReconnectTimer: any = null; // 🌟 ИСПРАВЛЕНО: Храним таймер, чтобы не плодить утечки реконнектов
 
   public readonly acceptCallCommand$ = new Subject<{ roomId: string, sdp: string, callType: 'VIDEO' | 'AUDIO' }>();
+
+  // 🎵 Звуковое уведомление о сообщениях
+  private readonly messageSound = new Audio('assets/sounds/message.mp3'); // Убрали ведущий слэш для корректной относительной адресации в продакшене
+
   private readonly messageSubject = new Subject<WebSocketResponse>();
   private readonly connectionStatus = new BehaviorSubject<boolean>(false);
   private readonly roomsSubject = new BehaviorSubject<ChatRoomRO[]>([]);
@@ -36,26 +41,27 @@ export class ChatService {
   public rooms$ = this.roomsSubject.asObservable();
   public typingUsers$ = this.typingUsersSubject.asObservable();
 
+  constructor() {
+    this.messageSound.volume = 0.4; // Чуть снизили громкость для комфорта
+  }
+
   connect(): void {
     const token = this.getCookie('auth_token');
     const host = window.location.host;
     const protocol = window.location.protocol;
 
-    // 🌟 ИСПРАВЛЕНО: Если SharedWorker не поддерживается, запускаем прямой WebSocket-фоллбэк
     if (typeof SharedWorker === 'undefined') {
       console.warn('⚡ [ChatService] SharedWorker не поддерживается. Запускаем фоллбэк на обычный WebSocket.');
       this.connectNormalWS(token, host, protocol);
       return;
     }
 
-    // КРИТИЧЕСКИЙ ГВАРД: Если воркер для этой вкладки уже создан, не создаем его заново!
     if (this.worker) {
       return;
     }
 
     this.worker = new SharedWorker('/chat.worker.js', { name: 'ChatWorker' });
 
-    // Автоматически удаляем порт из воркера, если вкладка закрывается или обновляется (F5)
     window.addEventListener('beforeunload', () => {
       if (this.worker) {
         this.worker.port.postMessage({ action: 'UNLOAD_PORT' });
@@ -96,10 +102,15 @@ export class ChatService {
     });
   }
 
-  // 🌟 Новый метод автоматического подключения для мобильных платформ
   private connectNormalWS(token: string, host: string, protocol: string): void {
     if (this.normalSocket && (this.normalSocket.readyState === WebSocket.OPEN || this.normalSocket.readyState === WebSocket.CONNECTING)) {
       return;
+    }
+
+    // Очищаем старый таймер перед созданием нового подключения
+    if (this.mobileReconnectTimer) {
+      clearTimeout(this.mobileReconnectTimer);
+      this.mobileReconnectTimer = null;
     }
 
     const wsUrl = token
@@ -136,31 +147,38 @@ export class ChatService {
 
     this.normalSocket.onclose = () => {
       this.connectionStatus.next(false);
-      console.warn('🔌 [Mobile WS] Соединение закрыто. Реконнект через 4 секунды...');
-      // Авто-реконнект для мобилки при разрыве сети
-      setTimeout(() => this.connectNormalWS(token, host, protocol), 4000);
+
+      // 🌟 ИСПРАВЛЕНО: Делаем реконнект безопасным. Если сокет закрыли намеренно через disconnect(), normalSocket станет null, и таймер не запустится.
+      if (this.normalSocket) {
+        console.warn('🔌 [Mobile WS] Соединение закрыто. Реконнект через 4 секунды...');
+        this.mobileReconnectTimer = setTimeout(() => this.connectNormalWS(token, host, protocol), 4000);
+      }
     };
   }
 
   disconnect(): void {
-    // 1. Отключаем SharedWorker (для ПК)
+    // 🌟 ИСПРАВЛЕНО: Убиваем таймер реконнекта на мобилках сразу, чтобы он не выстрелил после логаута
+    if (this.mobileReconnectTimer) {
+      clearTimeout(this.mobileReconnectTimer);
+      this.mobileReconnectTimer = null;
+    }
+
     if (this.worker) {
       this.worker.port.postMessage({ action: 'DISCONNECT' });
       this.worker = null;
     }
 
-    // 2. Отключаем прямой сокет (для телефонов)
     if (this.normalSocket) {
+      this.normalSocket.onclose = null; // Стираем лисенер, чтобы не стриггерить OnClose реконнект
       this.normalSocket.close();
       this.normalSocket = null;
     }
 
-    // 3. 🌟 КРИТИЧЕСКИ ВАЖНО: Полностью очищаем глобальный стейт сервиса для UI
-    this.activeRoomId = null;               // Сбрасываем активную комнату
-    this.connectionStatus.next(false);      // Переводим статус в "offline"
-    this.roomsSubject.next([]);             // 🌟 Очищаем список комнат в UI (теперь список пустеет)
-    this.typingUsersSubject.next({});       // Очищаем индикаторы печати
-    this.incomingCall$.next(null);          // Принудительно закрываем модалку звонка, если она была
+    this.activeRoomId = null;
+    this.connectionStatus.next(false);
+    this.roomsSubject.next([]);
+    this.typingUsersSubject.next({});
+    this.incomingCall$.next(null);
 
     console.log('🔌 [ChatService] Полное отключение выполнено, локальный стейт очищен.');
   }
@@ -169,7 +187,6 @@ export class ChatService {
     if (this.worker) {
       this.worker.port.postMessage({ action: 'SEND_WS', payload: msg });
     }
-    // 🌟 ИСПРАВЛЕНО: Отправка данных на мобильных устройствах напрямую через нативный WebSocket
     else if (this.normalSocket && this.normalSocket.readyState === WebSocket.OPEN) {
       this.normalSocket.send(JSON.stringify(msg));
     } else {
@@ -177,11 +194,9 @@ export class ChatService {
     }
   }
 
-  // Вызывается из компонента, когда пользователь жмет "Ответить"
   notifyCallAnswered(roomId: string): void {
-    this.incomingCall$.next(null); // Убираем модалку локально
+    this.incomingCall$.next(null);
     if (this.worker) {
-      // Говорим воркеру, чтобы он закрыл модалки в других вкладках
       this.worker.port.postMessage({ action: 'CALL_ANSWERED_LOCALLY', payload: { roomId } });
     }
   }
@@ -206,7 +221,6 @@ export class ChatService {
   }
 
   markRoomAsRead(roomId: string): void {
-    // Мгновенно зануляем счётчик локально
     const currentRooms = this.roomsSubject.value;
     if (currentRooms.length > 0) {
       const updatedRooms = currentRooms.map(room =>
@@ -267,15 +281,32 @@ export class ChatService {
           const updatedRoom = { ...currentRooms[index] };
           updatedRoom.lastMessage = res.message;
 
-          if (res.message.senderMemberId !== this.auth.currentUser()?.id && res.message.roomId !== this.activeRoomId) {
+          // Проверяем: пришло ли сообщение от ДРУГОГО пользователя и открыта ли сейчас эта комната
+          const isOwnMessage = res.message.senderMemberId === this.auth.currentUser()?.id;
+          const isCurrentRoomOpen = res.message.roomId === this.activeRoomId;
+
+          if (!isOwnMessage && !isCurrentRoomOpen) {
             updatedRoom.unreadCount += 1;
           }
 
           currentRooms.splice(index, 1);
           currentRooms.unshift(updatedRoom);
           this.roomsSubject.next(currentRooms);
+
+          // 🌟 УМНОЕ ВОСПРОИЗВЕДЕНИЕ ЗВУКА СООБЩЕНИЯ
+          // Звук играет только если:
+          // 1. Это не наше собственное сообщение
+          // 2. Либо комната вообще закрыта, либо комната открыта, но вкладка браузера свернута/неактивна (!document.hidden)
+          if (!isOwnMessage && (!isCurrentRoomOpen || document.hidden)) {
+            this.playMessageSound();
+          }
+
         } else {
           this.loadUserRooms(true);
+          // Если пришло сообщение из комнаты, которой еще нет в списке (новый чат)
+          if (res.message.senderMemberId !== this.auth.currentUser()?.id) {
+            this.playMessageSound();
+          }
         }
         break;
       }
@@ -285,6 +316,19 @@ export class ChatService {
         break;
     }
   }
+
+  // 🌟 Метод безопасного воспроизведения звука
+  private playMessageSound(): void {
+    this.messageSound.currentTime = 0; // Сбрасываем каретку на начало (для спам-сообщений)
+    this.messageSound.play().catch(err => {
+      // Ловим блокировки автоплея браузеров, если пользователь еще ни разу не кликнул по странице
+      console.warn('[ChatService] Звук уведомления заблокирован политикой браузера:', err);
+    });
+  }
+
+  // ==========================================
+  // HTTP REST API METHODS
+  // ==========================================
 
   getUserRooms(): Observable<ChatRoomRO[]> {
     return this.http.get<ChatRoomRO[]>(`${this.baseUrl}/rooms`);
@@ -299,7 +343,6 @@ export class ChatService {
   }
 
   addMembers(roomId: string, memberIds: string[]): Observable<void> {
-    // Убедись, что бэкенд (Ktor) ожидает объект с полем memberIds
     return this.http.post<void>(`${this.baseUrl}/rooms/${roomId}/members`, { memberIds });
   }
 
