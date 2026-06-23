@@ -177,9 +177,10 @@ a {
 @media (max-width: 768px) {
   :host {
     position: fixed;
-    top: 56px;
+    top: 0; // Выезжает с самого верха
     left: 0;
-    height: calc(100vh - 56px);
+    // Высота: весь экран МИНУС нижний хедер
+    height: calc(100vh - 64px - env(safe-area-inset-bottom));
     width: 240px !important;
     transition: transform 0.3s ease-in-out;
     z-index: 100;
@@ -202,7 +203,7 @@ a {
   }
 
   .sidebar-toggle-handle {
-    display: none !important; /* Убираем кнопку управления мышью на мобилках */
+    display: none !important;
   }
 
   :host.collapsed a .text, a .text {
