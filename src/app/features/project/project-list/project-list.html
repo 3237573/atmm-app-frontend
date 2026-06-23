@@ -1,12 +1,11 @@
 <div class="projects-container" appBackOnEscape>
-
   <div class="page-header">
     <div class="header-info">
       <h1>
         <i class="material-icons">folder</i>
         {{ 'project.title' | transloco }}
       </h1>
-      <p>{{ 'project.subtitle' | transloco }}</p>
+      <p>Подпроекты</p>
     </div>
     <button class="btn-primary" routerLink="/projects/create">
       <i class="material-icons">add</i>
@@ -33,35 +32,34 @@
             @if (project.subProjects && project.subProjects.length > 0) {
               <i class="material-icons node-toggle"
                  [class.open]="expandedNodes().has(project.id)"
-                 (click)="toggleNode(project.id, $event)">
-                chevron_right
-              </i>
+                 (click)="toggleNode(project.id, $event)">chevron_right</i>
             } @else {
               <div class="node-spacer"></div>
             }
 
-            <i class="material-icons node-icon">folder_open</i>
+            <i class="material-icons node-icon">
+              {{ project.subProjects?.length ? 'folder_open' : 'folder' }}
+            </i>
 
             <div class="node-info">
               <div class="node-title-row">
-                [<span class="project-title">{{project.title}}</span>]
+                [<span class="project-title">{{ project.title }}</span>]
                 @if (project.description) {
-                  <span class="node-meta description">{{ project.description }}</span>
+                  <span class="node-meta description">— {{ project.description }}</span>
                 }
               </div>
             </div>
           </div>
 
-          <div class="node-side-meta" style="display: flex; align-items: center; gap: 1rem;">
+          <div class="node-side-meta">
             <span class="status-badge" [ngClass]="project.status?.toLowerCase()">
               {{ getStatusLabel(project.status) }}
             </span>
 
-            <button class="btn-icon"
+            <button class="btn-icon-action"
                     [routerLink]="['/projects', 'edit', project.id]"
-                    title="Открыть настройки проекта"
-                    style="background: transparent; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; padding: 4px; border-radius: 4px;">
-              <i class="material-icons" style="font-size: 1.2rem;">edit</i>
+                    title="Открыть настройки проекта">
+              <i class="material-icons">edit</i>
             </button>
           </div>
         </div>
@@ -74,7 +72,7 @@
     } @empty {
       <div class="empty-state">
         <i class="material-icons">folder_off</i>
-        <p>Проекты еще не созданы</p>
+        <p>Проекты не найдены</p>
       </div>
     }
   </ul>

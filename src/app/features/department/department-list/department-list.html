@@ -9,9 +9,8 @@
       *appHasPermission="['department:create']"
       class="btn-primary" [routerLink]="['/departments/create']"
     >
-      <i class="material-icons">add</i> Добавить отдел
+      <i class="material-icons">add</i> Создать
     </button>
-
   </div>
 
   @if (loading()) {
@@ -35,7 +34,7 @@
                  [class.open]="expandedNodes().has(node.id)"
                  (click)="toggleNode(node.id, $event)">chevron_right</i>
             } @else {
-              <span class="node-spacer"></span>
+              <div class="node-spacer"></div>
             }
 
             <i class="material-icons node-icon">
@@ -44,14 +43,21 @@
 
             <div class="node-info">
               <div class="node-title-row">
-                [&nbsp;
                 <span class="node-name">{{ node.name }}</span>
-                &nbsp;]
-                <span class="badge-count" title="Количество сотрудников">&nbsp;:&nbsp;{{ node.employeeCount || 0 }}</span>
+
+                <span class="badge-count" title="Количество сотрудников">
+                  <i class="material-icons">people</i>
+                  {{ node.employeeCount || 0 }}
+                </span>
+
                 @if (node.headMemberId) {
-                  <span class="node-meta">&nbsp;Руководитель назначен</span>
+                  <span class="node-meta head-assigned" title="Руководитель назначен">
+                    <i class="material-icons">verified_user</i> Руководитель
+                  </span>
                 } @else {
-                  <span class="node-meta muted">&nbsp;Нет руководителя</span>
+                  <span class="node-meta no-head" title="Руководитель не назначен">
+                    <i class="material-icons">person_off</i> Без руководителя
+                  </span>
                 }
               </div>
             </div>

@@ -8,22 +8,22 @@
   box-sizing: border-box;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-
-  .header-info h1 {
-    margin: 0;
-    font-size: 1.4rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--text-main);
-    i { color: var(--accent); }
-  }
-}
+//.page-header {
+//  display: flex;
+//  justify-content: space-between;
+//  align-items: center;
+//  margin-bottom: 1rem;
+//
+//  .header-info h1 {
+//    margin: 0;
+//    font-size: 1.4rem;
+//    display: flex;
+//    align-items: center;
+//    gap: 0.5rem;
+//    color: var(--text-main);
+//    i { color: var(--accent); }
+//  }
+//}
 
 // ==========================================================================
 // ПАНЕЛЬ ПОИСКА
