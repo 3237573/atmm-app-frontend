@@ -1,16 +1,18 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, Injector, signal } from '@angular/core'; // 🌟 Добавили Injector
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AuthMeResponse, WorkspaceInfo, IMember, UserWorkspacesResponse } from '../models/auth.model';
 import { NavigationService } from './navigation.service';
+import { ChatService } from './chat.service'; // 🌟 Импортируем ChatService
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly navigationService = inject(NavigationService);
+  private readonly injector = inject(Injector); // 🌟 Внедряем инжектор для ленивого разрешения зависимостей
 
   // Состояние
   readonly currentMember = signal<IMember | null>(null);
@@ -55,6 +57,16 @@ export class AuthService {
     this.isAuthenticated.set(false);
     this.availableWorkspaces.set([]);
     this.authStep.set('login');
+
+    // 🌟 ИСПРАВЛЕНО: Безопасно тушим сокет чата (и воркер на ПК, и WebSocket на телефоне)
+    // Благодаря injector.get мы избегаем Circular Dependency ошибки в Angular
+    try {
+      const chatService = this.injector.get(ChatService);
+      chatService.disconnect();
+    } catch (e) {
+      // Перехватываем возможную ошибку на случай, если DI еще не полностью инициализировался
+      console.warn('[AuthService] Не удалось отключить ChatService, возможно он еще не создан.', e);
+    }
   }
 
   checkAuth(): Observable<AuthMeResponse | null> {
@@ -107,11 +119,11 @@ export class AuthService {
     return this.http.post('/auth/logout', {}, { withCredentials: true }).pipe(
       tap(() => {
         this.clearAuth();
-        this.router.navigate(['/login']);
+        void this.router.navigate(['/login']);
       }),
       catchError(() => {
         this.clearAuth();
-        this.router.navigate(['/login']);
+        void this.router.navigate(['/login']);
         return of(null);
       })
     );
