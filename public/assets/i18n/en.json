@@ -56,12 +56,18 @@
   },
   "btn": {
     "add": "Add",
-    "apply": "Apply to History",
+    "apply": "Apply",
     "cancel": "Cancel",
+    "copy": "Copy",
     "create": "Create",
     "delete": "Delete",
     "edit": "Edit",
     "exit": "Exit",
+    "msg": {
+      "copied": "Copied!",
+      "renewing": "Renewing..."
+    },
+    "renew": "Renew",
     "save": "Save",
     "saveChanges": "Save Changes",
     "show": "Add Rule"
@@ -256,7 +262,14 @@
     "activity": {
       "title": "Activity"
     },
-    "adminTitle": "Classification management",
+    "admin": {
+      "applyToHistory": "Apply to history",
+      "newCategory": "New category",
+      "templatesImport": "Import templates",
+      "title": "Tracker",
+      "tokenTitle": "API Token for Integrations",
+      "tokenUseNote": "Use this token in the X-Member-Token header for API requests"
+    },
     "categories": "List of categories",
     "category": {
       "color": "Color",

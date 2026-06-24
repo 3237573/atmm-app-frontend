@@ -1,17 +1,16 @@
-// src/app/features/tracker-admin-page-component/tracker-admin-page-page.ts
-
-import {TranslocoModule, TranslocoService} from '@ngneat/transloco'; // Импортируем модуль целиком
 import {Component, computed, inject, OnInit, signal} from '@angular/core';
 import {ReactiveFormsModule} from '@angular/forms';
-import {Category} from '../../../core/models/tracker/category.model';
-import {CategoryRule} from '../../../core/models/tracker/category.rule.model';
-import {TrackerAdminService} from '../../../core/services/tracker/tracker.admin.service';
+import {TranslocoModule, TranslocoService} from '@ngneat/transloco';
+
+import {Category} from '@core/models/tracker/category.model';
+import {CategoryRule} from '@core/models/tracker/category.rule.model';
+import {TrackerAdminService} from '@core/services/tracker/tracker.admin.service';
+import {AuthService} from '@core/services/auth.service';
+
 import {CategoryRuleModal} from './category-rule-modal/category-rule-modal';
 import {CategoryModal} from './category-modal/category-modal';
-import {AuthService} from '../../../core/services/auth.service';
 import {MemberTokenPanel} from './member-token-panel/member-token-panel';
-import {BackOnEscapeDirective} from '../../../core/directives/back-on-escape.directive';
-
+import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
 
 @Component({
   selector: 'app-tracker-admin',
@@ -36,7 +35,6 @@ export class TrackerAdmin implements OnInit {
     return this.translocoService.getActiveLang();
   }
 
-  // Используем сигналы для реактивности и производительности
   categories = signal<Category[]>([]);
   rules = signal<CategoryRule[]>([]);
   isRecalculating = signal(false);
@@ -49,6 +47,23 @@ export class TrackerAdmin implements OnInit {
   canManage = computed(() => this.authService.hasPermission('tracker:update'));
   canDelete = computed(() => this.authService.hasPermission('tracker:delete'));
   canRecalculate = computed(() => this.authService.hasPermission('tracker:update'));
+
+  categoryGroups = computed(() => {
+    const allRules = this.rules();
+    return this.categories().map(category => ({
+      category,
+      rules: allRules.filter(r => r.categoryId === category.id)
+    }));
+  });
+
+  ngOnInit() {
+    this.loadData();
+  }
+
+  loadData() {
+    this.trackerAdminService.getCategories().subscribe(res => this.categories.set(res));
+    this.trackerAdminService.getRules().subscribe(res => this.rules.set(res));
+  }
 
   addRule(category: Category) {
     this.selectedCategory.set(category);
@@ -81,29 +96,6 @@ export class TrackerAdmin implements OnInit {
     });
   }
 
-
-  // Автоматическая группировка данных
-  categoryGroups = computed(() => {
-    const allRules = this.rules();
-    return this.categories().map(category => ({
-      category,
-      rules: allRules.filter(r => r.categoryId === category.id)
-    }));
-  });
-
-
-  ngOnInit() {
-    this.loadData();
-  }
-
-  loadData() {
-    this.trackerAdminService.getCategories().subscribe(res => this.categories.set(res));
-    this.trackerAdminService.getRules().subscribe(res => this.rules.set(res));
-  }
-
-  // --- Управление категориями ---
-
-  // Открытие модалки
   openCategoryModal(category?: Category) {
     if (category && !category.workspaceId) return;
 
@@ -143,8 +135,6 @@ export class TrackerAdmin implements OnInit {
     });
   }
 
-  // --- Управление правилами ---
-
   deleteRule(id?: string) {
     if (!this.canDelete()) return;
     if (!id || !confirm('Удалить правило?')) return;
@@ -175,6 +165,4 @@ export class TrackerAdmin implements OnInit {
       error: (err) => console.error('Ошибка импорта', err)
     });
   }
-
-
 }
