@@ -1,14 +1,15 @@
 // core/services/chat.service.ts
-import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { AuthService } from './auth.service';
-import { ChatMessage, ChatRoomRO, CreateChatRoomRequest, WebSocketMessage, WebSocketResponse } from '@core/models/chat.model';
+import {inject, Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {AuthService} from './auth.service';
+import {ChatMessage, ChatRoomRO, CreateChatRoomRequest, WebSocketMessage, WebSocketResponse} from '@core/models/chat.model';
 
 // ИЗМЕНЕНО: Сделали sdp опциональным, так как при исходящем звонке на старте sdp еще нет
 interface CallState {
   roomId: string;
   callType: 'VIDEO' | 'AUDIO';
+  callerName?: string;
   sdp?: string;
 }
 
@@ -250,6 +251,7 @@ export class ChatService {
         // Поступил входящий звонок -> открываем оверлей (медиа-эффект запустит рингтон)
         this.incomingCall$.next({
           roomId: res.roomId,
+          callerName: res.callerName,
           callType: res.callType as 'VIDEO' | 'AUDIO',
           sdp: res.sdp
         });
@@ -416,8 +418,7 @@ export class ChatService {
   /**
    * Инициация исходящего звонка с текущего устройства
    */
-  startOutgoingCall(roomId: string, callType: 'VIDEO' | 'AUDIO' = 'VIDEO') {
-    // ТЕПЕРЬ КОМПИЛИРУЕТСЯ: sdp не требуется передавать сразу в стейт гудков
-    this.outgoingCall$.next({ roomId, callType });
+  startOutgoingCall(roomId: string, callType: 'VIDEO' | 'AUDIO' = 'VIDEO', targetName?: string) {
+    this.outgoingCall$.next({ roomId, callType, callerName: targetName });
   }
 }
