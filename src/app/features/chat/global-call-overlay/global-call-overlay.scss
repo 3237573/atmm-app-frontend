@@ -4,49 +4,80 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.75); // Модный полупрозрачный темный фон Slate
+  backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 99999; // Поверх абсолютно всего
+  z-index: 99999;
 }
 
 .call-card {
   background: #ffffff;
   padding: 2.5rem;
-  border-radius: 24px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border-radius: 28px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   text-align: center;
   max-width: 360px;
   width: 90%;
-  color: #333333;
+  color: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 
   h2 {
     margin: 1.5rem 0 0.5rem;
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     font-weight: 600;
+    letter-spacing: -0.025em;
   }
 
   p {
-    color: #666666;
+    color: #64748b;
+    font-size: 0.95rem;
     margin-bottom: 2rem;
   }
 }
 
+// Специфичные фичи входящего звонка
 .pulse-avatar {
-  width: 80px;
-  height: 80px;
-  background: #2196f3;
+  width: 84px;
+  height: 84px;
+  background: #2563eb;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   margin: 0 auto;
   color: white;
-  animation: pulse 1.5s infinite ease-in-out;
+  animation: pulse 1.6s infinite ease-in-out;
 
   i { font-size: 2.5rem; }
+}
+
+// Специфичные фичи осциллограммы исходящего звонка
+.oscillogram {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  height: 84px;
+  margin: 0 auto;
+
+  .bar {
+    width: 6px;
+    height: 15px;
+    background-color: #10b981; // Изумрудный цвет для исходящего
+    border-radius: 3px;
+    animation: wave 1.2s infinite ease-in-out;
+
+    // Сдвиги фазы анимации для симуляции случайных звуковых частот гудка
+    &:nth-child(1) { animation-delay: 0.1s; height: 20px; }
+    &:nth-child(2) { animation-delay: 0.4s; height: 40px; }
+    &:nth-child(3) { animation-delay: 0.2s; height: 55px; }
+    &:nth-child(4) { animation-delay: 0.6s; height: 25px; }
+    &:nth-child(5) { animation-delay: 0.3s; height: 60px; }
+    &:nth-child(6) { animation-delay: 0.5s; height: 35px; }
+    &:nth-child(7) { animation-delay: 0.15s; height: 18px; }
+  }
 }
 
 .actions {
@@ -57,25 +88,41 @@
   button {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
+    padding: 0.85rem 1.75rem;
     border: none;
     border-radius: 50px;
     font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
-    transition: transform 0.2s, filter 0.2s;
+    transition: all 0.2s ease-in-out;
 
-    &:hover { filter: brightness(0.9); transform: translateY(-1px); }
+    &:hover { filter: brightness(0.92); transform: translateY(-1px); }
     &:active { transform: translateY(1px); }
+
+    &.full-width {
+      width: 100%;
+    }
   }
 
-  .btn-accept { background: #4caf50; color: white; }
-  .btn-decline { background: #f44336; color: white; }
+  .btn-accept { background: #10b981; color: white; }
+  .btn-decline { background: #ef4444; color: white; }
 }
 
+// АНИМАЦИИ
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4); }
-  70% { box-shadow: 0 0 0 20px rgba(33, 150, 243, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5); }
+  70% { box-shadow: 0 0 0 24px rgba(37, 99, 235, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+}
+
+@keyframes wave {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(2.8); // Растягиваем полосы по вертикали во время имитации звука гудка
+    background-color: #3b82f6; // Волна плавно переливается из зеленого в синий
+  }
 }

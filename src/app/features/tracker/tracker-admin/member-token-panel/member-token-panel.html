@@ -2,7 +2,7 @@
   <div class="token-panel">
     <div class="token-header">
       <i class="material-icons">vpn_key</i>
-      <span>API Token для интеграций</span>
+      <span>{{ 'tracker.admin.tokenTitle' | transloco }}</span>
     </div>
 
     @if (isLoading()) {
@@ -28,16 +28,16 @@
         <div class="token-actions">
           <button class="copy-btn" [class.copied]="tokenCopied()" (click)="copyToClipboard()">
             <i class="material-icons">{{ tokenCopied() ? 'check' : 'content_copy' }}</i>
-            <span>{{ tokenCopied() ? 'Скопировано!' : 'Копировать' }}</span>
+            <span>{{ (tokenCopied() ? 'btn.msg.copied' : 'btn.copy') | transloco }}</span>
           </button>
           <button class="regenerate-btn" (click)="regenerateToken()" [disabled]="isRegenerating()">
             <i class="material-icons">refresh</i>
-            <span>{{ isRegenerating() ? 'Обновление...' : 'Обновить' }}</span>
+            <span>{{ (isRegenerating() ? 'btn.msg.renewing' : 'btn.renew') | transloco }}</span>
           </button>
         </div>
 
         <p class="token-hint">
-          Используйте этот токен в заголовке <code>X-Member-Token</code> для API-запросов
+          {{ 'tracker.admin.tokenUseNote' | transloco }}
         </p>
       </div>
     }

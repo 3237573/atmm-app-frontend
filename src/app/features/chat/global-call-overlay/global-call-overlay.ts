@@ -15,87 +15,91 @@ export class GlobalCallOverlay {
   private readonly chatService = inject(ChatService);
   private readonly router = inject(Router);
 
-  // Превращаем BehaviorSubject во внутренний Angular Signal
-  protected readonly call = toSignal(this.chatService.incomingCall$);
+  // Стримим оба состояния из единого сервиса чата в Angular Signals
+  protected readonly incomingCall = toSignal(this.chatService.incomingCall$);
+  protected readonly outgoingCall = toSignal(this.chatService.outgoingCall$);
 
-  // 🎵 Создаем объект аудио для рингтона
+  // 🎵 Звуковое сопровождение
   private readonly ringtone = new Audio('/assets/sounds/ringtone.mp3');
+  private readonly dialtone = new Audio('/assets/sounds/dialtone.mp3');
 
   constructor() {
-    // Включаем бесконечный повтор (loop), пока звонок активен
     this.ringtone.loop = true;
+    this.dialtone.loop = true;
 
-    // 🔄 Эффект Angular: автоматически следит за сигналом звонка
+    // 🔄 Эффект 1: Контроль входящего рингтона
     effect(() => {
-      const callData = this.call();
-
-      if (callData) {
-        this.startRinging();
+      if (this.incomingCall()) {
+        this.startAudio(this.ringtone);
       } else {
-        this.stopRinging();
+        this.stopAudio(this.ringtone);
+      }
+    });
+
+    // 🔄 Эффект 2: Контроль исходящих гудков (dialtone)
+    effect(() => {
+      if (this.outgoingCall()) {
+        this.startAudio(this.dialtone);
+      } else {
+        this.stopAudio(this.dialtone);
       }
     });
   }
 
-  private startRinging(): void {
-    this.ringtone.currentTime = 0; // Сбрасываем дорожку на начало
-
-    // Блокируем возможные ошибки политик автоплея браузера
-    this.ringtone.play().catch(error => {
-      console.warn(
-        '⚠️ [Ringtone] Браузер заблокировал автовоспроизведение звука. ' +
-        'Звук пойдет, как только пользователь кликнет в любом месте экрана.',
-        error
-      );
+  private startAudio(audio: HTMLAudioElement): void {
+    audio.currentTime = 0;
+    audio.play().catch(error => {
+      console.warn('⚠️ [Audio Autoplay] Воспроизведение заблокировано до первого клика по экрану', error);
     });
   }
 
-  private stopRinging(): void {
-    this.ringtone.pause();
-    this.ringtone.currentTime = 0;
+  private stopAudio(audio: HTMLAudioElement): void {
+    audio.pause();
+    audio.currentTime = 0;
   }
 
+  // ==========================================
+  // ЛОГИКА ВХОДЯЩЕГО ЗВОНКА
+  // ==========================================
+
   accept(callData: any): void {
-    const roomId = callData?.roomId || callData?.room_id;
-    const sdp = callData?.sdp || callData?.offer_sdp;
-    const callType = callData?.callType || callData?.call_type || 'VIDEO';
+    const roomId = callData?.roomId;
+    const sdp = callData?.sdp;
+    const callType = callData?.callType || 'VIDEO';
 
-    if (!roomId) {
-      console.error('🛑 Ошибка: Бэкенд не прислал ID комнаты во входящем звонке!', callData);
-      return;
-    }
+    if (!roomId) return;
 
-    // Мгновенно тушим рингтон при клике на кнопку
-    this.stopRinging();
-
-    // 1. Сообщаем воркеру синхронизировать состояние (закрыть оверлеи на других вкладках)
+    this.stopAudio(this.ringtone);
     this.chatService.notifyCallAnswered(roomId);
 
-    // 2. Сохраняем данные звонка в кэш сервиса
     (this.chatService as any).acceptedCallData = { roomId, sdp, callType };
-
-    // 3. Дублируем команду через Subject
     this.chatService.acceptCallCommand$.next({ roomId, sdp, callType });
 
-    // 4. Перенаправляем пользователя в целевое окно чата
     void this.router.navigate(['/chat', roomId]);
   }
 
   decline(callData: any): void {
-    const roomId = callData?.roomId || callData?.room_id;
+    const roomId = callData?.roomId;
+    if (!roomId) return;
 
-    if (!roomId) {
-      console.error('🛑 Ошибка отмены: не найден ID комнаты', callData);
-      return;
-    }
-
-    // Мгновенно тушим рингтон
-    this.stopRinging();
-
-    // Отправляем бэкенду сигнал завершения/отклонения звонка
+    this.stopAudio(this.ringtone);
     this.chatService.sendCallEnd(roomId);
-
-    // Сбрасываем локальное состояние входящего вызова
     this.chatService.incomingCall$.next(null);
+  }
+
+  // ==========================================
+  // ЛОГИКА ИСХОДЯЩЕГО ЗВОНКА
+  // ==========================================
+
+  cancelOutgoing(outgoingData: any): void {
+    const roomId = outgoingData?.roomId;
+    if (!roomId) return;
+
+    this.stopAudio(this.dialtone);
+
+    // Посылаем сигнал бэкенду, чтобы у получателя тоже закрылся входящий оверлей
+    this.chatService.sendCallEnd(roomId);
+    // Гасим локальный стейт гудков
+    this.chatService.outgoingCall$.next(null);
   }
 }
