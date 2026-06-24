@@ -78,7 +78,8 @@ export type WebSocketResponse =
   | { type: 'call_offer'; fromId: string; roomId: string; sdp: string; callType: string }
   | { type: 'call_answer'; fromId: string; sdp: string }
   | { type: 'call_ice'; fromId: string; candidate: IceCandidateModel }
-  | { type: 'call_ended'; roomId: string };
+  | { type: 'call_ended'; roomId: string }
+  | { type: 'call_handled_elsewhere' };
 
 
 export interface IceCandidateModel {
