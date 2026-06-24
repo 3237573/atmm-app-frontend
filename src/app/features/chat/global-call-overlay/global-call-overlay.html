@@ -1,12 +1,13 @@
-@if (call(); as callData) {
+@if (incomingCall(); as callData) {
   <div class="call-overlay-backdrop">
-    <div class="call-card">
-      <div class="pulse-avatar">
+    <div class="call-card incoming">
+      <div class="pulse-avatar incoming-color">
         <i class="material-icons">phone_in_talk</i>
       </div>
 
       <h2>Входящий звонок</h2>
-      <p>Вам звонят в комнате ID: {{ callData.roomId }}</p>
+      <p class="caller-name">{{ callData.roomId }}</p>
+      <span class="call-subtext">Connection Type: {{ callData.callType === 'VIDEO' ? 'Video call' : 'Audio call' }}</span>
 
       <div class="actions">
         <button class="btn-accept" (click)="accept(callData)">
@@ -14,6 +15,32 @@
         </button>
         <button class="btn-decline" (click)="decline(callData)">
           <i class="material-icons">call_end</i> Отклонить
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@else if (outgoingCall(); as outgoingData) {
+  <div class="call-overlay-backdrop">
+    <div class="call-card outgoing">
+
+      <div class="oscillogram">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+
+      <h2>Исходящий вызов...</h2>
+      <p>Ожидание ответа в комнате ID: {{ outgoingData.roomId }}</p>
+
+      <div class="actions">
+        <button class="btn-decline full-width" (click)="cancelOutgoing(outgoingData)">
+          <i class="material-icons">call_end</i> Отмена
         </button>
       </div>
     </div>

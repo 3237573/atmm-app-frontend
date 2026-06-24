@@ -1,14 +1,16 @@
 // core/services/chat.service.ts
-import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { AuthService } from './auth.service';
-import { ChatMessage, ChatRoomRO, CreateChatRoomRequest, WebSocketMessage, WebSocketResponse } from '@core/models/chat.model';
+import {inject, Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {AuthService} from './auth.service';
+import {ChatMessage, ChatRoomRO, CreateChatRoomRequest, WebSocketMessage, WebSocketResponse} from '@core/models/chat.model';
 
-interface IncomingCall {
+// ИЗМЕНЕНО: Сделали sdp опциональным, так как при исходящем звонке на старте sdp еще нет
+interface CallState {
   roomId: string;
   callType: 'VIDEO' | 'AUDIO';
-  sdp: string;
+  callerName?: string;
+  sdp?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -20,12 +22,12 @@ export class ChatService {
 
   private worker: SharedWorker | null = null;
   private normalSocket: WebSocket | null = null;
-  private mobileReconnectTimer: any = null; // 🌟 ИСПРАВЛЕНО: Храним таймер, чтобы не плодить утечки реконнектов
+  private mobileReconnectTimer: any = null;
 
   public readonly acceptCallCommand$ = new Subject<{ roomId: string, sdp: string, callType: 'VIDEO' | 'AUDIO' }>();
 
   // 🎵 Звуковое уведомление о сообщениях
-  private readonly messageSound = new Audio('assets/sounds/message.mp3'); // Убрали ведущий слэш для корректной относительной адресации в продакшене
+  private readonly messageSound = new Audio('assets/sounds/message.mp3');
 
   private readonly messageSubject = new Subject<WebSocketResponse>();
   private readonly connectionStatus = new BehaviorSubject<boolean>(false);
@@ -34,15 +36,17 @@ export class ChatService {
 
   private loadingRooms = false;
 
-  // ГЛОБАЛЬНЫЙ СТЕЙТ ЗВОНКА
-  public readonly incomingCall$ = new BehaviorSubject<IncomingCall | null>(null);
+  // ГЛОБАЛЬНЫЙ СТЕЙТ ЗВОНКОВ (СИНХРОНИЗИРОВАННЫЙ)
+  public readonly incomingCall$ = new BehaviorSubject<CallState | null>(null);
+  public readonly outgoingCall$ = new BehaviorSubject<CallState | null>(null);
+
   public messages$ = this.messageSubject.asObservable();
   public isConnected$ = this.connectionStatus.asObservable();
   public rooms$ = this.roomsSubject.asObservable();
   public typingUsers$ = this.typingUsersSubject.asObservable();
 
   constructor() {
-    this.messageSound.volume = 0.4; // Чуть снизили громкость для комфорта
+    this.messageSound.volume = 0.4;
   }
 
   connect(): void {
@@ -51,14 +55,12 @@ export class ChatService {
     const protocol = window.location.protocol;
 
     if (typeof SharedWorker === 'undefined') {
-      console.warn('⚡ [ChatService] SharedWorker не поддерживается. Запускаем фоллбэк на обычный WebSocket.');
+      console.warn('⚡ [ChatService] SharedWorker не поддерживается. Фоллбэк на обычный WebSocket.');
       this.connectNormalWS(token, host, protocol);
       return;
     }
 
-    if (this.worker) {
-      return;
-    }
+    if (this.worker) return;
 
     this.worker = new SharedWorker('/chat.worker.js', { name: 'ChatWorker' });
 
@@ -76,20 +78,13 @@ export class ChatService {
       } else if (data.type === 'WS_MESSAGE') {
         const response = data.payload as WebSocketResponse;
 
-        if (response.type === 'call_offer') {
-          this.incomingCall$.next({
-            roomId: response.roomId,
-            callType: response.callType as 'VIDEO' | 'AUDIO',
-            sdp: response.sdp
-          });
-        } else if (response.type === 'call_ended') {
-          this.incomingCall$.next(null);
-        }
-
+        // ОПТИМИЗАЦИЯ: Все события из воркера пропускаем через единый центральный обработчик
         this.handleIncomingSocketMessage(response);
         this.messageSubject.next(response);
       } else if (data.type === 'HIDE_CALL_MODAL') {
+        // Синхронизация между соседними вкладками одного браузера через SharedWorker
         this.incomingCall$.next(null);
+        this.outgoingCall$.next(null);
       }
     };
 
@@ -107,7 +102,6 @@ export class ChatService {
       return;
     }
 
-    // Очищаем старый таймер перед созданием нового подключения
     if (this.mobileReconnectTimer) {
       clearTimeout(this.mobileReconnectTimer);
       this.mobileReconnectTimer = null;
@@ -121,23 +115,14 @@ export class ChatService {
 
     this.normalSocket.onopen = () => {
       this.connectionStatus.next(true);
-      console.log('🚀 [Mobile WS] Соединение успешно установлено напрямую');
+      console.log('🚀 [Mobile WS] Соединение установлено напрямую');
     };
 
     this.normalSocket.onmessage = (event) => {
       try {
         const response = JSON.parse(event.data) as WebSocketResponse;
 
-        if (response.type === 'call_offer') {
-          this.incomingCall$.next({
-            roomId: response.roomId,
-            callType: response.callType as 'VIDEO' | 'AUDIO',
-            sdp: response.sdp
-          });
-        } else if (response.type === 'call_ended') {
-          this.incomingCall$.next(null);
-        }
-
+        // ОПТИМИЗАЦИЯ: Мобилки и фоллбэки обрабатывают события точно так же, как и воркер
         this.handleIncomingSocketMessage(response);
         this.messageSubject.next(response);
       } catch (e) {
@@ -147,8 +132,6 @@ export class ChatService {
 
     this.normalSocket.onclose = () => {
       this.connectionStatus.next(false);
-
-      // 🌟 ИСПРАВЛЕНО: Делаем реконнект безопасным. Если сокет закрыли намеренно через disconnect(), normalSocket станет null, и таймер не запустится.
       if (this.normalSocket) {
         console.warn('🔌 [Mobile WS] Соединение закрыто. Реконнект через 4 секунды...');
         this.mobileReconnectTimer = setTimeout(() => this.connectNormalWS(token, host, protocol), 4000);
@@ -157,7 +140,6 @@ export class ChatService {
   }
 
   disconnect(): void {
-    // 🌟 ИСПРАВЛЕНО: Убиваем таймер реконнекта на мобилках сразу, чтобы он не выстрелил после логаута
     if (this.mobileReconnectTimer) {
       clearTimeout(this.mobileReconnectTimer);
       this.mobileReconnectTimer = null;
@@ -169,7 +151,7 @@ export class ChatService {
     }
 
     if (this.normalSocket) {
-      this.normalSocket.onclose = null; // Стираем лисенер, чтобы не стриггерить OnClose реконнект
+      this.normalSocket.onclose = null;
       this.normalSocket.close();
       this.normalSocket = null;
     }
@@ -179,6 +161,7 @@ export class ChatService {
     this.roomsSubject.next([]);
     this.typingUsersSubject.next({});
     this.incomingCall$.next(null);
+    this.outgoingCall$.next(null);
 
     console.log('🔌 [ChatService] Полное отключение выполнено, локальный стейт очищен.');
   }
@@ -186,8 +169,7 @@ export class ChatService {
   sendMessage(msg: WebSocketMessage): void {
     if (this.worker) {
       this.worker.port.postMessage({ action: 'SEND_WS', payload: msg });
-    }
-    else if (this.normalSocket && this.normalSocket.readyState === WebSocket.OPEN) {
+    } else if (this.normalSocket && this.normalSocket.readyState === WebSocket.OPEN) {
       this.normalSocket.send(JSON.stringify(msg));
     } else {
       console.error('❌ [ChatService] Невозможно отправить сообщение: нет активного соединения');
@@ -253,10 +235,51 @@ export class ChatService {
     });
   }
 
+  /**
+   * ЦЕНТРАЛИЗОВАННЫЙ ОБРАБОТЧИК ВСЕХ СОБЫТИЙ СЕТИ
+   */
   private handleIncomingSocketMessage(res: WebSocketResponse): void {
     if (!res) return;
 
     switch (res.type) {
+
+      // ==========================================
+      // СИГНАЛЫ ЗВОНКОВ (МУЛЬТИСЕССИИ И UX ГУДКОВ)
+      // ==========================================
+
+      case 'call_offer':
+        // Поступил входящий звонок -> открываем оверлей (медиа-эффект запустит рингтон)
+        this.incomingCall$.next({
+          roomId: res.roomId,
+          callerName: res.callerName,
+          callType: res.callType as 'VIDEO' | 'AUDIO',
+          sdp: res.sdp
+        });
+        break;
+
+      case 'call_answer':
+        // Оппонент поднял трубку! Гасим исходящие гудки (dialtone), начинается сессия WebRTC
+        this.outgoingCall$.next(null);
+        break;
+
+      case 'call_ended':
+        // Звонок завершен кем-либо -> полностью очищаем экраны и входящих, и исходящих гудков
+        this.incomingCall$.next(null);
+        // Дополнительно: если у нас играли исходящие гудки, а нас сбросили — выключаем их
+        this.outgoingCall$.next(null);
+        break;
+
+      case 'call_handled_elsewhere':
+        // Модификация мультисессии бэкенда: звонок принят на другом нашем устройстве (например, телефоне).
+        // Ноутбук молча тушит входящий оверлей и выключает рингтон без отображения "Пропущенного".
+        this.incomingCall$.next(null);
+        this.outgoingCall$.next(null);
+        break;
+
+      // ==========================================
+      // ТЕКСТОВЫЕ ЧАТЫ И ИНДИКАТОРЫ
+      // ==========================================
+
       case 'typing_indicator': {
         const currentMap = { ...this.typingUsersSubject.value };
         const roomUsers = currentMap[res.roomId] || [];
@@ -281,7 +304,6 @@ export class ChatService {
           const updatedRoom = { ...currentRooms[index] };
           updatedRoom.lastMessage = res.message;
 
-          // Проверяем: пришло ли сообщение от ДРУГОГО пользователя и открыта ли сейчас эта комната
           const isOwnMessage = res.message.senderMemberId === this.auth.currentUser()?.id;
           const isCurrentRoomOpen = res.message.roomId === this.activeRoomId;
 
@@ -293,17 +315,11 @@ export class ChatService {
           currentRooms.unshift(updatedRoom);
           this.roomsSubject.next(currentRooms);
 
-          // 🌟 УМНОЕ ВОСПРОИЗВЕДЕНИЕ ЗВУКА СООБЩЕНИЯ
-          // Звук играет только если:
-          // 1. Это не наше собственное сообщение
-          // 2. Либо комната вообще закрыта, либо комната открыта, но вкладка браузера свернута/неактивна (!document.hidden)
           if (!isOwnMessage && (!isCurrentRoomOpen || document.hidden)) {
             this.playMessageSound();
           }
-
         } else {
           this.loadUserRooms(true);
-          // Если пришло сообщение из комнаты, которой еще нет в списке (новый чат)
           if (res.message.senderMemberId !== this.auth.currentUser()?.id) {
             this.playMessageSound();
           }
@@ -317,12 +333,10 @@ export class ChatService {
     }
   }
 
-  // 🌟 Метод безопасного воспроизведения звука
   private playMessageSound(): void {
-    this.messageSound.currentTime = 0; // Сбрасываем каретку на начало (для спам-сообщений)
+    this.messageSound.currentTime = 0;
     this.messageSound.play().catch(err => {
-      // Ловим блокировки автоплея браузеров, если пользователь еще ни разу не кликнул по странице
-      console.warn('[ChatService] Звук уведомления заблокирован политикой браузера:', err);
+      console.warn('[ChatService] Автоплей звука сообщения заблокирован:', err);
     });
   }
 
@@ -399,5 +413,12 @@ export class ChatService {
       type: 'call_end',
       roomId: roomId
     });
+  }
+
+  /**
+   * Инициация исходящего звонка с текущего устройства
+   */
+  startOutgoingCall(roomId: string, callType: 'VIDEO' | 'AUDIO' = 'VIDEO', targetName?: string) {
+    this.outgoingCall$.next({ roomId, callType, callerName: targetName });
   }
 }

@@ -1,15 +1,15 @@
 // chat-window.component.ts
-import {Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ChatService} from '@core/services/chat.service';
-import {AuthService} from '@core/services/auth.service';
-import {ChatMessage, ChatRoomRO, WebSocketResponse} from '@core/models/chat.model';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
-import {filter} from 'rxjs';
-import {TranslocoPipe} from '@ngneat/transloco';
+import { Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ChatService } from '@core/services/chat.service';
+import { AuthService } from '@core/services/auth.service';
+import { ChatMessage, ChatRoomRO, WebSocketResponse } from '@core/models/chat.model';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { BackOnEscapeDirective } from '@core/directives/back-on-escape.directive';
+import { filter } from 'rxjs';
+import { TranslocoPipe } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-chat-window',
@@ -43,8 +43,8 @@ export class ChatWindow implements OnInit, OnDestroy {
   private cachedOfferSdp: string | null = null;
   private readonly rtcConfig: RTCConfiguration = {
     iceServers: [
-      {urls: 'stun:stun.l.google.com:19302'},
-      {urls: 'stun:stun1.l.google.com:19302'}
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' }
     ]
   };
 
@@ -76,21 +76,18 @@ export class ChatWindow implements OnInit, OnDestroy {
           this.chatService.setActiveRoomId(id);
           this.loadChatData(id);
 
-          // 🌟 ПРОВЕРКА КЭША СЕРВИСА (Для переходов из других окон/комнат)
+          // ПРОВЕРКА КЭША СЕРВИСА (Для переходов из других окон/комнат)
           const accepted = (this.chatService as any).acceptedCallData;
           if (accepted && accepted.roomId === id) {
-            // Сразу очищаем кэш, чтобы звонок не триггерился повторно при перезагрузках
             (this.chatService as any).acceptedCallData = null;
-
-            // Запускаем автоответ
             this.triggerAutoAnswer(accepted.sdp, accepted.callType);
           }
         }
       });
 
-    // 2. 🌟 Перехват параметров звонка из Сервиса (Если мы УЖЕ находились в этой комнате)
+    // 2. Перехват параметров звонка из Сервиса (Если мы УЖЕ находились в этой комнате)
     this.chatService.acceptCallCommand$.pipe(
-      filter(command => command.roomId === this.roomId()), // Реагируем только если ID совпадает
+      filter(command => command.roomId === this.roomId()),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(command => {
       this.triggerAutoAnswer(command.sdp, command.callType);
@@ -102,7 +99,7 @@ export class ChatWindow implements OnInit, OnDestroy {
         res?.type === 'new_message' && res.message?.roomId === this.roomId()
       ),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(({message}) => {
+    ).subscribe(({ message }) => {
       this.messages.update(prev => {
         const isDuplicate = prev.some(m => m.id === message.id);
         return isDuplicate ? prev : [...prev, message];
@@ -161,7 +158,7 @@ export class ChatWindow implements OnInit, OnDestroy {
 
     this.chatService.sendMessage({
       type: 'send_message',
-      message: {roomId: this.roomId(), content: trimmed}
+      message: { roomId: this.roomId(), content: trimmed }
     });
 
     this.newMessage = '';
@@ -170,7 +167,7 @@ export class ChatWindow implements OnInit, OnDestroy {
 
   onTyping(): void {
     if (!this.isTypingSignalSent) {
-      this.chatService.sendMessage({type: 'typing', roomId: this.roomId(), isTyping: true});
+      this.chatService.sendMessage({ type: 'typing', roomId: this.roomId(), isTyping: true });
       this.isTypingSignalSent = true;
     }
     this.resetTypingTimeout();
@@ -183,7 +180,7 @@ export class ChatWindow implements OnInit, OnDestroy {
 
   private sendTypingFalseImmediate(): void {
     if (this.isTypingSignalSent) {
-      this.chatService.sendMessage({type: 'typing', roomId: this.roomId(), isTyping: false});
+      this.chatService.sendMessage({ type: 'typing', roomId: this.roomId(), isTyping: false });
       this.isTypingSignalSent = false;
     }
     if (this.typingTimer) {
@@ -236,14 +233,30 @@ export class ChatWindow implements OnInit, OnDestroy {
     if (this.typingTimer) clearTimeout(this.typingTimer);
   }
 
-  // ==================== WEBRTC ====================
+  // ==================== WEBRTC СИГНАЛИНГ ====================
 
   private async handleCallSignaling(msg: any): Promise<void> {
     switch (msg.type) {
       case 'call_answer':
+        console.log('🎉 Собеседник принял вызов! Активируем окно разговора.');
+
+        // 1. Отключаем исходящие гудки в глобальном оверлее
+        (this.chatService as any).outgoingCall$?.next(null);
+
+        // 2. Включаем отображение видео-интерфейса разговора в текущем окне чата
+        this.isCallActive.set(true);
+
+        // 3. Даем Angular 50мс отрендерить элементы <video>, затем крепим локальный стрим
+        setTimeout(() => {
+          if (this.callType() === 'VIDEO' && this.localVideoRef && this.localStream) {
+            this.localVideoRef.nativeElement.srcObject = this.localStream;
+          }
+        }, 50);
+
+        // 4. Завершаем хэндшейк WebRTC протокола
         if (this.peerConnection) {
           await this.peerConnection.setRemoteDescription(
-            new RTCSessionDescription({type: 'answer', sdp: msg.sdp})
+            new RTCSessionDescription({ type: 'answer', sdp: msg.sdp })
           );
           this.processPendingIceCandidates();
         }
@@ -251,9 +264,9 @@ export class ChatWindow implements OnInit, OnDestroy {
 
       case 'call_ice': {
         const candidate: RTCIceCandidateInit = {
-          candidate: msg.candidate.candidate,         // Обрати внимание: msg.candidate.candidate
-          sdpMid: msg.candidate.sdpMid ?? '0',         // Берём sdpMid из объекта бэкенда
-          sdpMLineIndex: msg.candidate.sdpMLineIndex ?? 0 // Берём индекс из объекта бэкенда
+          candidate: msg.candidate.candidate,
+          sdpMid: msg.candidate.sdpMid ?? '0',
+          sdpMLineIndex: msg.candidate.sdpMLineIndex ?? 0
         };
 
         if (this.peerConnection && this.peerConnection.remoteDescription) {
@@ -271,9 +284,38 @@ export class ChatWindow implements OnInit, OnDestroy {
     }
   }
 
+  get targetInterlocutorName(): string {
+    const room = this.currentRoom();
+    if (!room) return 'Абонент';
+
+    // Если это приватный чат (DIRECT) и у нас есть список участников
+    if (room.type === 'DIRECT' || room.memberIds.length === 2) {
+      // Если имя последнего отправителя — это не мы, можно взять его как временный вариант
+      if (room.lastMessage && room.lastMessage.senderMemberId !== this.myMemberId) {
+        return room.lastMessage.senderName;
+      }
+    }
+
+    // Иначе возвращаем название комнаты/группы
+    return room.name || 'Приватный чат';
+  }
+
+
   async initiateCall(type: 'VIDEO' | 'AUDIO'): Promise<void> {
     this.callType.set(type);
-    this.isCallActive.set(true);
+
+    const targetName = this.targetInterlocutorName;
+
+    // 🌟 Включаем состояние исходящего звонка в глобальном оверлее (появятся гудки и осциллограмма)
+    if (typeof this.chatService.startOutgoingCall === 'function') {
+      this.chatService.startOutgoingCall(this.roomId(), type, targetName);
+    } else {
+      (this.chatService as any).outgoingCall$?.next({
+        roomId: this.roomId(),
+        callType: type,
+        targetName: targetName,
+      });
+    }
 
     try {
       this.localStream = await navigator.mediaDevices.getUserMedia({
@@ -283,15 +325,17 @@ export class ChatWindow implements OnInit, OnDestroy {
 
       this.setupPeerConnection();
 
-      if (type === 'VIDEO' && this.localVideoRef) {
-        this.localVideoRef.nativeElement.srcObject = this.localStream;
-      }
+      // 💡 Замечание: Привязку локального видео перенесли в обработчик сигнала 'call_answer' (выше),
+      // так как DOM-элемент #localVideo появится только когда собеседник поднимет трубку.
 
       const offer = await this.peerConnection!.createOffer();
       await this.peerConnection!.setLocalDescription(offer);
+
       this.chatService.sendCallOffer(this.roomId(), offer.sdp!, type);
     } catch (err) {
-      console.error('Ошибка доступа к медиа:', err);
+      console.error('Ошибка доступа к медиа-устройствам при инициализации звонка:', err);
+      // Если юзер запретил доступ к камере/микрофону — тушим глобальные гудки и очищаем сессию
+      (this.chatService as any).outgoingCall$?.next(null);
       this.cleanupWebRTC();
     }
   }
@@ -311,7 +355,7 @@ export class ChatWindow implements OnInit, OnDestroy {
 
       if (this.peerConnection && this.cachedOfferSdp) {
         await this.peerConnection.setRemoteDescription(
-          new RTCSessionDescription({type: 'offer', sdp: this.cachedOfferSdp})
+          new RTCSessionDescription({ type: 'offer', sdp: this.cachedOfferSdp })
         );
         this.processPendingIceCandidates();
 
@@ -322,7 +366,6 @@ export class ChatWindow implements OnInit, OnDestroy {
       }
     } catch (error) {
       console.error('Ошибка автоответа WebRTC:', error);
-      // 🛑 НОВОЕ: Сообщаем звонящему, что звонок сорвался!
       this.chatService.sendCallEnd(this.roomId());
       this.cleanupWebRTC();
     }
@@ -342,7 +385,6 @@ export class ChatWindow implements OnInit, OnDestroy {
 
     this.peerConnection.onicecandidate = (event) => {
       if (event.candidate) {
-        // Передаем объект со всеми тремя параметрами
         this.chatService.sendCallIce(this.roomId(), {
           candidate: event.candidate.candidate,
           sdpMid: event.candidate.sdpMid,
@@ -380,5 +422,9 @@ export class ChatWindow implements OnInit, OnDestroy {
       this.peerConnection = null;
     }
     this.pendingIceCandidates = [];
+
+    // Гарантированная зачистка глобальных оверлеев при любом сбросе WebRTC
+    (this.chatService as any).outgoingCall$?.next(null);
+    (this.chatService as any).incomingCall$?.next(null);
   }
 }

@@ -1,10 +1,10 @@
 import { Component, computed, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MemberService } from '../../../core/services/member.service';
-import { MemberRO } from '../../../core/models/member.model';
+import { MemberService } from '@core/services/member.service';
+import { MemberRO } from '@core/models/member.model';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '@core/services/auth.service';
 import { Subject, finalize, takeUntil } from 'rxjs';
 import {HasPermissionDirective} from '@core/directives/has-permission.directive';
 

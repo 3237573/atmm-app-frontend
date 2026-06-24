@@ -1,31 +1,30 @@
-
-
 <div class="admin-container" *transloco="let t" appBackOnEscape>
   <header class="admin-header">
     <div class="header-left-group">
-      <h1>{{ t('workspace.menu.admin') }}</h1>
+      <h1>{{ t('tracker.admin.title') }}</h1>
       <div class="header-actions">
         @if (canRecalculate()) {
           <button class="btn btn-amber" (click)="recalculate()" [disabled]="isRecalculating()">
             <i class="material-icons">history</i>
-            <span>{{ t('btn.apply') }}</span>
+            <span>{{ t('tracker.admin.applyToHistory') }}</span>
           </button>
         }
         @if (canManage()) {
           <button class="btn btn-blue" (click)="openCategoryModal()">
             <i class="material-icons">add</i>
-            <span>{{ t('tracker.category.new') }}</span>
+            <span>{{ t('tracker.admin.newCategory') }}</span>
           </button>
         }
         @if (canManage()) {
           <button class="btn btn-amber" (click)="importDefaultTemplates()">
             <i class="material-icons">download</i>
-            Импортировать шаблоны
+            <span>{{ t('tracker.admin.templatesImport') }}</span>
           </button>
         }
       </div>
     </div>
   </header>
+
   <div class="admin-main-layout">
     <aside class="panel-card category-sidebar">
       <h2 class="panel-title">{{ t('nav.allCategories') }}</h2>
@@ -46,7 +45,7 @@
           </div>
         }
       </div>
-      <app-member-token-panel />
+      <app-member-token-panel/>
     </aside>
 
     <main class="panel-card rules-container">
@@ -95,6 +94,4 @@
       (save)="handleSaveCategoryRule($event)">
     </app-category-rule-modal>
   }
-
-
 </div>

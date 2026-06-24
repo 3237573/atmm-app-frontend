@@ -1,12 +1,13 @@
 import {Component, inject, signal, OnInit, computed} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { AuthService } from '../../../../core/services/auth.service';
+import { AuthService } from '@core/services/auth.service';
+import {TranslocoPipe} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-member-token-panel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslocoPipe],
   templateUrl: './member-token-panel.html',
   styleUrls: ['./member-token-panel.scss']
 })

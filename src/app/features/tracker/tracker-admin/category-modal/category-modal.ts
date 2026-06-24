@@ -3,9 +3,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import { TranslocoModule } from '@ngneat/transloco';
 import { CommonModule } from '@angular/common';
-import { Category } from '../../../../core/models/tracker/category.model';
-import { translit } from '../../../../core/utils/translit.utils';
-import {BackOnEscapeDirective} from '../../../../core/directives/back-on-escape.directive';
+import { Category } from '@core/models/tracker/category.model';
+import { translit } from '@core/utils/translit.utils';
+import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
 
 // Популярные иконки для категорий
 const POPULAR_ICONS = [
@@ -25,7 +25,7 @@ const POPULAR_ICONS = [
   standalone: true,
   imports: [ReactiveFormsModule, TranslocoModule, CommonModule, FormsModule, BackOnEscapeDirective],
   templateUrl: './category-modal.html',
-  styleUrls: ['../tracker-admin.scss', 'category-modal.scss']
+  styleUrls: ['../tracker-admin.scss', './category-modal.scss']
 })
 export class CategoryModal implements OnInit {
   private readonly fb = inject(FormBuilder);
