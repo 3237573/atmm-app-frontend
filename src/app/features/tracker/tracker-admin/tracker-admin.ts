@@ -7,9 +7,9 @@ import {CategoryRule} from '@core/models/tracker/category.rule.model';
 import {TrackerAdminService} from '@core/services/tracker/tracker.admin.service';
 import {AuthService} from '@core/services/auth.service';
 
-import {CategoryRuleModal} from './category-rule-modal/category-rule-modal';
-import {CategoryModal} from './category-modal/category-modal';
-import {MemberTokenPanel} from './member-token-panel/member-token-panel';
+import {CategoryRuleModal} from '@features/tracker/tracker-admin/category-rule-modal/category-rule-modal';
+import {CategoryModal} from '@features/tracker/tracker-admin/category-modal/category-modal';
+import {MemberTokenPanel} from '@features/tracker/tracker-admin/member-token-panel/member-token-panel';
 import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
 
 @Component({

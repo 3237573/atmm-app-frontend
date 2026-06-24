@@ -9,7 +9,7 @@ import {ActivityDetail} from './activity-detail/activity-detail';
 import {TrackerAnalytics} from './tracker-analytics/tracker-analytics';
 import {TranslocoPipe} from '@ngneat/transloco';
 import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
-import {MemberTokenPanel} from '@features/admin/tracker-admin/member-token-panel/member-token-panel';
+import {MemberTokenPanel} from '@features/tracker/tracker-admin/member-token-panel/member-token-panel';
 
 export interface UserActivityReportV2 {
   userId: string;
