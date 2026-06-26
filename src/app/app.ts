@@ -1,7 +1,7 @@
 import {Component, inject, OnInit, signal} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import {GlobalCallOverlay} from '@features/chat/global-call-overlay/global-call-overlay';
-import {ChatService} from '@core/services/chat.service';
+import {ChatService} from '@core/services/chat/chat.service';
 
 @Component({
   selector: 'app-root',
