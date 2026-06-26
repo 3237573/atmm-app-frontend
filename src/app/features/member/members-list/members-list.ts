@@ -5,7 +5,7 @@ import {MemberRO} from '@core/models/member.model';
 import {Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import {AuthService} from '@core/services/auth.service';
-import {ChatService} from '@core/services/chat.service';
+import {ChatService} from '@core/services/chat/chat.service';
 import {firstValueFrom} from 'rxjs';
 import {TranslocoPipe} from '@ngneat/transloco';
 import {disabled} from '@angular/forms/signals';

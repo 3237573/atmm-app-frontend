@@ -88,3 +88,27 @@ export interface IceCandidateModel {
   sdpMLineIndex: number | null;
 }
 
+// E2EE
+
+export interface UploadKeysRequest {
+  deviceId: string;
+  identityKey: string;
+  oneTimeKeys: Record<string, string>; // Пул ключей: { "key_1": "public_key_base64...", ... }
+}
+
+export interface ClaimKeysRequest {
+  memberIds: string[];
+}
+
+export interface DeviceKeys {
+  deviceId: string;
+  identityKey: string;
+  oneTimeKeyId?: string
+  oneTimeKey?: string
+}
+
+export interface ClaimKeysResponse {
+  // Карта сопоставления: memberId -> Ключи устройства
+  keys: Record<string, DeviceKeys[]>;
+}
+

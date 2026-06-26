@@ -2,7 +2,7 @@ import { Component, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ChatService } from '@core/services/chat.service';
+import { ChatService } from '@core/services/chat/chat.service';
 
 @Component({
   selector: 'app-global-call-overlay',
