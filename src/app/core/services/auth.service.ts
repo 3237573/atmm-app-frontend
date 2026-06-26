@@ -5,12 +5,14 @@ import { Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AuthMeResponse, WorkspaceInfo, IMember, UserWorkspacesResponse } from '../models/auth.model';
 import { NavigationService } from './navigation.service';
-import { ChatService } from './chat.service'; // 🌟 Импортируем ChatService
+import { ChatService } from './chat/chat.service';
+import {EncryptionService} from '@core/services/chat/encryption.service'; // 🌟 Импортируем ChatService
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private encryptionService = inject(EncryptionService);
   private readonly navigationService = inject(NavigationService);
   private readonly injector = inject(Injector); // 🌟 Внедряем инжектор для ленивого разрешения зависимостей
 
@@ -45,6 +47,16 @@ export class AuthService {
       this.permissions.set(res.permissions);
       this.isAuthenticated.set(true);
       this.authStep.set('login');
+
+      // IMMEDIATELY INITIALIZE THE OLM DEVICE AND UPLOAD THE KEYS TO KTOR
+      if (res.member?.id) {
+        this.encryptionService.initDevice()
+          .then((deviceId) => {
+            console.log(`[Olm E2EE] Устройство ${deviceId} полностью готово к защищенному обмену.`);
+          })
+          .catch(err => console.error("❌ Ошибка инициализации Olm E2EE:", err));
+      }
+
     } else {
       this.clearAuth();
     }

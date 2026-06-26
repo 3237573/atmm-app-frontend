@@ -8,9 +8,9 @@
    2. МИКСИНЫДЛЯ ТЕМЫ (Объявляем строго ДО вызова!)
    ============================================================ */
 @mixin dark-theme-variables {
-  --bg-main: #0b0f17;       /* Глубокий благородный темный (с каплей синего пигмента) */
-  --bg-card: #151b26;       /* Контрастная карточка */
-  --bg-elevated: #1f2635;   /* Всплывающие элементы/меню */
+  --bg-main: #0b0f17; /* Глубокий благородный темный (с каплей синего пигмента) */
+  --bg-card: #151b26; /* Контрастная карточка */
+  --bg-elevated: #1f2635; /* Всплывающие элементы/меню */
   --bg-soft: #1a202c;
 
   --border: #222938;
@@ -21,7 +21,7 @@
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
 
-  --accent: #60a5fa;        /* Чуть более светлый синий для лучшей читаемости в темноте */
+  --accent: #60a5fa; /* Чуть более светлый синий для лучшей читаемости в темноте */
   --accent-rgb: 96, 165, 250;
   --success: #34d399;
   --success-rgb: 52, 211, 153;
@@ -38,18 +38,19 @@
   --role-guest-bg: rgba(148, 163, 184, 0.12);
   --role-guest-color: #94a3b8;
 
-    --color-blue: #3b82f6;
-    --color-blue-hover: rgba(59, 130, 246, 0.1);
-    --color-amber: #f59e0b;
-    --color-red: #ef4444;
-    --color-red-hover: rgba(239, 68, 68, 0.15);
-    --color-chip: #38bdf8;
+  --color-amber: #f59e0b;
+  --color-blue: #3b82f6;
+  --color-blue-hover: rgba(59, 130, 246, 0.1);
+  --color-green-msg: rgb(117 223 164 / 0.88);
+  --color-red: #ef4444;
+  --color-red-hover: rgba(239, 68, 68, 0.15);
+  --color-chip: #38bdf8;
 
-    --radius-sm: 6px;
-    --radius-md: 8px;
-    --radius-lg: 12px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
 
-    --transition-speed: 0.2s;
+  --transition-speed: 0.2s;
 }
 
 /* ============================================================
@@ -59,8 +60,8 @@
 /* Базовые стили для СВЕТЛОЙ темы (применяются по умолчанию и через класс) */
 :root, body.light-theme {
   /* Свежие, чистые фоны */
-  --bg-main: #f8fafc;       /* Воздушный прохладный фон, не бьет по глазам */
-  --bg-card: #ffffff;       /* Белоснежные карточки "всплывают" над фоном */
+  --bg-main: #f8fafc; /* Воздушный прохладный фон, не бьет по глазам */
+  --bg-card: #ffffff; /* Белоснежные карточки "всплывают" над фоном */
   --bg-elevated: #ffffff;
   --bg-soft: #f1f5f9;
 
@@ -71,11 +72,11 @@
   --shadow-strong: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
 
   /* Шрифты (Цвета из палитры Slate/Zinc для снижения контрастности) */
-  --text-main: #1e293b;     /* Глубокий slate вместо угольно-черного */
-  --text-muted: #64748b;    /* Комфортный серый для второстепенного текста */
+  --text-main: #1e293b; /* Глубокий slate вместо угольно-черного */
+  --text-muted: #64748b; /* Комфортный серый для второстепенного текста */
 
   /* Системные цвета */
-  --accent: #3b82f6;        /* Яркий, современный синий */
+  --accent: #3b82f6; /* Яркий, современный синий */
   --accent-rgb: 59, 130, 246;
   --success: #10b981;
   --success-rgb: 16, 185, 129;
@@ -104,6 +105,7 @@
     @include dark-theme-variables;
   }
 }
+
 body.dark-theme {
   @include dark-theme-variables;
 }
@@ -130,11 +132,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   /* Плавный переход для смены темы */
-  transition:
-    background-color 0.25s var(--ease),
-    color 0.25s var(--ease),
-    border-color 0.25s var(--ease),
-    box-shadow 0.25s var(--ease);
+  transition: background-color 0.25s var(--ease),
+  color 0.25s var(--ease),
+  border-color 0.25s var(--ease),
+  box-shadow 0.25s var(--ease);
 }
 
 app-root {
@@ -145,9 +146,8 @@ app-root {
 
 /* Оптимизированный транзишн для ключевых контейнеров */
 .header-area, nav, .main-container, .content-area, .card, .auth-card {
-  transition:
-    background-color 0.25s var(--ease),
-    border-color 0.25s var(--ease),
-    color 0.25s var(--ease),
-    box-shadow 0.25s var(--ease);
+  transition: background-color 0.25s var(--ease),
+  border-color 0.25s var(--ease),
+  color 0.25s var(--ease),
+  box-shadow 0.25s var(--ease);
 }

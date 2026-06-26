@@ -25,7 +25,11 @@
         <div class="message-content">
           @switch (msg.type) {
             @case ('TEXT') {
-              <span>{{ msg.content }}</span>
+              <!--              <span>{{ msg.content }}</span>-->
+              <div class="message-text">
+<!--                <span *ngIf="msg.encrypted" title="End-to-End Encrypted">🔒</span>-->
+                {{ msg.content }}
+              </div>
             }
             @case ('IMAGE') {
               @if (msg.mediaUrl) {
@@ -80,13 +84,13 @@
     <textarea
       class="message-input"
       [(ngModel)]="newMessage"
-      (keyup.enter)="sendMessage()"
+      (keyup.enter)="onSendMessage()"
       (input)="onTyping()"
       placeholder="{{ 'chat.inputMessage' | transloco }}"
       rows="1">
     </textarea>
 
-    <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+    <button class="send-btn" (click)="onSendMessage()" [disabled]="!newMessage.trim()">
       <i class="material-icons">send</i>
     </button>
   </div>

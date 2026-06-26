@@ -2,7 +2,7 @@
 import { Component, DestroyRef, inject, OnInit, signal, HostBinding } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ChatService } from '@core/services/chat.service';
+import { ChatService } from '@core/services/chat/chat.service';
 import { ChatRoomBaseRO } from '@core/models/chat.model';
 import { filter, startWith } from 'rxjs';
 import { FormsModule } from '@angular/forms';

@@ -1,9 +1,18 @@
 // core/services/chat.service.ts
-import {inject, Injectable} from '@angular/core';
+import {effect, inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, Observable, Subject} from 'rxjs';
-import {AuthService} from './auth.service';
-import {ChatMessage, ChatRoomRO, CreateChatRoomRequest, WebSocketMessage, WebSocketResponse} from '@core/models/chat.model';
+import {BehaviorSubject, firstValueFrom, Observable, Subject} from 'rxjs';
+import {AuthService} from '../auth.service';
+import {
+  ChatMessage,
+  ChatRoomRO,
+  ClaimKeysResponse,
+  CreateChatRoomRequest,
+  UploadKeysRequest,
+  WebSocketMessage,
+  WebSocketResponse
+} from '@core/models/chat.model';
+import {EncryptionService} from '@core/services/chat/encryption.service';
 
 // ИЗМЕНЕНО: Сделали sdp опциональным, так как при исходящем звонке на старте sdp еще нет
 interface CallState {
@@ -13,10 +22,11 @@ interface CallState {
   sdp?: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class ChatService {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
+  private readonly encryptionService = inject(EncryptionService);
   private readonly baseUrl = '/v1/chat';
   private activeRoomId: string | null = null;
 
@@ -62,11 +72,11 @@ export class ChatService {
 
     if (this.worker) return;
 
-    this.worker = new SharedWorker('/chat.worker.js', { name: 'ChatWorker' });
+    this.worker = new SharedWorker('/chat.worker.js', {name: 'ChatWorker'});
 
     window.addEventListener('beforeunload', () => {
       if (this.worker) {
-        this.worker.port.postMessage({ action: 'UNLOAD_PORT' });
+        this.worker.port.postMessage({action: 'UNLOAD_PORT'});
       }
     });
 
@@ -146,7 +156,7 @@ export class ChatService {
     }
 
     if (this.worker) {
-      this.worker.port.postMessage({ action: 'DISCONNECT' });
+      this.worker.port.postMessage({action: 'DISCONNECT'});
       this.worker = null;
     }
 
@@ -168,7 +178,7 @@ export class ChatService {
 
   sendMessage(msg: WebSocketMessage): void {
     if (this.worker) {
-      this.worker.port.postMessage({ action: 'SEND_WS', payload: msg });
+      this.worker.port.postMessage({action: 'SEND_WS', payload: msg});
     } else if (this.normalSocket && this.normalSocket.readyState === WebSocket.OPEN) {
       this.normalSocket.send(JSON.stringify(msg));
     } else {
@@ -179,7 +189,7 @@ export class ChatService {
   notifyCallAnswered(roomId: string): void {
     this.incomingCall$.next(null);
     if (this.worker) {
-      this.worker.port.postMessage({ action: 'CALL_ANSWERED_LOCALLY', payload: { roomId } });
+      this.worker.port.postMessage({action: 'CALL_ANSWERED_LOCALLY', payload: {roomId}});
     }
   }
 
@@ -195,7 +205,7 @@ export class ChatService {
 
     if (roomId) {
       const updatedRooms = this.roomsSubject.value.map(room =>
-        room.id === roomId ? { ...room, unreadCount: 0 } : room
+        room.id === roomId ? {...room, unreadCount: 0} : room
       );
       this.roomsSubject.next(updatedRooms);
       this.markRoomAsRead(roomId);
@@ -206,7 +216,7 @@ export class ChatService {
     const currentRooms = this.roomsSubject.value;
     if (currentRooms.length > 0) {
       const updatedRooms = currentRooms.map(room =>
-        room.id === roomId ? { ...room, unreadCount: 0 } : room
+        room.id === roomId ? {...room, unreadCount: 0} : room
       );
       this.roomsSubject.next(updatedRooms);
     }
@@ -281,7 +291,7 @@ export class ChatService {
       // ==========================================
 
       case 'typing_indicator': {
-        const currentMap = { ...this.typingUsersSubject.value };
+        const currentMap = {...this.typingUsersSubject.value};
         const roomUsers = currentMap[res.roomId] || [];
 
         if (res.isTyping) {
@@ -301,7 +311,7 @@ export class ChatService {
         const index = currentRooms.findIndex(r => r.id === res.message.roomId);
 
         if (index !== -1) {
-          const updatedRoom = { ...currentRooms[index] };
+          const updatedRoom = {...currentRooms[index]};
           updatedRoom.lastMessage = res.message;
 
           const isOwnMessage = res.message.senderMemberId === this.auth.currentUser()?.id;
@@ -357,7 +367,7 @@ export class ChatService {
   }
 
   addMembers(roomId: string, memberIds: string[]): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/rooms/${roomId}/members`, { memberIds });
+    return this.http.post<void>(`${this.baseUrl}/rooms/${roomId}/members`, {memberIds});
   }
 
   removeMember(roomId: string, memberId: string): Observable<void> {
@@ -366,7 +376,7 @@ export class ChatService {
 
   getMessages(roomId: string, limit = 50, offset = 0): Observable<ChatMessage[]> {
     return this.http.get<ChatMessage[]>(`${this.baseUrl}/rooms/${roomId}/messages`, {
-      params: { limit, offset }
+      params: {limit, offset}
     });
   }
 
@@ -419,6 +429,70 @@ export class ChatService {
    * Инициация исходящего звонка с текущего устройства
    */
   startOutgoingCall(roomId: string, callType: 'VIDEO' | 'AUDIO' = 'VIDEO', targetName?: string) {
-    this.outgoingCall$.next({ roomId, callType, callerName: targetName });
+    this.outgoingCall$.next({roomId, callType, callerName: targetName});
   }
+
+
+//   E2EE
+  /**
+   * Получает существующий или генерирует новый уникальный ID устройства для этой вкладки/браузера.
+   */
+  getOrCreateDeviceId(): string {
+    let deviceId = localStorage.getItem('atalk_device_id');
+    if (!deviceId) {
+      deviceId = crypto.randomUUID(); // Современный стандарт браузеров для генерации UUID
+      localStorage.setItem('atalk_device_id', deviceId);
+    }
+    return deviceId;
+  }
+
+  /**
+   * 1. Отправка сгенерированных ключей текущего Member'а на бэкенд
+   */
+  uploadKeys(request: UploadKeysRequest): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/e2ee/keys/upload`, request);
+  }
+
+  /**
+   * 2. Запрос публичных ключей участников чата (Алиса запрашивает ключи Боба перед отправкой)
+   */
+  claimKeys(memberIds: string[]): Observable<ClaimKeysResponse> {
+    return this.http.post<ClaimKeysResponse>(`${this.baseUrl}/e2ee/keys/claim`, {memberIds});
+  }
+
+
+  sendSecureMessage(roomId: string, rawText: string, memberIds: string[]) {
+    console.log("[Olm E2EE] Подготовка сессии. Запрашиваем ключи устройств для:", memberIds);
+
+    this.http.post<{ keys: Record<string, any> }>('/v1/chat/e2ee/keys/claim', {memberIds})
+      .subscribe(async (res) => {
+        console.log("[Olm E2EE] Ключи для Olm-сессии получены:", res);
+
+        try {
+          // Настоящее Olm-шифрование с разделением ключей по получателям
+          const encryptedData = await this.encryptionService.encryptMessageForRoom(rawText, res.keys);
+
+          console.log("[Olm E2EE] Отправляем Olm фрейм в WebSocket.");
+
+          // Соответствует твоей SendMessageRequest структуре из chat.model.ts и ChatMessage.kt
+          const sendMessageRequest = {
+            roomId: roomId,
+            content: encryptedData.content,     // Общий AES шифротекст текста сообщения
+            encrypted: true,
+            metadata: encryptedData.metadata,   // Содержит индивидуальные обертки ключей для участников, IV и ephemeral_public
+            nonce: crypto.randomUUID()
+          };
+
+          // Отправка в WebSocket
+          this.sendMessage({
+            type: 'send_message',
+            message: sendMessageRequest
+          });
+
+        } catch (cryptoError) {
+          console.error("❌ [Olm E2EE] Ошибка создания защищенной сессии:", cryptoError);
+        }
+      });
+  }
+
 }
