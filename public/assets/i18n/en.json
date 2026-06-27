@@ -72,6 +72,18 @@
     "saveChanges": "Save Changes",
     "show": "Add Rule"
   },
+  "call": {
+    "incoming": "Incoming call",
+    "outgoing": "Outgoing call",
+    "unknown": "Unknown contact",
+    "videoType": "Video call",
+    "audioType": "Audio call",
+    "connecting": "Connection...",
+    "waitingAnswer": "Waiting for a response...",
+    "accept": "Answer",
+    "decline": "Decline",
+    "cancel": "Cancel a call"
+  },
   "chat": {
     "accept": "Answer",
     "audio": "AudioCall",

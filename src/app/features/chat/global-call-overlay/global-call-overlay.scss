@@ -1,128 +1,192 @@
 .call-overlay-backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(15, 23, 42, 0.75); // Модный полупрозрачный темный фон Slate
-  backdrop-filter: blur(8px);
+  inset: 0;
+  z-index: 9999;
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 99999;
+  justify-content: center;
+  // Эффект глубокого размытия заднего плана
+  background: rgba(11, 15, 23, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: fadeIn 0.3s var(--ease) forwards;
 }
 
-.call-card {
-  background: #ffffff;
+.modern-call-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow-strong);
+  border-radius: 24px;
   padding: 2.5rem;
-  border-radius: 28px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  text-align: center;
+  width: 100%;
   max-width: 360px;
-  width: 90%;
-  color: #1e293b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 
-  h2 {
-    margin: 1.5rem 0 0.5rem;
-    font-size: 1.5rem;
-    font-weight: 600;
-    letter-spacing: -0.025em;
-  }
-
-  p {
-    color: #64748b;
-    font-size: 0.95rem;
-    margin-bottom: 2rem;
+  // Адаптив под светлую тему: если border переменная слишком светлая, сделаем карточку мягче
+  body:not(.dark-theme) & {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.9);
   }
 }
 
-// Специфичные фичи входящего звонка
-.pulse-avatar {
+// Стилизация аватара звонка
+.avatar-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.modern-avatar {
   width: 84px;
   height: 84px;
-  background: #2563eb;
   border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent, #3b82f6), #1d4ed8);
+  color: #ffffff;
   display: flex;
-  justify-content: center;
   align-items: center;
-  margin: 0 auto;
-  color: white;
-  animation: pulse 1.6s infinite ease-in-out;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+  z-index: 2;
 
   i { font-size: 2.5rem; }
 }
 
-// Специфичные фичи осциллограммы исходящего звонка
-.oscillogram {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
+// Пульсация для входящего вызова
+.pulse-ring {
+  position: absolute;
+  width: 84px;
   height: 84px;
-  margin: 0 auto;
+  border-radius: 50%;
+  background: var(--accent, #3b82f6);
+  opacity: 0.4;
+  z-index: 1;
+  animation: modernPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
 
-  .bar {
-    width: 6px;
-    height: 15px;
-    background-color: #10b981; // Изумрудный цвет для исходящего
-    border-radius: 3px;
-    animation: wave 1.2s infinite ease-in-out;
+// Минималистичный волновой осциллограф для исходящего вызова
+.modern-oscillogram {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 40px;
+  z-index: 3;
+  bottom: -10px;
+  background: var(--bg-elevated);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 
-    // Сдвиги фазы анимации для симуляции случайных звуковых частот гудка
-    &:nth-child(1) { animation-delay: 0.1s; height: 20px; }
-    &:nth-child(2) { animation-delay: 0.4s; height: 40px; }
-    &:nth-child(3) { animation-delay: 0.2s; height: 55px; }
-    &:nth-child(4) { animation-delay: 0.6s; height: 25px; }
-    &:nth-child(5) { animation-delay: 0.3s; height: 60px; }
-    &:nth-child(6) { animation-delay: 0.5s; height: 35px; }
-    &:nth-child(7) { animation-delay: 0.15s; height: 18px; }
+  .wave-bar {
+    width: 3px;
+    height: 8px;
+    background: var(--accent, #3b82f6);
+    border-radius: 2px;
+    animation: wave 1.2s ease-in-out infinite;
+
+    &:nth-child(2) { animation-delay: 0.15s; }
+    &:nth-child(3) { animation-delay: 0.3s; height: 16px; }
+    &:nth-child(4) { animation-delay: 0.45s; }
+    &:nth-child(5) { animation-delay: 0.6s; }
   }
 }
 
-.actions {
+// Информационный блок звонка
+.call-info {
   display: flex;
-  gap: 1rem;
-  justify-content: center;
+  flex-direction: column;
+  gap: 0.5rem;
 
-  button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.85rem 1.75rem;
-    border: none;
-    border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
+  .call-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #10b981; // Зеленый для входящего
 
-    &:hover { filter: brightness(0.92); transform: translateY(-1px); }
-    &:active { transform: translateY(1px); }
-
-    &.full-width {
-      width: 100%;
+    &.outgoing {
+      color: var(--accent, #3b82f6);
     }
   }
 
-  .btn-accept { background: #10b981; color: white; }
-  .btn-decline { background: #ef4444; color: white; }
+  .caller-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+  }
+
+  .call-type {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
 }
 
-// АНИМАЦИИ
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5); }
-  70% { box-shadow: 0 0 0 24px rgba(37, 99, 235, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+// Кнопки действий управления вызовом
+.action-buttons {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+
+  &.single { width: 100%; }
+
+  .btn-action {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+
+    i { font-size: 1.75rem; }
+
+    &:hover {
+      transform: scale(1.08);
+    }
+
+    &.accept {
+      background: #10b981;
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    &.decline {
+      background: #ef4444;
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+    }
+
+    &.full-width {
+      width: 100%;
+      border-radius: 14px;
+      height: 48px;
+    }
+  }
+}
+
+// Ключевые анимации
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modernPulse {
+  0% { transform: scale(1); opacity: 0.5; }
+  70% { transform: scale(1.4); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
 }
 
 @keyframes wave {
-  0%, 100% {
-    transform: scaleY(1);
-  }
-  50% {
-    transform: scaleY(2.8); // Растягиваем полосы по вертикали во время имитации звука гудка
-    background-color: #3b82f6; // Волна плавно переливается из зеленого в синий
-  }
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(2.5); }
 }

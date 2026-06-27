@@ -75,7 +75,7 @@ export type WebSocketResponse =
   | { type: 'new_message'; message: ChatMessage }
   | { type: 'message_seen'; messageId: string; memberId: string }
   | { type: 'typing_indicator'; roomId: string; memberId: string; isTyping: boolean }
-  | { type: 'call_offer'; fromId: string; callerName: string; roomId: string; sdp: string; callType: string }
+  | { type: 'call_offer'; fromId: string; senderName: string; targetName: string; roomId: string; sdp: string; callType: string }
   | { type: 'call_answer'; fromId: string; sdp: string }
   | { type: 'call_ice'; fromId: string; candidate: IceCandidateModel }
   | { type: 'call_ended'; roomId: string }

@@ -1,13 +1,14 @@
-import { Component, inject, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ChatService } from '@core/services/chat/chat.service';
+import {Component, effect, inject} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {ChatService} from '@core/services/chat/chat.service';
+import {TranslocoModule} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-global-call-overlay',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslocoModule],
   templateUrl: './global-call-overlay.html',
   styleUrls: ['./global-call-overlay.scss']
 })

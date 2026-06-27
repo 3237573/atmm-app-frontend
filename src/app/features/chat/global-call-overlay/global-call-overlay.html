@@ -1,48 +1,63 @@
-@if (incomingCall(); as callData) {
-  <div class="call-overlay-backdrop">
-    <div class="call-card incoming">
-      <div class="pulse-avatar incoming-color">
-        <i class="material-icons">phone_in_talk</i>
-      </div>
+<ng-container *transloco="let t">
+  @if (incomingCall(); as callData) {
+    <div class="call-overlay-backdrop">
+      <div class="modern-call-card incoming">
+        <div class="avatar-wrapper">
+          <div class="pulse-ring"></div>
+          <div class="modern-avatar">
+            <i class="material-icons">{{ callData.callType === 'VIDEO' ? 'videocam' : 'call' }}</i>
+          </div>
+        </div>
 
-      <h2>Входящий звонок</h2>
-      <p class="caller-name">{{ callData.roomId }}</p>
-      <span class="call-subtext">Connection Type: {{ callData.callType === 'VIDEO' ? 'Video call' : 'Audio call' }}</span>
+        <div class="call-info">
+          <span class="call-badge">{{ t('call.incoming') }}</span>
+          <h2 class="caller-name">{{ callData.senderName || t('call.unknown') }}</h2>
+          <p class="call-type">
+            {{ callData.callType === 'VIDEO' ? t('call.videoType') : t('call.audioType') }}
+          </p>
+        </div>
 
-      <div class="actions">
-        <button class="btn-accept" (click)="accept(callData)">
-          <i class="material-icons">call</i> Ответить
-        </button>
-        <button class="btn-decline" (click)="decline(callData)">
-          <i class="material-icons">call_end</i> Отклонить
-        </button>
-      </div>
-    </div>
-  </div>
-}
-
-@else if (outgoingCall(); as outgoingData) {
-  <div class="call-overlay-backdrop">
-    <div class="call-card outgoing">
-
-      <div class="oscillogram">
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
-      </div>
-
-      <h2>Исходящий вызов...</h2>
-      <p>Ожидание ответа в комнате ID: {{ outgoingData.roomId }}</p>
-
-      <div class="actions">
-        <button class="btn-decline full-width" (click)="cancelOutgoing(outgoingData)">
-          <i class="material-icons">call_end</i> Отмена
-        </button>
+        <div class="action-buttons">
+          <button class="btn-action accept" (click)="accept(callData)" [title]="t('call.accept')">
+            <i class="material-icons">call</i>
+          </button>
+          <button class="btn-action decline" (click)="decline(callData)" [title]="t('call.decline')">
+            <i class="material-icons">call_end</i>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-}
+  }
+
+  @else if (outgoingCall(); as outgoingData) {
+    <div class="call-overlay-backdrop">
+      <div class="modern-call-card outgoing">
+        <div class="avatar-wrapper">
+          <div class="modern-avatar outgoing-anim">
+            <i class="material-icons">{{ outgoingData.callType === 'VIDEO' ? 'blur_on' : 'hearing' }}</i>
+          </div>
+
+          <div class="modern-oscillogram">
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+          </div>
+        </div>
+
+        <div class="call-info">
+          <span class="call-badge outgoing">{{ t('call.outgoing') }}</span>
+          <h2 class="caller-name">{{ outgoingData.targetName || t('call.connecting') }}</h2>
+          <p class="call-type">{{ t('call.waitingAnswer') }}</p>
+        </div>
+
+        <div class="action-buttons single">
+          <button class="btn-action decline full-width" (click)="cancelOutgoing(outgoingData)" [title]="t('call.cancel')">
+            <i class="material-icons">call_end</i>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</ng-container>
