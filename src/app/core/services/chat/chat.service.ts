@@ -18,7 +18,8 @@ import {EncryptionService} from '@core/services/chat/encryption.service';
 interface CallState {
   roomId: string;
   callType: 'VIDEO' | 'AUDIO';
-  callerName?: string;
+  senderName?: string;
+  targetName?: string;
   sdp?: string;
 }
 
@@ -261,7 +262,8 @@ export class ChatService {
         // Поступил входящий звонок -> открываем оверлей (медиа-эффект запустит рингтон)
         this.incomingCall$.next({
           roomId: res.roomId,
-          callerName: res.callerName,
+          senderName: res.senderName,
+          targetName: res.targetName,
           callType: res.callType as 'VIDEO' | 'AUDIO',
           sdp: res.sdp
         });
@@ -429,7 +431,7 @@ export class ChatService {
    * Инициация исходящего звонка с текущего устройства
    */
   startOutgoingCall(roomId: string, callType: 'VIDEO' | 'AUDIO' = 'VIDEO', targetName?: string) {
-    this.outgoingCall$.next({roomId, callType, callerName: targetName});
+    this.outgoingCall$.next({roomId, callType, targetName: targetName});
   }
 
 
