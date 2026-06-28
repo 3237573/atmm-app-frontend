@@ -37,6 +37,22 @@ ul.nav-list {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+
+  /* 🌟 ОБЩИЕ СТИЛИ ДЛЯ ИМЕНИ И EMAIL (И для десктопа, и для мобилок) */
+  li:not(:has(a)) {
+    font-size: 12px !important;    /* Делаем размер шрифта мелким (12px) везде */
+    padding: 2px 12px !important;
+    white-space: nowrap;           /* Запрещаем перенос строки на десктопе */
+    overflow: hidden;              /* Прячем то, что не помещается */
+    text-overflow: ellipsis;       /* Добавляем красивое три точки (...) при сужении панели */
+    opacity: 0.8;
+  }
+
+  /* Дополнительный цвет для email на десктопе, чтобы разделять визуально */
+  li:last-child:not(:has(a)) {
+    color: var(--text-muted, #6c757d);
+    margin-bottom: 8px;
+  }
 }
 
 li {
@@ -171,16 +187,15 @@ a {
   }
 }
 
-/* ==========================================================================
-   📱 МОБИЛЬНАЯ АДАПТАЦИЯ
+/* ==========================================================================\
+   📱 МОБИЛЬНАЯ АДАПТАЦИЯ (Только перенос данных пользователя наверх)
    ========================================================================== */
 @media (max-width: 768px) {
   :host {
     position: fixed;
-    top: 0; // Выезжает с самого верха
+    top: 0;
     left: 0;
-    // Высота: весь экран МИНУС нижний хедер
-    height: calc(100vh - 64px - env(safe-area-inset-bottom));
+    height: calc(100dvh - 64px - env(safe-area-inset-bottom));
     width: 240px !important;
     transition: transform 0.3s ease-in-out;
     z-index: 100;
@@ -194,26 +209,54 @@ a {
     &:not(.collapsed) {
       display: block !important;
       transform: translateX(0);
-      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
     }
   }
 
   nav {
-    border-right: none;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .sidebar-empty-space {
+    order: -1; /* Оставляем пустую пружину сверху, чтобы вытолкнуть всё меню вниз */
   }
 
   .sidebar-toggle-handle {
     display: none !important;
   }
 
-  :host.collapsed a .text, a .text {
-    display: block !important;
-  }
+  ul.nav-list {
+    order: 2;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
 
-  :host.collapsed a {
-    width: 100% !important;
-    justify-content: flex-start !important;
-    padding: 0.6rem 0.75rem !important;
-    border-radius: 8px !important;
+    /* Специфичные настройки текста для мобилок */
+    li:not(:has(a)) {
+      white-space: normal !important; /* На мобилке пусть лучше переносится, если email очень длинный */
+      word-break: break-all;
+    }
+
+    /* Переносим Имя пользователя (предпоследний элемент) в самый верх списка */
+    li:nth-last-child(2) {
+      order: -2 !important;
+      font-weight: 600;
+      color: var(--text-main, #212529);
+      margin-top: 4px !important;
+    }
+
+    /* Переносим Email пользователя (последний элемент) сразу под имя */
+    li:nth-last-child(1) {
+      order: -1 !important;
+      color: var(--text-muted, #6c757d);
+      margin-bottom: 12px !important; /* Делаем отступ перед кнопками меню */
+    }
+
+    /* Пустой li-разделитель, который шел на десктопе, на мобилке скрываем */
+    li:nth-last-child(3):not(:has(a)) {
+      display: none !important;
+    }
   }
 }
