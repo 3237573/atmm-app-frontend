@@ -1,7 +1,6 @@
-import {Directive, HostListener, inject, input} from '@angular/core';
-import {NavigationService} from '../services/navigation.service';
-import {ComponentDeactivateService} from '../services/component-deactivate.service';
-import {TranslocoService} from '@ngneat/transloco';
+import { Directive, HostListener, inject, input } from '@angular/core';
+import { NavigationService } from '../services/navigation.service';
+import { ComponentDeactivateService } from '../services/component-deactivate.service';
 
 @Directive({
   selector: '[appBackOnEscape]',
@@ -10,11 +9,10 @@ import {TranslocoService} from '@ngneat/transloco';
 export class BackOnEscapeDirective {
   private readonly navService = inject(NavigationService);
   private readonly deactivateService = inject(ComponentDeactivateService);
-  private readonly translocoService = inject(TranslocoService); // Внедряем сервис переводов
 
   fallback = input<string>('/tasks');
 
-  @HostListener('document:keydown.escape', ['$event'])
+  @HostListener('document:keyup.escape', ['$event'])
   async onEscape(event: Event) {
     const keyboardEvent = event as KeyboardEvent;
     const target = keyboardEvent.target as HTMLElement;
@@ -24,18 +22,15 @@ export class BackOnEscapeDirective {
       return;
     }
 
-    // Проверяем несохраненные изменения на самой странице
+    keyboardEvent.preventDefault();
+    keyboardEvent.stopImmediatePropagation();
+
+    // Проверяем несохраненные изменения (например, в формах тасок)
     const canLeave = await this.deactivateService.checkDeactivation();
     if (!canLeave) return;
 
-    // ЕСЛИ возвращаемся на страницу логина -> спрашиваем подтверждение
-    if (this.fallback() === '/login') {
-      const confirmMsg = this.translocoService.translate('auth.logoutConfirmation') || 'Вы уверены, что хотите выйти из системы?';
-      if (!confirm(confirmMsg)) {
-        return; // Отменяем выход, если пользователь нажал "Отмена"
-      }
-    }
-
+    // Просто вызываем метод back. Сервис сам поймет, куда ведет этот шаг,
+    // и если там логин — автоматически покажет confirm().
     this.navService.back(this.fallback());
   }
 }
