@@ -103,6 +103,60 @@
     "typing": "Печатает...",
     "video": "Видеозвонок"
   },
+  "dept": {
+    "create": {
+      "backBtn": "Назад к структуре",
+      "title": "Новый отдел",
+      "subtitle": "Создайте подразделение для организации структуры пространства",
+      "nameLabel": "Название группы/отдела *",
+      "namePlaceholder": "Например: Департамент разработки",
+      "parentLabel": "Родительский отдел",
+      "rootOption": "Без родителя (Корневой)",
+      "cancelBtn": "Отмена",
+      "submitBtn": "Создать отдел",
+      "employeesTitle": "Сотрудники отдела",
+      "rolePlaceholder": "Роль в отделе...",
+      "defaultRole": "Участник"
+    },
+    "detail": {
+      "loading": "Загрузка данных...",
+      "namePlaceholder": "Название отдела...",
+      "saveBtn": "Сохранить",
+      "membersTitle": "Участники отдела",
+      "addBtn": "Добавить",
+      "saveFirstPrompt": "Сначала сохраните отдел, чтобы добавить сотрудников.",
+      "noEmployees": "В этом отделе пока нет сотрудников",
+      "hierarchyTitle": "Иерархия",
+      "parentDeptLabel": "Родительский отдел",
+      "rootLevel": "Корневой уровень",
+      "headLabel": "Глава отдела",
+      "currentHead": "Текущий",
+      "noHead": "Глава не назначен",
+      "assignHeadBtn": "Назначить главу",
+      "assignHeadTitle": "Назначить главу отдела",
+      "assignBtn": "Назначить",
+      "noEmployeesToAssign": "В отделе нет сотрудников для назначения.",
+      "addMemberTitle": "Добавить сотрудника",
+      "rolePlaceholder": "Роль в отделе...",
+      "allEmployeesAssigned": "Все сотрудники уже в этом отделе."
+    },
+    "list": {
+      "title": "Структура",
+      "subtitle": "Группы/Отделы",
+      "createBtn": "Создать",
+      "loading": "Загрузка структуры...",
+      "employeeCountTooltip": "Количество сотрудников",
+      "headAssignedTooltip": "Руководитель назначен",
+      "head": "Руководитель",
+      "noHeadTooltip": "Руководитель не назначен",
+      "noHead": "Без руководителя",
+      "editTooltip": "Открыть настройки отдела"
+    },
+    "roles": {
+      "HEAD": "Руководитель",
+      "MEMBER": "Участник"
+    }
+  },
   "error": {
     "wrongEmailOrPassword": "Неверный email или пароль",
     "registrationError": "Ошибка регистрации. Возможно, email уже используется."

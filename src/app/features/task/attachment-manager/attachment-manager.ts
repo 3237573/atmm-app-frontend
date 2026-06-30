@@ -58,18 +58,18 @@ export class AttachmentManager implements OnInit {
     }
   }
 
-  // Единый метод валидации и загрузки файла
+  // Unified method for validating and uploading a file
   private validateAndUploadFile(file: File): void {
-    // 1. Проверка лимита на количество (макс. 3)
+    // 1. Checking the quantity limit (max. 3)
     if (this.attachments().length >= 3) {
-      alert('Превышен лимит: можно прикрепить не более 3-х файлов к одной задаче.');
+      alert('The limit has been exceeded: you can attach no more than 3 files to one task.');
       return;
     }
 
-    // 2. Проверка лимита на размер (макс. 1 МБ)
-    const maxSizeBytes = 1024 * 1024; // 1 MB
+    // 2. Check the size limit (maximum 3 MB)
+    const maxSizeBytes = 1024 * 1024 * 3; // 3 MB
     if (file.size > maxSizeBytes) {
-      alert(`Файл "${file.name}" слишком большой (${this.formatFileSize(file.size)}). Максимальный размер — 1 МБ.`);
+      alert(`File "${file.name}" too big (${this.formatFileSize(file.size)}). The maximum size is 3 MB.`);
       return;
     }
 
@@ -81,24 +81,24 @@ export class AttachmentManager implements OnInit {
         this.isUploading.set(false);
       },
       error: (err) => {
-        console.error('Ошибка загрузки файла:', err);
-        alert('Не удалось загрузить файл на сервер.');
+        console.error('File upload error:', err);
+        alert('The file could not be uploaded to the server.');
         this.isUploading.set(false);
       }
     });
   }
 
   deleteAttachment(id: string, event: MouseEvent): void {
-    event.stopPropagation(); // Отменяем клик по родителю
-    if (!confirm('Вы уверены, что хотите удалить это вложение?')) return;
+    event.stopPropagation(); // Undo a parent click
+    if (!confirm('Are you sure you want to remove this attachment?')) return;
 
     this.taskService.deleteAttachment(id).subscribe({
       next: () => {
         this.attachments.update(current => current.filter(a => a.id !== id));
       },
       error: (err) => {
-        console.error('Ошибка удаления файла:', err);
-        alert('Не удалось удалить вложение.');
+        console.error('File deletion error:', err);
+        alert('The attachment could not be deleted.');
       }
     });
   }

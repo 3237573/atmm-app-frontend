@@ -1,5 +1,5 @@
-import { Component, computed, HostListener, inject, OnInit, signal } from '@angular/core';
-import { CommonModule, Location } from '@angular/common';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
@@ -8,16 +8,24 @@ import { MemberService } from '@core/services';
 import { MemberRO } from '@core/models/member.model';
 import { DepartmentService } from '@core/services/departament.service';
 import { DepartmentRO } from '@core/models/departament.model';
-import {NavigationService} from '@core/services/navigation.service';
-import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
-import {HasPermissionDirective} from '@core/directives/has-permission.directive';
-import {ProjectService} from '@core/services/project.service';
-import {ProjectRO} from '@core/models/project.model';
+import { NavigationService } from '@core/services/navigation.service';
+import { BackOnEscapeDirective } from '@core/directives/back-on-escape.directive';
+import { HasPermissionDirective } from '@core/directives/has-permission.directive';
+import { ProjectService } from '@core/services/project.service';
+import { ProjectRO } from '@core/models/project.model';
+import { TranslocoDirective } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-department-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, BackOnEscapeDirective, HasPermissionDirective],
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    BackOnEscapeDirective,
+    HasPermissionDirective,
+    TranslocoDirective
+  ],
   templateUrl: './department-detail.html',
   styleUrl: './department-detail.scss'
 })
@@ -28,7 +36,6 @@ export class DepartmentDetail implements OnInit {
   private readonly projectService = inject(ProjectService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-
 
   allMembers = signal<MemberRO[]>([]);
   allDepartments = signal<DepartmentRO[]>([]);
@@ -142,7 +149,6 @@ export class DepartmentDetail implements OnInit {
     });
   }
 
-
   assignMember(memberId: string, roleInDepartment: string) {
     const deptId = this.department()?.id;
     if (!deptId) return;
@@ -176,6 +182,4 @@ export class DepartmentDetail implements OnInit {
       next: () => this.loadData(deptId)
     });
   }
-
-
 }

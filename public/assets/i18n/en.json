@@ -103,6 +103,60 @@
     "typing": "Typing...",
     "video": "VideoCall"
   },
+  "dept": {
+    "create": {
+      "backBtn": "Back to structure",
+      "title": "New Group/Department",
+      "subtitle": "Create a unit to organize your workspace structure",
+      "nameLabel": "Department Name *",
+      "namePlaceholder": "E.g., Engineering Department",
+      "parentLabel": "Parent Department",
+      "rootOption": "No parent (Root)",
+      "cancelBtn": "Cancel",
+      "submitBtn": "Create Department",
+      "employeesTitle": "Department Employees",
+      "rolePlaceholder": "Role in department...",
+      "defaultRole": "Member"
+    },
+    "detail": {
+      "loading": "Loading data...",
+      "namePlaceholder": "Department name...",
+      "saveBtn": "Save",
+      "membersTitle": "Department Members",
+      "addBtn": "Add",
+      "saveFirstPrompt": "Save the department first to add employees.",
+      "noEmployees": "There are no employees in this department yet",
+      "hierarchyTitle": "Hierarchy",
+      "parentDeptLabel": "Parent Department",
+      "rootLevel": "Root Level",
+      "headLabel": "Department Head",
+      "currentHead": "Current",
+      "noHead": "No head assigned",
+      "assignHeadBtn": "Assign Head",
+      "assignHeadTitle": "Assign Department Head",
+      "assignBtn": "Assign",
+      "noEmployeesToAssign": "No employees available in this department to assign.",
+      "addMemberTitle": "Add Employee",
+      "rolePlaceholder": "Role in department...",
+      "allEmployeesAssigned": "All employees are already in this department."
+    },
+    "list": {
+      "title": "Structure",
+      "subtitle": "Groups/Departments",
+      "createBtn": "Create",
+      "loading": "Loading structure...",
+      "employeeCountTooltip": "Number of employees",
+      "headAssignedTooltip": "Head assigned",
+      "head": "Head of Department",
+      "noHeadTooltip": "Head not assigned",
+      "noHead": "No Head",
+      "editTooltip": "Open department settings"
+    },
+    "roles": {
+      "HEAD": "Head",
+      "MEMBER": "Member"
+    }
+  },
   "error": {
     "wrongEmailOrPassword": "Invalid email or password",
     "registrationError": "Registration error. Your email may already be in use."
