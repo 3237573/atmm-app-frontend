@@ -173,6 +173,106 @@
     "notAssigned": "Не назначен",
     "searchPlaceholder": "Поиск по имени или email..."
   },
+  "members": {
+    "admin": {
+      "title": "Участники",
+      "subtitle": "Пространства",
+      "searchPlaceholder": "Поиск по имени или email...",
+      "loading": "Загрузка команды...",
+      "clearFiltersBtn": "Очистить фильтры",
+      "actions": {
+        "create": "Создать",
+        "cancel": "Отмена",
+        "save": "Сохранить",
+        "export": "Экспорт",
+        "clearFilters": "Очистить фильтры"
+      },
+      "filters": {
+        "allRoles": "Все роли",
+        "allStatuses": "Все статусы"
+      },
+      "status": {
+        "active": "Активен",
+        "pending": "Ожидает",
+        "deleted": "Удален"
+      },
+      "stats": {
+        "total": "Всего",
+        "active": "Активных",
+        "admins": "Администраторов",
+        "guests": "Гостей",
+        "pending": "Ожидают",
+        "deleted": "Удалены"
+      },
+      "invite": {
+        "title": "Приглашение нового пользователя",
+        "emailError": "Введите корректный email",
+        "password": "Пароль",
+        "passwordPlaceholder": "Мин. 6 символов",
+        "passwordError": "Минимум 6 символов",
+        "displayName": "Имя в пространстве",
+        "displayNamePlaceholder": "Как будем называть?",
+        "role": "Роль",
+        "creating": "Создание...",
+        "submit": "Пригласить",
+        "requiredFields": "обязательные поля"
+      },
+      "table": {
+        "users": "Пользователи",
+        "role": "Роль",
+        "status": "Статус",
+        "actions": "Действия",
+        "empty": "Сотрудники не найдены"
+      },
+      "tooltip": {
+        "clearFilters": "Очистить фильтры",
+        "edit": "Редактировать",
+        "resetPassword": "Сбросить пароль",
+        "activity": "Активность",
+        "delete": "Удалить",
+        "restore": "Восстановить"
+      },
+      "pagination": {
+        "shown": "Показано",
+        "of": "из"
+      },
+      "edit": {
+        "title": "Редактировать сотрудника",
+        "displayName": "Имя в пространстве",
+        "displayNamePlaceholder": "Введите имя",
+        "role": "Роль",
+        "userEmail": "Email пользователя"
+      },
+      "confirm": {
+        "delete": "Вы уверены, что хотите исключить сотрудника \"{{name}}\"?",
+        "restore": "Восстановить сотрудника \"{{name}}\"?"
+      },
+      "prompt": {
+        "resetPassword": "Введите новый пароль для \"{{name}}\" (мин. 6 символов)"
+      },
+      "export": {
+        "name": "Имя",
+        "email": "Email",
+        "role": "Роль",
+        "status": "Статус"
+      },
+      "toasts": {
+        "loadError": "Не удалось загрузить список сотрудников",
+        "inviteSuccess": "Пользователь успешно приглашен",
+        "inviteError": "Ошибка при приглашении",
+        "updateSuccess": "Данные пользователя обновлены",
+        "updateError": "Ошибка обновления",
+        "deleteSuccess": "Сотрудник исключен из пространства",
+        "deleteError": "Ошибка удаления",
+        "resetPasswordSuccess": "Пароль успешно изменен",
+        "resetPasswordError": "Ошибка сброса пароля",
+        "passwordLengthError": "Пароль должен содержать минимум 6 символов",
+        "restoreInDevelopment": "Функция восстановления в разработке",
+        "noExportData": "Нет данных для экспорта",
+        "exportSuccess": "Экспорт выполнен успешно"
+      }
+    }
+  },
   "menu": {
     "admin": "Админ",
     "chat": "Чат",
@@ -188,8 +288,10 @@
     "orderList": "Группы правил"
   },
   "project": {
-    "title": "Проекты",
-    "subtitle": "Управление проектами и иерархией"
+    "load": "Загрузка проектов...",
+    "noProjects": "Проектов нет",
+    "subtitle": "Управление проектами и иерархией",
+    "title": "Проекты"
   },
   "routes": {
     "admin": "Администрирование",

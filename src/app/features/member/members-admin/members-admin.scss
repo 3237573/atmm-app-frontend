@@ -17,7 +17,7 @@
 .filters-stats-row {
   display: flex;
   justify-content: space-between;
-  align-items: center; // Выравниваем по центру
+  align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.1rem;
 }
@@ -114,8 +114,8 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); // Ровно 6 колонок без переносов
-  gap: 3px;                              // Минимальные отступы
+  grid-template-columns: repeat(6, 1fr);
+  gap: 3px;
   width: 100%;
 }
 
@@ -128,18 +128,18 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 28px;                          // Высота уменьшена почти в 2 раза
+  height: 28px;
   box-sizing: border-box;
   padding: 0 1px;
 
   .stat-value {
-    font-size: 0.8rem;                   // Шрифт стал компактнее
+    font-size: 0.8rem;
     font-weight: 700;
     color: var(--accent);
     line-height: 1;
   }
   .stat-label {
-    font-size: 0.5rem;                   // Микро-шрифт для подписей
+    font-size: 0.5rem;
     color: var(--text-muted);
     line-height: 1;
     margin-top: 1px;
@@ -159,7 +159,7 @@
   &.archived .stat-value { color: #4b5563; }
 }
 
-// ========== INVITE PANEL ==========
+// ========== INVITE PANEL (ОБНОВЛЕНО И ИСПРАВЛЕНО) ==========
 .invite-panel {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -168,24 +168,37 @@
   border-radius: 10px;
   box-shadow: var(--shadow-soft, 0 2px 8px rgba(0, 0, 0, 0.04));
   animation: slideDown 0.3s ease-out;
+  margin-bottom: 1rem;
 
   .invite-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
 
     h3 {
       margin: 0;
       font-size: 1.1rem;
       color: var(--text-main);
     }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      line-height: 1;
+      padding: 0.2rem;
+      &:hover { color: var(--text-main); }
+    }
   }
 
-  .invite-form {
+  // Изменено с .invite-form на .invite-grid для точного соответствия HTML
+  .invite-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+    gap: 1.25rem;
     align-items: end;
 
     .input-group {
@@ -196,6 +209,11 @@
       label {
         font-size: 0.85rem;
         color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+
+        i { font-size: 1rem; }
       }
 
       input, select {
@@ -206,12 +224,70 @@
         color: var(--text-main);
         font-size: 0.9rem;
         outline: none;
-        transition: border-color 0.2s;
+        box-sizing: border-box;
+        width: 100%;
+        transition: border-color 0.2s, box-shadow 0.2s;
 
         &:focus {
           border-color: var(--accent);
+          box-shadow: 0 0 0 3px rgba(var(--accent-rgb, 99, 102, 241), 0.1);
+        }
+
+        &.invalid {
+          border-color: #ef4444;
+          &:focus { box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1); }
         }
       }
+    }
+
+    // Стили для кнопки отправки формы, которых не было
+    .btn-submit {
+      background: var(--accent, #6366f1);
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      height: 38px; // Фиксированная высота для выравнивания в сетке с инпутами
+      box-sizing: border-box;
+      transition: background-color 0.2s, opacity 0.2s;
+
+      &:hover:not(:disabled) {
+        background: var(--accent-hover, #4f46e5);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      i { font-size: 1.1rem; }
+    }
+  }
+
+  // Стили для сообщений об ошибках под инпутами
+  .error-text {
+    color: #ef4444;
+    font-size: 0.75rem;
+    margin-top: 0.1rem;
+    display: block;
+  }
+
+  // Стили для нижней подсказки об обязательных полях
+  .form-hint {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+
+    .required {
+      color: #ef4444;
+      font-weight: bold;
     }
   }
 }
@@ -503,8 +579,15 @@
   i.close { margin-left: auto; font-size: 1.2rem; opacity: 0.8; }
 }
 
+// Анимации и вращение лоадера
 @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.spinning {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
 
 // ========== RESPONSIVE ==========
 @media (max-width: 1024px) {
@@ -522,10 +605,10 @@
 @media (max-width: 768px) {
   .members-admin { padding: 0.1rem; }
   .filters-bar { flex-wrap: wrap; }
-  .invite-form { grid-template-columns: 1fr; }
+  .invite-grid { grid-template-columns: 1fr; } // Изменено с .invite-form на .invite-grid
   .members-table {
     th.col-role, th.col-status, td:nth-child(2), td:nth-child(3) {
-      display: none; // Скрываем роль и статус на очень узких экранах
+      display: none;
     }
   }
 }

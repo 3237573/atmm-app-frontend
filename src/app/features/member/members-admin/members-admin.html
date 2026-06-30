@@ -1,5 +1,4 @@
 <div class="members-admin">
-  <!-- Toast Notification -->
   @if (toastMessage()) {
     <div class="toast" [class]="toastType()" (click)="toastMessage.set(null)">
       <i class="material-icons">{{ toastType() === 'success' ? 'check_circle' : 'error' }}</i>
@@ -8,104 +7,94 @@
     </div>
   }
 
-  <!-- Header -->
   <div class="page-header">
     <div class="header-info">
-      <h1><i class="material-icons">admin_panel_settings</i> Участники</h1>
-      <p>Пространства</p>
+      <h1><i class="material-icons">admin_panel_settings</i> {{ 'members.admin.title' | transloco }}</h1>
+      <p>{{ 'members.admin.subtitle' | transloco }}</p>
     </div>
     <button
       *appHasPermission="['user:create']"
       class="btn-primary" (click)="toggleInviteForm()">
       <i class="material-icons">{{ showInviteForm() ? 'close' : 'person_add' }}</i>
-      <span>{{ showInviteForm() ? 'Отмена' : 'Создать' }}</span>
+      <span>{{ showInviteForm() ? ('members.admin.actions.cancel' | transloco) : ('members.admin.actions.create' | transloco) }}</span>
     </button>
-
   </div>
 
-  <!-- Единая строка: фильтры слева, статистика справа -->
   <div class="filters-stats-row">
     <div class="filters-container">
       <div class="filters-bar">
-        <!-- Поиск -->
         <div class="search-box">
           <i class="material-icons">search</i>
-          <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event); resetPagination()" placeholder="Поиск по имени или email...">
+          <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event); resetPagination()" [placeholder]="'members.admin.searchPlaceholder' | transloco">
           @if (searchQuery()) {
             <i class="material-icons clear-search" (click)="searchQuery.set(''); resetPagination()">close</i>
           }
         </div>
 
-        <!-- Селектор роли -->
         <div class="role-select-wrapper" [class]="getRoleFilterClass()">
           <select [ngModel]="selectedRole()" (ngModelChange)="selectedRole.set($event); resetPagination()" class="role-select-styled">
-            <option value="">Все роли</option>
+            <option value="">{{ 'members.admin.filters.allRoles' | transloco }}</option>
             <option value="OWNER">👑 Owner</option>
             <option value="ADMIN">⚙️ Admin</option>
             <option value="MEMBER">👥 Member</option>
             <option value="GUEST">👤 Guest</option>
           </select>
-          <i class="material-icons select-arrow">expand_more</i>
+<!--          <i class="material-icons select-arrow">expand_more</i>-->
         </div>
 
-        <!-- Селектор статуса -->
         <div class="status-select-wrapper" [class]="getStatusFilterClass()">
           <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event); resetPagination()" class="status-select-styled">
-            <option value="">Все статусы</option>
-            <option value="ACTIVE">✅ Активен</option>
-            <option value="PENDING">⏳ Ожидает</option>
-            <option value="DELETED">❌ Удален</option>
+            <option value="">{{ 'members.admin.filters.allStatuses' | transloco }}</option>
+            <option value="ACTIVE">✅ {{ 'members.admin.status.active' | transloco }}</option>
+            <option value="PENDING">⏳ {{ 'members.admin.status.pending' | transloco }}</option>
+            <option value="DELETED">❌ {{ 'members.admin.status.deleted' | transloco }}</option>
           </select>
-          <i class="material-icons select-arrow">expand_more</i>
+<!--          <i class="material-icons select-arrow">expand_more</i>-->
         </div>
 
-        <!-- Кнопка очистки -->
-        <button class="btn-clear" (click)="clearFilters()" title="Очистить фильтры">
-          <i class="material-icons">clear_all</i>
-        </button>
+<!--        <button class="btn-clear" (click)="clearFilters()" [title]="'members.admin.tooltip.clearFilters' | transloco">-->
+<!--          <i class="material-icons">clear_all</i>-->
+<!--        </button>-->
 
-        <!-- Кнопка экспорта -->
-        <button class="btn-export" (click)="exportToCSV()">
-          <i class="material-icons">download</i>
-          Экспорт
-        </button>
+<!--        <button class="btn-export" (click)="exportToCSV()">-->
+<!--          <i class="material-icons">download</i>-->
+<!--          {{ 'members.admin.actions.export' | transloco }}-->
+<!--        </button>-->
       </div>
     </div>
 
-    <!-- Статистика -->
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-value">{{ getStats().total }}</div>
-        <div class="stat-label">Всего</div>
+        <div class="stat-label">{{ 'members.admin.stats.total' | transloco }}</div>
       </div>
       <div class="stat-card active">
         <div class="stat-value">{{ getStats().active }}</div>
-        <div class="stat-label">Активных</div>
+        <div class="stat-label">{{ 'members.admin.stats.active' | transloco }}</div>
       </div>
       <div class="stat-card admin">
         <div class="stat-value">{{ getStats().admins }}</div>
-        <div class="stat-label">Администраторов</div>
+        <div class="stat-label">{{ 'members.admin.stats.admins' | transloco }}</div>
       </div>
       <div class="stat-card guest">
         <div class="stat-value">{{ getStats().guests }}</div>
-        <div class="stat-label">Гостей</div>
+        <div class="stat-label">{{ 'members.admin.stats.guests' | transloco }}</div>
       </div>
       <div class="stat-card pending">
         <div class="stat-value">{{ getStats().pending }}</div>
-        <div class="stat-label">Ожидают</div>
+        <div class="stat-label">{{ 'members.admin.stats.pending' | transloco }}</div>
       </div>
       <div class="stat-card deleted">
         <div class="stat-value">{{ getStats().deleted }}</div>
-        <div class="stat-label">Удалены</div>
+        <div class="stat-label">{{ 'members.admin.stats.deleted' | transloco }}</div>
       </div>
     </div>
   </div>
 
-  <!-- Invite Form -->
   @if (showInviteForm() && canCreate()) {
     <div class="invite-panel">
       <div class="invite-header">
-        <h3>Приглашение нового пользователя</h3>
+        <h3>{{ 'members.admin.invite.title' | transloco }}</h3>
         <button class="close-btn" (click)="toggleInviteForm()">×</button>
       </div>
       <div class="invite-grid">
@@ -114,23 +103,23 @@
           <input type="email" [(ngModel)]="inviteData.email" placeholder="email@example.com"
                  [class.invalid]="inviteData.email && !isValidEmail(inviteData.email)">
           @if (inviteData.email && !isValidEmail(inviteData.email)) {
-            <small class="error-text">Введите корректный email</small>
+            <small class="error-text">{{ 'members.admin.invite.emailError' | transloco }}</small>
           }
         </div>
         <div class="input-group">
-          <label><i class="material-icons">lock</i> Пароль *</label>
-          <input type="password" [(ngModel)]="inviteData.password" placeholder="Мин. 6 символов"
+          <label><i class="material-icons">lock</i> {{ 'members.admin.invite.password' | transloco }} *</label>
+          <input type="password" [(ngModel)]="inviteData.password" [placeholder]="'members.admin.invite.passwordPlaceholder' | transloco"
                  [class.invalid]="inviteData.password && inviteData.password.length < 6">
           @if (inviteData.password && inviteData.password.length < 6) {
-            <small class="error-text">Минимум 6 символов</small>
+            <small class="error-text">{{ 'members.admin.invite.passwordError' | transloco }}</small>
           }
         </div>
         <div class="input-group">
-          <label><i class="material-icons">badge</i> Имя в пространства *</label>
-          <input type="text" [(ngModel)]="inviteData.displayName" placeholder="Как будем называть?">
+          <label><i class="material-icons">badge</i> {{ 'members.admin.invite.displayName' | transloco }} *</label>
+          <input type="text" [(ngModel)]="inviteData.displayName" [placeholder]="'members.admin.invite.displayNamePlaceholder' | transloco">
         </div>
         <div class="input-group">
-          <label><i class="material-icons">admin_panel_settings</i> Роль</label>
+          <label><i class="material-icons">admin_panel_settings</i> {{ 'members.admin.invite.role' | transloco }}</label>
           <select [(ngModel)]="inviteData.roleName">
             <option value="MEMBER">👥 Member</option>
             <option value="GUEST">👤 Guest</option>
@@ -139,27 +128,26 @@
         </div>
         <button class="btn-submit" [disabled]="isSubmitting() || !isFormValid()" (click)="onInvite()">
           @if (isSubmitting()) {
-            <i class="material-icons spinning">refresh</i><span>Создание...</span>
+            <i class="material-icons spinning">refresh</i><span>{{ 'members.admin.invite.creating' | transloco }}</span>
           } @else {
-            <i class="material-icons">send</i><span>Пригласить</span>
+            <i class="material-icons">send</i><span>{{ 'members.admin.invite.submit' | transloco }}</span>
           }
         </button>
       </div>
-      <div class="form-hint"><span class="required">*</span> — обязательные поля</div>
+      <div class="form-hint"><span class="required">*</span> — {{ 'members.admin.invite.requiredFields' | transloco }}</div>
     </div>
   }
 
-  <!-- Таблица пользователей -->
   <div class="table-container">
     @if (!loading()) {
       <table class="members-table">
         <thead>
         <tr>
-          <th (click)="sortBy('displayName')" class="sortable">Пользователи <i class="material-icons sort-icon">{{ getSortIcon('displayName') }}</i></th>
-          <th (click)="sortBy('roleName')" class="sortable">Роль <i class="material-icons sort-icon">{{ getSortIcon('roleName') }}</i></th>
-          <th (click)="sortBy('status')" class="sortable">Статус <i class="material-icons sort-icon">{{ getSortIcon('status') }}</i></th>
+          <th (click)="sortBy('displayName')" class="sortable">{{ 'members.admin.table.users' | transloco }} <i class="material-icons sort-icon">{{ getSortIcon('displayName') }}</i></th>
+          <th (click)="sortBy('roleName')" class="sortable">{{ 'members.admin.table.role' | transloco }} <i class="material-icons sort-icon">{{ getSortIcon('roleName') }}</i></th>
+          <th (click)="sortBy('status')" class="sortable">{{ 'members.admin.table.status' | transloco }} <i class="material-icons sort-icon">{{ getSortIcon('status') }}</i></th>
           @if (canManage()) {
-            <th class="text-right">Действия</th>
+            <th class="text-right">{{ 'members.admin.table.actions' | transloco }}</th>
           }
         </tr>
         </thead>
@@ -179,21 +167,11 @@
               </td>
               <td><span class="badge-role" [class]="member.roleName.toLowerCase()">
                 @switch (member.roleName) {
-                  @case ('OWNER') {
-                    👑 Owner
-                  }
-                  @case ('ADMIN') {
-                    ⚙️ Admin
-                  }
-                  @case ('MEMBER') {
-                    👥 Member
-                  }
-                  @case ('GUEST') {
-                    👤 Guest
-                  }
-                  @default {
-                    {{ member.roleName }}
-                  }
+                  @case ('OWNER') { 👑 Owner }
+                  @case ('ADMIN') { ⚙️ Admin }
+                  @case ('MEMBER') { 👥 Member }
+                  @case ('GUEST') { 👤 Guest }
+                  @default { {{ member.roleName }} }
                 }
               </span></td>
               <td>
@@ -201,18 +179,10 @@
                   <span class="status-dot" [class]="member.status.toLowerCase()"></span>
                   <span class="status-text">
                     @switch (member.status) {
-                      @case ('ACTIVE') {
-                        Активен
-                      }
-                      @case ('PENDING') {
-                        Ожидает
-                      }
-                      @case ('DELETED') {
-                        Удален
-                      }
-                      @default {
-                        {{ member.status }}
-                      }
+                      @case ('ACTIVE') { {{ 'members.admin.status.active' | transloco }} }
+                      @case ('PENDING') { {{ 'members.admin.status.pending' | transloco }} }
+                      @case ('DELETED') { {{ 'members.admin.status.deleted' | transloco }} }
+                      @default { {{ member.status }} }
                     }
                   </span>
                 </div>
@@ -220,17 +190,14 @@
               @if (canManage()) {
                 <td class="actions-cell">
                   @if (member.status !== 'DELETED') {
-                    <button class="btn-icon edit" (click)="editMember(member)" title="Редактировать"><i class="material-icons">edit</i></button>
-                    <button class="btn-icon reset" (click)="resetPassword(member.id, member.displayName)" title="Сбросить пароль"><i class="material-icons">vpn_key</i>
-                    </button>
-                    <button class="btn-icon view" (click)="viewActivity(member.id)" title="Активность"><i class="material-icons">visibility</i></button>
+                    <button class="btn-icon edit" (click)="editMember(member)" [title]="'members.admin.tooltip.edit' | transloco"><i class="material-icons">edit</i></button>
+                    <button class="btn-icon reset" (click)="resetPassword(member.id, member.displayName)" [title]="'members.admin.tooltip.resetPassword' | transloco"><i class="material-icons">vpn_key</i></button>
+                    <button class="btn-icon view" (click)="viewActivity(member.id)" [title]="'members.admin.tooltip.activity' | transloco"><i class="material-icons">visibility</i></button>
                     @if (canDelete()) {
-                      <button class="btn-icon delete" (click)="deleteMember(member.id, member.displayName)" title="Удалить"><i class="material-icons">person_remove</i>
-                      </button>
+                      <button class="btn-icon delete" (click)="deleteMember(member.id, member.displayName)" [title]="'members.admin.tooltip.delete' | transloco"><i class="material-icons">person_remove</i></button>
                     }
                   } @else {
-                    <button class="btn-icon restore" (click)="restoreMember(member.id, member.displayName)" title="Восстановить"><i class="material-icons">restore_from_trash</i>
-                    </button>
+                    <button class="btn-icon restore" (click)="restoreMember(member.id, member.displayName)" [title]="'members.admin.tooltip.restore' | transloco"><i class="material-icons">restore_from_trash</i></button>
                   }
                 </td>
               }
@@ -238,59 +205,69 @@
           } @empty {
             <tr>
               <td colspan="4" class="empty-state"><i class="material-icons">people_outline</i>
-                <p>Сотрудники не найдены</p>@if (searchQuery() || selectedRole() || selectedStatus()) {
-                  <button class="btn-link" (click)="clearFilters()">Очистить фильтры</button>
-                }</td>
+                <p>{{ 'members.admin.table.empty' | transloco }}</p>
+                @if (searchQuery() || selectedRole() || selectedStatus()) {
+                  <button class="btn-link" (click)="clearFilters()">{{ 'members.admin.actions.clearFilters' | transloco }}</button>
+                }
+              </td>
             </tr>
           }
         </tbody>
       </table>
 
-      <!-- Пагинация -->
       @if (filteredMembers().length > 0) {
         <div class="pagination">
-          <div class="pagination-info">Показано {{ (currentPage() - 1) * itemsPerPage() + 1 }}
-            - {{ Math.min(currentPage() * itemsPerPage(), filteredMembers().length) }} из {{ filteredMembers().length }}
+          <div class="pagination-info">
+            {{ 'members.admin.pagination.shown' | transloco }} {{ (currentPage() - 1) * itemsPerPage() + 1 }}
+            - {{ Math.min(currentPage() * itemsPerPage(), filteredMembers().length) }} {{ 'members.admin.pagination.of' | transloco }} {{ filteredMembers().length }}
           </div>
           <div class="pagination-controls">
-            <button class="page-btn" [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)"><i class="material-icons">chevron_left</i>
-            </button>
+            <button class="page-btn" [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)"><i class="material-icons">chevron_left</i></button>
             @for (page of [].constructor(totalPages); track $index) {
               <button class="page-btn" [class.active]="currentPage() === $index + 1" (click)="changePage($index + 1)">{{ $index + 1 }}</button>
             }
-            <button class="page-btn" [disabled]="currentPage() === totalPages" (click)="changePage(currentPage() + 1)"><i
-              class="material-icons">chevron_right</i></button>
+            <button class="page-btn" [disabled]="currentPage() === totalPages" (click)="changePage(currentPage() + 1)"><i class="material-icons">chevron_right</i></button>
           </div>
         </div>
       }
     } @else {
       <div class="loader-container">
         <div class="loader"></div>
-        <span>Загрузка команды...</span></div>
+        <span>{{ 'members.admin.loading' | transloco }}</span>
+      </div>
     }
   </div>
 </div>
 
-<!-- Edit Modal -->
 @if (showEditModal() && editingMember()) {
   <div class="modal-overlay" (click)="showEditModal.set(false)">
     <div class="modal" (click)="$event.stopPropagation()">
-      <div class="modal-header"><h3>Редактировать сотрудника</h3>
+      <div class="modal-header">
+        <h3>{{ 'members.admin.edit.title' | transloco }}</h3>
         <button class="close-btn" (click)="showEditModal.set(false)">×</button>
       </div>
       <div class="modal-body">
-        <div class="input-group"><label>Имя в пространства</label><input [(ngModel)]="editingMember()!.displayName" placeholder="Введите имя"></div>
-        <div class="input-group"><label>Роль</label><select [(ngModel)]="editingMember()!.roleName">
-          <option value="OWNER">👑 Owner</option>
-          <option value="ADMIN">⚙️ Admin</option>
-          <option value="MEMBER">👥 Member</option>
-          <option value="GUEST">👤 Guest</option>
-        </select></div>
-        <div class="info-box"><i class="material-icons">info</i><small>Email пользователя: {{ editingMember()!.email }}</small></div>
+        <div class="input-group">
+          <label>{{ 'members.admin.edit.displayName' | transloco }}</label>
+          <input [(ngModel)]="editingMember()!.displayName" [placeholder]="'members.admin.edit.displayNamePlaceholder' | transloco">
+        </div>
+        <div class="input-group">
+          <label>{{ 'members.admin.edit.role' | transloco }}</label>
+          <select [(ngModel)]="editingMember()!.roleName">
+            <option value="OWNER">👑 Owner</option>
+            <option value="ADMIN">⚙️ Admin</option>
+            <option value="MEMBER">👥 Member</option>
+            <option value="GUEST">👤 Guest</option>
+          </select>
+        </div>
+        <div class="info-box">
+          <i class="material-icons">info</i>
+          <small>{{ 'members.admin.edit.userEmail' | transloco }}: {{ editingMember()!.email }}</small>
+        </div>
       </div>
       <div class="modal-actions">
-        <button class="btn-secondary" (click)="showEditModal.set(false)">Отмена</button>
-        <button class="btn-primary" (click)="updateMember()">Сохранить</button>
+        <button class="btn-secondary" (click)="showEditModal.set(false)">{{ 'members.admin.actions.cancel' | transloco }}</button>
+        <button class="btn-primary" (click)="updateMember()">{{ 'members.admin.actions.save' | transloco }}</button>
       </div>
     </div>
   </div>

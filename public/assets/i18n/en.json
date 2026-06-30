@@ -173,6 +173,116 @@
     "notAssigned": "Not assigned",
     "searchPlaceholder": "Search by name or email..."
   },
+  "members": {
+    "admin": {
+      "title": "Members",
+      "subtitle": "Spaces",
+      "searchPlaceholder": "Search by name or email...",
+      "loading": "Loading team...",
+      "clearFiltersBtn": "Clear filters",
+      "actions": {
+        "create": "Create",
+        "cancel": "Cancel",
+        "save": "Save",
+        "export": "Export",
+        "clearFilters": "Clear filters"
+      },
+      "filters": {
+        "allRoles": "All roles",
+        "allStatuses": "All statuses"
+      },
+      "status": {
+        "active": "Active",
+        "pending": "Pending",
+        "deleted": "Deleted"
+      },
+      "stats": {
+        "total": "Total",
+        "active": "Active",
+        "admins": "Administrators",
+        "guests": "Guests",
+        "pending": "Pending",
+        "deleted": "Deleted"
+      },
+      "invite": {
+        "title": "Invite New User",
+        "emailError": "Enter a valid email",
+        "password": "Password",
+        "passwordPlaceholder": "Min. 6 characters",
+        "passwordError": "Minimum 6 characters",
+        "displayName": "Name in space",
+        "displayNamePlaceholder": "What should we call them?",
+        "role": "Role",
+        "creating": "Creating...",
+        "submit": "Invite",
+        "requiredFields": "required fields"
+      },
+      "table": {
+        "users": "Users",
+        "role": "Role",
+        "status": "Status",
+        "actions": "Actions",
+        "empty": "No employees found"
+      },
+      "tooltip": {
+        "clearFilters": "Clear filters",
+        "edit": "Edit",
+        "resetPassword": "Reset password",
+        "activity": "Activity",
+        "delete": "Delete",
+        "restore": "Restore"
+      },
+      "pagination": {
+        "shown": "Shown",
+        "of": "of"
+      },
+      "edit": {
+        "title": "Edit Employee",
+        "displayName": "Name in space",
+        "displayNamePlaceholder": "Enter name",
+        "role": "Role",
+        "userEmail": "User Email"
+      },
+      "confirm": {
+        "delete": "Are you sure you want to exclude employee \"{{name}}\"?",
+        "restore": "Restore employee \"{{name}}\"?"
+      },
+      "prompt": {
+        "resetPassword": "Enter a new password for \"{{name}}\" (min. 6 characters)"
+      },
+      "export": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status"
+      },
+      "toasts": {
+        "loadError": "Failed to load employee list",
+        "inviteSuccess": "User successfully invited",
+        "inviteError": "Error during invitation",
+        "updateSuccess": "User data updated",
+        "updateError": "Update error",
+        "deleteSuccess": "Employee excluded from space",
+        "deleteError": "Delete error",
+        "resetPasswordSuccess": "Password successfully changed",
+        "resetPasswordError": "Password reset error",
+        "passwordLengthError": "Password must contain at least 6 characters",
+        "restoreInDevelopment": "Restore feature is under development",
+        "noExportData": "No data for export",
+        "exportSuccess": "Export completed successfully"
+      }
+    },
+    "actions": {
+      "assignATask": "Assign a task",
+      "viewProfile": "View profile",
+      "writeMessage": "Write a message"
+    },
+    "iAm": "I am",
+    "loadMembers": "Loading members list...",
+    "members": "Members",
+    "notAssigned": "Not assigned",
+    "searchPlaceholder": "Search by name or email..."
+  },
   "menu": {
     "admin": "Admin",
     "chat": "Chat",
@@ -188,8 +298,10 @@
     "orderList": "Rule Groups"
   },
   "project": {
-    "title": "Projects",
-    "subtitle": "Project and hierarchy management"
+    "load": "Loading projects...",
+    "noProjects": "No projects",
+    "subtitle": "Project and hierarchy management",
+    "title": "Projects"
   },
   "routes": {
     "admin": "Administration",
