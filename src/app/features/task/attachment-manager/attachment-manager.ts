@@ -1,13 +1,14 @@
-import { Component, Input, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TaskService } from '@core/services/task.service';
-import { TaskAttachmentRO } from '@core/models/task/task.model';
+import {Component, inject, Input, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {TaskService} from '@core/services/task.service';
+import {TaskAttachmentRO} from '@core/models/task/task.model';
 import {HasPermissionDirective} from '@core/directives/has-permission.directive';
+import {TranslocoPipe, TranslocoService} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-task-attachment-manager',
   standalone: true,
-  imports: [CommonModule, HasPermissionDirective],
+  imports: [CommonModule, HasPermissionDirective, TranslocoPipe],
   templateUrl: './attachment-manager.html',
   styleUrls: ['./attachment-manager.scss']
 })
@@ -16,6 +17,7 @@ export class AttachmentManager implements OnInit {
   @Input() initialAttachments: TaskAttachmentRO[] = [];
 
   private readonly taskService = inject(TaskService);
+  private readonly translocoService = inject(TranslocoService);
 
   // Реактивное состояние вложений и статусов
   attachments = signal<TaskAttachmentRO[]>([]);
@@ -89,8 +91,10 @@ export class AttachmentManager implements OnInit {
   }
 
   deleteAttachment(id: string, event: MouseEvent): void {
-    event.stopPropagation(); // Undo a parent click
-    if (!confirm('Are you sure you want to remove this attachment?')) return;
+    event.stopPropagation();
+
+    // 🔥 Используем сервис для перевода подтверждения
+    if (!confirm(this.translocoService.translate('task.attachments.confirmDelete'))) return;
 
     this.taskService.deleteAttachment(id).subscribe({
       next: () => {
@@ -98,7 +102,8 @@ export class AttachmentManager implements OnInit {
       },
       error: (err) => {
         console.error('File deletion error:', err);
-        alert('The attachment could not be deleted.');
+        // 🔥 Перевод ошибки удаления
+        alert(this.translocoService.translate('task.attachments.deleteError'));
       }
     });
   }

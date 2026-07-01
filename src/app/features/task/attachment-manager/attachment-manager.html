@@ -1,15 +1,15 @@
 <div class="attachments-inline-container">
 
   <div *appHasPermission="['task:read']"
-    class="compact-dropzone"
-    [class.dragging]="isDragging()"
-    [class.uploading]="isUploading()"
-    [class.disabled]="attachments().length >= 3"
-    (dragover)="onDragOver($event)"
-    (dragleave)="onDragLeave($event)"
-    (drop)="onDrop($event)"
-    (click)="attachments().length < 3 && !isUploading() && fileInput.click()"
-    [title]="attachments().length >= 3 ? 'Достигнут лимит (макс. 3 файла)' : 'Перетащите файл или кликните для загрузки'">
+       class="compact-dropzone"
+       [class.dragging]="isDragging()"
+       [class.uploading]="isUploading()"
+       [class.disabled]="attachments().length >= 3"
+       (dragover)="onDragOver($event)"
+       (dragleave)="onDragLeave($event)"
+       (drop)="onDrop($event)"
+       (click)="attachments().length < 3 && !isUploading() && fileInput.click()"
+       [title]="attachments().length >= 3 ? ('task.attachments.limitReached' | transloco) : ('task.attachments.dragDropHint' | transloco)">
 
     <input
       type="file"
@@ -21,10 +21,10 @@
     <div class="dropzone-content">
       @if (isUploading()) {
         <div class="spinner-small"></div>
-        <span class="text-hint">Загрузка...</span>
+        <span class="text-hint">{{ 'btn.msg.loading' | transloco }}</span>
       } @else {
         <i class="material-icons upload-icon">attach_file</i>
-        <span class="text-hint">Вложение ({{ attachments().length }}/3)</span>
+        <span class="text-hint">{{ 'task.attachments.attachment' | transloco }} ({{ attachments().length }}/3)</span>
       }
     </div>
   </div>
@@ -39,14 +39,14 @@
             {{ file.filename }}
           </a>
 
-          <button *appHasPermission="['task:read']" class="btn-delete-chip" (click)="deleteAttachment(file.id, $event)" title="Удалить">
+          <button *appHasPermission="['task:read']" class="btn-delete-chip" (click)="deleteAttachment(file.id, $event)" title="{{'btn.delete' | transloco}}">
             <i class="material-icons">close</i>
           </button>
         </div>
       }
     </div>
   } @else {
-    <span class="empty-attachments-text">Нет прикрепленных файлов (до 1 МБ)</span>
+    <span class="empty-attachments-text">{{ 'task.attachments.empty' | transloco }}</span>
   }
 
 </div>

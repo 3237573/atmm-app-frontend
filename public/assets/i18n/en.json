@@ -84,6 +84,7 @@
     "exit": "Exit",
     "msg": {
       "copied": "Copied!",
+      "loading": "Loading...",
       "renewing": "Renewing..."
     },
     "renew": "Renew",
@@ -343,6 +344,14 @@
   "task": {
     "allPriorities": "All priorities",
     "allStatuses": "All statuses",
+    "attachments": {
+      "limitReached": "Limit reached (max. 3 files)",
+      "dragDropHint": "Drag and drop a file or click to upload",
+      "attachment": "Attachment",
+      "confirmDelete": "Are you sure you want to remove this attachment?",
+      "deleteError": "The attachment could not be deleted.",
+      "empty": "No attachments (up to 3 MB)"
+    },
     "comments": {
       "title": "Comments",
       "placeholder": "Write a comment...",
