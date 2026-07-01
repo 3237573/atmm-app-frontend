@@ -1,5 +1,31 @@
 {
   "admin": {
+    "permissions": {
+      "title": "Системные разрешения",
+      "placeholder": "Например, user:delete",
+      "loading": "Загрузка...",
+      "emptyState": "Разрешения не найдены",
+      "confirmDelete": "Удалить системное разрешение?"
+    },
+    "profile": {
+      "inputName": "Введите название",
+      "subtitle": "Основная информация",
+      "spaceCode": "Код пространства",
+      "spaceName": "Название пространства",
+      "title": "Профиль пространства"
+    },
+    "roles": {
+      "sidebarTitle": "Роли пространства",
+      "addRoleTooltip": "Добавить новую роль",
+      "rights": "прав",
+      "matrixHeader": "Настройка прав",
+      "saveChanges": "Сохранить изменения",
+      "emptyState": "Выберите роль слева, чтобы настроить её доступы",
+      "logs": {
+        "success": "Права роли успешно обновлены в базе!",
+        "error": "Произошла ошибка при сохранении прав:"
+      }
+    },
     "tabs": {
       "departments": "Группы",
       "members": "Участинки",
@@ -8,13 +34,6 @@
       "projects": "Проекты",
       "roles": "Роли",
       "tracker": "Трекер"
-    },
-    "profile": {
-      "inputName": "Введите название",
-      "subtitle": "Основная информация",
-      "spaceCode": "Код пространства",
-      "spaceName": "Название пространства",
-      "title": "Профиль пространства"
     },
     "title": "Настройки"
   },
@@ -65,9 +84,11 @@
     "exit": "Выход",
     "msg": {
       "copied": "Скопировано!",
+      "loading": "Загрузка...",
       "renewing": "Обновление..."
     },
     "renew": "Обновить",
+    "reply": "Ответить",
     "save": "Сохранить",
     "saveChanges": "Сохранить изменения",
     "show": "Добавить правило"
@@ -103,6 +124,60 @@
     "typing": "Печатает...",
     "video": "Видеозвонок"
   },
+  "dept": {
+    "create": {
+      "backBtn": "Назад к структуре",
+      "title": "Новый отдел",
+      "subtitle": "Создайте подразделение для организации структуры пространства",
+      "nameLabel": "Название группы/отдела *",
+      "namePlaceholder": "Например: Департамент разработки",
+      "parentLabel": "Родительский отдел",
+      "rootOption": "Без родителя (Корневой)",
+      "cancelBtn": "Отмена",
+      "submitBtn": "Создать отдел",
+      "employeesTitle": "Сотрудники отдела",
+      "rolePlaceholder": "Роль в отделе...",
+      "defaultRole": "Участник"
+    },
+    "detail": {
+      "loading": "Загрузка данных...",
+      "namePlaceholder": "Название отдела...",
+      "saveBtn": "Сохранить",
+      "membersTitle": "Участники отдела",
+      "addBtn": "Добавить",
+      "saveFirstPrompt": "Сначала сохраните отдел, чтобы добавить сотрудников.",
+      "noEmployees": "В этом отделе пока нет сотрудников",
+      "hierarchyTitle": "Иерархия",
+      "parentDeptLabel": "Родительский отдел",
+      "rootLevel": "Корневой уровень",
+      "headLabel": "Глава отдела",
+      "currentHead": "Текущий",
+      "noHead": "Глава не назначен",
+      "assignHeadBtn": "Назначить главу",
+      "assignHeadTitle": "Назначить главу отдела",
+      "assignBtn": "Назначить",
+      "noEmployeesToAssign": "В отделе нет сотрудников для назначения.",
+      "addMemberTitle": "Добавить сотрудника",
+      "rolePlaceholder": "Роль в отделе...",
+      "allEmployeesAssigned": "Все сотрудники уже в этом отделе."
+    },
+    "list": {
+      "title": "Структура",
+      "subtitle": "Группы/Отделы",
+      "createBtn": "Создать",
+      "loading": "Загрузка структуры...",
+      "employeeCountTooltip": "Количество сотрудников",
+      "headAssignedTooltip": "Руководитель назначен",
+      "head": "Руководитель",
+      "noHeadTooltip": "Руководитель не назначен",
+      "noHead": "Без руководителя",
+      "editTooltip": "Открыть настройки отдела"
+    },
+    "roles": {
+      "HEAD": "Руководитель",
+      "MEMBER": "Участник"
+    }
+  },
   "error": {
     "wrongEmailOrPassword": "Неверный email или пароль",
     "registrationError": "Ошибка регистрации. Возможно, email уже используется."
@@ -119,6 +194,116 @@
     "notAssigned": "Не назначен",
     "searchPlaceholder": "Поиск по имени или email..."
   },
+  "members": {
+    "admin": {
+      "title": "Участники",
+      "subtitle": "Пространства",
+      "searchPlaceholder": "Поиск по имени или email...",
+      "loading": "Загрузка команды...",
+      "clearFiltersBtn": "Очистить фильтры",
+      "actions": {
+        "create": "Создать",
+        "cancel": "Отмена",
+        "save": "Сохранить",
+        "export": "Экспорт",
+        "clearFilters": "Очистить фильтры"
+      },
+      "filters": {
+        "allRoles": "Все роли",
+        "allStatuses": "Все статусы"
+      },
+      "status": {
+        "active": "Активен",
+        "pending": "Ожидает",
+        "deleted": "Удален"
+      },
+      "stats": {
+        "total": "Всего",
+        "active": "Активных",
+        "admins": "Администраторов",
+        "guests": "Гостей",
+        "pending": "Ожидают",
+        "deleted": "Удалены"
+      },
+      "invite": {
+        "title": "Приглашение нового пользователя",
+        "emailError": "Введите корректный email",
+        "password": "Пароль",
+        "passwordPlaceholder": "Мин. 6 символов",
+        "passwordError": "Минимум 6 символов",
+        "displayName": "Имя в пространстве",
+        "displayNamePlaceholder": "Как будем называть?",
+        "role": "Роль",
+        "creating": "Создание...",
+        "submit": "Пригласить",
+        "requiredFields": "обязательные поля"
+      },
+      "table": {
+        "users": "Пользователи",
+        "role": "Роль",
+        "status": "Статус",
+        "actions": "Действия",
+        "empty": "Сотрудники не найдены"
+      },
+      "tooltip": {
+        "clearFilters": "Очистить фильтры",
+        "edit": "Редактировать",
+        "resetPassword": "Сбросить пароль",
+        "activity": "Активность",
+        "delete": "Удалить",
+        "restore": "Восстановить"
+      },
+      "pagination": {
+        "shown": "Показано",
+        "of": "из"
+      },
+      "edit": {
+        "title": "Редактировать сотрудника",
+        "displayName": "Имя в пространстве",
+        "displayNamePlaceholder": "Введите имя",
+        "role": "Роль",
+        "userEmail": "Email пользователя"
+      },
+      "confirm": {
+        "delete": "Вы уверены, что хотите исключить сотрудника \"{{name}}\"?",
+        "restore": "Восстановить сотрудника \"{{name}}\"?"
+      },
+      "prompt": {
+        "resetPassword": "Введите новый пароль для \"{{name}}\" (мин. 6 символов)"
+      },
+      "export": {
+        "name": "Имя",
+        "email": "Email",
+        "role": "Роль",
+        "status": "Статус"
+      },
+      "toasts": {
+        "loadError": "Не удалось загрузить список сотрудников",
+        "inviteSuccess": "Пользователь успешно приглашен",
+        "inviteError": "Ошибка при приглашении",
+        "updateSuccess": "Данные пользователя обновлены",
+        "updateError": "Ошибка обновления",
+        "deleteSuccess": "Сотрудник исключен из пространства",
+        "deleteError": "Ошибка удаления",
+        "resetPasswordSuccess": "Пароль успешно изменен",
+        "resetPasswordError": "Ошибка сброса пароля",
+        "passwordLengthError": "Пароль должен содержать минимум 6 символов",
+        "restoreInDevelopment": "Функция восстановления в разработке",
+        "noExportData": "Нет данных для экспорта",
+        "exportSuccess": "Экспорт выполнен успешно"
+      }
+    },
+    "actions": {
+      "assignATask": "Назначить задание",
+      "viewProfile": "Посмотреть профиль",
+      "writeMessage": "Напишите сообщение"
+    },
+    "iAm": "Я",
+    "loadMembers": "Загружаем список участников...",
+    "members": "Участники",
+    "notAssigned": "Не назначен",
+    "searchPlaceholder": "Поиск по имени или электронной почте..."
+  },
   "menu": {
     "admin": "Админ",
     "chat": "Чат",
@@ -134,8 +319,10 @@
     "orderList": "Группы правил"
   },
   "project": {
-    "title": "Проекты",
-    "subtitle": "Управление проектами и иерархией"
+    "load": "Загрузка проектов...",
+    "noProjects": "Проектов нет",
+    "subtitle": "Управление проектами и иерархией",
+    "title": "Проекты"
   },
   "routes": {
     "admin": "Администрирование",
@@ -155,24 +342,42 @@
     "tracker": "Трекер"
   },
   "task": {
-    "title": "Задачи",
-    "subtitle": "Управление задачами и иерархией",
-    "searchPlaceholder": "Поиск по названию и описанию...",
     "allStatuses": "Все статусы",
     "allPriorities": "Все приоритеты",
+    "attachments": {
+      "limitReached": "Достигнут лимит (макс. 3 файла)",
+      "dragDropHint": "Перетащите файл или кликните для загрузки",
+      "attachment": "Вложение",
+      "confirmDelete": "Вы уверены, что хотите удалить это вложение?",
+      "deleteError": "Не удалось удалить вложение.",
+      "empty": "Нет прикрепленных файлов (до 3 МБ)"
+    },
+    "comments": {
+      "title": "Комментарии",
+      "placeholder": "Написать комментарий...",
+      "replyPlaceholder": "Написать ответ...",
+      "loading": "Загрузка комментариев...",
+      "emptyState": "Нет комментариев",
+      "edited": "(изменено)",
+      "cancel": "Отмена",
+      "save": "Сохранить",
+      "replyBtn": "Ответить",
+      "dates": {
+        "today": "Сегодня",
+        "yesterday": "Вчера"
+      },
+      "errors": {
+        "create": "Ошибка создания комментария",
+        "reply": "Ошибка отправки ответа"
+      }
+    },
     "priority": {
       "LOW": "Низкий",
       "MEDIUM": "Средний",
       "HIGH": "Высокий",
       "CRITICAL": "Критический"
     },
-    "status": {
-      "PENDING": "Ожидает",
-      "IN_PROGRESS": "В работе",
-      "REVIEW": "Проверка",
-      "COMPLETED": "Готово",
-      "ARCHIVED": "Архив"
-    },
+    "searchPlaceholder": "Поиск по названию и описанию...",
     "stats": {
       "total": "Всего",
       "pending": "Ожидают",
@@ -181,6 +386,14 @@
       "overdue": "Просрочено",
       "archived": "Архив"
     },
+    "status": {
+      "PENDING": "Ожидает",
+      "IN_PROGRESS": "В работе",
+      "REVIEW": "Проверка",
+      "COMPLETED": "Готово",
+      "ARCHIVED": "Архив"
+    },
+    "subtitle": "Управление задачами и иерархией",
     "table": {
       "task": "Задача",
       "subtasks": "Подзадачи",
@@ -192,7 +405,8 @@
       "dueDate": "Срок",
       "creator": "Постановщик",
       "assignee": "Исполнитель"
-    }
+    },
+    "title": "Задачи"
   },
   "taskCreate": {
     "assignees": {

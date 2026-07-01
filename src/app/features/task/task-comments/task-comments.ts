@@ -5,11 +5,12 @@ import { AuthService } from '@core/services/auth.service';
 import { TaskCommentService } from '@core/services/task-comment.service';
 import { TaskComment } from '@core/models/task/task.model';
 import { CommentItem } from '@features/task/task-comments/comment-item/comment-item';
+import { TranslocoPipe, TranslocoService } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-task-comments',
   standalone: true,
-  imports: [CommonModule, FormsModule, CommentItem],
+  imports: [CommonModule, FormsModule, CommentItem, TranslocoPipe],
   templateUrl: './task-comments.html',
   styleUrl: './task-comments.scss'
 })
@@ -19,6 +20,7 @@ export class TaskComments implements OnChanges {
 
   private readonly authService = inject(AuthService);
   private readonly commentService = inject(TaskCommentService);
+  private readonly translocoService = inject(TranslocoService);
 
   currentUser = this.authService.currentUser;
   comments = signal<TaskComment[]>([]);
@@ -32,37 +34,36 @@ export class TaskComments implements OnChanges {
     }
   }
 
-  loadComments(): void {
-    if (!this.taskId) {
-      this.loading.set(false);
-      return;
+  onKeyDown(event: KeyboardEvent): void {
+    // Если нажат Enter БЕЗ зажатого Shift
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault(); // Предотвращаем стандартный перенос строки
+      this.onSubmit(); // Отправляем комментарий
     }
+    // Если нажат Shift + Enter, браузер сам сделает перенос строки, мы ничего не делаем
+  }
 
+  loadComments(): void {
+    if (!this.taskId) return;
     this.loading.set(true);
     this.commentService.getTaskComments(this.taskId).subscribe({
       next: (data) => {
         this.comments.set(this.buildCommentTree(data));
         this.loading.set(false);
       },
-      error: (err) => {
-        console.error('Ошибка загрузки комментариев', err);
-        this.loading.set(false);
-      }
+      error: () => this.loading.set(false)
     });
   }
 
-  buildCommentTree(comments: TaskComment[]): TaskComment[] {
+  buildCommentTree(flatComments: TaskComment[]): TaskComment[] {
     const commentMap = new Map<string, TaskComment>();
+    flatComments.forEach(c => commentMap.set(c.id, { ...c, replies: [] }));
+
     const rootComments: TaskComment[] = [];
-
-    comments.forEach(comment => {
-      commentMap.set(comment.id, { ...comment, replies: [] });
-    });
-
-    comments.forEach(comment => {
-      const commentWithReplies = commentMap.get(comment.id)!;
-      if (comment.parentCommentId && commentMap.has(comment.parentCommentId)) {
-        const parent = commentMap.get(comment.parentCommentId)!;
+    flatComments.forEach(c => {
+      const commentWithReplies = commentMap.get(c.id)!;
+      if (c.parentCommentId && commentMap.has(c.parentCommentId)) {
+        const parent = commentMap.get(c.parentCommentId)!;
         if (!parent.replies) parent.replies = [];
         parent.replies.push(commentWithReplies);
       } else {
@@ -89,26 +90,9 @@ export class TaskComments implements OnChanges {
         this.loadComments();
       },
       error: (err) => {
-        console.error('Ошибка создания комментария', err);
+        console.error(this.translocoService.translate('task.comments.errors.create'), err);
         this.isSubmitting.set(false);
       }
     });
-  }
-
-  formatDate(dateStr: string): string {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-    if (days === 0) {
-      return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-    } else if (days === 1) {
-      return 'Вчера';
-    } else if (days < 7) {
-      return `${days} дн. назад`;
-    } else {
-      return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-    }
   }
 }

@@ -1,16 +1,17 @@
-import {CommonModule} from '@angular/common';
-import {RouterModule} from '@angular/router';
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
-import {DepartmentService} from '@core/services/departament.service';
-import {DepartmentRO} from '@core/models/departament.model';
-import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
-import {NavigationService} from '@core/services/navigation.service';
-import {HasPermissionDirective} from '@core/directives/has-permission.directive';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { DepartmentService } from '@core/services/departament.service';
+import { DepartmentRO } from '@core/models/departament.model';
+import { BackOnEscapeDirective } from '@core/directives/back-on-escape.directive';
+import { NavigationService } from '@core/services/navigation.service';
+import { HasPermissionDirective } from '@core/directives/has-permission.directive';
+import { TranslocoModule } from '@ngneat/transloco'; // ДОБАВЛЕНО
 
 @Component({
   selector: 'app-department-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, BackOnEscapeDirective, HasPermissionDirective],
+  imports: [CommonModule, RouterModule, BackOnEscapeDirective, HasPermissionDirective, TranslocoModule], // ДОБАВЛЕНО TranslocoModule
   templateUrl: './department-list.html',
   styleUrl: './department-list.scss'
 })
@@ -18,11 +19,8 @@ export class DepartmentList implements OnInit {
   private readonly deptService = inject(DepartmentService);
   private readonly navService = inject(NavigationService);
 
-
   private readonly rawDepartments = signal<DepartmentRO[]>([]);
   loading = signal(true);
-
-  // Сигнал для хранения ID развернутых узлов
   expandedNodes = signal<Set<string>>(new Set());
 
   departmentTree = computed(() => {
@@ -60,14 +58,14 @@ export class DepartmentList implements OnInit {
     });
   }
 
-  // Метод для сворачивания/разворачивания
-  toggleNode(id: string, event: Event) {
-    event.preventDefault();
+  toggleNode(id: string, event: MouseEvent) {
     event.stopPropagation();
-    const newSet = new Set(this.expandedNodes());
-    if (newSet.has(id)) newSet.delete(id); else newSet.add(id);
-    this.expandedNodes.set(newSet);
+    const current = new Set(this.expandedNodes());
+    if (current.has(id)) {
+      current.delete(id);
+    } else {
+      current.add(id);
+    }
+    this.expandedNodes.set(current);
   }
-
-  protected readonly Array = Array;
 }

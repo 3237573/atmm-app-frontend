@@ -51,50 +51,50 @@
     justify-content: flex-end;
   }
 
-  .reply-form {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--border);
-
-    .reply-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 0.5rem;
-      background: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 0.75rem;
-      flex-shrink: 0;
-    }
-
-    .reply-input-wrapper {
-      flex: 1;
-
-      .reply-input {
-        width: 100%;
-        padding: 0.5rem;
-        background: var(--bg-main);
-        border: 1px solid var(--border);
-        border-radius: 0.5rem;
-        color: var(--text-main);
-        font-size: 0.8rem;
-        resize: vertical;
-
-        &:focus { outline: none; border-color: var(--accent); }
-      }
-
-      .reply-actions {
-        display: flex;
-        gap: 0.5rem;
-        justify-content: flex-end;
-        margin-top: 0.5rem;
-      }
-    }
-  }
+  //.reply-form {
+  //  display: flex;
+  //  gap: 0.5rem;
+  //  margin-top: 0.75rem;
+  //  padding-top: 0.75rem;
+  //  border-top: 1px solid var(--border);
+  //
+  //  .reply-avatar {
+  //    width: 32px;
+  //    height: 32px;
+  //    border-radius: 0.5rem;
+  //    background: var(--accent);
+  //    display: flex;
+  //    align-items: center;
+  //    justify-content: center;
+  //    font-weight: 600;
+  //    font-size: 0.75rem;
+  //    flex-shrink: 0;
+  //  }
+  //
+  //  .reply-input-wrapper {
+  //    flex: 1;
+  //
+  //    .reply-input {
+  //      width: 100%;
+  //      padding: 0.5rem;
+  //      background: var(--bg-main);
+  //      border: 1px solid var(--border);
+  //      border-radius: 0.5rem;
+  //      color: var(--text-main);
+  //      font-size: 0.8rem;
+  //      resize: vertical;
+  //
+  //      &:focus { outline: none; border-color: var(--accent); }
+  //    }
+  //
+  //    .reply-actions {
+  //      display: flex;
+  //      gap: 0.5rem;
+  //      justify-content: flex-end;
+  //      margin-top: 0.5rem;
+  //    }
+  //  }
+  //}
 
   .replies {
     margin-top: 0.5rem;
@@ -260,3 +260,146 @@
 .action-reply:hover i { color: var(--success); }
 .action-edit:hover i { color: var(--accent); }
 .action-delete:hover i { color: var(--danger); }
+
+
+// Находим или добавляем блоки в comment-item.scss:
+
+.actions-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  // Сама кнопка "Ответить" под текстом комментария теперь выглядит аккуратно
+  .btn-item-link {
+    background: transparent;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+
+    i {
+      font-size: 1rem;
+    }
+
+    &:hover {
+      color: var(--accent);
+      background: color-mix(in srgb, var(--accent), transparent 92%);
+    }
+  }
+}
+
+// Новая современная плашка формы ответа (Reply Form)
+.reply-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  align-items: flex-end; // Выравнивание по нижней границе при росте поля
+
+  .reply-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 0.5rem;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.75rem;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .reply-input-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    background: color-mix(in srgb, var(--border), transparent 85%); // Мягкая подложка
+    border: 1px solid transparent;
+    border-radius: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    transition: border-color 0.2s, background 0.2s;
+
+    &:focus-within {
+      background: var(--bg-main);
+      border-color: var(--accent); // Стильный фокус рамки
+    }
+
+    .reply-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      resize: none;
+      outline: none;
+      padding: 0.25rem;
+      font-family: inherit;
+      font-size: 0.85rem;
+      min-height: 20px;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+
+    .reply-actions-integrated {
+      display: flex;
+      align-items: center;
+      gap: 0.15rem;
+      margin-left: 0.5rem;
+      margin-bottom: 0.1rem;
+
+      button {
+        background: transparent;
+        border: none;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        i {
+          font-size: 1.1rem;
+        }
+
+        // Кнопка отмены (крестик)
+        &.btn-cancel-icon {
+          color: var(--text-muted);
+          &:hover {
+            background: color-mix(in srgb, var(--danger), transparent 92%);
+            color: var(--danger);
+          }
+        }
+
+        // Кнопка отправки (самолетик)
+        &.btn-submit-icon {
+          color: var(--accent);
+
+          &:hover:not(:disabled) {
+            background: color-mix(in srgb, var(--accent), transparent 90%);
+          }
+
+          &:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            color: var(--text-muted);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Анимация вращения лоадера (если не была объявлена)
+.spinning {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

@@ -8,11 +8,12 @@ import { DepartmentService } from '@core/services/departament.service';
 import { MemberService } from '@core/services';
 import { CreateDepartmentRequest } from '@core/models/departament.model';
 import { MemberRO } from '@core/models/member.model';
+import {TranslocoDirective} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-department-create',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, TranslocoDirective],
   templateUrl: './department-create.html',
   styleUrl: './department-create.scss'
 })

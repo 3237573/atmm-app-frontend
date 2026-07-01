@@ -5,7 +5,7 @@
         <i class="material-icons">folder</i>
         {{ 'project.title' | transloco }}
       </h1>
-      <p>Подпроекты</p>
+      <p>{{ 'project.subtitle' | transloco }}</p>
     </div>
     <button class="btn-primary" routerLink="/projects/create">
       <i class="material-icons">add</i>
@@ -14,7 +14,7 @@
   </div>
 
   @if (loading()) {
-    <div class="page-loader">Загрузка проектов...</div>
+    <div class="page-loader">{{ 'project.load' | transloco }}</div>
   } @else {
     <div class="tree-root">
       <ng-container *ngTemplateOutlet="nodeTemplate; context: { $implicit: projectTree() }"></ng-container>
@@ -72,7 +72,7 @@
     } @empty {
       <div class="empty-state">
         <i class="material-icons">folder_off</i>
-        <p>Проекты не найдены</p>
+        <p>{{ 'project.noProjects' | transloco }}</p>
       </div>
     }
   </ul>
