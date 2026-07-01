@@ -1,8 +1,8 @@
 <div class="role-grid">
   <div class="roles-sidebar">
     <div class="sidebar-header">
-      <h4>Роли пространства</h4>
-      <button class="btn-action btn-icon-only" title="Добавить новую роль">
+      <h4>{{ 'admin.roles.sidebarTitle' | transloco }}</h4>
+      <button class="btn-action btn-icon-only" [title]="'admin.roles.addRoleTooltip' | transloco">
         <i class="material-icons">add</i>
       </button>
     </div>
@@ -13,7 +13,7 @@
              [class.active]="selectedRole?.id === role.id"
              (click)="selectRole(role)">
           <span class="role-name">{{ role.name }}</span>
-          <span class="perm-count">{{ role.permissionIds.length }} прав</span>
+          <span class="perm-count">{{ role.permissionIds.length }} {{ 'admin.roles.rights' | transloco }}</span>
         </div>
       }
     </div>
@@ -22,9 +22,9 @@
   <div class="permissions-matrix">
     @if (selectedRole) {
       <div class="matrix-header">
-        <h3>Настройка прав: {{ selectedRole.name }}</h3>
+        <h3>{{ 'admin.roles.matrixHeader' | transloco }}: {{ selectedRole.name }}</h3>
         <button class="btn-action btn-primary" (click)="saveRole()">
-          <i class="material-icons">save</i> Сохранить изменения
+          <i class="material-icons">save</i> {{ 'admin.roles.saveChanges' | transloco }}
         </button>
       </div>
 
@@ -43,7 +43,7 @@
     } @else {
       <div class="empty-matrix">
         <i class="material-icons">security</i>
-        <p>Выберите роль слева, чтобы настроить её доступы</p>
+        <p>{{ 'admin.roles.emptyState' | transloco }}</p>
       </div>
     }
   </div>

@@ -1,14 +1,15 @@
 // src/app/features/admin-page/role-manager/role-manager.ts
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { PermissionService, Permission } from '../../../core/services/admin/permission.service';
-import { RoleService, RoleResponse } from '../../../core/services/admin/role.service';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {Permission, PermissionService} from '@core/services/admin/permission.service';
+import {RoleResponse, RoleService} from '@core/services/admin/role.service';
+import {TranslocoPipe, TranslocoService} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-role-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslocoPipe],
   templateUrl: './role-manager.html',
   styleUrl: './role-manager.scss'
 })
@@ -22,7 +23,8 @@ export class RoleManager implements OnInit {
 
   constructor(
     private readonly permissionService: PermissionService,
-    private readonly roleService: RoleService
+    private readonly roleService: RoleService,
+    private readonly translocoService: TranslocoService
   ) {}
 
   ngOnInit() {
@@ -62,10 +64,10 @@ export class RoleManager implements OnInit {
         // Перезагружаем общий список ролей с бэка
         this.loadData();
 
-        console.log('Права роли успешно обновлены в базе!');
+        console.log(this.translocoService.translate('admin.roles.logs.success'));
       },
       error: (err) => {
-        console.error('Произошла ошибка при сохранении прав:', err);
+        console.error(this.translocoService.translate('admin.roles.logs.error'), err);
       }
     });
   }

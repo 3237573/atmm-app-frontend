@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { PermissionService, Permission } from '../../../core/services/admin/permission.service';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {Permission, PermissionService} from '@core/services/admin/permission.service';
+import {TranslocoModule, TranslocoService} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-permission-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslocoModule],
   templateUrl: './permission-manager.html',
   styleUrl: './permission-manager.scss'
 })
@@ -15,7 +16,10 @@ export class PermissionManager implements OnInit {
   newName: string = '';
   loading: boolean = false;
 
-  constructor(private readonly permissionService: PermissionService) {}
+  constructor(
+    private readonly permissionService: PermissionService,
+    private readonly translocoService: TranslocoService
+  ) {}
 
   ngOnInit(): void {
     this.loadPermissions();
@@ -41,8 +45,10 @@ export class PermissionManager implements OnInit {
   }
 
   removePermission(id: string): void {
-    if (confirm('Удалить системное разрешение?')) {
-      this.permissionService.deletePermission(id).subscribe(() => this.loadPermissions());
+    if (confirm(this.translocoService.translate('admin.permissions.confirmDelete'))) {
+      this.permissionService.deletePermission(id).subscribe(() => {
+        this.loadPermissions();
+      });
     }
   }
 }

@@ -2,10 +2,13 @@
   <div class="manager-header">
     <div class="title">
       <i class="material-icons">security</i>
-      <h3>System Permissions</h3>
+      <h3>{{ 'admin.permissions.title' | transloco }}</h3>
     </div>
     <div class="add-form">
-      <input type="text" [(ngModel)]="newName" placeholder="e.g., user:delete" (keyup.enter)="addPermission()">
+      <input type="text"
+             [(ngModel)]="newName"
+             [placeholder]="'admin.permissions.placeholder' | transloco"
+             (keyup.enter)="addPermission()">
       <button (click)="addPermission()" [disabled]="!newName">
         <i class="material-icons">add</i>
       </button>
@@ -14,7 +17,7 @@
 
   <div class="permissions-list">
     @if (loading) {
-      <div class="loader">Loading...</div>
+      <div class="loader">{{ 'admin.permissions.loading' | transloco }}</div>
     } @else {
       @for (p of permissions; track p.id) {
         <div class="permission-item">
@@ -24,7 +27,7 @@
           </button>
         </div>
       } @empty {
-        <div class="empty">No permissions found</div>
+        <div class="empty">{{ 'admin.permissions.emptyState' | transloco }}</div>
       }
     }
   </div>

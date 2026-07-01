@@ -1,5 +1,31 @@
 {
   "admin": {
+    "permissions": {
+      "title": "System permissions",
+      "placeholder": "for example user:delete",
+      "loading": "Loading...",
+      "emptyState": "No permissions found",
+      "confirmDelete": "Remove the system permission?"
+    },
+    "profile": {
+      "inputName": "Enter a name",
+      "subtitle": "Basic information",
+      "spaceCode": "Space Code",
+      "spaceName": "Space Name",
+      "title": "Space Profile"
+    },
+    "roles": {
+      "sidebarTitle": "Roles of space",
+      "addRoleTooltip": "Add a new role",
+      "rights": "rights",
+      "matrixHeader": "Setting permissions",
+      "saveChanges": "Save Changes",
+      "emptyState": "Select a role on the left to configure its permissions",
+      "logs": {
+        "success": "Role permissions have been successfully updated in the database!",
+        "error": "An error occurred while saving rights:"
+      }
+    },
     "tabs": {
       "departments": "Groups",
       "members": "Members",
@@ -8,13 +34,6 @@
       "projects": "Projects",
       "roles": "Roles",
       "tracker": "Tracker"
-    },
-    "profile": {
-      "inputName": "Enter a name",
-      "subtitle": "Basic information",
-      "spaceCode": "Space Code",
-      "spaceName": "Space Name",
-      "title": "Space Profile"
     },
     "title": "Settings"
   },
@@ -65,9 +84,11 @@
     "exit": "Exit",
     "msg": {
       "copied": "Copied!",
+      "loading": "Loading...",
       "renewing": "Renewing..."
     },
     "renew": "Renew",
+    "reply": "Reply",
     "save": "Save",
     "saveChanges": "Save Changes",
     "show": "Add Rule"
@@ -103,6 +124,60 @@
     "typing": "Typing...",
     "video": "VideoCall"
   },
+  "dept": {
+    "create": {
+      "backBtn": "Back to structure",
+      "title": "New Group/Department",
+      "subtitle": "Create a unit to organize your workspace structure",
+      "nameLabel": "Department Name *",
+      "namePlaceholder": "E.g., Engineering Department",
+      "parentLabel": "Parent Department",
+      "rootOption": "No parent (Root)",
+      "cancelBtn": "Cancel",
+      "submitBtn": "Create Department",
+      "employeesTitle": "Department Employees",
+      "rolePlaceholder": "Role in department...",
+      "defaultRole": "Member"
+    },
+    "detail": {
+      "loading": "Loading data...",
+      "namePlaceholder": "Department name...",
+      "saveBtn": "Save",
+      "membersTitle": "Department Members",
+      "addBtn": "Add",
+      "saveFirstPrompt": "Save the department first to add employees.",
+      "noEmployees": "There are no employees in this department yet",
+      "hierarchyTitle": "Hierarchy",
+      "parentDeptLabel": "Parent Department",
+      "rootLevel": "Root Level",
+      "headLabel": "Department Head",
+      "currentHead": "Current",
+      "noHead": "No head assigned",
+      "assignHeadBtn": "Assign Head",
+      "assignHeadTitle": "Assign Department Head",
+      "assignBtn": "Assign",
+      "noEmployeesToAssign": "No employees available in this department to assign.",
+      "addMemberTitle": "Add Employee",
+      "rolePlaceholder": "Role in department...",
+      "allEmployeesAssigned": "All employees are already in this department."
+    },
+    "list": {
+      "title": "Structure",
+      "subtitle": "Groups/Departments",
+      "createBtn": "Create",
+      "loading": "Loading structure...",
+      "employeeCountTooltip": "Number of employees",
+      "headAssignedTooltip": "Head assigned",
+      "head": "Head of Department",
+      "noHeadTooltip": "Head not assigned",
+      "noHead": "No Head",
+      "editTooltip": "Open department settings"
+    },
+    "roles": {
+      "HEAD": "Head",
+      "MEMBER": "Member"
+    }
+  },
   "error": {
     "wrongEmailOrPassword": "Invalid email or password",
     "registrationError": "Registration error. Your email may already be in use."
@@ -115,6 +190,116 @@
     },
     "iAm": "I'm",
     "loadMembers": "Loading members...",
+    "members": "Members",
+    "notAssigned": "Not assigned",
+    "searchPlaceholder": "Search by name or email..."
+  },
+  "members": {
+    "admin": {
+      "title": "Members",
+      "subtitle": "Spaces",
+      "searchPlaceholder": "Search by name or email...",
+      "loading": "Loading team...",
+      "clearFiltersBtn": "Clear filters",
+      "actions": {
+        "create": "Create",
+        "cancel": "Cancel",
+        "save": "Save",
+        "export": "Export",
+        "clearFilters": "Clear filters"
+      },
+      "filters": {
+        "allRoles": "All roles",
+        "allStatuses": "All statuses"
+      },
+      "status": {
+        "active": "Active",
+        "pending": "Pending",
+        "deleted": "Deleted"
+      },
+      "stats": {
+        "total": "Total",
+        "active": "Active",
+        "admins": "Administrators",
+        "guests": "Guests",
+        "pending": "Pending",
+        "deleted": "Deleted"
+      },
+      "invite": {
+        "title": "Invite New User",
+        "emailError": "Enter a valid email",
+        "password": "Password",
+        "passwordPlaceholder": "Min. 6 characters",
+        "passwordError": "Minimum 6 characters",
+        "displayName": "Name in space",
+        "displayNamePlaceholder": "What should we call them?",
+        "role": "Role",
+        "creating": "Creating...",
+        "submit": "Invite",
+        "requiredFields": "required fields"
+      },
+      "table": {
+        "users": "Users",
+        "role": "Role",
+        "status": "Status",
+        "actions": "Actions",
+        "empty": "No employees found"
+      },
+      "tooltip": {
+        "clearFilters": "Clear filters",
+        "edit": "Edit",
+        "resetPassword": "Reset password",
+        "activity": "Activity",
+        "delete": "Delete",
+        "restore": "Restore"
+      },
+      "pagination": {
+        "shown": "Shown",
+        "of": "of"
+      },
+      "edit": {
+        "title": "Edit Employee",
+        "displayName": "Name in space",
+        "displayNamePlaceholder": "Enter name",
+        "role": "Role",
+        "userEmail": "User Email"
+      },
+      "confirm": {
+        "delete": "Are you sure you want to exclude employee \"{{name}}\"?",
+        "restore": "Restore employee \"{{name}}\"?"
+      },
+      "prompt": {
+        "resetPassword": "Enter a new password for \"{{name}}\" (min. 6 characters)"
+      },
+      "export": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status"
+      },
+      "toasts": {
+        "loadError": "Failed to load employee list",
+        "inviteSuccess": "User successfully invited",
+        "inviteError": "Error during invitation",
+        "updateSuccess": "User data updated",
+        "updateError": "Update error",
+        "deleteSuccess": "Employee excluded from space",
+        "deleteError": "Delete error",
+        "resetPasswordSuccess": "Password successfully changed",
+        "resetPasswordError": "Password reset error",
+        "passwordLengthError": "Password must contain at least 6 characters",
+        "restoreInDevelopment": "Restore feature is under development",
+        "noExportData": "No data for export",
+        "exportSuccess": "Export completed successfully"
+      }
+    },
+    "actions": {
+      "assignATask": "Assign a task",
+      "viewProfile": "View profile",
+      "writeMessage": "Write a message"
+    },
+    "iAm": "I am",
+    "loadMembers": "Loading members list...",
     "members": "Members",
     "notAssigned": "Not assigned",
     "searchPlaceholder": "Search by name or email..."
@@ -134,8 +319,10 @@
     "orderList": "Rule Groups"
   },
   "project": {
-    "title": "Projects",
-    "subtitle": "Project and hierarchy management"
+    "load": "Loading projects...",
+    "noProjects": "No projects",
+    "subtitle": "Project and hierarchy management",
+    "title": "Projects"
   },
   "routes": {
     "admin": "Administration",
@@ -155,17 +342,34 @@
     "tracker": "Tracker"
   },
   "task": {
-    "title": "Tasks",
-    "subtitle": "Managing tasks and hierarchy",
-    "searchPlaceholder": "Search by title and description...",
-    "allStatuses": "All statuses",
     "allPriorities": "All priorities",
-    "status": {
-      "PENDING": "Pending",
-      "IN_PROGRESS": "In Progress",
-      "REVIEW": "Review",
-      "COMPLETED": "Completed",
-      "ARCHIVED": "Archived"
+    "allStatuses": "All statuses",
+    "attachments": {
+      "limitReached": "Limit reached (max. 3 files)",
+      "dragDropHint": "Drag and drop a file or click to upload",
+      "attachment": "Attachment",
+      "confirmDelete": "Are you sure you want to remove this attachment?",
+      "deleteError": "The attachment could not be deleted.",
+      "empty": "No attachments (up to 3 MB)"
+    },
+    "comments": {
+      "title": "Comments",
+      "placeholder": "Write a comment...",
+      "replyPlaceholder": "Write a response...",
+      "loading": "Loading comments...",
+      "emptyState": "No comments",
+      "edited": "(changed)",
+      "cancel": "Cancel",
+      "save": "Save",
+      "replyBtn": "Reply",
+      "dates": {
+        "today": "Today",
+        "yesterday": "Yesterday"
+      },
+      "errors": {
+        "create": "Comment creation error",
+        "reply": "Reply sending error"
+      }
     },
     "priority": {
       "LOW": "Low",
@@ -173,6 +377,7 @@
       "HIGH": "High",
       "CRITICAL": "Critical"
     },
+    "searchPlaceholder": "Search by title and description...",
     "stats": {
       "total": "Total",
       "pending": "Pending",
@@ -181,6 +386,14 @@
       "overdue": "Overdue",
       "archived": "Archive"
     },
+    "status": {
+      "PENDING": "Pending",
+      "IN_PROGRESS": "In Progress",
+      "REVIEW": "Review",
+      "COMPLETED": "Completed",
+      "ARCHIVED": "Archived"
+    },
+    "subtitle": "Managing tasks and hierarchy",
     "table": {
       "task": "Task",
       "subtasks": "Subtasks",
@@ -192,7 +405,8 @@
       "dueDate": "Due Date",
       "creator": "Creator",
       "assignee": "Assignee"
-    }
+    },
+    "title": "Tasks"
   },
   "taskCreate": {
     "assignees": {

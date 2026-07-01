@@ -6,7 +6,8 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@core/services/auth.service';
 import { Subject, finalize, takeUntil } from 'rxjs';
-import {HasPermissionDirective} from '@core/directives/has-permission.directive';
+import { HasPermissionDirective } from '@core/directives/has-permission.directive';
+import { TranslocoPipe, TranslocoService } from '@ngneat/transloco';
 
 interface InviteData {
   email: string;
@@ -27,12 +28,13 @@ interface StatsData {
 @Component({
   selector: 'app-members-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, HasPermissionDirective],
+  imports: [CommonModule, FormsModule, HasPermissionDirective, TranslocoPipe],
   templateUrl: './members-admin.html',
   styleUrl: './members-admin.scss'
 })
 export class MembersAdmin implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
+  private readonly translocoService = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   // Reactive state
@@ -105,7 +107,7 @@ export class MembersAdmin implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Ошибка загрузки сотрудников', err);
-          this.showToast('Не удалось загрузить список сотрудников', 'error');
+          this.showToast(this.translocoService.translate('members.admin.toasts.loadError'), 'error');
         }
       });
   }
@@ -130,7 +132,6 @@ export class MembersAdmin implements OnInit, OnDestroy {
     return filtered;
   }
 
-  // ========== Классы для стилизации селектов (аналог task-list) ==========
   getRoleFilterClass(): string {
     const role = this.selectedRole();
     if (!role) return '';
@@ -166,7 +167,6 @@ export class MembersAdmin implements OnInit, OnDestroy {
       let aValue: any = a[this.sortColumn() as keyof MemberRO];
       let bValue: any = b[this.sortColumn() as keyof MemberRO];
 
-      // Handle displayName sorting
       if (this.sortColumn() === 'displayName') {
         aValue = (a.displayName || a.email).toLowerCase();
         bValue = (b.displayName || b.email).toLowerCase();
@@ -248,10 +248,10 @@ export class MembersAdmin implements OnInit, OnDestroy {
         this.showInviteForm.set(false);
         this.resetInviteForm();
         this.loadMembers();
-        this.showToast('Пользователь успешно приглашен', 'success');
+        this.showToast(this.translocoService.translate('members.admin.toasts.inviteSuccess'), 'success');
       },
       error: (err) => {
-        this.showToast(err.error?.error || 'Ошибка при приглашении', 'error');
+        this.showToast(err.error?.error || this.translocoService.translate('members.admin.toasts.inviteError'), 'error');
       }
     });
   }
@@ -274,44 +274,46 @@ export class MembersAdmin implements OnInit, OnDestroy {
         next: () => {
           this.showEditModal.set(false);
           this.loadMembers();
-          this.showToast('Данные пользователя обновлены', 'success');
+          this.showToast(this.translocoService.translate('members.admin.toasts.updateSuccess'), 'success');
         },
-        error: (err) => this.showToast(err.error?.error || 'Ошибка обновления', 'error')
+        error: (err) => this.showToast(err.error?.error || this.translocoService.translate('members.admin.toasts.updateError'), 'error')
       });
   }
 
   deleteMember(userId: string, displayName: string): void {
-    if (confirm(`Вы уверены, что хотите исключить сотрудника "${displayName}"?`)) {
+    const confirmationText = this.translocoService.translate('members.admin.confirm.delete', { name: displayName });
+    if (confirm(confirmationText)) {
       this.memberService.removeMember(userId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
             this.loadMembers();
-            this.showToast('Сотрудник исключен из пространства', 'success');
+            this.showToast(this.translocoService.translate('members.admin.toasts.deleteSuccess'), 'success');
           },
-          error: (err) => this.showToast(err.error?.error || 'Ошибка удаления', 'error')
+          error: (err) => this.showToast(err.error?.error || this.translocoService.translate('members.admin.toasts.deleteError'), 'error')
         });
     }
   }
 
   resetPassword(userId: string, displayName: string): void {
-    const newPassword = prompt(`Введите новый пароль для "${displayName}" (мин. 6 символов)`);
+    const promptText = this.translocoService.translate('members.admin.prompt.resetPassword', { name: displayName });
+    const newPassword = prompt(promptText);
     if (newPassword && newPassword.length >= 6) {
       this.memberService.resetPassword(userId, newPassword)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
-          next: () => this.showToast('Пароль успешно изменен', 'success'),
-          error: (err) => this.showToast(err.error?.error || 'Ошибка сброса пароля', 'error')
+          next: () => this.showToast(this.translocoService.translate('members.admin.toasts.resetPasswordSuccess'), 'success'),
+          error: (err) => this.showToast(err.error?.error || this.translocoService.translate('members.admin.toasts.resetPasswordError'), 'error')
         });
     } else if (newPassword) {
-      this.showToast('Пароль должен содержать минимум 6 символов', 'error');
+      this.showToast(this.translocoService.translate('members.admin.toasts.passwordLengthError'), 'error');
     }
   }
 
   restoreMember(userId: string, displayName: string): void {
-    if (confirm(`Восстановить сотрудника "${displayName}"?`)) {
-      // Implement restore logic - you may need to add this to your service
-      this.showToast('Функция восстановления в разработке', 'error');
+    const confirmationText = this.translocoService.translate('members.admin.confirm.restore', { name: displayName });
+    if (confirm(confirmationText)) {
+      this.showToast(this.translocoService.translate('members.admin.toasts.restoreInDevelopment'), 'error');
     }
   }
 
@@ -374,15 +376,28 @@ export class MembersAdmin implements OnInit, OnDestroy {
   }
 
   exportToCSV(): void {
+    const headersConfig = {
+      name: this.translocoService.translate('members.admin.export.name'),
+      email: this.translocoService.translate('members.admin.export.email'),
+      role: this.translocoService.translate('members.admin.export.role'),
+      status: this.translocoService.translate('members.admin.export.status')
+    };
+
+    const statusTranslations = {
+      ACTIVE: this.translocoService.translate('members.admin.status.active'),
+      PENDING: this.translocoService.translate('members.admin.status.pending'),
+      DELETED: this.translocoService.translate('members.admin.status.deleted')
+    };
+
     const data = this.filteredMembers().map(m => ({
-      'Имя': m.displayName,
-      'Email': m.email,
-      'Роль': m.roleName,
-      'Статус': m.status === 'ACTIVE' ? 'Активен' : m.status === 'PENDING' ? 'Ожидает' : 'Удален'
+      [headersConfig.name]: m.displayName,
+      [headersConfig.email]: m.email,
+      [headersConfig.role]: m.roleName,
+      [headersConfig.status]: statusTranslations[m.status as keyof typeof statusTranslations] || m.status
     }));
 
     if (data.length === 0) {
-      this.showToast('Нет данных для экспорта', 'error');
+      this.showToast(this.translocoService.translate('members.admin.toasts.noExportData'), 'error');
       return;
     }
 
@@ -400,7 +415,7 @@ export class MembersAdmin implements OnInit, OnDestroy {
     a.click();
     window.URL.revokeObjectURL(url);
 
-    this.showToast('Экспорт выполнен успешно', 'success');
+    this.showToast(this.translocoService.translate('members.admin.toasts.exportSuccess'), 'success');
   }
 
   clearFilters(): void {
@@ -421,4 +436,3 @@ export class MembersAdmin implements OnInit, OnDestroy {
 
   protected readonly Math = Math;
 }
-

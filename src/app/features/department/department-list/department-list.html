@@ -1,86 +1,84 @@
-<div class="department-container" appBackOnEscape>
-  <div class="page-header">
-    <div class="header-info">
-      <h1><i class="material-icons">account_tree</i> Структура</h1>
-      <p>Группы/Отделы</p>
+<ng-container *transloco="let t">
+  <div class="department-container" appBackOnEscape>
+    <div class="page-header">
+      <div class="header-info">
+        <h1><i class="material-icons">account_tree</i> {{ t('dept.list.title') }}</h1>
+        <p>{{ t('dept.list.subtitle') }}</p>
+      </div>
+
+      <button
+        *appHasPermission="['department:create']"
+        class="btn-primary"
+        [routerLink]="['/departments/create']"
+      >
+        <i class="material-icons">add</i> {{ t('dept.list.createBtn') }}
+      </button>
     </div>
 
-    <button
-      *appHasPermission="['department:create']"
-      class="btn-primary" [routerLink]="['/departments/create']"
-    >
-      <i class="material-icons">add</i> Создать
-    </button>
+    @if (loading()) {
+      <div class="loader">{{ t('dept.list.loading') }}</div>
+    } @else {
+      <div class="tree-root">
+        <ng-container *ngTemplateOutlet="recursiveTree; context: { $implicit: departmentTree() }"></ng-container>
+      </div>
+    }
   </div>
 
-  @if (loading()) {
-    <div class="loader">Загрузка структуры...</div>
-  } @else {
-    <div class="tree-root">
-      <ng-container *ngTemplateOutlet="recursiveTree; context: { $implicit: departmentTree() }"></ng-container>
-    </div>
-  }
-</div>
+  <ng-template #recursiveTree let-nodes>
+    <ul class="tree-branch">
+      @for (node of nodes; track node.id) {
+        <li class="tree-node">
+          <div class="node-content">
 
-<ng-template #recursiveTree let-nodes>
-  <ul class="tree-branch">
-    @for (node of nodes; track node.id) {
-      <li class="tree-node">
-        <div class="node-content">
+            <div class="node-main">
+              @if (node.childDepartments?.length) {
+                <i class="material-icons node-toggle"
+                   [class.open]="expandedNodes().has(node.id)"
+                   (click)="toggleNode(node.id, $event)">chevron_right</i>
+              } @else {
+                <i class="material-icons node-leaf">circle</i>
+              }
 
-          <div class="node-main">
-            @if (node.childDepartments?.length) {
-              <i class="material-icons node-toggle"
-                 [class.open]="expandedNodes().has(node.id)"
-                 (click)="toggleNode(node.id, $event)">chevron_right</i>
-            } @else {
-              <div class="node-spacer"></div>
-            }
-
-            <i class="material-icons node-icon">
-              {{ node.childDepartments?.length ? 'domain' : 'corporate_fare' }}
-            </i>
-
-            <div class="node-info">
-              <div class="node-title-row">
+              <div class="node-text" [routerLink]="['/departments', node.id]">
                 <span class="node-name">{{ node.name }}</span>
-
-                <span class="badge-count" title="Количество сотрудников">
-                  <i class="material-icons">people</i>
-                  {{ node.employeeCount || 0 }}
-                </span>
-
-                @if (node.headMemberId) {
-                  <span class="node-meta head-assigned" title="Руководитель назначен">
-                    <i class="material-icons">verified_user</i> Руководитель
+                <div class="node-badges">
+                  <span class="badge-count" [title]="t('dept.list.employeeCountTooltip')">
+                    <i class="material-icons">people</i>
+                    {{ node.employeeCount || 0 }}
                   </span>
-                } @else {
-                  <span class="node-meta no-head" title="Руководитель не назначен">
-                    <i class="material-icons">person_off</i> Без руководителя
-                  </span>
-                }
+
+                  @if (node.headMemberId) {
+                    <span class="node-meta head-assigned" [title]="t('dept.list.headAssignedTooltip')">
+                      <i class="material-icons">verified_user</i> {{ t('dept.list.head') }}
+                    </span>
+                  } @else {
+                    <span class="node-meta no-head" [title]="t('dept.list.noHeadTooltip')">
+                      <i class="material-icons">person_off</i> {{ t('dept.list.noHead') }}
+                    </span>
+                  }
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="node-actions-container">
-            <div class="node-actions icon-btn" (click)="$event.preventDefault(); $event.stopPropagation()">
-              <i class="material-icons">more_vert</i>
+            <div class="node-actions-container">
+              <div class="node-actions icon-btn" (click)="$event.preventDefault(); $event.stopPropagation()">
+                <i class="material-icons">more_vert</i>
+              </div>
+
+              <button class="btn-icon edit-btn"
+                      [routerLink]="['/departments', node.id]"
+                      [title]="t('dept.list.editTooltip')">
+                <i class="material-icons">edit</i>
+              </button>
             </div>
 
-            <button class="btn-icon edit-btn"
-                    [routerLink]="['/departments', node.id]"
-                    title="Открыть настройки отдела">
-              <i class="material-icons">edit</i>
-            </button>
           </div>
 
-        </div>
-
-        @if (node.childDepartments?.length && expandedNodes().has(node.id)) {
-          <ng-container *ngTemplateOutlet="recursiveTree; context: { $implicit: node.childDepartments }"></ng-container>
-        }
-      </li>
-    }
-  </ul>
-</ng-template>
+          @if (node.childDepartments?.length && expandedNodes().has(node.id)) {
+            <ng-container *ngTemplateOutlet="recursiveTree; context: { $implicit: node.childDepartments }"></ng-container>
+          }
+        </li>
+      }
+    </ul>
+  </ng-template>
+</ng-container>

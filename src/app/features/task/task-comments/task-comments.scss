@@ -36,6 +36,7 @@
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
+  align-items: flex-end; // Выравниваем по низу, если поле растянется
 
   .comment-avatar {
     width: 40px;
@@ -45,64 +46,67 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
-    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
     flex-shrink: 0;
   }
 
   .comment-input-wrapper {
     flex: 1;
-    position: relative;
+    display: flex;
+    align-items: flex-end;
+    background: rgba($border, 0.3); // Мягкий фон плашки
+    border: 1px solid transparent;
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    transition: border-color 0.2s, background 0.2s;
+
+    &:focus-within {
+      background: transparent;
+      border-color: $accent; // Подсветка при фокусе
+    }
 
     .comment-input {
-      width: 100%;
-      padding: 0.75rem;
-      padding-right: 3rem;
-      background: $bg-main;
-      border: 1px solid $border;
-      border-radius: 0.5rem;
+      flex: 1;
+      background: transparent;
+      border: none;
       color: $text-main;
-      font-size: 0.9rem;
+      resize: none;
+      outline: none;
+      padding: 0.25rem 0.5rem;
       font-family: inherit;
-      resize: vertical;
-
-      &:focus {
-        outline: none;
-        border-color: $accent;
-      }
-
-      &:disabled {
-        opacity: 0.5;
-      }
+      font-size: 0.9rem;
+      min-height: 24px;
+      max-height: 120px; // Ограничиваем высоту, чтобы не растягивалось бесконечно
+      overflow-y: auto;
     }
 
     .comment-submit {
-      position: absolute;
-      bottom: 0.5rem;
-      right: 0.5rem;
+      background: transparent;
+      border: none;
+      color: $text-muted; // Незаметная кнопка по умолчанию
+      width: 32px;
+      height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
-      background: $accent;
-      color: $bg-main;
-      border: none;
       border-radius: 0.5rem;
       cursor: pointer;
       transition: all 0.2s;
-
-      i {
-        font-size: 1.1rem;
-      }
+      margin-left: 0.5rem;
 
       &:hover:not(:disabled) {
-        filter: brightness(1.1);
+        background: rgba($accent, 0.1);
+        color: $accent; // Красиво подсвечивается при наведении
       }
 
       &:disabled {
-        opacity: 0.5;
+        opacity: 0.4;
         cursor: not-allowed;
+      }
+
+      i {
+        font-size: 1.2rem;
       }
     }
   }
