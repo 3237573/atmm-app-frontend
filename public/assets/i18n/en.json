@@ -1,5 +1,31 @@
 {
   "admin": {
+    "permissions": {
+      "title": "System permissions",
+      "placeholder": "for example user:delete",
+      "loading": "Loading...",
+      "emptyState": "No permissions found",
+      "confirmDelete": "Remove the system permission?"
+    },
+    "profile": {
+      "inputName": "Enter a name",
+      "subtitle": "Basic information",
+      "spaceCode": "Space Code",
+      "spaceName": "Space Name",
+      "title": "Space Profile"
+    },
+    "roles": {
+      "sidebarTitle": "Roles of space",
+      "addRoleTooltip": "Add a new role",
+      "rights": "rights",
+      "matrixHeader": "Setting permissions",
+      "saveChanges": "Save Changes",
+      "emptyState": "Select a role on the left to configure its permissions",
+      "logs": {
+        "success": "Role permissions have been successfully updated in the database!",
+        "error": "An error occurred while saving rights:"
+      }
+    },
     "tabs": {
       "departments": "Groups",
       "members": "Members",
@@ -8,13 +34,6 @@
       "projects": "Projects",
       "roles": "Roles",
       "tracker": "Tracker"
-    },
-    "profile": {
-      "inputName": "Enter a name",
-      "subtitle": "Basic information",
-      "spaceCode": "Space Code",
-      "spaceName": "Space Name",
-      "title": "Space Profile"
     },
     "title": "Settings"
   },
@@ -68,6 +87,7 @@
       "renewing": "Renewing..."
     },
     "renew": "Renew",
+    "reply": "Reply",
     "save": "Save",
     "saveChanges": "Save Changes",
     "show": "Add Rule"
@@ -321,17 +341,26 @@
     "tracker": "Tracker"
   },
   "task": {
-    "title": "Tasks",
-    "subtitle": "Managing tasks and hierarchy",
-    "searchPlaceholder": "Search by title and description...",
-    "allStatuses": "All statuses",
     "allPriorities": "All priorities",
-    "status": {
-      "PENDING": "Pending",
-      "IN_PROGRESS": "In Progress",
-      "REVIEW": "Review",
-      "COMPLETED": "Completed",
-      "ARCHIVED": "Archived"
+    "allStatuses": "All statuses",
+    "comments": {
+      "title": "Comments",
+      "placeholder": "Write a comment...",
+      "replyPlaceholder": "Write a response...",
+      "loading": "Loading comments...",
+      "emptyState": "No comments",
+      "edited": "(changed)",
+      "cancel": "Cancel",
+      "save": "Save",
+      "replyBtn": "Reply",
+      "dates": {
+        "today": "Today",
+        "yesterday": "Yesterday"
+      },
+      "errors": {
+        "create": "Comment creation error",
+        "reply": "Reply sending error"
+      }
     },
     "priority": {
       "LOW": "Low",
@@ -339,6 +368,7 @@
       "HIGH": "High",
       "CRITICAL": "Critical"
     },
+    "searchPlaceholder": "Search by title and description...",
     "stats": {
       "total": "Total",
       "pending": "Pending",
@@ -347,6 +377,14 @@
       "overdue": "Overdue",
       "archived": "Archive"
     },
+    "status": {
+      "PENDING": "Pending",
+      "IN_PROGRESS": "In Progress",
+      "REVIEW": "Review",
+      "COMPLETED": "Completed",
+      "ARCHIVED": "Archived"
+    },
+    "subtitle": "Managing tasks and hierarchy",
     "table": {
       "task": "Task",
       "subtasks": "Subtasks",
@@ -358,7 +396,8 @@
       "dueDate": "Due Date",
       "creator": "Creator",
       "assignee": "Assignee"
-    }
+    },
+    "title": "Tasks"
   },
   "taskCreate": {
     "assignees": {

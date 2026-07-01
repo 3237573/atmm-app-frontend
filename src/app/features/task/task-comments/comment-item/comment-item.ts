@@ -1,15 +1,16 @@
-import { Component, Input, inject, signal, computed } from '@angular/core';
+import { Component, Input, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@core/services/auth.service';
 import { TaskCommentService } from '@core/services/task-comment.service';
 import { TaskComment } from '@core/models/task/task.model';
-import {TranslocoPipe} from '@ngneat/transloco';
+import { TranslocoPipe, TranslocoService } from '@ngneat/transloco';
+import {HasPermissionDirective} from '@core/directives/has-permission.directive';
 
 @Component({
   selector: 'app-comment-item',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslocoPipe],
+  imports: [CommonModule, FormsModule, TranslocoPipe, HasPermissionDirective],
   templateUrl: './comment-item.html',
   styleUrl: './comment-item.scss'
 })
@@ -19,6 +20,7 @@ export class CommentItem {
 
   private readonly authService = inject(AuthService);
   private readonly commentService = inject(TaskCommentService);
+  private readonly translocoService = inject(TranslocoService);
 
   currentMember = this.authService.currentMember;
   editing = signal(false);
@@ -29,8 +31,78 @@ export class CommentItem {
 
   getAvatarColor(name: string): string {
     const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
-    const index = name.charCodeAt(0) % colors.length;
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % colors.length;
     return colors[index];
+  }
+
+  toggleReplyForm(): void {
+    this.showReplyForm.set(!this.showReplyForm());
+    if (this.showReplyForm()) {
+      this.replyContent.set(`@${this.comment.authorName} `);
+    }
+  }
+
+  onKeyDown(event: KeyboardEvent): void {
+    // Если нажат Enter БЕЗ зажатого Shift
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault(); // Отменяем стандартный перенос строки
+      this.submitReply(); // Отправляем ответ
+    }
+    // Shift + Enter сработает штатно как перенос строки
+  }
+
+  submitReply(): void {
+    const content = this.replyContent().trim();
+    if (!content) return;
+
+    this.isSubmitting.set(true);
+    let finalContent = content.replace(`@${this.comment.authorName} `, '');
+
+    this.commentService.createComment({
+      taskId: this.taskId,
+      content: finalContent,
+      parentCommentId: this.comment.id
+    }).subscribe({
+      next: (newReply) => {
+        if (!this.comment.replies) this.comment.replies = [];
+        this.comment.replies.push(newReply);
+        this.replyContent.set('');
+        this.showReplyForm.set(false);
+        this.isSubmitting.set(false);
+      },
+      error: (err) => {
+        console.error(this.translocoService.translate('task.comments.errors.reply'), err);
+        this.isSubmitting.set(false);
+      }
+    });
+  }
+
+  formatDate(dateStr: string): string {
+    const date = new Date(dateStr);
+    const now = new Date();
+
+    const isToday = date.toDateString() === now.toDateString();
+    const isYesterday = new Date(now.getTime() - 86400000).toDateString() === date.toDateString();
+
+    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    if (isToday) {
+      return `${this.translocoService.translate('task.comments.dates.today')} в ${timeStr}`;
+    }
+    if (isYesterday) {
+      return `${this.translocoService.translate('task.comments.dates.yesterday')} в ${timeStr}`;
+    }
+
+    return `${date.toLocaleDateString()} в ${timeStr}`;
+  }
+
+  cancelEdit(): void {
+    this.editing.set(false);
+    this.editingContent.set('');
   }
 
   canEdit(): boolean {
@@ -42,11 +114,6 @@ export class CommentItem {
   startEdit(): void {
     this.editing.set(true);
     this.editingContent.set(this.comment.content);
-  }
-
-  cancelEdit(): void {
-    this.editing.set(false);
-    this.editingContent.set('');
   }
 
   saveEdit(): void {
@@ -72,61 +139,6 @@ export class CommentItem {
         },
         error: (err) => console.error('Ошибка удаления', err)
       });
-    }
-  }
-
-  toggleReplyForm(): void {
-    this.showReplyForm.set(!this.showReplyForm());
-    if (!this.showReplyForm()) {
-      this.replyContent.set('');
-    } else {
-      this.replyContent.set(`@${this.comment.authorName} `);
-    }
-  }
-
-  submitReply(): void {
-    const content = this.replyContent().trim();
-    if (!content) return;
-
-    this.isSubmitting.set(true);
-
-    let finalContent = content.replace(`@${this.comment.authorName} `, '');
-
-    this.commentService.createComment({
-      taskId: this.taskId,
-      content: finalContent,
-      parentCommentId: this.comment.id
-    }).subscribe({
-      next: (newReply) => {
-        if (!this.comment.replies) this.comment.replies = [];
-        this.comment.replies.push(newReply);
-        this.replyContent.set('');
-        this.showReplyForm.set(false);
-        this.isSubmitting.set(false);
-      },
-      error: (err) => {
-        console.error('Ошибка ответа', err);
-        this.isSubmitting.set(false);
-      }
-    });
-  }
-
-  formatDate(dateStr: string): string {
-    const date = new Date(dateStr);
-    const now = new Date();
-
-    // Сравниваем по датам (без времени)
-    const isToday = date.toDateString() === now.toDateString();
-    const isYesterday = new Date(now.getTime() - 86400000).toDateString() === date.toDateString();
-
-    const timeStr = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-
-    if (isToday) {
-      return timeStr;
-    } else if (isYesterday) {
-      return `Вчера ${timeStr}`;
-    } else {
-      return `${date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })} ${timeStr}`;
     }
   }
 }
