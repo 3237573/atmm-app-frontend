@@ -57,6 +57,12 @@ export class TaskService {
     return this.http.post<TaskAttachmentRO>(`${this.baseUrl}/${taskId}/attachments`, formData);
   }
 
+  downloadAttachment(attachmentId: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/attachments/${attachmentId}/download`, {
+      responseType: 'blob' // КРИТИЧЕСКИ ВАЖНО для скачивания файлов!
+    });
+  }
+
   deleteAttachment(attachmentId: string): Observable<{ success: boolean }> {
     return this.http.delete<{ success: boolean }>(`${this.baseUrl}/attachments/${attachmentId}`);
   }
