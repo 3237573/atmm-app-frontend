@@ -35,7 +35,7 @@
         <div class="attachment-chip" title="{{ file.filename }} ({{ formatFileSize(file.fileSize) }})">
           <i class="material-icons file-icon">{{ getFileIcon(file.fileType, file.filename) }}</i>
 
-          <a [href]="file.filePath" target="_blank" class="file-name">
+          <a href="javascript:void(0)" (click)="downloadAttachment(file.id, file.filename, $event)" class="file-name">
             {{ file.filename }}
           </a>
 

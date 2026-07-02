@@ -60,6 +60,35 @@ export class AttachmentManager implements OnInit {
     }
   }
 
+
+  downloadAttachment(id: string, filename: string, event: Event): void {
+    event.stopPropagation(); // Чтобы клик по файлу не вызывал другие события интерфейса
+
+    this.taskService.downloadAttachment(id).subscribe({
+      next: (blob: Blob) => {
+        // Создаем временную ссылку на бинарный объект в памяти браузера
+        const downloadUrl = window.URL.createObjectURL(blob);
+
+        // Создаем невидимый элемент <a> для симуляции скачивания
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = filename; // Подставляем оригинальное имя файла
+
+        // Кликаем по ссылке и удаляем её
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Освобождаем выделенную память браузера
+        window.URL.revokeObjectURL(downloadUrl);
+      },
+      error: (err) => {
+        console.error('Ошибка при скачивании зашифрованного файла:', err);
+        alert('Не удалось скачать файл. Возможно, сессия истекла или у вас нет прав.');
+      }
+    });
+  }
+
   // Unified method for validating and uploading a file
   private validateAndUploadFile(file: File): void {
     // 1. Checking the quantity limit (max. 3)
