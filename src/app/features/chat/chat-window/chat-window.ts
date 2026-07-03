@@ -12,12 +12,13 @@ import {ChatService} from '@core/services/chat/chat.service';
 
 import {ChatMessage, ChatRoomRO, WebSocketResponse} from '@core/models/chat.model';
 import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
+import {FilenamePipe} from '@core/pipes/file-name.pipe';
 
 
 @Component({
   selector: 'app-chat-window',
   standalone: true,
-  imports: [CommonModule, FormsModule, BackOnEscapeDirective, TranslocoPipe],
+  imports: [CommonModule, FormsModule, BackOnEscapeDirective, TranslocoPipe, FilenamePipe],
   templateUrl: './chat-window.html',
   styleUrls: ['./chat-window.scss']
 })
@@ -180,22 +181,20 @@ export class ChatWindow implements OnInit, OnDestroy {
 
   uploadFile(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length) {
+    if (input.files?.length) {
       this.chatService.uploadMedia(this.roomId(), input.files[0])
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: async (msg) => {
-            const decryptedMsg = await this.decryptSingleMessage(msg);
-            this.messages.update(prev => [...prev, decryptedMsg]);
-            this.scrollToBottomOnNextTick();
+          next:  (msg) => {
+            input.value = ''
           },
-          error: (err) => console.error('Ошибка загрузки файла:', err)
+          error: (err) => console.error('File upload error:', err)
         });
     }
   }
 
   // ==========================================
-  // КРИПТОГРАФИЯ И ДЕШИФРОВАНИЕ (E2EE НАСТОЯЩИЙ МУЛЬТИ-ДЕВАЙС)
+  // CRYPTOGRAPHY & DECRYPTION (E2EE TRUE MULTI-DEVICE)
   // ==========================================
   private async decryptSingleMessage(message: ChatMessage): Promise<ChatMessage> {
     if (!message.encrypted || !message.metadata) {
@@ -203,7 +202,7 @@ export class ChatWindow implements OnInit, OnDestroy {
     }
 
     try {
-      // 1. Получаем device_id именно ЭТОГО устройства из хранилища
+      // 1. Get the device_id of THIS particular device from the storage
       const myDeviceId = await this.encryptionService.getExistingDeviceId();
 
       // 2. Ищем в метаданных ключ, зашифрованный отправителем конкретно для нашего девайса

@@ -50,8 +50,8 @@
             }
             @case ('FILE') {
               @if (msg.mediaUrl) {
-                <a [href]="msg.mediaUrl" download class="file-link">
-                  📄 {{ 'chat.fileDownload' | transloco }}
+                <a [href]="msg.mediaUrl" target="_blank" rel="noopener noreferrer" class="file-link">
+                  📄 {{ msg.mediaUrl | filename }}
                 </a>
               }
             }

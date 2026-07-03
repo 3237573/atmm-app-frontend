@@ -22,6 +22,35 @@ export class EncryptionStorageService {
     });
   }
 
+  // Получить абсолютно все ключи из хранилища 'private_keys'
+  async getAllKeyEntries(): Promise<{ id: string; key: CryptoKey }[]> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('private_keys', 'readonly');
+      const store = tx.objectStore('private_keys');
+      const entries: { id: string; key: CryptoKey }[] = [];
+
+      const request = store.openCursor();
+      request.onsuccess = (event: any) => {
+        const cursor = event.target.result;
+        if (cursor) {
+          entries.push({
+            id: cursor.key as string,
+            value: cursor.value as CryptoKey
+          } as any); // Приводим типы для удобства
+          cursor.continue();
+        } else {
+          // Курсор дошел до конца, возвращаем массив
+          // Преобразуем структуру под удобный итерируемый формат
+          const mapped = entries.map((e: any) => ({ id: e.id, key: e.value }));
+          resolve(mapped);
+        }
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+
   // Работа с криптографическими ключами
   async saveKey(id: string, key: CryptoKey): Promise<void> {
     const db = await this.getDB();
