@@ -24,16 +24,83 @@ export class EncryptionService {
 
     // 2. Проверяем наличие Identity Key
     let identityKeyPrivate = await this.storage.getKey('identity_private');
-    if (!identityKeyPrivate) {
+    if (identityKeyPrivate) {
+      console.log(`[Olm E2EE] Устройство ${id} успешно инициализировано из локального хранилища. Проверяем синхронизацию...`);
+
+      // 🔥 AUTO-SYNCHRONIZATION: If the backend "forgot" the keys (after migrations/cleanup of the database),
+      // this call will make UPSERT and restore the encryption chain without user intervention.
+      try {
+        await this.reUploadExistingKeys();
+      } catch (error) {
+        console.error(`[Olm E2EE] Не удалось выполнить авто-синхронизацию ключей с сервером:`, error);
+      }
+    } else {
       console.log(`[Olm E2EE] Первичный запуск устройства ${id}. Генерируем Identity Key Bundle...`);
       await this.generateAndUploadNewKeys(25);
-    } else {
-      // Опционально: можно проверить на сервере, нужны ли еще One-Time Keys, и догрузить их
-      console.log(`[Olm E2EE] Устройство ${id} успешно инициализировано из локального хранилища.`);
     }
 
     return this.deviceId;
   }
+
+  // Перевыгрузка уже существующих в IndexedDB ключей на случай сброса БД сервера
+  async reUploadExistingKeys(): Promise<void> {
+    if (!this.deviceId) {
+      this.deviceId = await this.storage.getMetadata('device_id');
+    }
+
+    // 1. Вытягиваем все пары [id, CryptoKey] из локальной IndexedDB
+    const allKeyEntries = await this.storage.getAllKeyEntries();
+
+    let identityKeyB64: string | null = null;
+    const oneTimeKeysPublic: Record<string, string> = {};
+
+    // 2. Итерируемся по ключам и восстанавливаем их публичные части
+    for (const entry of allKeyEntries) {
+      try {
+        // Экспортируем приватный CryptoKey в сырой JSON-формат (JWK)
+        const jwk = await window.crypto.subtle.exportKey('jwk', entry.key);
+
+        // 🔥 КРИПТОГРАФИЧЕСКИЙ ЛАЙФХАК:
+        // Приватный JWK для ECDH P-256 содержит поля: kty, crv, x, y, d.
+        // Где "x" и "y" — это публичный ключ, а "d" — приватный.
+        // Просто удаляем "d" и превращаем ключ обратно в ПУБЛИЧНЫЙ!
+        delete jwk.d;
+        if (jwk.key_ops) {
+          delete jwk.key_ops; // Очищаем операции, так как у публичного ключа их нет при импорте
+        }
+
+        // Сериализуем и переводим в Base64, как этого ждет Ktor бэкенд
+        const publicB64 = btoa(JSON.stringify(jwk));
+
+        if (entry.id === 'identity_private') {
+          identityKeyB64 = publicB64;
+        } else if (entry.id.startsWith('otk_')) {
+          oneTimeKeysPublic[entry.id] = publicB64;
+        }
+      } catch (err) {
+        console.error(`[Olm E2EE] Ошибка восстановления публичной части для ключа ${entry.id}:`, err);
+      }
+    }
+
+    // Экстренный случай: если база IndexedDB была повреждена и identity_private там не оказалось
+    if (!identityKeyB64) {
+      console.warn(`[Olm E2EE] Локальный identity_private не найден в IndexedDB. Вынужденная генерация новых ключей.`);
+      await this.generateAndUploadNewKeys(25);
+      return;
+    }
+
+    // 3. Формируем payload, полностью идентичный первичному запросу
+    const payload: UploadKeysRequest = {
+      deviceId: this.deviceId!,
+      identityKey: identityKeyB64,
+      oneTimeKeys: oneTimeKeysPublic
+    };
+
+    // 4. Отправляем "пакет спасения" на бэкенд
+    await firstValueFrom(this.http.post('/v1/chat/e2ee/keys/upload', payload));
+    console.log(`[Olm E2EE] Синхронизация успешна. На бэкенд возвращено OTK ключей: ${Object.keys(oneTimeKeysPublic).length} шт.`);
+  }
+
 
   async getExistingDeviceId(): Promise<string> {
     if (!this.deviceId) {

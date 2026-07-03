@@ -399,3 +399,19 @@
     color: $success;
   }
 }
+
+@media (max-width: 576px) {
+  .comment-form {
+    flex-direction: column; // Выстраиваем аватар и поле друг под другом
+    align-items: stretch;
+    gap: 0.75rem;
+
+    .comment-avatar {
+      display: none; // На мобильных аватарку автора над постом можно скрыть для экономии высоты экрана
+    }
+
+    .comment-input-wrapper {
+      width: 100%; // Гарантируем растягивание на всю ширину
+    }
+  }
+}

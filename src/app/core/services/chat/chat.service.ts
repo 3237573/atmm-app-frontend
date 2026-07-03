@@ -1,7 +1,7 @@
 // core/services/chat.service.ts
-import {effect, inject, Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, firstValueFrom, Observable, Subject} from 'rxjs';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import {AuthService} from '../auth.service';
 import {
   ChatMessage,
