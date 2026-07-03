@@ -1,9 +1,27 @@
 @use "sass:color";
 @use "../../../../app" as *;
 
+// 1. Принудительно заставляем Angular-компонент вести себя как блок на 100% ширины
+:host {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+// Корневой контейнер ноды дерева
+.comment-node {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+// Ряд самого комментария (Аватар + Облако текста)
 .comment-item {
   display: flex;
   gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
 
   &.deleted {
     opacity: 0.5;
@@ -18,388 +36,296 @@
     justify-content: center;
     font-weight: 600;
     font-size: 0.85rem;
+    color: #fff;
     flex-shrink: 0;
   }
 
   .comment-content {
     flex: 1;
-    /* Вместо rgba($bg-card, 0.3) */
+    min-width: 0; // Запрещает флекс-контейнеру распирать ширину экрана длинными строками
     background: color-mix(in srgb, var(--bg-card), transparent 70%);
     border-radius: 0.75rem;
     padding: 0.6rem 1rem;
+    box-sizing: border-box;
   }
+}
 
-  .edit-input {
-    width: 100%;
-    padding: 0.5rem;
-    background: var(--bg-main);
-    border: 1px solid var(--border);
-    border-radius: 0.5rem;
-    color: var(--text-main);
-    font-size: 0.85rem;
-    margin-bottom: 0.5rem;
+// Текстовое поле редактирования
+.edit-input {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  color: var(--text-main);
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  box-sizing: border-box;
+  resize: vertical;
 
-    &:focus {
-      outline: none;
-      border-color: var(--accent);
+  &:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+}
+
+// Кнопки сохранения/отмены редактирования
+.edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+
+  button {
+    padding: 0.3rem 0.8rem;
+    border-radius: 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+
+    &.btn-cancel {
+      background: transparent;
+      color: var(--text-muted);
+      &:hover { background: rgba(255, 255, 255, 0.05); }
+    }
+
+    &.btn-save {
+      background: var(--accent);
+      color: #fff;
+      &:hover { background: color-mix(in srgb, var(--accent), #000 15%); }
     }
   }
-
-  .edit-actions {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
-  }
-
-  //.reply-form {
-  //  display: flex;
-  //  gap: 0.5rem;
-  //  margin-top: 0.75rem;
-  //  padding-top: 0.75rem;
-  //  border-top: 1px solid var(--border);
-  //
-  //  .reply-avatar {
-  //    width: 32px;
-  //    height: 32px;
-  //    border-radius: 0.5rem;
-  //    background: var(--accent);
-  //    display: flex;
-  //    align-items: center;
-  //    justify-content: center;
-  //    font-weight: 600;
-  //    font-size: 0.75rem;
-  //    flex-shrink: 0;
-  //  }
-  //
-  //  .reply-input-wrapper {
-  //    flex: 1;
-  //
-  //    .reply-input {
-  //      width: 100%;
-  //      padding: 0.5rem;
-  //      background: var(--bg-main);
-  //      border: 1px solid var(--border);
-  //      border-radius: 0.5rem;
-  //      color: var(--text-main);
-  //      font-size: 0.8rem;
-  //      resize: vertical;
-  //
-  //      &:focus { outline: none; border-color: var(--accent); }
-  //    }
-  //
-  //    .reply-actions {
-  //      display: flex;
-  //      gap: 0.5rem;
-  //      justify-content: flex-end;
-  //      margin-top: 0.5rem;
-  //    }
-  //  }
-  //}
-
-  .replies {
-    margin-top: 0.5rem;
-    margin-left: -3rem;
-    padding-left: 0.5rem;
-    border-left: 1px solid color-mix(in srgb, var(--border), transparent 70%);
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
 }
 
-.comment-line {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  flex: 1;
-
-  .comment-author {
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: var(--accent);
-  }
-
-  .comment-date {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-  }
-
-  .comment-edited {
-    font-size: 0.65rem;
-    color: var(--text-muted);
-    font-style: italic;
-  }
-
-  .comment-text {
-    font-size: 0.85rem;
-    color: var(--text-main);
-    flex: 1;
-    word-break: break-word;
-  }
-}
-
+// Шапка текста (Автор, дата, экшены)
 .comment-header-row {
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem;
   width: 100%;
 }
 
-.comment-buttons {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  flex-shrink: 0;
-}
+.comment-line {
+  font-size: 0.85rem;
+  color: var(--text-main);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word; // Жесткий перенос длинных слов/ссылок
+  flex: 1;
+  min-width: 0;
 
-.reply-btn, .edit-btn, .delete-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.7rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 0.375rem;
-  transition: all 0.2s;
-  white-space: nowrap;
-
-  i { font-size: 0.8rem; }
-  span { font-size: 0.7rem; }
-
-  &:hover {
-    transform: translateY(-1px);
+  .comment-author {
+    font-weight: 600;
+    margin-right: 0.25rem;
   }
-}
 
-.reply-btn {
-  color: var(--success);
-  background: color-mix(in srgb, var(--success), transparent 92%);
-
-  &:hover {
-    background: color-mix(in srgb, var(--success), transparent 80%);
-    color: color-mix(in srgb, var(--success), white 10%);
-  }
-}
-
-.edit-btn {
-  color: var(--accent);
-  background: color-mix(in srgb, var(--accent), transparent 92%);
-
-  &:hover {
-    background: color-mix(in srgb, var(--accent), transparent 80%);
-    color: color-mix(in srgb, var(--accent), white 10%);
-  }
-}
-
-.delete-btn {
-  color: var(--danger);
-  background: color-mix(in srgb, var(--danger), transparent 92%);
-
-  &:hover {
-    background: color-mix(in srgb, var(--danger), transparent 80%);
-    color: color-mix(in srgb, var(--danger), white 10%);
-  }
-}
-
-.btn-cancel-small, .btn-cancel {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  &:hover { background: color-mix(in srgb, var(--border), transparent 80%); }
-}
-
-.btn-save-small, .btn-save {
-  background: var(--accent);
-  border: none;
-  color: var(--bg-main);
-  &:hover { filter: brightness(1.1); }
-}
-
-.btn-submit-small {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.75rem;
-  background: var(--accent);
-  color: var(--bg-main);
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.7rem;
-  cursor: pointer;
-
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
-}
-
-.action-reply, .action-edit, .action-delete {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.375rem;
-  transition: all 0.2s;
-
-  i {
-    font-size: 1rem;
+  .comment-date {
     color: var(--text-muted);
+    font-size: 0.75rem;
+    margin-right: 0.25rem;
   }
 
-  &:hover {
-    background: color-mix(in srgb, var(--border), transparent 80%);
+  .comment-edited {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-style: italic;
+    margin-right: 0.25rem;
+  }
+
+  .comment-text {
+    white-space: pre-wrap;
   }
 }
 
-.action-reply:hover i { color: var(--success); }
-.action-edit:hover i { color: var(--accent); }
-.action-delete:hover i { color: var(--danger); }
-
-
-// Находим или добавляем блоки в comment-item.scss:
-
+// Блок системных кнопок (ответить, редактировать)
 .actions-wrapper {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  gap: 0.15rem;
+  flex-shrink: 0;
 
-  // Сама кнопка "Ответить" под текстом комментария теперь выглядит аккуратно
-  .btn-item-link {
+  .action-btn {
     background: transparent;
     border: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    color: var(--text-muted);
-    font-size: 0.8rem;
     cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.375rem;
-    transition: all 0.2s ease;
-
-    i {
-      font-size: 1rem;
-    }
+    color: var(--text-muted);
+    padding: 0.25rem;
+    border-radius: 0.35rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
 
     &:hover {
-      color: var(--accent);
-      background: color-mix(in srgb, var(--accent), transparent 92%);
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    i {
+      font-size: 1.1rem;
     }
   }
 }
 
-// Новая современная плашка формы ответа (Reply Form)
-.reply-form {
+// Интегрированная форма создания ответа
+.reply-form-integrated {
   display: flex;
   gap: 0.5rem;
-  margin-top: 0.75rem;
-  align-items: flex-end; // Выравнивание по нижней границе при росте поля
+  margin-top: 0.6rem;
+  align-items: flex-end;
+  width: 100%;
+  box-sizing: border-box;
 
   .reply-avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 0.5rem;
+    width: 24px;
+    height: 24px;
+    border-radius: 0.4rem;
     background: var(--accent);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
+    font-weight: 600;
     font-size: 0.75rem;
     color: #fff;
     flex-shrink: 0;
   }
+}
 
-  .reply-input-wrapper {
+.reply-input-wrapper {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.15rem 0.15rem;
+  align-items: flex-end;
+  box-sizing: border-box;
+
+  .reply-input {
     flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    padding: 0.25rem;
+    font-family: inherit;
+    font-size: 0.85rem;
+    min-height: 22px;
+    max-height: 100px;
+    overflow-y: auto;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+  }
+}
+
+.reply-actions-integrated {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.4rem;
+  margin-bottom: 0.15rem; // Чуть приподнимаем, чтобы центрировать по базовой линии
+  flex-shrink: 0;
+
+  button {
+    background: transparent;
+    border: none;
+    width: 24px;  // Уменьшили с 28px
+    height: 24px; // Уменьшили с 28px
     display: flex;
-    align-items: flex-end;
-    background: color-mix(in srgb, var(--border), transparent 85%); // Мягкая подложка
-    border: 1px solid transparent;
-    border-radius: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    transition: border-color 0.2s, background 0.2s;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.35rem; // Делаем скругление пропорциональным
+    cursor: pointer;
+    transition: all 0.2s;
 
-    &:focus-within {
-      background: var(--bg-main);
-      border-color: var(--accent); // Стильный фокус рамки
+    i {
+      font-size: 0.95rem; // Уменьшили размер самих иконок с 1.1rem
     }
 
-    .reply-input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: var(--text-main);
-      resize: none;
-      outline: none;
-      padding: 0.25rem;
-      font-family: inherit;
-      font-size: 0.85rem;
-      min-height: 20px;
-      max-height: 100px;
-      overflow-y: auto;
+    &.btn-cancel-icon {
+      color: var(--text-muted);
+      &:hover {
+        background: color-mix(in srgb, var(--danger), transparent 92%);
+        color: var(--danger);
+      }
     }
 
-    .reply-actions-integrated {
-      display: flex;
-      align-items: center;
-      gap: 0.15rem;
-      margin-left: 0.5rem;
-      margin-bottom: 0.1rem;
-
-      button {
-        background: transparent;
-        border: none;
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 0.5rem;
-        cursor: pointer;
-        transition: all 0.2s;
-
-        i {
-          font-size: 1.1rem;
-        }
-
-        // Кнопка отмены (крестик)
-        &.btn-cancel-icon {
-          color: var(--text-muted);
-          &:hover {
-            background: color-mix(in srgb, var(--danger), transparent 92%);
-            color: var(--danger);
-          }
-        }
-
-        // Кнопка отправки (самолетик)
-        &.btn-submit-icon {
-          color: var(--accent);
-
-          &:hover:not(:disabled) {
-            background: color-mix(in srgb, var(--accent), transparent 90%);
-          }
-
-          &:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            color: var(--text-muted);
-          }
-        }
+    &.btn-submit-icon {
+      color: var(--accent);
+      &:hover:not(:disabled) {
+        background: color-mix(in srgb, var(--accent), transparent 92%);
+      }
+      &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
       }
     }
   }
 }
 
-// Анимация вращения лоадера (если не была объявлена)
+// Анимация лоадера
 .spinning {
   animation: spin 1s linear infinite;
 }
+
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+// Контейнер вложенных ответов (Дерево обсуждения)
+.replies {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: auto;
+  box-sizing: border-box;
+
+  // Десктопное смещение: выравнивает ответы под текстовым блоком родителя
+  margin-left: 2.5rem;
+  margin-top: 0.5rem;
+  padding-left: 0.5rem;
+  border-left: 2px solid color-mix(in srgb, var(--border), transparent 60%);
+
+  app-comment-item {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+// Бронебойный мобильный адаптив
+@media (max-width: 768px) {
+  .comment-item {
+    gap: 0.5rem;
+  }
+
+  .comment-content {
+    padding: 0.5rem 0.75rem; // Чуть компактнее отступы серого облака
+  }
+
+  .comment-header-row {
+    flex-direction: column; // На мобильных имя и кнопки управления встают друг под друга
+    align-items: stretch;
+    gap: 0.25rem;
+  }
+
+  .comment-line {
+    display: block;
+    width: 100%;
+  }
+
+  .actions-wrapper {
+    justify-content: flex-end;
+    margin-top: 0.2rem;
+  }
+
+  // КЛЮЧЕВОЙ МОБИЛЬНЫЙ ФИКС: Уменьшаем левый сдвиг нити, полностью сохраняя правую сторону!
+  .replies {
+    margin-left: 0.75rem;
+    padding-left: 0.5rem;
+    margin-right: 0;
+    border-left: 2px solid color-mix(in srgb, var(--accent), transparent 75%);
+  }
 }
