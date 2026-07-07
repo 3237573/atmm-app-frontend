@@ -11,6 +11,7 @@ export class ReplaceMePipe implements PipeTransform {
   private readonly translocoService = inject(TranslocoService);
 
   transform(value: string | string[] | undefined): string {
+    console.log("Replace Me", value);
     if (!value || (Array.isArray(value) && value.length === 0)) {
       return this.translocoService.translate('member.notAssigned');
     }
