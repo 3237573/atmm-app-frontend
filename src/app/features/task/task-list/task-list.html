@@ -145,7 +145,7 @@
             <tr [routerLink]="['/tasks', 'edit', task.id]" class="task-row">
               <td class="col-task">
                 <div class="title-wrapper" [style.paddingLeft.px]="task.level * 20">
-                  @if ((task.subtasksCount || 0) > 0) {
+                  @if (!isFiltered() && (task.subtasksCount || 0) > 0) {
                     <i
                       class="material-icons node-toggle"
                       [class.open]="expandedNodes().has(task.id)"
@@ -216,7 +216,9 @@
               </td>
 
               <td class="col-creator">
-                <span class="creator-name">{{ task.creatorName | replaceMe }}</span>
+                <span class="creator-name">
+                  {{ task.creatorName | replaceMe }}
+                </span>
               </td>
 
               <td class="col-assignee">
@@ -285,6 +287,4 @@
       }
     </div>
   }
-
-
 </div>

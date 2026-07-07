@@ -48,7 +48,7 @@ export class TaskList implements OnInit {
   private readonly tasksInitialLoaded = signal(false);
 
   searchQuery = signal('');
-  selectedStatus = signal<string>(''); // Тип string, чтобы вместить 'OVERDUE'
+  selectedStatus = signal<string>('');
   selectedPriority = signal<string>('');
   expandedNodes = signal<Set<string>>(new Set());
 
@@ -67,14 +67,6 @@ export class TaskList implements OnInit {
     return tasks;
   });
 
-  private readonly parentMap = computed(() => {
-    const map = new Map<string, string | null>();
-    for (const task of this.flatTasks()) {
-      map.set(task.id, task.parentTaskId ?? null);
-    }
-    return map;
-  });
-
   stats = computed(() => {
     const tasks = this.flatTasks();
     const currentStats = { total: tasks.length, pending: 0, inProgress: 0, review: 0, completed: 0, overdue: 0, archived: 0 };
@@ -87,7 +79,7 @@ export class TaskList implements OnInit {
       else if (t.taskStatus === 'COMPLETED') currentStats.completed++;
       else if (t.taskStatus === 'ARCHIVED') currentStats.archived++;
 
-      if (t.dueDate && t.taskStatus !== 'COMPLETED') {
+      if (t.dueDate && t.taskStatus !== 'COMPLETED' && t.taskStatus !== 'ARCHIVED') {
         const dTime = new Date(t.dueDate).setHours(0, 0, 0, 0);
         if (dTime < todayTime) currentStats.overdue++;
       }
@@ -95,7 +87,6 @@ export class TaskList implements OnInit {
     return currentStats;
   });
 
-  // Динамическая конфигурация карточек для привязки событий клика
   statCardsConfig = computed(() => {
     const s = this.stats();
     return [
@@ -115,25 +106,21 @@ export class TaskList implements OnInit {
     const priority = this.selectedPriority();
 
     const matchedIds = new Set<string>();
-    const visibleIds = new Set<string>();
-    const parentMap = this.parentMap();
     const todayTime = new Date().setHours(0, 0, 0, 0);
+    const isFiltered = !!(query || taskStatus || priority);
 
     for (const task of tasks) {
-      // 1. Фильтр приоритета
       if (priority && task.priority !== priority) continue;
 
-      // 2. Умный фильтр статуса (включая обработку Просроченных)
       if (taskStatus) {
         if (taskStatus === 'OVERDUE') {
           const dTime = task.dueDate ? new Date(task.dueDate).setHours(0, 0, 0, 0) : null;
-          if (!dTime || dTime >= todayTime || task.taskStatus === 'COMPLETED') continue;
+          if (!dTime || dTime >= todayTime || task.taskStatus === 'COMPLETED' || task.taskStatus === 'ARCHIVED') continue;
         } else {
           if (task.taskStatus !== taskStatus) continue;
         }
       }
 
-      // 3. Фильтр по строке поиска
       if (query) {
         const titleMatch = task.title.toLowerCase().includes(query);
         const descMatch = (task.description || '').toLowerCase().includes(query);
@@ -142,19 +129,13 @@ export class TaskList implements OnInit {
       matchedIds.add(task.id);
     }
 
-    for (const id of matchedIds) {
-      let current: string | null = id;
-      while (current) {
-        visibleIds.add(current);
-        current = parentMap.get(current) ?? null;
-      }
-    }
-
-    return { matchedIds, visibleIds, isFiltered: !!(query || taskStatus || priority) };
+    return { matchedIds, isFiltered };
   });
 
+  isFiltered = computed(() => this.filteredTaskSets().isFiltered);
+
   visibleTasks = computed(() => {
-    const { visibleIds, isFiltered } = this.filteredTaskSets();
+    const { matchedIds, isFiltered } = this.filteredTaskSets();
     const expanded = this.expandedNodes();
     const currentLang = this.languageService.language();
     const result: RenderTask[] = [];
@@ -173,29 +154,42 @@ export class TaskList implements OnInit {
       return { dateClass: 'future' as const, formattedDate };
     };
 
-    const traverse = (trees: TaskTreeRO[], level: number) => {
-      for (const node of trees) {
-        const task = node.task;
-        if (!visibleIds.has(task.id)) continue;
-
-        const dateInfo = parseDateInfo(task.dueDate);
-        result.push({
-          ...task,
-          level,
-          dateClass: dateInfo.dateClass,
-          formattedDate: dateInfo.formattedDate
-        });
-
-        const isNodeExpanded = expanded.has(task.id) || (isFiltered && visibleIds.has(task.id));
-
-        if (isNodeExpanded && node.subtasks?.length) {
-          traverse(node.subtasks, level + 1);
+    // Если есть фильтрация - выводим исключительно подходящие задачи списком
+    if (isFiltered) {
+      const tasks = this.flatTasks();
+      for (const task of tasks) {
+        if (matchedIds.has(task.id)) {
+          const dateInfo = parseDateInfo(task.dueDate);
+          result.push({
+            ...task,
+            level: 0, // Сбрасываем иерархические отступы
+            dateClass: dateInfo.dateClass,
+            formattedDate: dateInfo.formattedDate
+          });
         }
       }
-    };
+      return this.sortTasks(result, true); // Передаем флаг плоской сортировки
+    } else {
+      // Иначе - стандартный обход дерева
+      const traverse = (trees: TaskTreeRO[], level: number) => {
+        for (const node of trees) {
+          const task = node.task;
+          const dateInfo = parseDateInfo(task.dueDate);
+          result.push({
+            ...task,
+            level,
+            dateClass: dateInfo.dateClass,
+            formattedDate: dateInfo.formattedDate
+          });
 
-    traverse(this.taskTrees(), 0);
-    return this.sortHierarchy(result);
+          if (expanded.has(task.id) && node.subtasks?.length) {
+            traverse(node.subtasks, level + 1);
+          }
+        }
+      };
+      traverse(this.taskTrees(), 0);
+      return this.sortTasks(result, false);
+    }
   });
 
   filteredFlatTasks = computed(() => {
@@ -235,7 +229,6 @@ export class TaskList implements OnInit {
       this.searchQuery.set(state.searchQuery ?? '');
 
       const savedStatus = state.selectedStatus || '';
-      // Проверяем валидность статуса, разрешая OVERDUE
       const isValid = savedStatus === 'OVERDUE' || savedStatus === '' || TASK_STATUS_LIST.includes(savedStatus as TaskStatus);
       this.selectedStatus.set(isValid ? savedStatus : '');
 
@@ -279,14 +272,7 @@ export class TaskList implements OnInit {
     });
   }
 
-  private sortHierarchy(tasks: RenderTask[]): RenderTask[] {
-    const childrenMap = new Map<string | null, RenderTask[]>();
-    for (const task of tasks) {
-      const parentId = task.parentTaskId ?? null;
-      if (!childrenMap.has(parentId)) childrenMap.set(parentId, []);
-      childrenMap.get(parentId)!.push(task);
-    }
-
+  private sortTasks(tasks: RenderTask[], isFlat: boolean): RenderTask[] {
     const col = this.sortColumn();
     const dir = this.sortDirection();
     const modifier = dir === 'asc' ? 1 : -1;
@@ -301,6 +287,7 @@ export class TaskList implements OnInit {
           break;
         case 'status':
         case 'priority':
+        case 'taskStatus':
           aVal = a[col];
           bVal = b[col];
           break;
@@ -311,8 +298,8 @@ export class TaskList implements OnInit {
           bVal = (b[col as keyof RenderTask] as string || '').toLowerCase();
           break;
         case 'assigneeNames':
-          aVal = (a.assigneeNames?.[0] || '').toLowerCase();
-          bVal = (b.assigneeNames?.[0] || '').toLowerCase();
+          aVal = (a.assigneeNames || '').toLowerCase();
+          bVal = (b.assigneeNames || '').toLowerCase();
           break;
         default:
           aVal = a.title.toLowerCase();
@@ -322,6 +309,25 @@ export class TaskList implements OnInit {
       if (aVal > bVal) return 1 * modifier;
       return 0;
     };
+
+    if (isFlat) {
+      return [...tasks].sort(compare);
+    }
+
+// 1. Собираем ID всех задач, которые у нас физически есть на руках
+    const presentTaskIds = new Set(tasks.map(t => t.id));
+    const childrenMap = new Map<string | null, RenderTask[]>();
+
+    for (const task of tasks) {
+      // 2. Если parentTaskId указан, но самой родительской задачи в списке нет,
+      // привязываем её к корню (null), чтобы она не исчезла
+      const parentId = (task.parentTaskId && presentTaskIds.has(task.parentTaskId))
+        ? task.parentTaskId
+        : null;
+
+      if (!childrenMap.has(parentId)) childrenMap.set(parentId, []);
+      childrenMap.get(parentId)!.push(task);
+    }
 
     const sortAndFlatten = (parentId: string | null): RenderTask[] => {
       const children = childrenMap.get(parentId) || [];
@@ -366,13 +372,13 @@ export class TaskList implements OnInit {
   }
 
   getStatusClass(status: string): string {
-    if (status === 'OVERDUE') return 'status-overdue'; // Добавлено для OVERDUE
+    if (status === 'OVERDUE') return 'status-overdue';
     return TASK_STATUS_CONFIG[status as TaskStatus]?.class || '';
   }
 
   getFilterStatusClass(status: string): string {
     if (!status) return '';
-    if (status === 'OVERDUE') return 'status-overdue'; // Добавлено для OVERDUE
+    if (status === 'OVERDUE') return 'status-overdue';
     return TASK_STATUS_CONFIG[status as TaskStatus]?.class || '';
   }
 
