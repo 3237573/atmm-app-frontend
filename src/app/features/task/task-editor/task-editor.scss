@@ -27,9 +27,7 @@
     min-width: 32px;
     height: 32px;
 
-    i {
-      font-size: 1.1rem;
-    }
+    i { font-size: 1.1rem; }
 
     &:hover:not(:disabled) {
       background: rgba($accent, 0.1);
@@ -66,20 +64,9 @@
     cursor: pointer;
     transition: all 0.2s;
 
-    &:hover {
-      background: rgba($accent, 0.1);
-    }
-
-    i {
-      position: absolute;
-      pointer-events: none;
-      font-size: 1.1rem;
-      color: $text-muted;
-    }
-
-    &:hover i {
-      color: $accent;
-    }
+    &:hover { background: rgba($accent, 0.1); }
+    i { position: absolute; pointer-events: none; font-size: 1.1rem; color: $text-muted; }
+    &:hover i { color: $accent; }
 
     .color-input {
       position: absolute;
@@ -107,133 +94,40 @@
     outline: none;
     min-height: 150px;
     color: $text-main;
-    padding: 0.75rem;
+    padding: 0.5rem 1rem 0.5rem 1.75rem;
 
-    p {
-      margin: 0 0 0.5rem;
-      line-height: 1.5;
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-      margin: 0.5rem 0;
-      font-weight: 600;
-    }
-
-    // ── Lists (nested) ──
-    ul, ol {
-      padding-left: 1.5rem;
-      margin: 0.5rem 0;
-
-      li {
-        margin: 0.25rem 0;
-
-        // Вложенные списки
-        ul, ol {
-          margin: 0.25rem 0;
-        }
-
-        p {
-          margin: 0;
-        }
-      }
-    }
-
-    // ── Blockquote ──
-    blockquote {
-      border-left: 3px solid $accent;
-      margin: 0.5rem 0;
-      padding-left: 1rem;
-      color: $text-muted;
-    }
-
-    // ── Link ──
+    p { margin: 0 0 0.25rem; line-height: 1.5; }
+    h1, h2, h3, h4, h5, h6 { margin: 0.75rem 0 0.5rem; font-weight: 600; line-height: 1.2; }
+    // ── Стилизация ссылок ──
     a {
-      color: $accent;
+      color: $accent; // Использует основной акцентный голубой/синий цвет приложения
       text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: opacity 0.2s ease, color 0.2s ease;
       cursor: pointer;
-      transition: opacity 0.2s ease-in-out;
 
       &:hover {
         opacity: 0.8;
       }
     }
 
-    // ── Underline ──
-    u {
-      text-decoration: underline;
-    }
 
-    // ── Inline code ──
-    code {
-      background: rgba($border, 0.3);
-      padding: 0.15em 0.35em;
-      border-radius: 0.25rem;
-      font-family: 'Fira Code', 'Consolas', monospace;
-      font-size: 0.9em;
-    }
-
-    // ── Code block ──
-    pre {
-      background: rgba($border, 0.2);
-      padding: 0.75rem;
-      border-radius: 0.5rem;
-      overflow-x: auto;
-      margin: 0.5rem 0;
-
-      code {
-        background: none;
-        padding: 0;
-        font-size: 0.85em;
-      }
-    }
-
-    // ── Highlight (background color) ──
-    mark.tiptap-highlight {
-      border-radius: 0.25em;
-      padding: 0.05em 0.15em;
-      box-decoration-break: clone;
-      -webkit-box-decoration-break: clone;
-    }
-
-    // ── Horizontal rule ──
-    hr {
-      border: none;
-      border-top: 1px solid $border;
-      margin: 1rem 0;
-    }
-
-    // ── Image ──
-    img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 0.5rem;
-      display: block;
-      margin: 0.5rem 0;
-    }
-
-    // ── Toggle List (Details) ──
+    // ── Toggle List ──
     details.tiptap-details {
-      border: 1px solid rgba($border, 0.5);
-      border-radius: 0.5rem;
-      margin: 0.75rem 0;
-      background-color: rgba($bg-main, 0.5);
-      transition: background-color 0.2s;
+      margin: 0;
 
-      &[open] {
-        background-color: transparent;
-      }
+      &[open] { background-color: transparent; }
 
       summary {
-        font-weight: 600;
+        font-weight: 500;
         cursor: pointer;
         outline: none;
-        padding: 0.5rem 0.75rem;
-        border-radius: 0.5rem;
+        padding: 2px 4px;
+        border-radius: 4px;
         display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        align-items: flex-start;
+        gap: 6px;
         list-style: none;
-        -webkit-user-select: none;
         user-select: none;
 
         &::before {
@@ -242,25 +136,23 @@
           color: $text-muted;
           transition: transform 0.2s ease;
           display: inline-block;
+          margin-top: 0.35em;
+          flex-shrink: 0;
         }
 
-        &::-webkit-details-marker {
-          display: none;
-        }
-
-        &:hover {
-          background-color: rgba($border, 0.2);
-        }
+        &::-webkit-details-marker { display: none; }
+        &:hover { background-color: rgba($border, 0.15); }
       }
 
-      &[open] > summary::before {
-        transform: rotate(90deg);
-      }
+      &[open] > summary::before { transform: rotate(90deg); }
 
       div[data-type="detailsContent"] {
-        padding: 0.25rem 0.75rem 0.75rem 2rem;
-        border-left: 2px solid rgba($accent, 0.3);
-        margin-left: 0.85rem;
+        padding: 0 0 0 1.25rem;
+        margin: 0;
+
+        > *:last-child {
+          margin-bottom: 0;
+        }
       }
     }
   }

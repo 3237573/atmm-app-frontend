@@ -1,257 +1,407 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  Input,
-  OnDestroy,
-  signal,
-  ViewChild,
-  inject
-} from '@angular/core';
-import {Editor} from '@tiptap/core';
+import {ChangeDetectionStrategy, Component, computed, effect, ElementRef, input, model, OnDestroy, OnInit, output, signal, viewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Editor, mergeAttributes, Node} from '@tiptap/core';
+import {Selection} from '@tiptap/pm/state'; // Исправление для TS2339: Импорт Selection
 import StarterKit from '@tiptap/starter-kit';
-import BulletList from '@tiptap/extension-bullet-list';
-import OrderedList from '@tiptap/extension-ordered-list';
-import ListItem from '@tiptap/extension-list-item';
-import Link from '@tiptap/extension-link';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
-import Image from '@tiptap/extension-image';
 import {TextStyle} from '@tiptap/extension-text-style';
-import Color from '@tiptap/extension-color';
+import {Color} from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
-import {Details, DetailsSummary, DetailsContent} from '@tiptap/extension-details';
+import Link from '@tiptap/extension-link';
+import Image from '@tiptap/extension-image';
+import { inject } from '@angular/core';
+import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 
-// ═══════════════════════════════════════════════════
-// 1. Кастомный ListItem со встроенными Tab / Shift+Tab
-// ═══════════════════════════════════════════════════
-const TaskListItem = ListItem.extend({
+// ─────────────────────────────────────────────────────────────────
+// Custom Notion-style Toggle Extensions (Clean & Stable)
+// ─────────────────────────────────────────────────────────────────
+
+export const DetailsSummary = Node.create({
+  name: 'detailsSummary',
+  group: 'block',
+  content: 'inline*',
+  defining: true,
+
+  parseHTML() {
+    return [{tag: 'summary'}];
+  },
+  renderHTML({HTMLAttributes}) {
+    return ['summary', mergeAttributes(HTMLAttributes), 0];
+  },
+
   addKeyboardShortcuts() {
     return {
-      Tab: () => this.editor.commands.sinkListItem('listItem'),
-      'Shift-Tab': () => this.editor.commands.liftListItem('listItem'),
+      Enter: () => this.editor.commands.command(({state, tr, dispatch}) => {
+        const {selection} = state;
+        const {$from, empty} = selection;
+        if (!empty || $from.parent.type.name !== this.name) return false;
+
+        const detailsContentPos = $from.after($from.depth);
+        if (dispatch) {
+          const $pos = state.doc.resolve(detailsContentPos + 1);
+          tr.setSelection(Selection.near($pos));
+          dispatch(tr);
+        }
+        return true;
+      }),
     };
   },
 });
 
+export const DetailsContent = Node.create({
+  name: 'detailsContent',
+  group: 'block',
+  content: 'block+',
+  defining: true,
+  parseHTML() {
+    return [{tag: 'div[data-type="detailsContent"]'}];
+  },
+  renderHTML({HTMLAttributes}) {
+    return ['div', mergeAttributes(HTMLAttributes, {'data-type': 'detailsContent'}), 0];
+  },
+});
+
+export const Details = Node.create({
+  name: 'details',
+  group: 'block',
+  content: 'detailsSummary detailsContent',
+  defining: true,
+  isolating: true,
+
+  addAttributes() {
+    return {
+      open: {
+        default: true,
+        parseHTML: (element) => element.hasAttribute('open'),
+        renderHTML: (attributes) => (attributes['open'] ? { open: 'true' } : {}),
+      },
+    };
+  },
+
+  parseHTML() {
+    return [{ tag: 'details.tiptap-details' }, { tag: 'details' }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['details', mergeAttributes(HTMLAttributes, { class: 'tiptap-details' }), 0];
+  },
+
+  addNodeView() {
+    return ({ node, getPos, editor }) => {
+      const dom = document.createElement('details');
+      dom.classList.add('tiptap-details');
+
+      if (node.attrs['open']) {
+        dom.setAttribute('open', '');
+      }
+
+      // 💡 НАДЕЖНЫЙ ПЕРЕХВАТ КЛИКА С ЗАЩИТОЙ ОТ ВСПЛЫТИЯ
+      dom.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+
+        // Находим ближайшие к месту клика теги
+        const closestSummary = target.closest('summary');
+        const closestDetails = target.closest('details');
+
+        // Проверяем:
+        // 1. Клик был по summary
+        // 2. Этот summary принадлежит ИМЕННО ЭТОМУ узлу (closestDetails === dom), а не вложенному
+        // 3. Редактор активен
+        if (closestSummary && closestDetails === dom && editor.isEditable) {
+          e.preventDefault(); // Блокируем нативное открытие
+
+          const pos = typeof getPos === 'function' ? getPos() : undefined;
+          if (pos !== undefined) {
+            editor.view.dispatch(
+              editor.state.tr.setNodeMarkup(pos, undefined, {
+                ...node.attrs,
+                open: !node.attrs['open']
+              })
+            );
+          }
+        }
+      });
+
+      return {
+        dom,
+        contentDOM: dom,
+        update: (updatedNode) => {
+          if (updatedNode.type.name !== node.type.name) return false;
+          node = updatedNode;
+
+          if (node.attrs['open']) {
+            dom.setAttribute('open', '');
+          } else {
+            dom.removeAttribute('open');
+          }
+          return true;
+        },
+      };
+    };
+  },
+});
+
+// ─────────────────────────────────────────────────────────────────
+// Main Component
+// ─────────────────────────────────────────────────────────────────
+
 @Component({
   selector: 'app-task-editor',
   standalone: true,
+  imports: [CommonModule, TranslocoModule],
   templateUrl: './task-editor.html',
   styleUrls: ['./task-editor.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TaskEditorComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('editorContainer', {read: ElementRef})
-  editorContainer!: ElementRef<HTMLDivElement>;
+export class TaskEditorComponent implements OnInit, OnDestroy {
+  private readonly transloco = inject(TranslocoService);
 
-  editor = signal<Editor | undefined>(undefined);
-  editing = signal(false);
-  loading = signal(true);
+  readonly editable = input<boolean>(false);
+  readonly editingInput = input<boolean>(false, {alias: 'editing'});
+  readonly editing = computed(() => this.editable() || this.editingInput());
 
-  private readonly cdr = inject(ChangeDetectorRef);
-  private _initialContent = '';
+  readonly initialContent = input<string>('');
+  readonly value = model<string>('');
+  readonly contentChange = output<string>();
 
-  @Input() set editable(v: boolean) {
-    this.editing.set(v);
-    const ed = this.editor();
-    if (ed) ed.setEditable(v);
-  }
+  readonly editorContainer = viewChild<ElementRef<HTMLDivElement>>('editorContainer');
+  readonly editor = signal<Editor | null>(null);
 
-  @Input() set initialContent(val: string) {
-    this._initialContent = val;
-    if (this.editor()) this.setContent(val);
-  }
+  private readonly selectionTick = signal<number>(0);
 
-  get initialContent(): string {
-    return this._initialContent;
-  }
-
-  ngAfterViewInit(): void {
-    if (!this.editorContainer?.nativeElement) return;
-
-    // Замыкание для editorProps.handleKeyDown (editor ещё не создан)
-    let editorRef: Editor | undefined;
-
-    const instance = new Editor({
-      element: this.editorContainer.nativeElement,
-
-      extensions: [
-        // 2. StarterKit БЕЗ списков — подключаем их вручную ниже
-        StarterKit.configure({
-          bulletList: false,
-          orderedList: false,
-          listItem: false,
-          heading: {levels: [1, 2, 3]},
-        }),
-
-        // 3. Явно подключаем списки с кастомным ListItem
-        BulletList.configure({itemTypeName: 'listItem'}),
-        OrderedList.configure({itemTypeName: 'listItem'}),
-        TaskListItem,
-
-        Underline,
-        TextAlign.configure({types: ['heading', 'paragraph']}),
-        Link.configure({
-          openOnClick: false,
-          autolink: true,
-          defaultProtocol: 'https'
-        }),
-        Image.configure({allowBase64: true}),
-
-        // 4. TextStyle ОБЯЗАТЕЛЬНО перед Color
-        TextStyle,
-        Color,
-
-        Highlight.configure({
-          multicolor: true,
-          HTMLAttributes: {class: 'tiptap-highlight'}
-        }),
-
-        Details.configure({
-          persist: true,
-          HTMLAttributes: {class: 'tiptap-details'}
-        }),
-        DetailsSummary,
-        DetailsContent,
-      ],
-
-      content: this.parseContent(this.initialContent),
-      editable: this.editing(),
-
-      onTransaction: () => this.cdr.detectChanges(),
-
-      // 5. Fallback: Tab / Shift+Tab на уровне редактора (надёжнее, чем только addKeyboardShortcuts)
-      editorProps: {
-        handleKeyDown: (view, event) => {
-          if (event.key === 'Tab' && editorRef) {
-            const handled = event.shiftKey
-              ? editorRef.can().liftListItem('listItem') && editorRef.commands.liftListItem('listItem')
-              : editorRef.can().sinkListItem('listItem') && editorRef.commands.sinkListItem('listItem');
-
-            if (handled) {
-              event.preventDefault();
-              return true;
-            }
-          }
-          return false;
-        }
+  constructor() {
+    effect(() => {
+      const isEditable = this.editing();
+      const ed = this.editor();
+      if (ed && ed.isEditable !== isEditable) {
+        ed.setEditable(isEditable);
       }
     });
 
-    editorRef = instance;
-    this.editor.set(instance);
-    this.loading.set(false);
+    effect(() => {
+      const content = this.initialContent() || this.value();
+      const ed = this.editor();
+      if (ed && content !== ed.getHTML() && !ed.isFocused) {
+        ed.commands.setContent(content, {emitUpdate: false});
+      }
+    });
   }
 
-  private parseContent(raw: string): any {
-    if (!raw) return '';
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return raw;
-    }
+  ngOnInit(): void {
+    const container = this.editorContainer()?.nativeElement;
+    if (!container) return;
+
+    const initialValue = this.initialContent() || this.value() || '';
+
+    const editorInstance = new Editor({
+      element: container,
+      editable: this.editing(),
+      content: initialValue,
+      extensions: [
+        StarterKit.configure({
+          heading: {levels: [1, 2, 3]},
+        }),
+        Underline,
+        TextStyle,
+        Color,
+        Highlight.configure({multicolor: true}),
+        TextAlign.configure({types: ['heading', 'paragraph']}),
+        Link.configure({
+          openOnClick: false,
+          HTMLAttributes: {target: '_blank', rel: 'noopener noreferrer'},
+        }),
+        Image,
+        Details,
+        DetailsSummary,
+        DetailsContent,
+      ],
+      onUpdate: ({editor}) => {
+        const html = editor.getHTML();
+        this.value.set(html);
+        this.contentChange.emit(html);
+      },
+      onSelectionUpdate: () => this.selectionTick.update(v => v + 1),
+      onTransaction: () => this.selectionTick.update(v => v + 1)
+    });
+
+    this.editor.set(editorInstance);
   }
 
-  setContent(raw: string): void {
-    const ed = this.editor();
-    if (!ed) return;
-    ed.commands.setContent(this.parseContent(raw));
+  ngOnDestroy(): void {
+    this.editor()?.destroy();
   }
 
-  getHTML(): string {
-    return this.editor()?.getHTML() ?? '';
+  // Восстановленные методы, необходимые для task-detail.ts
+  public getHTML(): string {
+    return this.editor()?.getHTML() || '';
   }
 
-  getJSON(): string {
-    return JSON.stringify(this.editor()?.getJSON() ?? {});
+  public setContent(content: string): void {
+    this.editor()?.commands.setContent(content, {emitUpdate: false});
   }
 
-  // ─── Colors ───
-
-  getTextColor(): string {
-    const ed = this.editor();
-    if (!ed) return '#000000';
-    const attrs = ed.getAttributes('textStyle') as Record<string, any>;
-    return attrs?.['color'] || '#000000';
+  undo(): void {
+    this.editor()?.chain().focus().undo().run();
   }
 
-  getHighlightColor(): string {
-    const ed = this.editor();
-    if (!ed) return '#ffff00';
-    const attrs = ed.getAttributes('highlight') as Record<string, any>;
-    return attrs?.['color'] || '#ffff00';
+  canUndo(): boolean {
+    this.selectionTick();
+    return !!this.editor()?.can().undo();
   }
 
-  setHighlightColor(color: string): void {
-    this.editor()?.chain().focus().setHighlight({color}).run();
+  redo(): void {
+    this.editor()?.chain().focus().redo().run();
   }
 
-  // ─── Link & Image ───
-
-  setLink(): void {
-    const ed = this.editor();
-    if (!ed) return;
-    const previousUrl = ed.getAttributes('link')['href'] || '';
-    const url = window.prompt('Введите URL ссылки:', previousUrl);
-    if (url === null) return;
-    if (url === '') {
-      ed.chain().focus().extendMarkRange('link').unsetLink().run();
-      return;
-    }
-    ed.chain().focus().extendMarkRange('link').setLink({href: url}).run();
+  canRedo(): boolean {
+    this.selectionTick();
+    return !!this.editor()?.can().redo();
   }
 
-  setImage(): void {
-    const ed = this.editor();
-    if (!ed) return;
-    const url = window.prompt('Введите URL изображения:');
-    if (!url) return;
-    ed.chain().focus().setImage({src: url}).run();
+  toggleBold(): void {
+    this.editor()?.chain().focus().toggleBold().run();
   }
 
-  // ─── Lists (Nested) ───
-
-  canIndent(): boolean {
-    return this.editor()?.can().sinkListItem('listItem') ?? false;
+  toggleItalic(): void {
+    this.editor()?.chain().focus().toggleItalic().run();
   }
 
-  canOutdent(): boolean {
-    return this.editor()?.can().liftListItem('listItem') ?? false;
+  toggleUnderline(): void {
+    this.editor()?.chain().focus().toggleUnderline().run();
+  }
+
+  toggleStrike(): void {
+    this.editor()?.chain().focus().toggleStrike().run();
+  }
+
+  toggleCode(): void {
+    this.editor()?.chain().focus().toggleCode().run();
+  }
+
+  toggleHeading(level: 1 | 2 | 3): void {
+    this.editor()?.chain().focus().toggleHeading({level}).run();
+  }
+
+  setAlign(alignment: 'left' | 'center' | 'right'): void {
+    this.editor()?.chain().focus().setTextAlign(alignment).run();
+  }
+
+  isAlignActive(alignment: string): boolean {
+    this.selectionTick();
+    return !!this.editor()?.isActive({textAlign: alignment});
+  }
+
+  toggleBulletList(): void {
+    this.editor()?.chain().focus().toggleBulletList().run();
+  }
+
+  toggleOrderedList(): void {
+    this.editor()?.chain().focus().toggleOrderedList().run();
   }
 
   indent(): void {
     this.editor()?.chain().focus().sinkListItem('listItem').run();
   }
 
+  canIndent(): boolean {
+    this.selectionTick();
+    return !!this.editor()?.can().sinkListItem('listItem');
+  }
+
   outdent(): void {
     this.editor()?.chain().focus().liftListItem('listItem').run();
   }
 
-  // ─── Details / Toggle List ───
+  canOutdent(): boolean {
+    this.selectionTick();
+    return !!this.editor()?.can().liftListItem('listItem');
+  }
+
+  getTextColor(): string {
+    this.selectionTick();
+    const color = this.editor()?.getAttributes('textStyle')['color'];
+    return color || '#000000';
+  }
+
+  setTextColor(color: string): void {
+    if (color) this.editor()?.chain().focus().setColor(color).run();
+  }
+
+  getHighlightColor(): string {
+    this.selectionTick();
+    const color = this.editor()?.getAttributes('highlight')['color'];
+    return color || '#ffff00';
+  }
+
+  setHighlightColor(color: string): void {
+    if (color) this.editor()?.chain().focus().setHighlight({color}).run();
+  }
+
+  toggleBlockquote(): void {
+    this.editor()?.chain().focus().toggleBlockquote().run();
+  }
+
+  toggleCodeBlock(): void {
+    this.editor()?.chain().focus().toggleCodeBlock().run();
+  }
+
+  setLink(): void {
+    const previousUrl = this.editor()?.getAttributes('link')['href'];
+    // ИСПОЛЬЗУЕМ ПЕРЕВОД:
+    const url = window.prompt(this.transloco.translate('task.editor.promptLink'), previousUrl);
+    if (url === null) return;
+    if (url === '') {
+      this.editor()?.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+    this.editor()?.chain().focus().extendMarkRange('link').setLink({href: url}).run();
+  }
+
+  setImage(): void {
+    // ИСПОЛЬЗУЕМ ПЕРЕВОД:
+    const url = window.prompt(this.transloco.translate('task.editor.promptImage'));
+    if (url) this.editor()?.chain().focus().setImage({src: url}).run();
+  }
+
+  setHR(): void {
+    this.editor()?.chain().focus().setHorizontalRule().run();
+  }
+
+  clearFormatting(): void {
+    this.editor()?.chain().focus().unsetAllMarks().clearNodes().run();
+  }
 
   toggleDetails(): void {
     const ed = this.editor();
     if (!ed) return;
-    if (ed.isActive('details')) {
-      ed.chain().focus().unsetDetails().run();
-    } else {
-      ed.chain().focus().setDetails().run();
-    }
-  }
 
-  clearFormatting(): void {
-    this.editor()?.chain().focus().clearNodes().unsetAllMarks().run();
-  }
+    const {state} = ed;
+    const {selection} = state;
 
-  reset(): void {
-    this.editor()?.destroy();
-    this.editor.set(undefined);
-  }
+    const selectedText = state.doc.textBetween(selection.from, selection.to, ' ').trim();
+    // ИСПОЛЬЗУЕМ ПЕРЕВОД ДЛЯ ДЕФОЛТНОГО ТЕКСТА:
+    const summaryText = selectedText || this.transloco.translate('task.editor.hiddenList');
 
-  ngOnDestroy(): void {
-    this.reset();
+    ed.chain()
+      .focus()
+      .deleteSelection()
+      .insertContent({
+        type: 'details',
+        attrs: {open: true},
+        content: [
+          {
+            type: 'detailsSummary',
+            content: [{type: 'text', text: summaryText}]
+          },
+          {
+            type: 'detailsContent',
+            content: [
+              {type: 'paragraph'}
+            ]
+          }
+        ]
+      })
+      .run();
   }
 }
