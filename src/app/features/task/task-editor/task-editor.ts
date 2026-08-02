@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, computed, effect, ElementRef, input, model, OnDestroy, OnInit, output, signal, viewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Editor, mergeAttributes, Node} from '@tiptap/core';
-import {Selection} from '@tiptap/pm/state'; // Исправление для TS2339: Импорт Selection
+import {Selection} from '@tiptap/pm/state';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
@@ -10,6 +10,9 @@ import {Color} from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
+import Mention from '@tiptap/extension-mention';
 import { inject } from '@angular/core';
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 
@@ -96,20 +99,14 @@ export const Details = Node.create({
         dom.setAttribute('open', '');
       }
 
-      // 💡 НАДЕЖНЫЙ ПЕРЕХВАТ КЛИКА С ЗАЩИТОЙ ОТ ВСПЛЫТИЯ
       dom.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
 
-        // Находим ближайшие к месту клика теги
         const closestSummary = target.closest('summary');
         const closestDetails = target.closest('details');
 
-        // Проверяем:
-        // 1. Клик был по summary
-        // 2. Этот summary принадлежит ИМЕННО ЭТОМУ узлу (closestDetails === dom), а не вложенному
-        // 3. Редактор активен
         if (closestSummary && closestDetails === dom && editor.isEditable) {
-          e.preventDefault(); // Блокируем нативное открытие
+          e.preventDefault();
 
           const pos = typeof getPos === 'function' ? getPos() : undefined;
           if (pos !== undefined) {
@@ -211,11 +208,45 @@ export class TaskEditorComponent implements OnInit, OnDestroy {
           openOnClick: false,
           HTMLAttributes: {target: '_blank', rel: 'noopener noreferrer'},
         }),
-        Image,
+        Image.configure({
+          inline: false,
+          allowBase64: true, // Включаем поддержку Base64 для моментальной вставки
+        }),
+        TaskList,
+        TaskItem.configure({
+          nested: true,
+        }),
+        Mention.configure({
+          HTMLAttributes: { class: 'mention' },
+        }),
         Details,
         DetailsSummary,
         DetailsContent,
       ],
+      editorProps: {
+        // Обработка Drag & Drop изображений
+        handleDrop: (view, event, slice, moved) => {
+          if (!moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) {
+            const file = event.dataTransfer.files[0];
+            if (file.type.includes('image/')) {
+              this.uploadAndInsertImage(file);
+              return true;
+            }
+          }
+          return false;
+        },
+        // Обработка Ctrl+V (Paste) изображений
+        handlePaste: (view, event, slice) => {
+          if (event.clipboardData && event.clipboardData.files && event.clipboardData.files[0]) {
+            const file = event.clipboardData.files[0];
+            if (file.type.includes('image/')) {
+              this.uploadAndInsertImage(file);
+              return true;
+            }
+          }
+          return false;
+        }
+      },
       onUpdate: ({editor}) => {
         const html = editor.getHTML();
         this.value.set(html);
@@ -230,6 +261,21 @@ export class TaskEditorComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.editor()?.destroy();
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Вспомогательный метод для загрузки изображений
+  // ─────────────────────────────────────────────────────────────────
+  private uploadAndInsertImage(file: File): void {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const src = e.target?.result as string;
+      this.editor()?.chain().focus().setImage({ src }).run();
+
+      // В БУДУЩЕМ: Здесь вы можете отправить file на свой бэкенд,
+      // получить URL и вставить его вместо base64 (src).
+    };
+    reader.readAsDataURL(file);
   }
 
   // Восстановленные методы, необходимые для task-detail.ts
@@ -292,6 +338,10 @@ export class TaskEditorComponent implements OnInit, OnDestroy {
     return !!this.editor()?.isActive({textAlign: alignment});
   }
 
+  toggleTaskList(): void {
+    this.editor()?.chain().focus().toggleTaskList().run();
+  }
+
   toggleBulletList(): void {
     this.editor()?.chain().focus().toggleBulletList().run();
   }
@@ -338,6 +388,10 @@ export class TaskEditorComponent implements OnInit, OnDestroy {
     if (color) this.editor()?.chain().focus().setHighlight({color}).run();
   }
 
+  insertMention(): void {
+    this.editor()?.chain().focus().insertContent('@').run();
+  }
+
   toggleBlockquote(): void {
     this.editor()?.chain().focus().toggleBlockquote().run();
   }
@@ -348,7 +402,6 @@ export class TaskEditorComponent implements OnInit, OnDestroy {
 
   setLink(): void {
     const previousUrl = this.editor()?.getAttributes('link')['href'];
-    // ИСПОЛЬЗУЕМ ПЕРЕВОД:
     const url = window.prompt(this.transloco.translate('task.editor.promptLink'), previousUrl);
     if (url === null) return;
     if (url === '') {
@@ -359,7 +412,6 @@ export class TaskEditorComponent implements OnInit, OnDestroy {
   }
 
   setImage(): void {
-    // ИСПОЛЬЗУЕМ ПЕРЕВОД:
     const url = window.prompt(this.transloco.translate('task.editor.promptImage'));
     if (url) this.editor()?.chain().focus().setImage({src: url}).run();
   }
@@ -380,7 +432,6 @@ export class TaskEditorComponent implements OnInit, OnDestroy {
     const {selection} = state;
 
     const selectedText = state.doc.textBetween(selection.from, selection.to, ' ').trim();
-    // ИСПОЛЬЗУЕМ ПЕРЕВОД ДЛЯ ДЕФОЛТНОГО ТЕКСТА:
     const summaryText = selectedText || this.transloco.translate('task.editor.hiddenList');
 
     ed.chain()
