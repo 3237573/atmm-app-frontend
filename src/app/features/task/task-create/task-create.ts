@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -15,15 +15,18 @@ import { ComponentDeactivateService } from '@core/services/component-deactivate.
 import { CanComponentDeactivate } from '@core/interfaces/can-deactivate.interface';
 import { TranslocoPipe, TranslocoService } from '@ngneat/transloco';
 import { Subscription } from 'rxjs';
+import {TaskEditorComponent} from '@features/task/task-editor/task-editor';
 
 @Component({
   selector: 'app-task-create',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, BackOnEscapeDirective, TranslocoPipe],
+  imports: [CommonModule, FormsModule, RouterModule, BackOnEscapeDirective, TranslocoPipe, TaskEditorComponent],
   templateUrl: './task-create.html',
   styleUrls: ['./task-create.scss']
 })
 export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
+  @ViewChild('editorRef') editorRef!: TaskEditorComponent; // Ссылка на редактор
+
   private readonly authService = inject(AuthService);
   private readonly deactivateService = inject(ComponentDeactivateService);
   private readonly departmentService = inject(DepartmentService);
@@ -212,9 +215,17 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     const init = this.initialData();
     const curAssignees = [...this.assigneeMemberIds()].sort();
     const initAssignees = [...init.assigneeMemberIds].sort();
+
+    // Получаем актуальный контент из редактора, чтобы проверка изменений работала корректно
+    let currentDesc = this.description();
+    if (this.editorRef && this.editorRef.editor()) {
+      const text = this.editorRef.editor()?.getText().trim();
+      currentDesc = text === '' ? '' : (this.editorRef.editor()?.getHTML() || '');
+    }
+
     return (
       this.title() !== init.title ||
-      this.description() !== init.description ||
+      currentDesc !== init.description ||
       this.priority() !== init.priority ||
       this.selectedDepartmentId() !== init.departmentId ||
       this.projectId() !== init.projectId ||
@@ -325,6 +336,13 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
 
   // ---------- Отправка формы ----------
   onSubmit(): void {
+    // Сначала забираем актуальный контент из редактора
+    if (this.editorRef && this.editorRef.editor()) {
+      const text = this.editorRef.editor()?.getText().trim();
+      // Если текста нет (убираем пустые теги Tiptap), сохраняем пустую строку
+      this.description.set(text === '' ? '' : (this.editorRef.editor()?.getHTML() || ''));
+    }
+
     if (!this.isFormValid()) return;
 
     const departmentId = this.selectedDepartmentId();
@@ -348,7 +366,7 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     this.taskService.createTask(request).subscribe({
       next: (response: { id: string }) => {
         this.submitting.set(false);
-        this.saveInitialData();
+        this.saveInitialData(); // Сохраняем, чтобы guard не ругался при редиректе
         this.uploadAttachments(response.id);
       },
       error: (err) => {

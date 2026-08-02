@@ -559,3 +559,18 @@ textarea.form-control {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+// ---------- Обертка для редактора ----------
+.editor-wrapper {
+  border: 1px solid $border;
+  border-radius: 0.5rem;
+  background-color: $bg-main;
+  overflow: hidden;
+  transition: all 0.2s;
+  min-height: 120px;
+
+  &.is-editing {
+    border-color: $accent;
+    box-shadow: 0 0 0 2px rgba($accent, 0.1);
+  }
+}

@@ -29,12 +29,13 @@
     <!-- Описание -->
     <div class="form-group">
       <label>{{ 'taskCreate.fields.description' | transloco }}</label>
-      <textarea
-        [ngModel]="description()"
-        (ngModelChange)="description.set($event)"
-        placeholder="{{ 'taskCreate.placeholders.description' | transloco }}"
-        rows="3"
-        class="form-control"></textarea>
+      <div class="editor-wrapper is-editing">
+        <app-task-editor
+          #editorRef
+          [editable]="true"
+          [initialContent]="description()"
+        ></app-task-editor>
+      </div>
     </div>
 
     <!-- Отдел / Проект / Родительская задача -->
