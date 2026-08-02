@@ -1,8 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {ITaskUpdateRO, TaskAttachmentRO, TaskCreateRO, TaskRO, TaskTreeRO} from '@core/models/task/task.model';
-
+import { ITaskUpdateRO, TaskAttachmentRO, TaskCreateRO, TaskRO, TaskTreeRO, TaskStatus } from '@core/models/task/task.model';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
@@ -14,57 +13,26 @@ export class TaskService {
     if (params?.status) httpParams = httpParams.set('status', params.status);
     if (params?.departmentId) httpParams = httpParams.set('departmentId', params.departmentId);
     if (params?.assigneeId) httpParams = httpParams.set('assigneeId', params.assigneeId);
-
     return this.http.get<TaskRO[]>(`${this.baseUrl}/my`, { params: httpParams });
   }
 
-  getMyTaskTree(): Observable<TaskTreeRO[]> {
-    return this.http.get<TaskTreeRO[]>(`${this.baseUrl}/my/tree`);
-  }
+  getMyTaskTree(): Observable<TaskTreeRO[]> { return this.http.get<TaskTreeRO[]>(`${this.baseUrl}/my/tree`); }
+  getTaskById(id: string): Observable<TaskRO> { return this.http.get<TaskRO>(`${this.baseUrl}/${id}`); }
+  getTaskTree(taskId: string): Observable<TaskTreeRO> { return this.http.get<TaskTreeRO>(`${this.baseUrl}/${taskId}/tree`); }
+  createTask(request: TaskCreateRO): Observable<{ id: string }> { return this.http.post<{ id: string }>(this.baseUrl, request); }
+  moveTask(taskId: string, newParentId: string | null): Observable<void> { return this.http.patch<void>(`${this.baseUrl}/${taskId}/move`, { newParentId }); }
 
-  getTaskById(id: string): Observable<TaskRO> {
-    return this.http.get<TaskRO>(`${this.baseUrl}/${id}`);
-  }
+  // Важно: запрос типизирован как ITaskUpdateRO
+  updateTask(id: string, request: ITaskUpdateRO): Observable<void> { return this.http.put<void>(`${this.baseUrl}/${id}`, request); }
 
-  getTaskTree(taskId: string): Observable<TaskTreeRO> {
-    return this.http.get<TaskTreeRO>(`${this.baseUrl}/${taskId}/tree`);
-  }
-
-  createTask(request: TaskCreateRO): Observable<{ id: string }> {
-    return this.http.post<{ id: string }>(this.baseUrl, request);
-  }
-
-  moveTask(taskId: string, newParentId: string | null): Observable<void> {
-    return this.http.patch<void>(`${this.baseUrl}/${taskId}/move`, { newParentId });
-  }
-
-  updateTask(id: string, request: ITaskUpdateRO): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/${id}`, request);
-  }
-
-  updateTaskStatus(id: string, status: string): Observable<void> {
-    return this.http.patch<void>(`${this.baseUrl}/${id}/status`, { status });
-  }
-
-  deleteTask(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
-  }
+  // Статус строго TaskStatus
+  updateTaskStatus(id: string, status: TaskStatus): Observable<void> { return this.http.patch<void>(`${this.baseUrl}/${id}/status`, { status }); }
+  deleteTask(id: string): Observable<void> { return this.http.delete<void>(`${this.baseUrl}/${id}`); }
 
   uploadAttachment(taskId: string, file: File): Observable<TaskAttachmentRO> {
-    const formData = new FormData();
-    formData.append('file', file); // Ключ 'file' должен совпадать с бэкендом
-
+    const formData = new FormData(); formData.append('file', file);
     return this.http.post<TaskAttachmentRO>(`${this.baseUrl}/${taskId}/attachments`, formData);
   }
-
-  downloadAttachment(attachmentId: string): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}/attachments/${attachmentId}/download`, {
-      responseType: 'blob' // КРИТИЧЕСКИ ВАЖНО для скачивания файлов!
-    });
-  }
-
-  deleteAttachment(attachmentId: string): Observable<{ success: boolean }> {
-    return this.http.delete<{ success: boolean }>(`${this.baseUrl}/attachments/${attachmentId}`);
-  }
-
+  downloadAttachment(attachmentId: string): Observable<Blob> { return this.http.get(`${this.baseUrl}/attachments/${attachmentId}/download`, { responseType: 'blob' }); }
+  deleteAttachment(attachmentId: string): Observable<{ success: boolean }> { return this.http.delete<{ success: boolean }>(`${this.baseUrl}/attachments/${attachmentId}`); }
 }

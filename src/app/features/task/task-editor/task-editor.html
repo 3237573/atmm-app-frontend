@@ -1,0 +1,145 @@
+@if (editing()) {
+  @if (editor(); as ed) {
+    <div class="editor-toolbar">
+      <!-- History -->
+      <button type="button"
+              (click)="ed.chain().focus().undo().run()"
+              [disabled]="!ed.can().undo()"
+              title="Отменить"><i class="material-icons">undo</i></button>
+      <button type="button"
+              (click)="ed.chain().focus().redo().run()"
+              [disabled]="!ed.can().redo()"
+              title="Повторить"><i class="material-icons">redo</i></button>
+
+      <span class="toolbar-separator"></span>
+
+      <!-- Inline styles -->
+      <button type="button"
+              (click)="ed.chain().focus().toggleBold().run()"
+              [class.is-active]="ed.isActive('bold')"
+              title="Жирный"><i class="material-icons">format_bold</i></button>
+      <button type="button"
+              (click)="ed.chain().focus().toggleItalic().run()"
+              [class.is-active]="ed.isActive('italic')"
+              title="Курсив"><i class="material-icons">format_italic</i></button>
+      <button type="button"
+              (click)="ed.chain().focus().toggleUnderline().run()"
+              [class.is-active]="ed.isActive('underline')"
+              title="Подчеркнутый"><i class="material-icons">format_underlined</i></button>
+      <button type="button"
+              (click)="ed.chain().focus().toggleStrike().run()"
+              [class.is-active]="ed.isActive('strike')"
+              title="Зачеркнутый"><i class="material-icons">format_strikethrough</i></button>
+      <button type="button"
+              (click)="ed.chain().focus().toggleCode().run()"
+              [class.is-active]="ed.isActive('code')"
+              title="Код"><i class="material-icons">code</i></button>
+
+      <span class="toolbar-separator"></span>
+
+      <!-- Headings -->
+      <button type="button"
+              (click)="ed.chain().focus().toggleHeading({level:1}).run()"
+              [class.is-active]="ed.isActive('heading', {level:1})"
+              title="Заголовок 1"><i class="material-icons">looks_one</i></button>
+      <button type="button"
+              (click)="ed.chain().focus().toggleHeading({level:2}).run()"
+              [class.is-active]="ed.isActive('heading', {level:2})"
+              title="Заголовок 2"><i class="material-icons">looks_two</i></button>
+      <button type="button"
+              (click)="ed.chain().focus().toggleHeading({level:3}).run()"
+              [class.is-active]="ed.isActive('heading', {level:3})"
+              title="Заголовок 3"><i class="material-icons">looks_3</i></button>
+
+      <span class="toolbar-separator"></span>
+
+      <!-- Align -->
+      <button type="button"
+              (click)="ed.chain().focus().setTextAlign('left').run()"
+              [class.is-active]="ed.isActive({textAlign: 'left'})"
+              title="По левому краю"><i class="material-icons">format_align_left</i></button>
+      <button type="button"
+              (click)="ed.chain().focus().setTextAlign('center').run()"
+              [class.is-active]="ed.isActive({textAlign: 'center'})"
+              title="По центру"><i class="material-icons">format_align_center</i></button>
+      <button type="button"
+              (click)="ed.chain().focus().setTextAlign('right').run()"
+              [class.is-active]="ed.isActive({textAlign: 'right'})"
+              title="По правому краю"><i class="material-icons">format_align_right</i></button>
+
+      <span class="toolbar-separator"></span>
+
+      <!-- Lists + Nested -->
+      <button type="button"
+              (click)="ed.chain().focus().toggleBulletList().run()"
+              [class.is-active]="ed.isActive('bulletList')"
+              title="Маркированный список"><i class="material-icons">format_list_bulleted</i></button>
+      <button type="button"
+              (click)="ed.chain().focus().toggleOrderedList().run()"
+              [class.is-active]="ed.isActive('orderedList')"
+              title="Нумерованный список"><i class="material-icons">format_list_numbered</i></button>
+      <button type="button"
+              (click)="indent()"
+              [disabled]="!canIndent()"
+              title="Увеличить отступ (Tab)"><i class="material-icons">format_indent_increase</i></button>
+      <button type="button"
+              (click)="outdent()"
+              [disabled]="!canOutdent()"
+              title="Уменьшить отступ (Shift+Tab)"><i class="material-icons">format_indent_decrease</i></button>
+
+      <span class="toolbar-separator"></span>
+
+      <!-- Colors -->
+      <div class="color-picker-wrapper" title="Цвет текста">
+        <input type="color"
+               class="color-input"
+               (input)="ed.chain().focus().setColor($any($event.target).value).run()"
+               [value]="getTextColor()">
+        <i class="material-icons">palette</i>
+      </div>
+
+      <div class="color-picker-wrapper" title="Цвет фона">
+        <input type="color"
+               class="color-input"
+               (input)="setHighlightColor($any($event.target).value)"
+               [value]="getHighlightColor()">
+        <i class="material-icons">highlight</i>
+      </div>
+
+      <span class="toolbar-separator"></span>
+
+      <!-- Blocks -->
+      <button type="button"
+              (click)="ed.chain().focus().toggleBlockquote().run()"
+              [class.is-active]="ed.isActive('blockquote')"
+              title="Цитата"><i class="material-icons">format_quote</i></button>
+      <button type="button"
+              (click)="ed.chain().focus().toggleCodeBlock().run()"
+              [class.is-active]="ed.isActive('codeBlock')"
+              title="Блок кода"><i class="material-icons">integration_instructions</i></button>
+      <button type="button"
+              (click)="setLink()"
+              [class.is-active]="ed.isActive('link')"
+              title="Ссылка"><i class="material-icons">link</i></button>
+      <button type="button"
+              (click)="setImage()"
+              title="Изображение"><i class="material-icons">image</i></button>
+      <button type="button"
+              (click)="ed.chain().focus().setHorizontalRule().run()"
+              title="Разделитель"><i class="material-icons">horizontal_rule</i></button>
+
+      <span class="toolbar-separator"></span>
+
+      <!-- Special -->
+      <button type="button"
+              (click)="toggleDetails()"
+              [class.is-active]="ed.isActive('details')"
+              title="Toggle-список (как в Notion)"><i class="material-icons">expand_more</i></button>
+      <button type="button"
+              (click)="clearFormatting()"
+              title="Очистить форматирование"><i class="material-icons">format_clear</i></button>
+    </div>
+  }
+}
+
+<div #editorContainer class="tiptap-container" [class.is-editing]="editing()"></div>

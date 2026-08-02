@@ -1,132 +1,141 @@
-import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, viewChild} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {CommonModule, formatDate as angularFormatDate} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {ActivatedRoute, Router, RouterModule} from '@angular/router';
-import {of, switchMap} from 'rxjs';
-import {AuthService} from '@core/services/auth.service';
-import {TaskService} from '@core/services/task.service';
-import {MemberService} from '@core/services/member.service';
-import {TaskPriority, TaskRO, TaskStatus, TaskTreeRO} from '@core/models/task/task.model';
-import {TaskComments} from '../task-comments/task-comments';
-import {AssigneeManager} from '@features/task/assignee-manager/assignee-manager';
-import {SubtaskTreeComponent} from './subtask-tree';
-import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
-import {NavigationService} from '@core/services/navigation.service';
-import {ProjectAffiliation} from '@core/models/project.model';
-import {AttachmentManager} from '@features/task/attachment-manager/attachment-manager';
+import {TranslocoModule} from '@ngneat/transloco';
 import {ReplaceMePipe} from '@core/pipes/replace-me.pipe';
 import {HasPermissionDirective} from '@core/directives/has-permission.directive';
-import {ComponentDeactivateService} from '@core/services/component-deactivate.service';
-import {CanComponentDeactivate} from '@core/interfaces/can-deactivate.interface';
-import {TranslocoPipe, TranslocoService} from '@ngneat/transloco';
+import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
+import {TaskEditorComponent} from '@features/task/task-editor/task-editor';
+import {AttachmentManager} from '@features/task/attachment-manager/attachment-manager';
+import {SubtaskTreeComponent} from '@features/task/task-detail/subtask-tree';
+import {TaskComments} from '@features/task/task-comments/task-comments';
+import {ITaskUpdateRO, TaskPriority, TaskRO, TaskStatus, TaskTreeRO} from '@core/models/task/task.model';
+import {TaskService} from '@core/services/task.service';
+import {AssigneeManager} from '@features/task/assignee-manager/assignee-manager';
+import {finalize} from 'rxjs';
+import {AuthService} from '@core/services/auth.service';
+import {ProjectAffiliation} from '@core/models/project.model';
+import {MemberService} from '@core/services';
 
 @Component({
   selector: 'app-task-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, TaskComments, AssigneeManager,
-    SubtaskTreeComponent, BackOnEscapeDirective, AttachmentManager, ReplaceMePipe, HasPermissionDirective, TranslocoPipe],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslocoModule,
+    ReplaceMePipe,
+    HasPermissionDirective,
+    BackOnEscapeDirective,
+    TaskEditorComponent,
+    AttachmentManager,
+    SubtaskTreeComponent,
+    TaskComments,
+    AssigneeManager
+  ],
   templateUrl: './task-detail.html',
-  styleUrl: './task-detail.scss'
+  styleUrls: ['./task-detail.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
+export class TaskDetail implements OnInit {
   private readonly authService = inject(AuthService);
-  private readonly deactivateService = inject(ComponentDeactivateService);
+  public router = inject(Router);
+  public route = inject(ActivatedRoute);
+
   private readonly memberService = inject(MemberService);
-  private readonly navService = inject(NavigationService);
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
-  private readonly translocoService = inject(TranslocoService);
+
 
   currentUser = this.authService.currentUser;
-  task = signal<TaskRO | null>(null);
-  taskTree = signal<TaskTreeRO | null>(null);
-  userProjects = signal<ProjectAffiliation[]>([]);
-  loading = signal(true);
+  loading = signal(false);
   editing = signal(false);
   saving = signal(false);
-  subtasksExpanded = signal(false);
   deleting = signal(false);
   showAssigneeModal = signal(false);
-  reloadComments = signal(0);
+  subtasksExpanded = signal(true);
+  minDate = new Date().toISOString().split('T')[0];
 
-  // Список доступных родительских задач (для переноса)
-  availableParentTasks = signal<{ id: string; title: string }[]>([]);
+  task = signal<TaskRO | null>(null);
+  taskTree = signal<TaskTreeRO | null>(null);
+  availableParentTasks = signal<TaskRO[]>([]);
+  userProjects = signal<ProjectAffiliation[]>([]);
+  reloadTrigger = signal(0);
 
-  // Данные формы редактирования
-  private originalData = {
-    title: '',
-    description: '',
-    priority: '' as TaskPriority,
-    taskStatus: '' as TaskStatus,
-    dueDate: '',
-    projectId: '',
-    parentTaskId: null as string | null
-  };
-  editData = {
-    title: '',
-    description: '',
-    priority: '' as TaskPriority,
-    taskStatus: '' as TaskStatus,
-    dueDate: '',
-    projectId: '',
-    parentTaskId: null as string | null
-  };
-  minDate: string = new Date().toISOString().split('T')[0];
+  canEdit = computed(() => this.task()?.creatorId === this.authService.currentUser()?.id);
+  editProjectId = signal<string>('');
+  editTitle = signal('');
+  editDescription = signal('');
+  editDueDate = signal('');
+  editParentTaskId = signal<string | null>(null);
+  editTaskStatus = signal<TaskStatus>('PENDING');
+  editPriority = signal<TaskPriority>('LOW');
+
+  readonly taskEditor = viewChild.required<TaskEditorComponent>('editorRef');
+
+  selectedStatus = computed(() => this.task()?.taskStatus ?? 'PENDING');
+  parentTaskTitleDisplay = computed(() => {
+    const t = this.task();
+    if (!t?.parentTaskId) return null;
+    const p = this.availableParentTasks().find(x => x.id === t.parentTaskId);
+    return p?.title ?? t.parentTaskTitle ?? null;
+  });
 
   ngOnInit(): void {
-    this.deactivateService.register(this);
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.loadTaskData(id);
-      }
-    });
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) this.loadTask(id);
   }
 
-  ngOnDestroy(): void {
-    this.deactivateService.unregister();
-  }
-
-  loadTaskData(id: string): void {
+  private loadTask(id: string): void {
     this.loading.set(true);
-    this.editing.set(false);
-
-    this.taskService.getTaskTree(id).subscribe({
-      next: (tree) => {
-        this.taskTree.set(tree);
-        this.task.set(tree.task);
-        this.loading.set(false);
-        // Загружаем список возможных родителей для переноса
-        this.loadAvailableParents();
+    this.taskService.getTaskById(id).pipe(
+      finalize(() => this.loading.set(false))
+    ).subscribe({
+      next: (data) => {
+        this.task.set(data);
+        this.editTitle.set(data.title);
+        this.editDescription.set(data.description ?? '');
+        this.editDueDate.set(data.dueDate ?? '');
+        this.editParentTaskId.set(data.parentTaskId ?? null);
+        this.editTaskStatus.set(data.taskStatus);
+        this.editPriority.set(data.priority);
+        this.taskService.getTaskTree(id).subscribe({
+          next: (tree) => this.taskTree.set(tree),
+          error: (err) => console.error('Tree Loading Error:', err)
+        });
+        this.editProjectId.set(data.projectId ?? '');
+        this.computeParents();
+        this.computeProjects()
       },
-      error: (err) => {
-        console.error('Ошибка загрузки задачи', err);
-        this.loading.set(false);
-        this.router.navigate(['/tasks']);
-      }
+      error: (err) => console.error('Error loading task:', err)
     });
   }
 
-  /** Загружает все задачи пользователя и формирует список кандидатов в родители (исключая текущую и её потомков) */
-  loadAvailableParents(): void {
+  private computeParents(): void {
     const currentTask = this.task();
     if (!currentTask) return;
 
     this.taskService.getMyTaskTree().subscribe({
       next: (trees) => {
         const allTasks = this.flattenTaskTree(trees);
-        // Получаем всех потомков текущей задачи (включая подзадачи всех уровней)
         const descendantIds = this.getAllDescendantIds(this.taskTree()?.subtasks || []);
         const excludeIds = new Set([currentTask.id, ...descendantIds]);
 
-        const available = allTasks
+        const availableTasks = allTasks
           .filter(t => !excludeIds.has(t.id))
-          .map(t => ({ id: t.id, title: t.title }));
 
-        this.availableParentTasks.set(available);
+        this.availableParentTasks.set(availableTasks);
       },
       error: (err) => console.error('Ошибка загрузки списка задач для переноса', err)
+    });
+  }
+
+  private computeProjects(): void {
+    this.memberService.getMembers().subscribe(data => {
+      const me = data.find(m => m.id === this.currentUser()?.id);
+      if (me) {
+        this.userProjects.set(me.projects || []);
+      }
     });
   }
 
@@ -154,163 +163,120 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
     return ids;
   }
 
-  parentTaskTitleDisplay = computed(() => {
-    const task = this.task();
-    if (!task) return null;
-    if (!task.parentTaskId) return null;
-    // Если бэкенд вернул title – используем его
-    if (task.parentTaskTitle) return task.parentTaskTitle;
-    // Иначе ищем в загруженном списке доступных родителей
-    const found = this.availableParentTasks().find(p => p.id === task.parentTaskId);
-    return found ? found.title : 'Загрузка...';
-  });
-
-  createSubtask() {
-    this.editing.set(false);
-    const currentTaskId = this.task()?.id;
-    if (currentTaskId) {
-      this.router.navigate(['/tasks/create'], {
-        queryParams: { parentId: currentTaskId }
-      });
-    }
-  }
-
   startEdit(): void {
-    const task = this.task();
-    if (task) {
-      this.originalData = {
-        title: task.title,
-        description: task.description || '',
-        priority: task.priority,
-        taskStatus: task.taskStatus,
-        dueDate: task.dueDate?.split('T')[0] || '',
-        projectId: (task as any).projectId || '',
-        parentTaskId: task.parentTaskId || null
-      };
-      this.editData = { ...this.originalData };
+    this.editing.set(true);
+    if (this.userProjects().length === 0) {
+      this.computeProjects()
+    }
 
-      // Загружаем проекты пользователя, если ещё не загружены
-      if (this.userProjects().length === 0) {
-        this.memberService.getMembers().subscribe(data => {
-          const me = data.find(m => m.id === this.currentUser()?.id);
-          if (me) {
-            this.userProjects.set(me.projects || []);
-          }
-        });
-      }
-
-      // Если список родителей пуст, загружаем его (актуально при первом редактировании)
-      if (this.availableParentTasks().length === 0) {
-        this.loadAvailableParents();
-      }
-
-      this.editing.set(true);
+    // Если список родителей пуст, загружаем его (актуально при первом редактировании)
+    if (this.availableParentTasks().length === 0) {
+      this.computeParents();
     }
   }
 
   cancelEdit(): void {
-    if (this.hasUnsavedChanges() && !confirm('Отменить редактирование?')) return;
+    const t = this.task();
+    if (t) {
+      this.editTitle.set(t.title);
+      this.editDescription.set(t.description ?? '');
+      this.editDueDate.set(t.dueDate ?? '');
+      this.editParentTaskId.set(t.parentTaskId ?? null);
+      this.editTaskStatus.set(t.taskStatus);
+      this.editPriority.set(t.priority);
+      // Возвращаем старый текст в редактор, не уничтожая инстанс
+      this.taskEditor().setContent(t.description ?? '');
+      this.editProjectId.set(t.projectId ?? '');
+    }
     this.editing.set(false);
   }
 
   saveEdit(): void {
-    const task = this.task();
-    if (!task) return;
+    const t = this.task();
+    if (!t) return;
+
+    const payload: Partial<ITaskUpdateRO> = {
+      title: this.editTitle(),
+      description: this.taskEditor().getHTML(),
+      status: this.editTaskStatus() || undefined,
+      priority: this.editPriority() || undefined,
+      dueDate: this.editDueDate() || undefined,
+      parentTaskId: this.editParentTaskId() || undefined,
+      projectId: this.editProjectId() || undefined
+    };
 
     this.saving.set(true);
-
-    // Сначала обновляем основные поля задачи
-    this.taskService.updateTask(task.id, {
-      title: this.editData.title,
-      description: this.editData.description,
-      priority: this.editData.priority,
-      taskStatus: this.editData.taskStatus,
-      dueDate: this.editData.dueDate || undefined,
-      projectId: this.editData.projectId || null
-    } as any).pipe(
-      switchMap(() => {
-        // Если изменился родитель – перемещаем задачу
-        if (this.editData.parentTaskId !== this.originalData.parentTaskId) {
-          return this.taskService.moveTask(task.id, this.editData.parentTaskId);
-        }
-        return of(null);
-      })
-    ).subscribe({
+    this.taskService.updateTask(t.id, payload as ITaskUpdateRO).subscribe({
       next: () => {
+        this.task.update((cur) => (cur ? {...cur, ...payload} as TaskRO : null));
         this.saving.set(false);
-        this.loadTaskData(task.id);
-        this.triggerCommentsReload();
+        this.editing.set(false);
       },
       error: () => {
         this.saving.set(false);
-        alert('Ошибка сохранения задачи');
+        this.editing.set(false);
       }
     });
   }
 
   deleteTask(): void {
-    const task = this.task();
-    if (task && confirm(`Удалить задачу "${task.title}"?`)) {
+    const t = this.task();
+    if (!t) return;
+    if (confirm('Удалить задачу?')) {
       this.deleting.set(true);
-      this.taskService.deleteTask(task.id).subscribe({
-        next: () => this.router.navigate(['/tasks']),
-        error: () => { this.deleting.set(false); alert('Ошибка удаления'); }
+      this.taskService.deleteTask(t.id).subscribe({
+        next: () => this.router.navigate(['/tasks'], {relativeTo: this.route}),
+        error: () => this.deleting.set(false)
       });
     }
   }
 
-  updateStatus(newStatus: string): void {
-    const task = this.task();
-    if (task) {
-      this.taskService.updateTaskStatus(task.id, newStatus).subscribe({
-        next: () => {
-          this.loadTaskData(task.id);
-          this.triggerCommentsReload();
-        }
-      });
-    }
-  }
-
-  canManageAssignees(): boolean {
-    const task = this.task();
-    return !!task && task.creatorMemberId === this.currentUser()?.id;
-  }
-
-  canEditTask(): boolean {
-    return !!this.task();
-  }
-
-  hasUnsavedChanges(): boolean {
-    if (!this.editing()) return false;
-    const task = this.task();
-    if (!task) return false;
-    return (
-      this.editData.title !== this.originalData.title ||
-      this.editData.description !== this.originalData.description ||
-      this.editData.priority !== this.originalData.priority ||
-      this.editData.taskStatus !== this.originalData.taskStatus ||
-      this.editData.dueDate !== this.originalData.dueDate ||
-      this.editData.projectId !== this.originalData.projectId ||
-      this.editData.parentTaskId !== this.originalData.parentTaskId
-    );
+  updateStatus(status: TaskStatus): void {
+    const t = this.task();
+    if (!t) return;
+    const updated = {...t, taskStatus: status};
+    this.task.set(updated);
+    this.taskService.updateTaskStatus(t.id, status).subscribe({
+      error: () => this.task.set(t)
+    });
   }
 
   canDeactivate(): boolean {
-    if (!this.editing() || !this.hasUnsavedChanges()) {
-      return true;
+    if (this.editing()) {
+      return confirm('У вас есть несохраненные изменения. Уйти?');
     }
-    // Было: confirm('У вас есть несохраненные изменения...')
-    return confirm(this.translocoService.translate('taskDetail.unsavedChanges'));
+    return true;
   }
 
+  // task-detail.ts
+  createSubtask(): void {
+    const currentTask = this.task();
+    if (currentTask) {
+      this.router.navigate(['/tasks', 'create'], {
+        queryParams: { parentTaskId: currentTask.id }
+      });
+    }
+  }
+  toggleSubtasks(): void { this.subtasksExpanded.update((v) => !v); }
   openAssigneeModal(): void { this.showAssigneeModal.set(true); }
   closeAssigneeModal(): void { this.showAssigneeModal.set(false); }
-  onAssigneesUpdated(): void { this.closeAssigneeModal(); this.loadTaskData(this.task()!.id); }
-  triggerCommentsReload(): void { this.reloadComments.update(v => v + 1); }
-  isOverdue(dueDate: string | undefined): boolean { return false; }
 
-  getPriorityColor(p: TaskPriority): string { return 'priority-' + p.toLowerCase(); }
-  getPriorityLabel(p: TaskPriority): string { return p; }
+  onAssigneesUpdated(): void {
+    this.closeAssigneeModal();
+    this.reloadTrigger.update((v) => v + 1);
+  }
+
+  reloadComments(): () => number {
+    return () => this.reloadTrigger();
+  }
+
+  getPriorityColor = (p: TaskPriority): string => {
+    switch (p) {
+      case 'HIGH': return 'priority-high';
+      case 'MEDIUM': return 'priority-medium';
+      default: return 'priority-low';
+    }
+  };
 
   formatDate(dateStr: string | undefined): string {
     if (!dateStr) return '—';
@@ -322,13 +288,19 @@ export class TaskDetail implements OnInit, OnDestroy, CanComponentDeactivate {
     return `${day}.${month}.${year}`;
   }
 
-  goBack() {
-    this.navService.back('/tasks');
-  }
+  isOverdue = (date: string | null | undefined): boolean => {
+    if (!date) return false;
+    const due = new Date(date);
+    due.setHours(0, 0, 0, 0);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return due < now;
+  };
 
-  toggleSubtasks(): void {
-    if (this.taskTree()?.subtasks?.length) {
-      this.subtasksExpanded.update(expanded => !expanded);
-    }
-  }
+  formatTaskDate = (date: string | null | undefined): string => {
+    if (!date) return '';
+    return angularFormatDate(date, 'dd.MM.yyyy', 'en-US');
+  };
+
+  getPriorityLabel = (p: TaskPriority): string => p;
 }
