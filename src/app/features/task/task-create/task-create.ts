@@ -41,6 +41,8 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
   // ========== Состояния ==========
   currentUser = signal<MemberRO | null>(null);
   departmentMembers = signal<MemberRO[]>([]);
+  isPublic = signal(false);
+  isEditableByAll = signal(false);
   parentTasksList = signal<{ id: string; title: string }[]>([]);
   pendingFiles = signal<File[]>([]);
   loadingMembers = signal(false);
@@ -81,7 +83,9 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     projectId: '',
     parentTaskId: '',
     assigneeMemberIds: [] as string[],
-    dueDate: ''
+    dueDate: '',
+    isPublic: false,         // ДОБАВИТЬ
+    isEditableByAll: false   // ДОБАВИТЬ
   });
 
   ngOnInit(): void {
@@ -124,6 +128,7 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
   }
 
   // ---------- Загрузка данных ----------
+  // ---------- Загрузка данных ----------
   loadCurrentUser(): void {
     this.loadingUser.set(true);
     const currentUserId = this.authService.currentUser()?.id;
@@ -146,7 +151,10 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
           this.selectedDepartmentId.set(uniqueDepartments[0].departmentId);
           this.loadDepartmentMembers(uniqueDepartments[0].departmentId);
         }
+
+        // ИСПРАВЛЕНО: Просто вызываем метод, а не объявляем его заново!
         this.saveInitialData();
+
         this.loadingUser.set(false);
       },
       error: (err) => {
@@ -207,7 +215,9 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
       projectId: this.projectId(),
       parentTaskId: this.parentTaskId(),
       assigneeMemberIds: [...this.assigneeMemberIds()],
-      dueDate: this.dueDate()
+      dueDate: this.dueDate(),
+      isPublic: this.isPublic(),
+      isEditableByAll: this.isEditableByAll()
     });
   }
 
@@ -216,7 +226,6 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
     const curAssignees = [...this.assigneeMemberIds()].sort();
     const initAssignees = [...init.assigneeMemberIds].sort();
 
-    // Получаем актуальный контент из редактора, чтобы проверка изменений работала корректно
     let currentDesc = this.description();
     if (this.editorRef && this.editorRef.editor()) {
       const text = this.editorRef.editor()?.getText().trim();
@@ -231,6 +240,8 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
       this.projectId() !== init.projectId ||
       this.parentTaskId() !== init.parentTaskId ||
       this.dueDate() !== init.dueDate ||
+      this.isPublic() !== init.isPublic ||               // ДОБАВИТЬ
+      this.isEditableByAll() !== init.isEditableByAll || // ДОБАВИТЬ
       JSON.stringify(curAssignees) !== JSON.stringify(initAssignees)
     );
   }
@@ -360,7 +371,12 @@ export class TaskCreate implements OnInit, OnDestroy, CanComponentDeactivate {
       projectId: this.projectId() || undefined,
       assigneeIds: validMemberIds,
       dueDate: this.dueDate() || undefined,
-      parentTaskId: this.parentTaskId() || undefined
+      parentTaskId: this.parentTaskId() || undefined,
+      // ДОБАВЛЯЕМ SETTINGS:
+      settings: {
+        isPublic: this.isPublic(),
+        isEditableByAll: this.isEditableByAll()
+      }
     };
 
     this.taskService.createTask(request).subscribe({

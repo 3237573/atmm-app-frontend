@@ -100,6 +100,37 @@
           <span>{{ 'taskDetail.fields.creator' | transloco }}</span>
           <strong>{{ task.creatorName | replaceMe }}</strong>
         </div>
+
+        <div class="meta-item">
+          <i class="material-icons">public</i>
+          <span>{{ 'taskDetail.fields.isPublic' | transloco }}</span>
+          @if (!editing() || !isCreator()) {
+            <strong>{{ task.settings?.isPublic ? ('common.yes' | transloco) : ('common.no' | transloco) }}</strong>
+          } @else {
+            <label class="custom-checkbox-label">
+              <input type="checkbox"
+                     [checked]="editIsPublic()"
+                     (change)="editIsPublic.set($any($event.target).checked)">
+              <span>{{ 'taskDetail.actions.setPublic' | transloco }}</span>
+            </label>
+          }
+        </div>
+
+        <div class="meta-item">
+          <i class="material-icons">edit_attributes</i>
+          <span>{{ 'taskDetail.fields.isEditableByAll' | transloco }}</span>
+          @if (!editing() || !isCreator()) {
+            <strong>{{ task.settings?.isEditableByAll ? ('common.yes' | transloco) : ('common.no' | transloco) }}</strong>
+          } @else {
+            <label class="custom-checkbox-label">
+              <input type="checkbox"
+                     [checked]="editIsEditableByAll()"
+                     (change)="editIsEditableByAll.set($any($event.target).checked)">
+              <span>{{ 'taskDetail.actions.setEditableByAll' | transloco }}</span>
+            </label>
+          }
+        </div>
+
         <div class="meta-item">
           <i class="material-icons">business</i>
           <span>{{ 'taskDetail.fields.department' | transloco }}</span>

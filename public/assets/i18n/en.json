@@ -124,6 +124,10 @@
     "typing": "Typing...",
     "video": "VideoCall"
   },
+  "common": {
+    "no": "No",
+    "yes": "Yes"
+  },
   "dept": {
     "create": {
       "backBtn": "Back to structure",
@@ -487,7 +491,9 @@
       "cancel": "Cancel",
       "delete": "Delete",
       "edit": "Edit",
-      "save": "Save"
+      "save": "Save",
+      "setEditableByAll": " Edit by all",
+      "setPublic": " See for everyone"
     },
     "backToList": "Back to tasks",
     "fields": {
@@ -498,6 +504,8 @@
       "departmentGeneral": "General",
       "description": "Description",
       "dueDate": "Due date:",
+      "isPublic": "Public:",
+      "isEditableByAll": "Editable by all:",
       "noDescription": "No description",
       "noProject": "No project (General task)",
       "parentTask": "Parent task:",

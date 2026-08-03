@@ -42,9 +42,13 @@ export interface TaskRO {
   priority: TaskPriority;
   projectId?: string;
   projectName?: string;
+  settings?: {
+    isPublic: boolean;
+    isEditableByAll: boolean;
+  }
   status: SysStatus;
-  taskStatus: TaskStatus;
   subtasksCount?: number;
+  taskStatus: TaskStatus;
   timeSpent?: number; // в часах
   title: string;
   updatedAt?: string;
@@ -65,6 +69,10 @@ export interface TaskCreateRO {
   assigneeIds: string[];
   dueDate?: string;
   parentTaskId?: string;
+  settings?: {
+    isPublic: boolean;
+    isEditableByAll: boolean;
+  }
 }
 
 export interface ITaskUpdateRO {
@@ -77,6 +85,10 @@ export interface ITaskUpdateRO {
   assigneeMemberIds?: string[];
   dueDate?: string;
   parentTaskId?: string;
+  settings?: {
+    isPublic: boolean;
+    isEditableByAll: boolean;
+  }
 }
 
 export interface TaskComment {
@@ -102,4 +114,13 @@ export interface TaskAttachmentRO {
   fileType: string;
   filePath: string;
   createdAt: string;
+}
+
+export interface TaskSettingsRO {
+  isEditableByAll: boolean;
+  isPublic: boolean;
+  isBillable: boolean;
+  isTemplate: boolean;
+  estimatedTimeMins?: number | null; // null так как на бэке Int?
+  requiresReview: boolean;
 }

@@ -107,6 +107,27 @@
       </div>
     </div>
 
+    <!-- Настройки задачи (Публичная / Редактируемая всеми) -->
+    <div class="form-group">
+      <div class="checkbox-row">
+        <label class="custom-checkbox-label">
+          <input
+            type="checkbox"
+            [ngModel]="isPublic()"
+            (ngModelChange)="isPublic.set($event)" />
+          <span>{{ 'taskCreate.fields.isPublic' | transloco }}</span>
+        </label>
+
+        <label class="custom-checkbox-label">
+          <input
+            type="checkbox"
+            [ngModel]="isEditableByAll()"
+            (ngModelChange)="isEditableByAll.set($event)" />
+          <span>{{ 'taskCreate.fields.isEditableByAll' | transloco }}</span>
+        </label>
+      </div>
+    </div>
+
     <!-- Attachments -->
     <div class="form-group">
       <div class="attachments-row">
