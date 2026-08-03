@@ -129,7 +129,7 @@ export class TaskDetail implements OnInit {
         this.task.set(data);
         this.editTitle.set(data.title);
         this.editDescription.set(data.description ?? '');
-        this.editDueDate.set(data.dueDate ?? '');
+        this.editDueDate.set(data.dueDate ? data.dueDate.split('T')[0] : '');
         this.editParentTaskId.set(data.parentTaskId ?? null);
         this.editTaskStatus.set(data.taskStatus);
         this.editPriority.set(data.priority);
@@ -215,7 +215,7 @@ export class TaskDetail implements OnInit {
     if (t) {
       this.editTitle.set(t.title);
       this.editDescription.set(t.description ?? '');
-      this.editDueDate.set(t.dueDate ?? '');
+      this.editDueDate.set(t.dueDate ? t.dueDate.split('T')[0] : '');
       this.editParentTaskId.set(t.parentTaskId ?? null);
       this.editTaskStatus.set(t.taskStatus);
       this.editPriority.set(t.priority);
@@ -237,7 +237,7 @@ export class TaskDetail implements OnInit {
       status: this.editTaskStatus() || undefined,
       priority: this.editPriority() || undefined,
       dueDate: this.editDueDate() || undefined,
-      parentTaskId: this.editParentTaskId() || undefined,
+      parentTaskId: this.editParentTaskId(),
       projectId: this.editProjectId() || undefined,
       settings: {
         isPublic: this.editIsPublic(),

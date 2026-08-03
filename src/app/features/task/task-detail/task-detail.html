@@ -211,12 +211,12 @@
           @if (!editing()) {
             <strong>{{ parentTaskTitleDisplay() ?? ('taskDetail.fields.rootTask' | transloco) }}</strong>
           } @else {
-            <select [value]="editParentTaskId()"
-                    (change)="editParentTaskId.set($any($event.target).value)"
+            <select [ngModel]="editParentTaskId()"
+                    (ngModelChange)="editParentTaskId.set($event)"
                     class="inline-select">
-              <option [value]="null">{{ 'taskDetail.fields.rootTask' | transloco }}</option>
+              <option [ngValue]="null">{{ 'taskDetail.fields.rootTask' | transloco }}</option>
               @for (p of availableParentTasks(); track p.id) {
-                <option [value]="p.id">{{ p.title }}</option>
+                <option [ngValue]="p.id">{{ p.title }}</option>
               }
             </select>
           }
