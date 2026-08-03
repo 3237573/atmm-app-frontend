@@ -6,21 +6,21 @@
         <i class="material-icons">{{ isEditMode() ? 'edit' : 'rocket_launch' }}</i>
       </div>
       <div class="title-group">
-        <h2>{{ isEditMode() ? 'Редактирование проекта' : 'Создание проекта' }}</h2>
-        <p>{{ isEditMode() ? 'Обновите параметры и статус проекта' : 'Заполните данные для нового проекта' }}</p>
+        <h2>{{ isEditMode() ? 'Editing a project' : 'Creating a project' }}</h2>
+        <p>{{ isEditMode() ? 'Update project settings and status' : 'Fill in the data for a new project' }}</p>
       </div>
     </header>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div class="form-group" [class.error]="form.get('title')?.invalid && form.get('title')?.touched">
-        <label>Название проекта <span>*</span></label>
-        <input type="text" formControlName="title" placeholder="Напр: Редизайн приложения">
+        <label>Project name <span>*</span></label>
+        <input type="text" formControlName="title" placeholder="For example: App redesign">
       </div>
 
       <div class="form-main">
         <div class="col left">
           <div class="form-group">
-            <label>Описание</label>
+            <label>Description</label>
             <textarea formControlName="description"></textarea>
           </div>
         </div>
@@ -30,17 +30,17 @@
             <div class="form-group">
               <label>Статус</label>
               <select formControlName="status">
-                <option value="ACTIVE">Активен</option>
-                <option value="DRAFT">Черновик</option>
-                <option value="ARCHIVED">Архив</option>
+                <option value="ACTIVE">Active</option>
+                <option value="DRAFT">Draft</option>
+                <option value="ARCHIVED">Archive</option>
               </select>
             </div>
           }
 
           <div class="form-group">
-            <label>Родительский проект</label>
+            <label>Parent project</label>
             <select formControlName="parentProjectId">
-              <option [ngValue]="null">Корневой уровень</option>
+              <option [ngValue]="null">Root level</option>
               @for (p of projects(); track p.id) {
                 @if (p.id !== currentId()) {
                   <option [value]="p.id">{{ p.title }}</option>
@@ -63,7 +63,7 @@
 
       <div class="form-actions">
         <button type="button" class="btn-secondary" (click)="onCancel()" [disabled]="loading()">
-          Отмена
+          Cancel
         </button>
 
         <button type="submit" class="btn-primary" [disabled]="form.invalid || loading()">
@@ -71,7 +71,7 @@
             <span class="spinner"></span>
           } @else {
             <i class="material-icons">{{ isEditMode() ? 'save' : 'add' }}</i>
-            {{ isEditMode() ? 'Сохранить изменения' : 'Создать проект' }}
+            {{ isEditMode() ? 'Save changes' : 'Create a project' }}
           }
         </button>
       </div>

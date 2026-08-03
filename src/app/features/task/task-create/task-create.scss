@@ -559,3 +559,74 @@ textarea.form-control {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+// ---------- Обертка для редактора ----------
+.editor-wrapper {
+  border: 1px solid $border;
+  border-radius: 0.5rem;
+  background-color: $bg-main;
+  overflow: hidden;
+  transition: all 0.2s;
+  min-height: 120px;
+
+  &.is-editing {
+    border-color: $accent;
+    box-shadow: 0 0 0 2px rgba($accent, 0.1);
+  }
+}
+
+// ---------- Кастомные чекбоксы ----------
+.checkbox-row {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.custom-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: $text-main;
+  font-weight: 500;
+  user-select: none;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  input[type="checkbox"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid $border;
+    border-radius: 0.35rem;
+    background: $bg-main;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s ease;
+    margin: 0;
+
+    &:checked {
+      background: $accent;
+      border-color: $accent;
+
+      &::after {
+        content: '✓';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        color: #fff;
+        font-size: 14px;
+        font-weight: bold;
+      }
+    }
+
+    &:hover:not(:checked) {
+      border-color: rgba($accent, 0.5);
+    }
+  }
+}

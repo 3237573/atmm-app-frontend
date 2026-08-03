@@ -1,0 +1,253 @@
+@use "sass:color";
+@use "../../../app" as *;
+
+// ═══════════════════════════════════════
+// Toolbar
+// ═══════════════════════════════════════
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background: rgba($border, 0.15);
+  border-bottom: 1px solid $border;
+  flex-wrap: wrap;
+
+  button {
+    background: transparent;
+    border: none;
+    color: $text-muted;
+    padding: 0.3rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    min-width: 32px;
+    height: 32px;
+
+    i { font-size: 1.1rem; }
+
+    &:hover:not(:disabled) {
+      background: rgba($accent, 0.1);
+      color: $accent;
+    }
+
+    &.is-active {
+      background: rgba($accent, 0.2);
+      color: $accent;
+    }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+  }
+
+  .toolbar-separator {
+    width: 1px;
+    height: 1.2rem;
+    background: $border;
+    margin: 0 0.25rem;
+  }
+
+  .color-picker-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover { background: rgba($accent, 0.1); }
+    i { position: absolute; pointer-events: none; font-size: 1.1rem; color: $text-muted; }
+    &:hover i { color: $accent; }
+
+    .color-input {
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      width: 50px;
+      height: 50px;
+      opacity: 0;
+      cursor: pointer;
+    }
+  }
+}
+
+// ═══════════════════════════════════════
+// Editor Content
+// ═══════════════════════════════════════
+.tiptap-container {
+  min-height: 150px;
+
+  &.is-editing {
+    background-color: rgba($accent, 0.02);
+  }
+
+  ::ng-deep .ProseMirror {
+    outline: none;
+    min-height: 150px;
+    color: $text-main;
+    padding: 0.5rem 1rem 0.5rem 1.75rem;
+
+    p { margin: 0 0 0.25rem; line-height: 1.5; }
+    h1, h2, h3, h4, h5, h6 { margin: 0.75rem 0 0.5rem; font-weight: 600; line-height: 1.2; }
+
+    // ── Стилизация ссылок ──
+    a {
+      color: $accent;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: opacity 0.2s ease, color 0.2s ease;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    // ── To-Do List ──
+    ul[data-type="taskList"] {
+      list-style: none;
+      padding: 0;
+
+      li {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 0.5rem;
+
+        > label {
+          margin-right: 0.5rem;
+          user-select: none;
+          input[type="checkbox"] {
+            margin-top: 0.3rem;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            accent-color: $accent;
+          }
+        }
+
+        > div { flex: 1; }
+      }
+
+      li[data-checked="true"] > div {
+        text-decoration: line-through;
+        color: $text-muted;
+      }
+    }
+
+    // ── Упоминания (Mention) ──
+    .mention {
+      color: $accent;
+      background-color: rgba($accent, 0.1);
+      border-radius: 0.3rem;
+      padding: 0.1rem 0.3rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    // ── Цитаты (Blockquote) ──
+    blockquote {
+      border-left: 3px solid $accent;
+      margin: 1rem 0;
+      padding: 0.75rem 1rem;
+      background: rgba($accent, 0.05);
+      border-radius: 0 4px 4px 0;
+      color: var(--text-main); // Заменили color.adjust на CSS-переменную
+      font-style: italic;
+
+      p:last-child { margin-bottom: 0; }
+    }
+
+    // ── Блоки Кода (Code Block) ──
+    pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+      overflow-x: auto;
+
+      code {
+        color: inherit;
+        padding: 0;
+        background: none;
+      }
+    }
+
+    code {
+      background-color: rgba($text-main, 0.08);
+      color: $text-main;
+      padding: 0.2rem 0.4rem;
+      border-radius: 0.25rem;
+      font-size: 0.9em;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    // ── Изображения (Images) ──
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+      &.ProseMirror-selectednode {
+        outline: 3px solid $accent;
+        outline-offset: 2px;
+      }
+    }
+
+    // ── Toggle List ──
+    details.tiptap-details {
+      margin: 0;
+
+      &[open] { background-color: transparent; }
+
+      summary {
+        font-weight: 500;
+        cursor: pointer;
+        outline: none;
+        padding: 2px 4px;
+        border-radius: 4px;
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        list-style: none;
+        user-select: none;
+
+        &::before {
+          content: '▶';
+          font-size: 0.65rem;
+          color: $text-muted;
+          transition: transform 0.2s ease;
+          display: inline-block;
+          margin-top: 0.35em;
+          flex-shrink: 0;
+        }
+
+        &::-webkit-details-marker { display: none; }
+        &:hover { background-color: rgba($border, 0.15); }
+      }
+
+      &[open] > summary::before { transform: rotate(90deg); }
+
+      div[data-type="detailsContent"] {
+        padding: 0 0 0 1.25rem;
+        margin: 0;
+
+        > *:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}

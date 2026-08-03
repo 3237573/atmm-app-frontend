@@ -2,7 +2,7 @@
   <div class="section-header">
     <h3>
       <i class="material-icons">groups</i>
-      <span>Участники проекта</span>
+      <span>Project members</span>
     </h3>
 
     <button
@@ -12,7 +12,7 @@
       [disabled]="loading()"
     >
       <i class="material-icons">person_add</i>
-      <span>Добавить</span>
+      <span>Add</span>
     </button>
   </div>
 
@@ -22,7 +22,7 @@
         <div class="avatar">{{ m.initials }}</div>
         <div class="info">
           <span class="name">{{ m.name }}</span>
-          <span class="role">{{ m.roleInProject || 'Участник' }}</span>
+          <span class="role">{{ m.roleInProject || 'Member' }}</span>
         </div>
         <button type="button" class="btn-remove" (click)="onRemove.emit(m.memberId)" [disabled]="loading()">
           <i class="material-icons">close</i>
@@ -35,7 +35,7 @@
 @if (showModal()) {
   <div class="modal-overlay" (click)="showModal.set(false)">
     <div class="modal-content" (click)="$event.stopPropagation()">
-      <h3>Добавить сотрудника</h3>
+      <h3>Add a member</h3>
 
       <div class="selection-list">
         @for (m of availableToAssign(); track m.id) {
@@ -45,14 +45,14 @@
               <small>{{ m.email }}</small>
             </div>
 
-            <input #roleInput class="role-input form-input" placeholder="Роль в отделе...">
+            <input #roleInput class="role-input form-input" placeholder="Role in the project...">
             <button class="btn-primary btn-sm" (click)="add(m.id, roleInput.value)">
-              Добавить
+              Add
             </button>
 
           </div>
         } @empty {
-          <div class="empty-state">Все сотрудники уже в этом проекте.</div>
+          <div class="empty-state">All users are already in this project.</div>
         }
       </div>
     </div>

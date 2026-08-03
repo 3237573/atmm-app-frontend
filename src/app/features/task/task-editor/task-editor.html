@@ -1,0 +1,78 @@
+@if (editing()) {
+  @let ed = editor();
+  @if (ed) {
+    <div class="editor-toolbar">
+      <!-- History -->
+      <button type="button" (click)="undo()" [disabled]="!canUndo()" [title]="'task.editor.undo' | transloco"><i class="material-icons">undo</i></button>
+      <button type="button" (click)="redo()" [disabled]="!canRedo()" [title]="'task.editor.redo' | transloco"><i class="material-icons">redo</i></button>
+
+      <span class="toolbar-separator"></span>
+
+      <!-- Inline Styles -->
+      <button type="button" (click)="toggleBold()" [class.is-active]="ed.isActive('bold')" [title]="'task.editor.bold' | transloco"><i class="material-icons">format_bold</i></button>
+      <button type="button" (click)="toggleItalic()" [class.is-active]="ed.isActive('italic')" [title]="'task.editor.italic' | transloco"><i class="material-icons">format_italic</i></button>
+      <button type="button" (click)="toggleUnderline()" [class.is-active]="ed.isActive('underline')" [title]="'task.editor.underline' | transloco"><i class="material-icons">format_underlined</i></button>
+      <button type="button" (click)="toggleStrike()" [class.is-active]="ed.isActive('strike')" [title]="'task.editor.strike' | transloco"><i class="material-icons">format_strikethrough</i></button>
+      <button type="button" (click)="toggleCode()" [class.is-active]="ed.isActive('code')" [title]="'task.editor.code' | transloco"><i class="material-icons">code</i></button>
+      <button type="button" (click)="setHR()" [title]="'task.editor.horizontalRule' | transloco"><i class="material-icons">horizontal_rule</i></button>
+
+      <span class="toolbar-separator"></span>
+
+      <!-- Headings -->
+      <button type="button" (click)="toggleHeading(1)" [class.is-active]="ed.isActive('heading', {level: 1})" [title]="'task.editor.h1' | transloco"><i class="material-icons">looks_one</i></button>
+      <button type="button" (click)="toggleHeading(2)" [class.is-active]="ed.isActive('heading', {level: 2})" [title]="'task.editor.h2' | transloco"><i class="material-icons">looks_two</i></button>
+      <button type="button" (click)="toggleHeading(3)" [class.is-active]="ed.isActive('heading', {level: 3})" [title]="'task.editor.h3' | transloco"><i class="material-icons">looks_3</i></button>
+
+      <span class="toolbar-separator"></span>
+
+      <!-- Align -->
+      <button type="button" (click)="setAlign('left')" [class.is-active]="isAlignActive('left')" [title]="'task.editor.alignLeft' | transloco"><i class="material-icons">format_align_left</i></button>
+      <button type="button" (click)="setAlign('center')" [class.is-active]="isAlignActive('center')" [title]="'task.editor.alignCenter' | transloco"><i class="material-icons">format_align_center</i></button>
+      <button type="button" (click)="setAlign('right')" [class.is-active]="isAlignActive('right')" [title]="'task.editor.alignRight' | transloco"><i class="material-icons">format_align_right</i></button>
+
+      <span class="toolbar-separator"></span>
+
+      <!-- Lists -->
+      <button type="button" (click)="toggleTaskList()" [class.is-active]="ed.isActive('taskList')" [title]="'task.editor.todoList' | transloco"><i class="material-icons">check_box</i></button>
+      <button type="button" (click)="toggleBulletList()" [class.is-active]="ed.isActive('bulletList')" [title]="'task.editor.bulletList' | transloco"><i class="material-icons">format_list_bulleted</i></button>
+      <button type="button" (click)="toggleOrderedList()" [class.is-active]="ed.isActive('orderedList')" [title]="'task.editor.orderedList' | transloco"><i class="material-icons">format_list_numbered</i></button>
+      <button type="button" (click)="toggleDetails()" [class.is-active]="ed.isActive('details')" [title]="'task.editor.details' | transloco"><i class="material-icons">expand_more</i></button>
+      <button type="button" (click)="indent()" [disabled]="!canIndent()" [title]="'task.editor.indent' | transloco"><i class="material-icons">format_indent_increase</i></button>
+      <button type="button" (click)="outdent()" [disabled]="!canOutdent()" [title]="'task.editor.outdent' | transloco"><i class="material-icons">format_indent_decrease</i></button>
+
+      <span class="toolbar-separator"></span>
+
+      <!-- Colors -->
+      <div class="color-picker-wrapper" [title]="'task.editor.textColor' | transloco">
+        <input type="color"
+               class="color-input"
+               [value]="getTextColor()"
+               (input)="setTextColor($any($event.target).value)">
+        <i class="material-icons">palette</i>
+      </div>
+
+      <div class="color-picker-wrapper" [title]="'task.editor.highlightColor' | transloco">
+        <input type="color"
+               class="color-input"
+               [value]="getHighlightColor()"
+               (input)="setHighlightColor($any($event.target).value)">
+        <i class="material-icons">highlight</i>
+      </div>
+
+      <span class="toolbar-separator"></span>
+
+      <!-- Blocks -->
+      <button type="button" (click)="insertMention()" [title]="'task.editor.mention' | transloco"><i class="material-icons">alternate_email</i></button>
+      <button type="button" (click)="toggleBlockquote()" [class.is-active]="ed.isActive('blockquote')" [title]="'task.editor.blockquote' | transloco"><i class="material-icons">format_quote</i></button>
+      <button type="button" (click)="toggleCodeBlock()" [class.is-active]="ed.isActive('codeBlock')" [title]="'task.editor.codeBlock' | transloco"><i class="material-icons">integration_instructions</i></button>
+      <button type="button" (click)="setLink()" [class.is-active]="ed.isActive('link')" [title]="'task.editor.link' | transloco"><i class="material-icons">link</i></button>
+      <button type="button" (click)="setImage()" [title]="'task.editor.image' | transloco"><i class="material-icons">image</i></button>
+      <span class="toolbar-separator"></span>
+
+      <!-- Special -->
+      <button type="button" (click)="clearFormatting()" [title]="'task.editor.clearFormatting' | transloco"><i class="material-icons">format_clear</i></button>
+    </div>
+  }
+}
+
+<div #editorContainer class="tiptap-container" [class.is-editing]="editing()"></div>
