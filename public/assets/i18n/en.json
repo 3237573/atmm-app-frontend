@@ -470,6 +470,8 @@
       "department": "Department *",
       "description": "Description",
       "dueDate": "Due Date",
+      "isPublic": " The task is available to everyone",
+      "isEditableByAll": " Anyone can edit a task",
       "noAssignees": "No performers",
       "noParent": "— No parent (root) —",
       "noProject": "No Project",
