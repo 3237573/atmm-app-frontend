@@ -196,14 +196,17 @@
               {{ formatTaskDate(task.dueDate) }}
             </strong>
           } @else {
-            <input type="date"
-                   [value]="editDueDate()"
-                   (input)="editDueDate.set($any($event.target).value)"
-                   class="inline-date"
-                   [min]="minDate">
+            <mat-form-field appearance="outline" class="inline-datepicker-field">
+              <input matInput
+                     [matDatepicker]="picker"
+                     [ngModel]="editDueDate()"
+                     (ngModelChange)="editDueDate.set($event)"
+                     [min]="minDate">
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
           }
         </div>
-
 
         <div class="meta-item">
           <i class="material-icons">subdirectory_arrow_right</i>
@@ -211,12 +214,12 @@
           @if (!editing()) {
             <strong>{{ parentTaskTitleDisplay() ?? ('taskDetail.fields.rootTask' | transloco) }}</strong>
           } @else {
-            <select [value]="editParentTaskId()"
-                    (change)="editParentTaskId.set($any($event.target).value)"
+            <select [ngModel]="editParentTaskId()"
+                    (ngModelChange)="editParentTaskId.set($event)"
                     class="inline-select">
-              <option [value]="null">{{ 'taskDetail.fields.rootTask' | transloco }}</option>
+              <option [ngValue]="null">{{ 'taskDetail.fields.rootTask' | transloco }}</option>
               @for (p of availableParentTasks(); track p.id) {
-                <option [value]="p.id">{{ p.title }}</option>
+                <option [ngValue]="p.id">{{ p.title }}</option>
               }
             </select>
           }
