@@ -16,7 +16,7 @@ import {TranslocoPipe} from '@ngneat/transloco';
 export class ProjectList implements OnInit {
   private readonly projectService = inject(ProjectService);
 
-  readonly rawProjects = signal<ProjectRO[]>([]); // Изменили с private на readonly, чтобы шаблон имел доступ, если нужно
+  readonly rawProjects = signal<ProjectRO[]>([]); // Changed from private to readonly so that the template has access if needed
 
   loading = signal(true);
   expandedNodes = signal<Set<string>>(new Set());
@@ -62,13 +62,13 @@ export class ProjectList implements OnInit {
     this.expandedNodes.set(newSet);
   }
 
-  // ДОБАВЛЕННЫЕ ХЕЛПЕРЫ ДЛЯ ШАБЛОНА:
+  // added helpers for the template
   getStatusLabel(status: string): string {
     switch (status?.toUpperCase()) {
-      case 'ACTIVE': return 'Активен';
-      case 'PLANNING': return 'Планирование';
-      case 'COMPLETED': return 'Завершен';
-      default: return status || 'В работе';
+      case 'ACTIVE': return 'Active';
+      case 'PLANNING': return 'Planning';
+      case 'COMPLETED': return 'Completed';
+      default: return status || 'At work';
     }
   }
 
