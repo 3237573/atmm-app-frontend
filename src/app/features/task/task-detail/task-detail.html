@@ -196,14 +196,17 @@
               {{ formatTaskDate(task.dueDate) }}
             </strong>
           } @else {
-            <input type="date"
-                   [value]="editDueDate()"
-                   (input)="editDueDate.set($any($event.target).value)"
-                   class="inline-date"
-                   [min]="minDate">
+            <mat-form-field appearance="outline" class="inline-datepicker-field">
+              <input matInput
+                     [matDatepicker]="picker"
+                     [ngModel]="editDueDate()"
+                     (ngModelChange)="editDueDate.set($event)"
+                     [min]="minDate">
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
           }
         </div>
-
 
         <div class="meta-item">
           <i class="material-icons">subdirectory_arrow_right</i>

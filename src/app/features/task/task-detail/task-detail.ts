@@ -17,6 +17,11 @@ import {finalize} from 'rxjs';
 import {AuthService} from '@core/services/auth.service';
 import {ProjectAffiliation} from '@core/models/project.model';
 import {MemberService} from '@core/services';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
+import { TranslocoService } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-task-detail',
@@ -32,7 +37,13 @@ import {MemberService} from '@core/services';
     AttachmentManager,
     SubtaskTreeComponent,
     TaskComments,
-    AssigneeManager
+    AssigneeManager,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule
+  ],
+  providers: [
+    provideNativeDateAdapter() // Добавляем провайдер дат
   ],
   templateUrl: './task-detail.html',
   styleUrls: ['./task-detail.scss'],
@@ -40,6 +51,9 @@ import {MemberService} from '@core/services';
 })
 export class TaskDetail implements OnInit {
   private readonly authService = inject(AuthService);
+  private readonly translocoService = inject(TranslocoService);
+  private readonly dateAdapter = inject(DateAdapter<Date>);
+
   public router = inject(Router);
   public route = inject(ActivatedRoute);
 
@@ -58,7 +72,6 @@ export class TaskDetail implements OnInit {
   deleting = signal(false);
   showAssigneeModal = signal(false);
   subtasksExpanded = signal(true);
-  minDate = new Date().toISOString().split('T')[0];
 
   task = signal<TaskRO | null>(null);
   taskTree = signal<TaskTreeRO | null>(null);
@@ -100,7 +113,8 @@ export class TaskDetail implements OnInit {
   editProjectId = signal<string>('');
   editTitle = signal('');
   editDescription = signal('');
-  editDueDate = signal('');
+  editDueDate = signal<Date | null>(null);
+  minDate = new Date(); // Теперь это объект Date
   editParentTaskId = signal<string | null>(null);
   editTaskStatus = signal<TaskStatus>('PENDING');
   editPriority = signal<TaskPriority>('LOW');
@@ -116,6 +130,11 @@ export class TaskDetail implements OnInit {
   });
 
   ngOnInit(): void {
+    // Меняем язык календаря на лету
+    this.translocoService.langChanges$.subscribe(lang => {
+      this.dateAdapter.setLocale(lang === 'ru' ? 'ru-RU' : 'en-US');
+    });
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) this.loadTask(id);
   }
@@ -129,7 +148,7 @@ export class TaskDetail implements OnInit {
         this.task.set(data);
         this.editTitle.set(data.title);
         this.editDescription.set(data.description ?? '');
-        this.editDueDate.set(data.dueDate ? data.dueDate.split('T')[0] : '');
+        this.editDueDate.set(data.dueDate ? new Date(data.dueDate) : null);
         this.editParentTaskId.set(data.parentTaskId ?? null);
         this.editTaskStatus.set(data.taskStatus);
         this.editPriority.set(data.priority);
@@ -215,7 +234,7 @@ export class TaskDetail implements OnInit {
     if (t) {
       this.editTitle.set(t.title);
       this.editDescription.set(t.description ?? '');
-      this.editDueDate.set(t.dueDate ? t.dueDate.split('T')[0] : '');
+      this.editDueDate.set(t.dueDate ? new Date(t.dueDate) : null);
       this.editParentTaskId.set(t.parentTaskId ?? null);
       this.editTaskStatus.set(t.taskStatus);
       this.editPriority.set(t.priority);
@@ -231,12 +250,17 @@ export class TaskDetail implements OnInit {
     const t = this.task();
     if (!t) return;
 
+    // Подготавливаем дату для бэкенда
+    const dueDateFormatted = this.editDueDate()
+      ? this.toIsoDateString(this.editDueDate()!)
+      : undefined;
+
     const payload: Partial<ITaskUpdateRO> = {
       title: this.editTitle(),
       description: this.taskEditor().getHTML(),
       status: this.editTaskStatus() || undefined,
       priority: this.editPriority() || undefined,
-      dueDate: this.editDueDate() || undefined,
+      dueDate: dueDateFormatted, // Используем отформатированную дату
       parentTaskId: this.editParentTaskId(),
       projectId: this.editProjectId() || undefined,
       settings: {
@@ -279,6 +303,13 @@ export class TaskDetail implements OnInit {
     this.taskService.updateTaskStatus(t.id, status).subscribe({
       error: () => this.task.set(t)
     });
+  }
+
+  private toIsoDateString(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   canDeactivate(): boolean {

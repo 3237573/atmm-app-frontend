@@ -1,10 +1,7 @@
-
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+@use './ui-components';
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 html {
   height: 100%;
@@ -19,35 +16,21 @@ html {
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
   color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
   background-color: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
   margin: 0;
   height: 100%;
 }
-/* ============================================================
-   1. ИМПОРТЫ И ШРИФТЫ
-   ============================================================ */
-@use './ui-components';
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* ============================================================
-   2. МИКСИНЫДЛЯ ТЕМЫ (Объявляем строго ДО вызова!)
+   2. МИКСИНЫ ДЛЯ ТЕМЫ
    ============================================================ */
 @mixin dark-theme-variables {
-  --bg-main: #0b0f17; /* Глубокий благородный темный (с каплей синего пигмента) */
-  --bg-card: #151b26; /* Контрастная карточка */
-  --bg-elevated: #1f2635; /* Всплывающие элементы/меню */
+  --bg-main: #0b0f17;
+  --bg-card: #151b26;
+  --bg-elevated: #1f2635;
   --bg-soft: #1a202c;
 
   --border: #222938;
@@ -58,14 +41,13 @@ body {
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
 
-  --accent: #60a5fa; /* Чуть более светлый синий для лучшей читаемости в темноте */
+  --accent: #60a5fa;
   --accent-rgb: 96, 165, 250;
   --danger: #f87171;
   --danger-rgb: 248, 113, 113;
   --success: #34d399;
   --success-rgb: 52, 211, 153;
 
-  /* Роли в темной теме (Глубокие неоновые оттенки, не бьющие по глазам) */
   --role-owner-bg: rgba(249, 115, 22, 0.12);
   --role-owner-color: #f97316;
   --role-admin-bg: rgba(59, 130, 246, 0.12);
@@ -93,27 +75,21 @@ body {
 /* ============================================================
    3. СИСТЕМНЫЕ ТОКЕНЫ И ТЕМЫ (THEMING)
    ============================================================ */
-
-/* Базовые стили для СВЕТЛОЙ темы (применяются по умолчанию и через класс) */
 :root, body.light-theme {
-  /* Свежие, чистые фоны */
-  --bg-main: #f8fafc; /* Воздушный прохладный фон, не бьет по глазам */
-  --bg-card: #ffffff; /* Белоснежные карточки "всплывают" над фоном */
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
   --bg-elevated: #ffffff;
   --bg-soft: #f1f5f9;
 
-  /* Границы и тени */
   --border: #e2e8f0;
   --border-subtle: rgba(15, 23, 42, 0.04);
   --shadow-soft: 0 2px 8px -1px rgba(15, 23, 42, 0.04), 0 4px 20px -2px rgba(15, 23, 42, 0.04);
   --shadow-strong: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
 
-  /* Шрифты (Цвета из палитры Slate/Zinc для снижения контрастности) */
-  --text-main: #1e293b; /* Глубокий slate вместо угольно-черного */
-  --text-muted: #64748b; /* Комфортный серый для второстепенного текста */
+  --text-main: #1e293b;
+  --text-muted: #64748b;
 
-  /* Системные цвета */
-  --accent: #3b82f6; /* Яркий, современный синий */
+  --accent: #3b82f6;
   --accent-rgb: 59, 130, 246;
   --success: #10b981;
   --success-rgb: 16, 185, 129;
@@ -122,7 +98,6 @@ body {
   --danger: #ef4444;
   --danger-rgb: 239, 68, 68;
 
-  /* Цвета ролей (Мягкие пастельные плашки для светлой темы) */
   --role-owner-bg: #fef3c7;
   --role-owner-color: #b45309;
   --role-admin-bg: #e0e7ff;
@@ -132,11 +107,9 @@ body {
   --role-guest-bg: #f1f5f9;
   --role-guest-color: #475569;
 
-  /* Системная кривая для анимаций */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Автоматическая темная тема по системным настройкам ИЛИ через принудительный класс */
 @media (prefers-color-scheme: dark) {
   :root {
     @include dark-theme-variables;
@@ -168,7 +141,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Плавный переход для смены темы */
   transition: background-color 0.25s var(--ease),
   color 0.25s var(--ease),
   border-color 0.25s var(--ease),
@@ -181,7 +153,6 @@ app-root {
   width: 100%;
 }
 
-/* Оптимизированный транзишн для ключевых контейнеров */
 .header-area, nav, .main-container, .content-area, .card, .auth-card {
   transition: background-color 0.25s var(--ease),
   border-color 0.25s var(--ease),
