@@ -84,7 +84,7 @@ export interface ITaskUpdateRO {
   projectId?: string;
   assigneeMemberIds?: string[];
   dueDate?: string;
-  parentTaskId?: string;
+  parentTaskId?: string | null;
   settings?: {
     isPublic: boolean;
     isEditableByAll: boolean;
