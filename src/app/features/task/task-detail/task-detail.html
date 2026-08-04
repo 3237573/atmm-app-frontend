@@ -1,8 +1,7 @@
 <div class="task-detail" appBackOnEscape>
 
   <div class="page-header">
-    <button class="btn-back"
-            (click)="router.navigate(['/tasks'], { relativeTo: route })">
+    <button class="btn-back" (click)="navService.back()">
       <i class="material-icons">arrow_back</i>
       {{ 'taskDetail.backToList' | transloco }}
     </button>
@@ -14,67 +13,6 @@
       {{ 'taskDetail.loading' | transloco }}
     </div>
   } @else if (task(); as task) {
-
-    <!-- ====================== STATUS BAR ====================== -->
-    <div class="status-bar">
-      <div class="status-left">
-        <div class="status-selector">
-          <span class="label">{{ 'taskDetail.status' | transloco }}</span>
-          <select [value]="selectedStatus()"
-                  (change)="updateStatus($any($event.target).value)"
-                  class="status-select"
-                  [ngClass]="'status-' + selectedStatus().toLowerCase()"
-                  [disabled]="editing()">
-            <option value="PENDING">{{ 'task.status.PENDING' | transloco }}</option>
-            <option value="IN_PROGRESS">{{ 'task.status.IN_PROGRESS' | transloco }}</option>
-            <option value="REVIEW">{{ 'task.status.REVIEW' | transloco }}</option>
-            <option value="COMPLETED">{{ 'task.status.COMPLETED' | transloco }}</option>
-            <option value="ARCHIVED">{{ 'task.status.ARCHIVED' | transloco }}</option>
-          </select>
-        </div>
-        <div class="priority-badge" [class]="getPriorityColor(task.priority)">
-          {{ getPriorityLabel(task.priority) }}
-        </div>
-      </div>
-
-      <div *appHasPermission="['task:update']" class="status-actions">
-        @if (canEdit()) {
-          @if (!editing()) {
-            <button class="btn-edit" (click)="startEdit()">
-              <i class="material-icons">edit</i>
-              {{ 'taskDetail.actions.edit' | transloco }}
-            </button>
-
-            <button class="btn-delete" (click)="deleteTask()" [disabled]="deleting()">
-              @if (deleting()) {
-                <i class="material-icons spinning">refresh</i>
-              } @else {
-                <i class="material-icons">delete</i>
-              }
-              <span>{{ 'taskDetail.actions.delete' | transloco }}</span>
-            </button>
-          } @else {
-            <button class="btn-cancel" (click)="cancelEdit()">
-              <i class="material-icons">close</i>
-              {{ 'taskDetail.actions.cancel' | transloco }}
-            </button>
-
-            <button class="btn-save" (click)="saveEdit()" [disabled]="saving()">
-              @if (saving()) {
-                <i class="material-icons spinning">refresh</i>
-              } @else {
-                <i class="material-icons">save</i>
-              }
-              <span>{{ 'taskDetail.actions.save' | transloco }}</span>
-            </button>
-          }
-        }
-        <button class="btn-add-subtask" (click)="createSubtask()">
-          <i class="material-icons">add</i>
-          {{ 'taskDetail.actions.addSubtask' | transloco }}
-        </button>
-      </div>
-    </div>
 
     <!-- ====================== MAIN CONTENT ====================== -->
     <div class="task-content">
@@ -92,8 +30,18 @@
         }
       </div>
 
+      <!-- ----- DESCRIPTION ----- -->
+      <div class="description-section">
+        <div class="editor-wrapper" [class.is-editing]="editing()">
+          <app-task-editor
+            #editorRef
+            [editable]="editing()"
+            [initialContent]="editDescription()">
+          </app-task-editor>
+        </div>
+      </div>
 
-      <!-- ----- META INFORMATION ----- -->
+      <!-- ----- META INFORMATION (Объединенная секция) ----- -->
       <div class="meta-info">
         <div class="meta-item">
           <i class="material-icons">person_add</i>
@@ -102,32 +50,25 @@
         </div>
 
         <div class="meta-item">
-          <i class="material-icons">public</i>
-          <span>{{ 'taskDetail.fields.isPublic' | transloco }}</span>
-          @if (!editing() || !isCreator()) {
-            <strong>{{ task.settings?.isPublic ? ('common.yes' | transloco) : ('common.no' | transloco) }}</strong>
-          } @else {
-            <label class="custom-checkbox-label">
-              <input type="checkbox"
-                     [checked]="editIsPublic()"
-                     (change)="editIsPublic.set($any($event.target).checked)">
-              <span>{{ 'taskDetail.actions.setPublic' | transloco }}</span>
-            </label>
-          }
+          <i class="material-icons">calendar_today</i>
+          <span>{{ 'taskDetail.fields.created' | transloco }}</span>
+          <strong>{{ formatDate(task.createdAt) }}</strong>
         </div>
 
         <div class="meta-item">
-          <i class="material-icons">edit_attributes</i>
-          <span>{{ 'taskDetail.fields.isEditableByAll' | transloco }}</span>
-          @if (!editing() || !isCreator()) {
-            <strong>{{ task.settings?.isEditableByAll ? ('common.yes' | transloco) : ('common.no' | transloco) }}</strong>
+          <i class="material-icons">subdirectory_arrow_right</i>
+          <span>{{ 'taskDetail.fields.parentTask' | transloco }}</span>
+          @if (!editing()) {
+            <strong>{{ parentTaskTitleDisplay() ?? ('taskDetail.fields.rootTask' | transloco) }}</strong>
           } @else {
-            <label class="custom-checkbox-label">
-              <input type="checkbox"
-                     [checked]="editIsEditableByAll()"
-                     (change)="editIsEditableByAll.set($any($event.target).checked)">
-              <span>{{ 'taskDetail.actions.setEditableByAll' | transloco }}</span>
-            </label>
+            <select [ngModel]="editParentTaskId()"
+                    (ngModelChange)="editParentTaskId.set($event)"
+                    class="inline-select">
+              <option [ngValue]="null">{{ 'taskDetail.fields.rootTask' | transloco }}</option>
+              @for (p of availableParentTasks(); track p.id) {
+                <option [ngValue]="p.id">{{ p.title }}</option>
+              }
+            </select>
           }
         </div>
 
@@ -136,47 +77,7 @@
           <span>{{ 'taskDetail.fields.department' | transloco }}</span>
           <strong>{{ task.departmentName || ('taskDetail.fields.departmentGeneral' | transloco) }}</strong>
         </div>
-        <div class="meta-item">
-          <i class="material-icons">folder</i>
-          <span>{{ 'taskDetail.fields.project' | transloco }}</span>
-          @if (!editing()) {
-            <strong>{{ task.projectName || ('taskDetail.fields.noProject' | transloco) }}</strong>
-          } @else {
-            <select [value]="editProjectId()"
-                    (change)="editProjectId.set($any($event.target).value)"
-                    class="inline-select">
-              <option value="">{{ 'taskDetail.fields.noProject' | transloco }}</option>
-              @for (project of userProjects(); track project.projectId) {
-                <option [value]="project.projectId">{{ project.projectTitle }}</option>
-              }
-            </select>
-          }
-        </div>
-        <div class="meta-item">
-          <i class="material-icons">calendar_today</i>
-          <span>{{ 'taskDetail.fields.created' | transloco }}</span>
-          <strong>{{ formatDate(task.createdAt) }}</strong>
-        </div>
 
-      </div>
-
-      <!-- ----- DESCRIPTION ----- -->
-      <div class="description-section">
-        <h3>
-          <i class="material-icons">description</i>
-          {{ 'taskDetail.fields.description' | transloco }}
-        </h3>
-
-        <div class="editor-wrapper" [class.is-editing]="editing()">
-          <app-task-editor
-            #editorRef
-            [editable]="editing()"
-            [initialContent]="editDescription()"
-          ></app-task-editor>
-        </div>
-      </div>
-
-      <div class="meta-info">
         <div class="meta-item" [class.overdue]="!editing() && isOverdue(task.dueDate)">
           <i class="material-icons">people</i>
           <span>{{ 'taskDetail.fields.assignees' | transloco }}</span>
@@ -209,28 +110,119 @@
         </div>
 
         <div class="meta-item">
-          <i class="material-icons">subdirectory_arrow_right</i>
-          <span>{{ 'taskDetail.fields.parentTask' | transloco }}</span>
+          <i class="material-icons">folder</i>
+          <span>{{ 'taskDetail.fields.project' | transloco }}</span>
           @if (!editing()) {
-            <strong>{{ parentTaskTitleDisplay() ?? ('taskDetail.fields.rootTask' | transloco) }}</strong>
+            <strong>{{ task.projectName || ('taskDetail.fields.noProject' | transloco) }}</strong>
           } @else {
-            <select [ngModel]="editParentTaskId()"
-                    (ngModelChange)="editParentTaskId.set($event)"
+            <select [value]="editProjectId()"
+                    (change)="editProjectId.set($any($event.target).value)"
                     class="inline-select">
-              <option [ngValue]="null">{{ 'taskDetail.fields.rootTask' | transloco }}</option>
-              @for (p of availableParentTasks(); track p.id) {
-                <option [ngValue]="p.id">{{ p.title }}</option>
+              <option value="">{{ 'taskDetail.fields.noProject' | transloco }}</option>
+              @for (project of userProjects(); track project.projectId) {
+                <option [value]="project.projectId">{{ project.projectTitle }}</option>
               }
             </select>
           }
         </div>
-      </div>
 
+        <div class="meta-item">
+          <i class="material-icons">public</i>
+          <span>{{ 'taskDetail.fields.isPublic' | transloco }}</span>
+          @if (!editing() || !isCreator()) {
+            <strong>{{ task.settings?.isPublic ? ('common.yes' | transloco) : ('common.no' | transloco) }}</strong>
+          } @else {
+            <label class="custom-checkbox-label">
+              <input type="checkbox"
+                     [checked]="editIsPublic()"
+                     (change)="editIsPublic.set($any($event.target).checked)">
+              <span>{{ 'taskDetail.actions.setPublic' | transloco }}</span>
+            </label>
+          }
+        </div>
+
+        <div class="meta-item">
+          <i class="material-icons">edit_attributes</i>
+          <span>{{ 'taskDetail.fields.isEditableByAll' | transloco }}</span>
+          @if (!editing() || !isCreator()) {
+            <strong>{{ task.settings?.isEditableByAll ? ('common.yes' | transloco) : ('common.no' | transloco) }}</strong>
+          } @else {
+            <label class="custom-checkbox-label">
+              <input type="checkbox"
+                     [checked]="editIsEditableByAll()"
+                     (change)="editIsEditableByAll.set($any($event.target).checked)">
+              <span>{{ 'taskDetail.actions.setEditableByAll' | transloco }}</span>
+            </label>
+          }
+        </div>
+      </div>
 
       <!-- ----- ATTACHMENTS ----- -->
       <app-task-attachment-manager
         [taskId]="task.id"
-        [initialAttachments]="task.attachments"/>
+        [initialAttachments]="task.attachments">
+      </app-task-attachment-manager>
+
+      <!-- ====================== STATUS BAR ====================== -->
+      <div class="status-bar">
+        <div class="status-left">
+          <div class="status-selector">
+            <span class="label">{{ 'taskDetail.status' | transloco }}</span>
+            <select [value]="selectedStatus()"
+                    (change)="updateStatus($any($event.target).value)"
+                    class="status-select"
+                    [ngClass]="'status-' + selectedStatus().toLowerCase()"
+                    [disabled]="editing()">
+              <option value="PENDING">{{ 'task.status.PENDING' | transloco }}</option>
+              <option value="IN_PROGRESS">{{ 'task.status.IN_PROGRESS' | transloco }}</option>
+              <option value="REVIEW">{{ 'task.status.REVIEW' | transloco }}</option>
+              <option value="COMPLETED">{{ 'task.status.COMPLETED' | transloco }}</option>
+              <option value="ARCHIVED">{{ 'task.status.ARCHIVED' | transloco }}</option>
+            </select>
+          </div>
+          <div class="priority-badge" [class]="getPriorityColor(task.priority)">
+            {{ getPriorityLabel(task.priority) }}
+          </div>
+        </div>
+
+        <div *appHasPermission="['task:update']" class="status-actions">
+          @if (canEdit()) {
+            @if (!editing()) {
+              <button class="btn-edit" (click)="startEdit()">
+                <i class="material-icons">edit</i>
+                {{ 'taskDetail.actions.edit' | transloco }}
+              </button>
+
+              <button class="btn-delete" (click)="deleteTask()" [disabled]="deleting()">
+                @if (deleting()) {
+                  <i class="material-icons spinning">refresh</i>
+                } @else {
+                  <i class="material-icons">delete</i>
+                }
+                <span>{{ 'taskDetail.actions.delete' | transloco }}</span>
+              </button>
+            } @else {
+              <button class="btn-cancel" (click)="cancelEdit()">
+                <i class="material-icons">close</i>
+                {{ 'taskDetail.actions.cancel' | transloco }}
+              </button>
+
+              <button class="btn-save" (click)="saveEdit()" [disabled]="saving()">
+                @if (saving()) {
+                  <i class="material-icons spinning">refresh</i>
+                } @else {
+                  <i class="material-icons">save</i>
+                }
+                <span>{{ 'taskDetail.actions.save' | transloco }}</span>
+              </button>
+            }
+          }
+          <button class="btn-add-subtask" (click)="createSubtask()">
+            <i class="material-icons">add</i>
+            {{ 'taskDetail.actions.addSubtask' | transloco }}
+          </button>
+        </div>
+      </div>
 
       <!-- ----- SUBTASKS ----- -->
       <div class="subtasks-section" [class.collapsed]="!subtasksExpanded() || !taskTree()?.subtasks?.length">
@@ -257,6 +249,7 @@
         @if (subtasksExpanded() && taskTree()?.subtasks?.length) {
           <div class="tree-root">
             @for (node of taskTree()!.subtasks; track node.task.id) {
+              <!-- routerLink удален. Навигацию нужно вызывать в компоненте subtask-tree.ts через this.router.navigate() -->
               <app-subtask-tree [node]="node"></app-subtask-tree>
             }
           </div>
@@ -266,7 +259,8 @@
       <!-- ----- COMMENTS ----- -->
       <app-task-comments
         [taskId]="task.id"
-        [reloadTrigger]="reloadTrigger()"/>
+        [reloadTrigger]="reloadTrigger()">
+      </app-task-comments>
     </div>
 
     <!-- ===================== ASSIGNEE MODAL ===================== -->
@@ -276,11 +270,11 @@
           <app-task-assignee-manager
             [task]="task"
             (assigneesUpdated)="onAssigneesUpdated()"
-            (closed)="closeAssigneeModal()"/>
+            (closed)="closeAssigneeModal()">
+          </app-task-assignee-manager>
         </div>
       </div>
     }
 
-  } <!-- /else if task -->
-
+  }
 </div>

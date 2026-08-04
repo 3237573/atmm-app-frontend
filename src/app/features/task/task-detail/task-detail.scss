@@ -3,39 +3,25 @@
 @use "sass:color";
 @use "../../../app" as *;
 
-// ---------- Placeholders (Шаблоны для переиспользования) ----------
-%icon-btn-reset {
-  background: transparent;
-  border: none;
-  color: $text-muted;
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  transition: color 0.15s;
-
-  &:hover { color: $text-main; }
-}
-
 .task-detail {
-  padding: 1.5rem;
+  padding: 0.75rem 1rem;
   min-height: 100vh;
 }
 
 .btn-back {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   background: transparent;
   border: none;
   color: $text-muted;
   cursor: pointer;
-  font-size: 0.9rem;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.4rem;
   transition: all 0.2s;
 
-  i { font-size: 1.2rem; }
+  i { font-size: 1.1rem; }
   &:hover {
     background: rgba($border, 0.2);
     color: $accent;
@@ -46,23 +32,23 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1rem;
   background: rgba($border, 0.1);
   border-bottom: 1px solid $border;
-  border-radius: 1rem 1rem 0 0;
+  border-radius: 0.75rem 0.75rem 0 0;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.5rem 1rem;
 
   .status-left {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
     flex-wrap: wrap;
   }
 
   .status-actions {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem;
     align-items: center;
   }
 }
@@ -70,9 +56,9 @@
 .status-selector {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   .label {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: $text-main;
   }
 }
@@ -81,9 +67,9 @@
   background: $bg-main;
   border: 1px solid $border;
   color: $text-main;
-  padding: 0.4rem 0.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.4rem;
+  font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -106,41 +92,29 @@
 }
 
 .priority-badge {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  padding: 0.25rem 0.75rem;
+  padding: 0.2rem 0.6rem;
   border-radius: 2rem;
-  &.priority-low {
-    background: rgba($success, 0.2);
-    color: $success;
-  }
-  &.priority-medium {
-    background: rgba($warning, 0.2);
-    color: $warning;
-  }
-  &.priority-high {
-    background: rgba($accent, 0.2);
-    color: $accent;
-  }
-  &.priority-critical {
-    background: rgba($danger, 0.2);
-    color: $danger;
-  }
+  &.priority-low { background: rgba($success, 0.2); color: $success; }
+  &.priority-medium { background: rgba($warning, 0.2); color: $warning; }
+  &.priority-high { background: rgba($accent, 0.2); color: $accent; }
+  &.priority-critical { background: rgba($danger, 0.2); color: $danger; }
 }
 
 .btn-edit, .btn-delete, .btn-cancel, .btn-save, .btn-add-subtask {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.9rem;
-  border-radius: 0.5rem;
-  font-size: 0.8rem;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.4rem;
+  font-size: 0.78rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   border: 1px solid transparent;
 
-  i { font-size: 1rem; }
+  i { font-size: 0.95rem; }
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -171,9 +145,7 @@
   background: rgba($border, 0.2);
   color: $text-muted;
   border-color: $border;
-  &:hover {
-    background: rgba($border, 0.3);
-  }
+  &:hover { background: rgba($border, 0.3); }
 }
 
 .btn-save {
@@ -199,29 +171,32 @@
 .task-content {
   background: $bg-card;
   border: 1px solid $border;
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   overflow: hidden;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
+/* ----- ЗАГОЛОВОК ЗАДАЧИ ----- */
 .task-title-section {
-  padding: 1.5rem;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid $border;
   h1 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.15rem; // Уменьшен шрифт заголовка
+    font-weight: 600;
     color: $text-main;
+    line-height: 1.3;
   }
 }
 
 .title-input {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.4rem 0.6rem;
   background: $bg-main;
   border: 1px solid $border;
-  border-radius: 0.5rem;
+  border-radius: 0.4rem;
   color: $text-main;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
   &:focus {
     outline: none;
@@ -229,11 +204,12 @@
   }
 }
 
+/* ----- МЕТА-ИНФОРМАЦИЯ ----- */
 .meta-info {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 0.75rem;
-  padding: 1rem 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.5rem 1rem;
+  padding: 0.6rem 1rem;
   background: rgba($border, 0.05);
   border-bottom: 1px solid $border;
 }
@@ -241,34 +217,39 @@
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
+  gap: 0.4rem;
+  font-size: 0.8rem; // Более компактный шрифт мета-полей
   color: $text-muted;
-  i { font-size: 1.1rem; color: $accent; }
+
+  i { font-size: 1rem; color: $accent; }
   strong { color: $text-main; font-weight: 500; }
+
   &.overdue {
     i, strong { color: $danger; }
   }
   .overdue-text { color: $danger; }
+
+  .value.clickable {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    cursor: pointer;
+    .edit-icon {
+      font-size: 0.9rem;
+      opacity: 0.6;
+    }
+  }
 }
 
+/* ----- ОПИСАНИЕ И РЕДАКТОР ----- */
 .description-section {
-  padding: 1.5rem;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid $border;
-  h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: $text-muted;
-    i { font-size: 1.2rem; }
-  }
 }
 
 .editor-wrapper {
   border: 1px solid $border;
-  border-radius: 0.5rem;
+  border-radius: 0.4rem;
   background-color: $bg-main;
   overflow: hidden;
   transition: all 0.2s;
@@ -279,18 +260,18 @@
   }
 }
 
-// SUBTASK
+/* ----- ПОДЗАДАЧИ ----- */
 .subtasks-section {
   color: $text-muted;
   margin-top: 0.5rem;
   background: $bg-card;
-  padding: 1.5rem;
-  border-radius: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
   border: 1px solid $border;
   transition: padding 0.2s ease;
 
   &.collapsed {
-    padding: 0.75rem 1.5rem;
+    padding: 0.5rem 1rem;
   }
 }
 
@@ -305,11 +286,11 @@
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .empty-inline {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: $text-muted;
   margin-left: 0.5rem;
   font-weight: normal;
@@ -320,23 +301,21 @@
   to { transform: rotate(360deg); }
 }
 
-.spinning {
-  animation: spin 1s linear infinite;
-}
+.spinning { animation: spin 1s linear infinite; }
 
 .loader-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
-  gap: 1rem;
+  padding: 2rem;
+  gap: 0.75rem;
   color: $text-muted;
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border: 3px solid $border;
   border-top-color: $accent;
   border-radius: 50%;
@@ -345,13 +324,13 @@
 
 .loader-small {
   display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid $border; // Заменил var(--border) на переменную
-  border-top-color: $accent; // Заменил var(--accent) на переменную
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 2px solid $border;
+  border-top-color: $accent;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
-  margin-left: 0.5rem;
+  margin-left: 0.4rem;
 }
 
 // ---------- Modal ----------
@@ -365,58 +344,27 @@
   z-index: 1000;
 }
 
-.modal-content {
-  background: $bg-card;
-  border-radius: 1rem;
-  border: 1px solid $border;
-  width: 90%;
-  max-width: 500px;
-  max-height: 80vh;
+.btn-close-modal {
+  background: transparent;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  padding: 0.25rem;
   display: flex;
-  flex-direction: column;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid $border;
+  transition: color 0.15s;
 
-  h2 {
-    margin: 0;
-    font-size: 1.1rem;
-    color: $text-main;
-  }
-
-  .btn-close-modal {
-    @extend %icon-btn-reset;
-    padding: 0.25rem;
-    i { font-size: 1.2rem; }
-  }
-}
-
-.modal-body {
-  padding: 1rem 1.5rem;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.modal-footer {
-  padding: 0.75rem 1.5rem;
-  border-top: 1px solid $border;
-  display: flex;
-  justify-content: flex-end;
+  i { font-size: 1.1rem; }
+  &:hover { color: $text-main; }
 }
 
 .inline-select, .inline-date {
   background: $bg-main;
   border: 1px solid $border;
   color: $accent;
-  padding: 0.2rem 0.5rem;
-  border-radius: 0.5rem;
-  font-size: 0.85rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.4rem;
+  font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   width: auto;
@@ -428,58 +376,13 @@
 }
 
 .inline-select {
-  min-width: 180px;
-}
-
-.info-row {
-  padding: 0 1.5rem 1.5rem 1.5rem;
-  border-bottom: 1px solid $border;
-
-  .info-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-
-    .label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.85rem;
-      color: $text-muted;
-      font-weight: 500;
-    }
-
-    .value {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba($accent, 0.05);
-      padding: 0.3rem 0.8rem;
-      border-radius: 2rem;
-      cursor: pointer;
-      transition: background 0.2s;
-
-      &:hover {
-        background: rgba($accent, 0.15);
-      }
-
-      .edit-icon {
-        font-size: 1rem;
-        opacity: 0.6;
-      }
-    }
-  }
-}
-
-.due-date-section {
-  display: none;
+  min-width: 160px;
 }
 
 // ---------- Material Datepicker Стилизация ----------
 .inline-datepicker-field {
-  width: 140px;
-  font-size: 0.85rem;
+  width: 130px;
+  font-size: 0.8rem;
   display: inline-flex;
   align-items: center;
   margin-bottom: 0;
@@ -487,15 +390,15 @@
   ::ng-deep {
     .mat-mdc-text-field-wrapper {
       padding: 0;
-      height: 32px;
+      height: 28px;
     }
 
     .mat-mdc-form-field-flex {
-      height: 32px;
+      height: 28px;
       align-items: center !important;
-      padding: 0 0.5rem;
+      padding: 0 0.4rem;
       background: $bg-main;
-      border-radius: 0.5rem;
+      border-radius: 0.4rem;
     }
 
     .mat-mdc-form-field-infix {
@@ -516,7 +419,6 @@
       line-height: normal !important;
     }
 
-    // Центрируем обертку суффикса и саму иконку календаря
     .mat-mdc-form-field-icon-suffix {
       display: flex;
       align-items: center;
@@ -527,8 +429,8 @@
       display: flex;
       align-items: center;
       button {
-        width: 24px;
-        height: 24px;
+        width: 22px;
+        height: 22px;
         color: $accent;
         display: flex;
         align-items: center;
@@ -540,7 +442,7 @@
 
 // ---------- Media Queries ----------
 @media (max-width: 768px) {
-  .task-detail { padding: 1rem; }
+  .task-detail { padding: 0.5rem; }
   .status-bar { flex-direction: column; align-items: stretch; }
   .status-left { justify-content: space-between; }
   .status-actions { justify-content: flex-end; }
@@ -549,10 +451,5 @@
   .inline-select, .inline-date {
     width: 100%;
     min-width: unset;
-  }
-
-  .info-row .info-item {
-    flex-direction: column;
-    align-items: flex-start;
   }
 }

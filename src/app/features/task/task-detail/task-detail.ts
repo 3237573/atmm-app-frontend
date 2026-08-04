@@ -1,8 +1,17 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, viewChild} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  viewChild
+} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CommonModule, formatDate as angularFormatDate} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {TranslocoModule} from '@ngneat/transloco';
+import {TranslocoModule, TranslocoService} from '@ngneat/transloco';
 import {ReplaceMePipe} from '@core/pipes/replace-me.pipe';
 import {HasPermissionDirective} from '@core/directives/has-permission.directive';
 import {BackOnEscapeDirective} from '@core/directives/back-on-escape.directive';
@@ -13,15 +22,15 @@ import {TaskComments} from '@features/task/task-comments/task-comments';
 import {ITaskUpdateRO, TaskPriority, TaskRO, TaskStatus, TaskTreeRO} from '@core/models/task/task.model';
 import {TaskService} from '@core/services/task.service';
 import {AssigneeManager} from '@features/task/assignee-manager/assignee-manager';
-import {finalize} from 'rxjs';
+import {finalize, Subscription} from 'rxjs';
 import {AuthService} from '@core/services/auth.service';
 import {ProjectAffiliation} from '@core/models/project.model';
 import {MemberService} from '@core/services';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
-import { TranslocoService } from '@ngneat/transloco';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatInputModule} from '@angular/material/input';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {DateAdapter, provideNativeDateAdapter} from '@angular/material/core';
+import {NavigationService} from '@core/services/navigation.service';
 
 @Component({
   selector: 'app-task-detail',
@@ -43,7 +52,7 @@ import { TranslocoService } from '@ngneat/transloco';
     MatDatepickerModule
   ],
   providers: [
-    provideNativeDateAdapter() // Добавляем провайдер дат
+    provideNativeDateAdapter()
   ],
   templateUrl: './task-detail.html',
   styleUrls: ['./task-detail.scss'],
@@ -53,12 +62,14 @@ export class TaskDetail implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly translocoService = inject(TranslocoService);
   private readonly dateAdapter = inject(DateAdapter<Date>);
+  private readonly destroyRef = inject(DestroyRef);
 
   public router = inject(Router);
   public route = inject(ActivatedRoute);
 
   private readonly memberService = inject(MemberService);
   private readonly taskService = inject(TaskService);
+  protected readonly navService = inject(NavigationService);
 
   currentUser = this.authService.currentUser;
 
@@ -79,49 +90,39 @@ export class TaskDetail implements OnInit {
   userProjects = signal<ProjectAffiliation[]>([]);
   reloadTrigger = signal(0);
 
-  isCreator = computed(() => {
-    const currentTask = this.task();
-    const currentUser = this.authService.currentUser(); // или ваш способ получения текущего юзера
-    if (!currentTask || !currentUser) return false;
-    return currentTask.creatorId === currentUser.id;
-  });
-  canEdit = computed(() => {
-    const currentTask = this.task();
-    const currentUser = this.authService.currentUser(); // или ваш способ получения текущего юзера
-
-    if (!currentTask || !currentUser) return false;
-
-    // 1. Проверяем, разрешено ли редактирование всем (isEditableByAll)
-    const isEditableByAll = currentTask.settings?.isEditableByAll === true;
-
-    // 2. Проверяем, является ли пользователь создателем (creator)
-    // (зависит от того, как у вас хранится ID создателя в объекте task, например creatorId или creator)
-    const isCreator = currentTask.creatorId === currentUser.id;
-
-    // 3. Проверяем, находится ли пользователь в списке исполнителей (assignees)
-    // (зависит от структуры вашей модели task, например массив assignees или assigneeIds)
-    // const isAssignee = currentTask.assignees?.some((a: any) => a.id === currentUser.id);
-
-    // 4. Проверка прав администратора / глобального права (если используется)
-    // const hasAdminPermission = ...
-
-    // Итоговое условие: редактировать можно, если включен флаг isEditableByAll,
-    // Либо если пользователь создатель / исполнитель (плюс ваши проверки прав)
-    // return isEditableByAll || isCreator || isAssignee;
-    return isEditableByAll || isCreator;
-  });
   editProjectId = signal<string>('');
   editTitle = signal('');
   editDescription = signal('');
   editDueDate = signal<Date | null>(null);
-  minDate = new Date(); // Теперь это объект Date
+  minDate = new Date();
   editParentTaskId = signal<string | null>(null);
   editTaskStatus = signal<TaskStatus>('PENDING');
   editPriority = signal<TaskPriority>('LOW');
 
-  readonly taskEditor = viewChild.required<TaskEditorComponent>('editorRef');
+  // Убрали .required, так как редактор рендерится только при editing = true
+  readonly taskEditor = viewChild<TaskEditorComponent>('editorRef');
+
+  isCreator = computed(() => {
+    const currentTask = this.task();
+    const user = this.authService.currentUser();
+    if (!currentTask || !user) return false;
+    return currentTask.creatorId === user.id;
+  });
+
+  canEdit = computed(() => {
+    const currentTask = this.task();
+    const user = this.authService.currentUser();
+
+    if (!currentTask || !user) return false;
+
+    const isEditableByAll = currentTask.settings?.isEditableByAll === true;
+    const isCreator = currentTask.creatorId === user.id;
+
+    return isEditableByAll || isCreator;
+  });
 
   selectedStatus = computed(() => this.task()?.taskStatus ?? 'PENDING');
+
   parentTaskTitleDisplay = computed(() => {
     const t = this.task();
     if (!t?.parentTaskId) return null;
@@ -130,13 +131,24 @@ export class TaskDetail implements OnInit {
   });
 
   ngOnInit(): void {
-    // Меняем язык календаря на лету
-    this.translocoService.langChanges$.subscribe(lang => {
-      this.dateAdapter.setLocale(lang === 'ru' ? 'ru-RU' : 'en-US');
-    });
+    const sub = new Subscription();
 
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) this.loadTask(id);
+    sub.add(
+      this.translocoService.langChanges$.subscribe(lang => {
+        this.dateAdapter.setLocale(lang === 'ru' ? 'ru-RU' : 'en-US');
+      })
+    );
+
+    sub.add(
+      this.route.paramMap.subscribe(params => {
+        const id = params.get('id');
+        if (id) {
+          this.loadTask(id);
+        }
+      })
+    );
+
+    this.destroyRef.onDestroy(() => sub.unsubscribe());
   }
 
   private loadTask(id: string): void {
@@ -154,12 +166,13 @@ export class TaskDetail implements OnInit {
         this.editPriority.set(data.priority);
         this.editIsPublic.set(data.settings?.isPublic ?? false);
         this.editIsEditableByAll.set(data.settings?.isEditableByAll ?? false);
+        this.editProjectId.set(data.projectId ?? '');
 
         this.taskService.getTaskTree(id).subscribe({
           next: (tree) => this.taskTree.set(tree),
           error: (err) => console.error('Tree Loading Error:', err)
         });
-        this.editProjectId.set(data.projectId ?? '');
+
         this.computeParents();
         this.computeProjects();
       },
@@ -178,7 +191,6 @@ export class TaskDetail implements OnInit {
         const excludeIds = new Set([currentTask.id, ...descendantIds]);
 
         const availableTasks = allTasks.filter(t => !excludeIds.has(t.id));
-
         this.availableParentTasks.set(availableTasks);
       },
       error: (err) => console.error('Ошибка загрузки списка задач для переноса', err)
@@ -223,7 +235,6 @@ export class TaskDetail implements OnInit {
     if (this.userProjects().length === 0) {
       this.computeProjects();
     }
-
     if (this.availableParentTasks().length === 0) {
       this.computeParents();
     }
@@ -240,7 +251,7 @@ export class TaskDetail implements OnInit {
       this.editPriority.set(t.priority);
       this.editIsPublic.set(t.settings?.isPublic ?? false);
       this.editIsEditableByAll.set(t.settings?.isEditableByAll ?? false);
-      this.taskEditor().setContent(t.description ?? '');
+      this.taskEditor()?.setContent(t.description ?? '');
       this.editProjectId.set(t.projectId ?? '');
     }
     this.editing.set(false);
@@ -250,17 +261,16 @@ export class TaskDetail implements OnInit {
     const t = this.task();
     if (!t) return;
 
-    // Подготавливаем дату для бэкенда
     const dueDateFormatted = this.editDueDate()
       ? this.toIsoDateString(this.editDueDate()!)
       : undefined;
 
     const payload: Partial<ITaskUpdateRO> = {
       title: this.editTitle(),
-      description: this.taskEditor().getHTML(),
+      description: this.taskEditor()?.getHTML() ?? this.editDescription(),
       status: this.editTaskStatus() || undefined,
       priority: this.editPriority() || undefined,
-      dueDate: dueDateFormatted, // Используем отформатированную дату
+      dueDate: dueDateFormatted,
       parentTaskId: this.editParentTaskId(),
       projectId: this.editProjectId() || undefined,
       settings: {
@@ -335,10 +345,6 @@ export class TaskDetail implements OnInit {
   onAssigneesUpdated(): void {
     this.closeAssigneeModal();
     this.reloadTrigger.update((v) => v + 1);
-  }
-
-  reloadComments(): () => number {
-    return () => this.reloadTrigger();
   }
 
   getPriorityColor = (p: TaskPriority): string => {
