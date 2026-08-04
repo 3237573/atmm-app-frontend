@@ -72,6 +72,7 @@ export class TaskDetail implements OnInit {
   protected readonly navService = inject(NavigationService);
 
   currentUser = this.authService.currentUser;
+  currentLang = signal<string>(this.translocoService.getActiveLang());
 
   // Сигналы настроек доступа
   editIsPublic = signal(false);
@@ -136,6 +137,7 @@ export class TaskDetail implements OnInit {
     sub.add(
       this.translocoService.langChanges$.subscribe(lang => {
         this.dateAdapter.setLocale(lang === 'ru' ? 'ru-RU' : 'en-US');
+        this.currentLang.set(lang);
       })
     );
 
@@ -355,15 +357,33 @@ export class TaskDetail implements OnInit {
     }
   };
 
-  formatDate(dateStr: string | undefined): string {
+  formatDate = (dateStr: string | undefined): string => {
     if (!dateStr) return '—';
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return '—';
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}.${month}.${year}`;
-  }
+
+    const locale = this.currentLang() === 'ru' ? 'ru-RU' : 'en-US';
+
+    // Результат: "04 авг. 2026 г." для RU и "Aug 4, 2026" для EN
+    return new Intl.DateTimeFormat(locale, {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }).format(date);
+  };
+
+  formatTaskDate = (date: string | null | undefined): string => {
+    if (!date) return '';
+
+    const locale = this.currentLang() === 'ru' ? 'ru-RU' : 'en-US';
+
+    // Результат: "04.08.2026" для RU и "08/04/2026" для EN
+    return new Intl.DateTimeFormat(locale, {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(new Date(date));
+  };
 
   isOverdue = (date: string | null | undefined): boolean => {
     if (!date) return false;
@@ -372,11 +392,6 @@ export class TaskDetail implements OnInit {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     return due < now;
-  };
-
-  formatTaskDate = (date: string | null | undefined): string => {
-    if (!date) return '';
-    return angularFormatDate(date, 'dd.MM.yyyy', 'en-US');
   };
 
   getPriorityLabel = (p: TaskPriority): string => p;
