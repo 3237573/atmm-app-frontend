@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 0 24px 0 0; // 0 слева, чтобы блок бренда ровно прижимался к краю
+  padding: 0 24px 0 0;
   height: 100%;
 }
 
@@ -17,47 +17,27 @@
   display: flex;
   align-items: center;
   height: 100%;
-  gap: 20px;
+  gap: 16px;
 }
-
-// Секция бренда, создающая ту самую единую линию с сайдбаром
-// ... ваш предыдущий код стилей хедера ...
-
-// ... ваш базовый код стилей хедера ...
 
 .brand-section {
   display: flex;
   align-items: center;
   height: 100%;
-  width: 170px; // Базовая ширина развёрнутого сайдбара
+  width: 170px;
   padding: 0 20px;
   gap: 16px;
   border-right: 1px solid var(--border);
-  transition: width 0.3s var(--ease, ease-in-out);
+  transition: width 0.3s ease-in-out;
   flex-shrink: 0;
 
-  // КОГДА СВЕРНУТ: уменьшаем до ультра-компактных 48px
   &.collapsed {
-    width: 48px; // Установили 48px вместо 70px/56px
-    justify-content: center; // Центрируем гамбургер строго по центру
+    width: 48px;
+    justify-content: center;
     padding: 0;
     gap: 0;
-
-    .logo {
-      display: none; // Скрываем текстовый логотип
-    }
+    .logo { display: none; }
   }
-}
-
-.logo {
-  font-size: 1.25rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #fff, var(--accent));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  letter-spacing: 1px;
-  user-select: none;
 }
 
 .sidebar-trigger {
@@ -71,57 +51,150 @@
   padding: 6px;
   border-radius: 8px;
   transition: all 0.2s ease;
-  flex-shrink: 0;
 
-  i {
-    font-size: 24px;
-    transition: color 0.2s ease;
-  }
-
+  i { font-size: 24px; }
   &:hover {
     background: rgba(255, 255, 255, 0.05);
     color: var(--text-main);
   }
-
-  &.open i {
-    color: var(--accent);
-  }
+  &.open i { color: var(--accent); }
 }
 
+/* Контейнер для селекта воркспейсов с абсолютным позиционированием меню */
 .page-title {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
+}
 
-  .workspace-badge {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--accent);
-    background: rgba(56, 189, 248, 0.1); // Стилизация бэджа ворксейса
-    padding: 4px 10px;
-    border-radius: 6px;
-    border: 1px solid rgba(56, 189, 248, 0.2);
+.workspace-badge {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: rgba(56, 189, 248, 0.1);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+
+  &.clickable {
+    cursor: pointer;
+    &:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.4);
+    }
   }
 
-  .user-email-display {
-    font-size: 0.85rem;
-    font-weight: 400;
-    color: var(--text-muted);
-    background: rgba(255, 255, 255, 0.03);
-    padding: 4px 10px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
+  .chevron-icon {
+    font-size: 18px;
+    transition: transform 0.2s ease;
+    &.open {
+      transform: rotate(180deg);
+    }
   }
 }
 
-// СТИЛИ ПРАВОЙ ЧАСТИ С ИКОНКАМИДЛЯ ПЕРЕКЛЮЧЕНИЯ
+/* СОВРЕМЕННЫЙ ДРОПДАУН (Дизайн под Popup/Menu) */
+.workspace-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 240px;
+  background: var(--bg-card, #1e293b);
+  border: 1px solid var(--border, #334155);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  padding: 6px;
+  animation: dropdownFadeIn 0.15s ease-out;
+
+  .dropdown-header {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted, #94a3b8);
+    padding: 8px 12px 4px 12px;
+  }
+
+  .dropdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 4px;
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s ease;
+
+    .item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .ws-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-main, #f8fafc);
+      }
+
+      .ws-role {
+        font-size: 0.7rem;
+        color: var(--text-muted, #94a3b8);
+        text-transform: uppercase;
+      }
+    }
+
+    .check-icon {
+      font-size: 16px;
+      color: var(--accent, #38bdf8);
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    &.active {
+      background: rgba(56, 189, 248, 0.1);
+      .ws-name {
+        color: var(--accent, #38bdf8);
+      }
+    }
+  }
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Правая часть с действиями */
 .user-actions {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.theme-toggle, .lang-btn, .user-profile, .logout-btn {
+.theme-toggle, .lang-btn, .logout-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -158,17 +231,15 @@
 }
 
 .logout-btn:hover {
-  color: #ef4444; // Цвет опасности при наведении на выход
+  color: #ef4444;
   background: rgba(239, 68, 68, 0.1);
 }
 
-// Адаптив под мобильные устройства
 @media (max-width: 768px) {
   .brand-section {
     width: auto !important;
     border-right: none;
     padding: 0 16px;
-
     &.collapsed {
       width: auto !important;
       .logo { display: block; }
@@ -176,5 +247,43 @@
   }
   .header-inner {
     padding-left: 0;
+  }
+}
+
+/* =========================================================
+   📱 МОБИЛЬНАЯ АДАПТАЦИЯ ХЕДЕРА И ВЫПАДАЮЩЕГО МЕНЮ
+   ========================================================= */
+@media (max-width: 768px) {
+  .brand-section {
+    width: auto !important;
+    border-right: none;
+    padding: 0 16px;
+    &.collapsed {
+      width: auto !important;
+      .logo { display: block; }
+    }
+  }
+  .header-inner {
+    padding-left: 0;
+  }
+
+  /* 🛠 ИСПРАВЛЕНИЕ: Хедер на мобилке внизу, значит меню должно открываться ВВЕРХ! */
+  .workspace-dropdown {
+    top: auto;
+    bottom: calc(100% + 8px);
+    box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.3), 0 -8px 10px -6px rgba(0, 0, 0, 0.3);
+    animation: dropdownFadeInMobile 0.15s ease-out;
+  }
+}
+
+/* Анимация появления снизу-вверх для мобилок */
+@keyframes dropdownFadeInMobile {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
