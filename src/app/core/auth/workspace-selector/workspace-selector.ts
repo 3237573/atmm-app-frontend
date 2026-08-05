@@ -2,7 +2,7 @@ import {Component, computed, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router'; // ✨ Импортируем Router
 import {AuthService} from '../../services/auth.service';
-import {WorkspaceInfo} from '../../models/auth.model';
+import {WorkspaceInfoRO} from '@core/models/workspace.model';
 import {NavigationService} from '@core/services/navigation.service';
 import {TranslocoPipe, TranslocoService} from '@ngneat/transloco';
 
@@ -39,14 +39,17 @@ export class WorkspaceSelector {
     }
   }
 
-  selectWorkspace(workspace: WorkspaceInfo): void {
+  selectWorkspace(workspace: WorkspaceInfoRO): void {
     if (!workspace.memberId) {
       console.error('No memberId for workspace', workspace);
       return;
     }
 
     this.loading.set(true);
-    this.authService.selectWorkspace(workspace.workspaceId, workspace.memberId).subscribe({
+    this.authService.selectWorkspace({
+      workspaceId: workspace.workspaceId,
+      memberId: workspace.memberId
+    }).subscribe({
       next: () => {
         this.loading.set(false);
         // ✨ Успешно выбрали пространство -> переходим в приложение!

@@ -1,10 +1,19 @@
 // src/app/core/models/auth.model.ts
 
-export interface IUser {
-  id: string;
+import {WorkspaceInfoRO} from '@core/models/workspace.model';
+
+// auth.model.ts
+
+/** DTO для запроса аутентификации */
+export interface AuthRequestRO {
   email: string;
-  fullName?: string;
-  displayName?: string;
+  password: string;
+}
+
+/** DTO для выбора воркспейса */
+export interface SelectWorkspaceRO {
+  workspaceId: string;
+  memberId: string;
 }
 
 export interface IMember {
@@ -16,18 +25,9 @@ export interface IMember {
   role: string;
 }
 
-export interface WorkspaceInfo {
-  workspaceId: string;
-  name: string;
-  code: string;
-  role: string;
-  displayName: string;
-  memberId: string;
-}
-
 export interface AuthMeResponse {
   member: IMember;
-  workspace: WorkspaceInfo;
+  workspace: WorkspaceInfoRO;
   permissions: string[];
 }
 
@@ -35,7 +35,6 @@ export interface UserWorkspacesResponse {
   userId: string;
   email: string;
   fullName?: string;
-  workspaces: WorkspaceInfo[];
+  workspaces: WorkspaceInfoRO[];
 }
 
-export interface IUser extends IMember {}

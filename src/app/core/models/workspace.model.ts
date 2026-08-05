@@ -7,3 +7,12 @@ export interface IWorkspace {
   owner: IMemberVO;
   status?: string;
 }
+
+export interface WorkspaceInfoRO {
+  workspaceId: string;
+  name: string;
+  code: string;
+  role: string;
+  displayName: string;
+  memberId: string;
+}
