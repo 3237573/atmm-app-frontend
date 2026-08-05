@@ -473,7 +473,7 @@
       "isPublic": " The task is available to everyone",
       "isEditableByAll": " Anyone can edit a task",
       "noAssignees": "No performers",
-      "noParent": "— No parent (root) —",
+      "noParent": "No parent",
       "noProject": "No Project",
       "parentTask": "Parent Task",
       "priority": "Priority",
@@ -509,10 +509,10 @@
       "isPublic": "Public:",
       "isEditableByAll": "Editable by all:",
       "noDescription": "No description",
-      "noProject": "No project (General task)",
+      "noProject": "No project",
       "parentTask": "Parent task:",
       "project": "Project:",
-      "rootTask": "— No parent (root) —"
+      "rootTask": "No parent"
     },
     "loading": "Loading task...",
     "noSubtasks": "No subtasks yet",
