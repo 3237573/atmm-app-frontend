@@ -3,7 +3,7 @@
   <div class="header-left-side">
 
     <div class="brand-section" [class.collapsed]="sidebarService.isCollapsed()">
-      @if (!(isAuthPage$ | async)) {
+      @if (isAuthenticated()) {
         <button class="sidebar-trigger"
                 (click)="sidebarService.toggle()"
                 [class.open]="!sidebarService.isCollapsed()"
@@ -16,16 +16,54 @@
 
     <div class="page-title">
       @if (currentWorkspaceName()) {
-        <span class="workspace-badge">{{ currentWorkspaceName() }}</span>
+
+        <!-- 🛠 БЕЗОПАСНАЯ ПРОВЕРКА (?.length): если пространств > 1, показываем кнопку -->
+        @if (authService.availableWorkspaces().length > 1) {
+          <!-- 🛠 stopPropagation предотвращает мгновенное скрытие из-за конфликта событий -->
+          <button class="workspace-badge clickable" (click)="$event.stopPropagation(); toggleWorkspaceDropdown()">
+            <span class="ws-current-name">{{ currentWorkspaceName() }}</span>
+            <i class="material-icons chevron-icon" [class.open]="isWorkspaceDropdownOpen()">expand_more</i>
+          </button>
+        } @else {
+          <!-- 💡 ВАЖНО: Если пространство только одно — это просто текст (как ты и просил) -->
+          <div class="workspace-badge">
+            <span class="ws-current-name">{{ currentWorkspaceName() }}</span>
+          </div>
+        }
       }
 
+      <!-- Современный выпадающий список (Dropdown) -->
+      @if (isWorkspaceDropdownOpen()) {
+        <!-- 🛠 Остановка клика внутри самого меню, чтобы оно не закрылось при случайном клике по фону -->
+        <div class="workspace-dropdown" (click)="$event.stopPropagation()">
+          <div class="dropdown-header">{{ t('workspace.select') }}</div>
+
+          <div class="dropdown-list">
+            @for (ws of authService.availableWorkspaces(); track ws.workspaceId) {
+              <button
+                class="dropdown-item"
+                [class.active]="ws.workspaceId === currentWorkspaceId()"
+                (click)="changeWorkspace(ws)">
+                <div class="item-info">
+                  <span class="ws-name">{{ ws.name }}</span>
+                  <span class="ws-role">{{ ws.role }}</span>
+                </div>
+                @if (ws.workspaceId === currentWorkspaceId()) {
+                  <i class="material-icons check-icon">check</i>
+                }
+              </button>
+            }
+          </div>
+        </div>
+      }
     </div>
+
   </div>
 
   <div class="user-actions">
     <button class="lang-btn" (click)="toggleLanguage()" type="button">
       <i class="material-icons">language</i>
-      <span>{{ activeLang | uppercase }}</span>
+      <span>{{ activeLang() | uppercase }}</span>
     </button>
 
     <button class="theme-toggle" (click)="themeService.toggleTheme()" [title]="themeService.theme() === 'dark' ? 'Светлая тема' : 'Темная тема'">
@@ -34,14 +72,7 @@
       </i>
     </button>
 
-    @if (!(isAuthPage$ | async)) {
-<!--      <div class="user-profile" [title]="t('btn.edit')">-->
-<!--        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
-<!--          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>-->
-<!--          <circle cx="12" cy="7" r="4"/>-->
-<!--        </svg>-->
-<!--      </div>-->
-
+    @if (isAuthenticated()) {
       <button class="logout-btn" (click)="onLogout()" [title]="t('btn.exit')" type="button">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
